@@ -15,6 +15,7 @@ export interface TerminalHeaderProps {
     showResetButton: boolean;
     handleShowHelp: () => void;
     handleReset: () => void;
+    handleShowThemes?: () => void;
     t: (key: string) => string;
 }
 

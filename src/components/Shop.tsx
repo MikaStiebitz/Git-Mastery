@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/components/ui/dialog";
-import { ShoppingCart, Star, Zap, Shield, Trophy, Coins } from "lucide-react";
+import { ShoppingCart, Star, Zap, Trophy, Coins, Sparkles, Gamepad2 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 
@@ -14,43 +14,79 @@ interface ShopItem {
     description: string;
     price: number;
     icon: React.ReactNode;
-    category: "cosmetic" | "utility" | "achievement";
+    category: "cosmetic" | "utility" | "achievement" | "special";
     rarity: "common" | "rare" | "epic" | "legendary";
 }
 
 const SHOP_ITEMS: ShopItem[] = [
     {
-        id: "golden-terminal",
-        name: "Golden Terminal",
-        description: "A shiny gold terminal theme that shows your Git mastery",
-        price: 50,
+        id: "dark-terminal",
+        name: "Dark Terminal Theme",
+        description: "A sleek dark terminal theme with blue accents - classic and professional",
+        price: 25,
         icon: <Star className="h-6 w-6" />,
+        category: "cosmetic",
+        rarity: "common",
+    },
+    {
+        id: "matrix-terminal",
+        name: "Matrix Terminal Theme",
+        description: "Green-on-black terminal theme like the Matrix movies - for the ultimate hacker feel",
+        price: 50,
+        icon: <Zap className="h-6 w-6" />,
         category: "cosmetic",
         rarity: "rare",
     },
     {
-        id: "hint-master",
-        name: "Hint Master",
-        description: "Get extra hints for challenging levels",
-        price: 30,
-        icon: <Zap className="h-6 w-6" />,
-        category: "utility",
+        id: "golden-terminal",
+        name: "Golden Terminal Theme",
+        description: "A shiny gold terminal theme that shows your Git mastery to everyone",
+        price: 100,
+        icon: <Trophy className="h-6 w-6" />,
+        category: "cosmetic",
+        rarity: "legendary",
+    },
+    {
+        id: "git-mascot",
+        name: "Git Mascot Pet",
+        description: "A cute animated mascot that cheers you on during difficult levels",
+        price: 75,
+        icon: <Sparkles className="h-6 w-6" />,
+        category: "special",
+        rarity: "rare",
+    },
+    {
+        id: "victory-sound",
+        name: "Victory Sound Pack",
+        description: "Satisfying sound effects when you complete levels and solve challenges",
+        price: 40,
+        icon: <Gamepad2 className="h-6 w-6" />,
+        category: "special",
         rarity: "common",
     },
     {
-        id: "git-guardian",
-        name: "Git Guardian",
-        description: "Protection against accidental force pushes in real Git",
-        price: 75,
-        icon: <Shield className="h-6 w-6" />,
+        id: "double-xp",
+        name: "Double XP Weekend",
+        description: "Get 2x points for completing levels for the next 7 days",
+        price: 120,
+        icon: <Zap className="h-6 w-6" />,
         category: "utility",
         rarity: "epic",
     },
     {
+        id: "emoji-commits",
+        name: "Emoji Commit Messages",
+        description: "Add fun emoji suggestions to your commit messages for better git history",
+        price: 35,
+        icon: <Sparkles className="h-6 w-6" />,
+        category: "special",
+        rarity: "common",
+    },
+    {
         id: "git-legend",
         name: "Git Legend Badge",
-        description: "Show everyone you've mastered Git with this exclusive badge",
-        price: 100,
+        description: "Exclusive badge showing you've mastered advanced Git - unlock special recognition",
+        price: 200,
         icon: <Trophy className="h-6 w-6" />,
         category: "achievement",
         rarity: "legendary",
@@ -65,16 +101,32 @@ interface ShopProps {
 export function Shop({ isOpen, onClose }: ShopProps) {
     const { progressManager } = useGameContext();
     const { t } = useLanguage();
-    const [purchasedItems, setPurchasedItems] = useState<string[]>([]);
 
+    // State für force re-render nach Käufen
+    const [, forceUpdate] = useState({});
+
+    // Force re-render when dialog opens to show latest progress
+    useEffect(() => {
+        // Component will re-render when isOpen changes
+    }, [isOpen]);
+
+    // Get fresh data on each render to ensure updates are reflected
     const progress = progressManager.getProgress();
     const playerPoints = progress.score;
+    const purchasedItems = progressManager.getPurchasedItems();
 
     const handlePurchase = (item: ShopItem) => {
         if (playerPoints >= item.price && !purchasedItems.includes(item.id)) {
-            // In a real implementation, you'd deduct points from the progress system
-            setPurchasedItems(prev => [...prev, item.id]);
-            // progressManager.spendPoints(item.price); // This would need to be implemented
+            // Spend points and purchase item
+            if (progressManager.spendPoints(item.price)) {
+                progressManager.purchaseItem(item.id);
+
+                // Force component re-render to show updated state
+                forceUpdate({});
+
+                // Show success message
+                console.log(`Successfully purchased ${item.name}!`);
+            }
         }
     };
 
@@ -106,8 +158,8 @@ export function Shop({ isOpen, onClose }: ShopProps) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-4xl border-purple-900/20 bg-[#1a1625] text-purple-100">
-                <DialogHeader>
+            <DialogContent className="flex max-h-[90vh] max-w-4xl flex-col border-purple-900/20 bg-[#1a1625] text-purple-100">
+                <DialogHeader className="flex-shrink-0">
                     <DialogTitle className="flex items-center text-2xl text-white">
                         <ShoppingCart className="mr-2 h-6 w-6 text-purple-400" />
                         {t("shop.title")}
@@ -121,67 +173,69 @@ export function Shop({ isOpen, onClose }: ShopProps) {
                     </div>
                 </DialogHeader>
 
-                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {SHOP_ITEMS.map(item => {
-                        const isPurchased = purchasedItems.includes(item.id);
-                        const canAfford = playerPoints >= item.price;
+                <div className="flex-1 overflow-y-auto pr-2">
+                    <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {SHOP_ITEMS.map(item => {
+                            const isPurchased = purchasedItems.includes(item.id);
+                            const canAfford = playerPoints >= item.price;
 
-                        return (
-                            <Card
-                                key={item.id}
-                                className={`border transition-all duration-300 ${getRarityColor(item.rarity)} ${getRarityBg(item.rarity)} ${
-                                    isPurchased ? "opacity-60" : "hover:scale-105"
-                                }`}>
-                                <CardHeader>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-2">
-                                            <div className={`${getRarityColor(item.rarity).split(" ")[0]}`}>
-                                                {item.icon}
+                            return (
+                                <Card
+                                    key={item.id}
+                                    className={`border transition-all duration-300 ${getRarityColor(item.rarity)} ${getRarityBg(item.rarity)} ${
+                                        isPurchased ? "opacity-60" : "hover:scale-105"
+                                    }`}>
+                                    <CardHeader>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-2">
+                                                <div className={`${getRarityColor(item.rarity).split(" ")[0]}`}>
+                                                    {item.icon}
+                                                </div>
+                                                <CardTitle
+                                                    className={`text-lg ${getRarityColor(item.rarity).split(" ")[0]}`}>
+                                                    {item.name}
+                                                </CardTitle>
                                             </div>
-                                            <CardTitle
-                                                className={`text-lg ${getRarityColor(item.rarity).split(" ")[0]}`}>
-                                                {item.name}
-                                            </CardTitle>
+                                            <span
+                                                className={`rounded-full px-2 py-1 text-xs capitalize ${getRarityColor(item.rarity)}`}>
+                                                {item.rarity}
+                                            </span>
                                         </div>
-                                        <span
-                                            className={`rounded-full px-2 py-1 text-xs capitalize ${getRarityColor(item.rarity)}`}>
-                                            {item.rarity}
-                                        </span>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <p className="text-sm text-purple-200">{item.description}</p>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <p className="text-sm text-purple-200">{item.description}</p>
 
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-1 text-yellow-400">
-                                            <Coins className="h-4 w-4" />
-                                            <span className="font-semibold">{item.price}</span>
-                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-1 text-yellow-400">
+                                                <Coins className="h-4 w-4" />
+                                                <span className="font-semibold">{item.price}</span>
+                                            </div>
 
-                                        <Button
-                                            onClick={() => handlePurchase(item)}
-                                            disabled={isPurchased || !canAfford}
-                                            className={`${
-                                                isPurchased
-                                                    ? "cursor-not-allowed bg-green-600 text-white"
+                                            <Button
+                                                onClick={() => handlePurchase(item)}
+                                                disabled={isPurchased || !canAfford}
+                                                className={`${
+                                                    isPurchased
+                                                        ? "cursor-not-allowed bg-green-600 text-white"
+                                                        : !canAfford
+                                                          ? "cursor-not-allowed bg-gray-600 text-gray-300"
+                                                          : "bg-purple-600 text-white hover:bg-purple-700"
+                                                }`}>
+                                                {isPurchased
+                                                    ? t("shop.purchased")
                                                     : !canAfford
-                                                      ? "cursor-not-allowed bg-gray-600 text-gray-300"
-                                                      : "bg-purple-600 text-white hover:bg-purple-700"
-                                            }`}>
-                                            {isPurchased
-                                                ? t("shop.purchased")
-                                                : !canAfford
-                                                  ? t("shop.insufficient")
-                                                  : t("shop.buy")}
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        );
-                    })}
+                                                      ? t("shop.insufficient")
+                                                      : t("shop.buy")}
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
+                    </div>
                 </div>
 
-                <div className="mt-6 flex justify-center">
+                <div className="mt-6 flex flex-shrink-0 justify-center">
                     <Button
                         onClick={onClose}
                         variant="outline"

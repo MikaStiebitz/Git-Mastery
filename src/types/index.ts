@@ -158,6 +158,9 @@ export type UserProgress = {
     currentLevel: number;
     score: number;
     lastSavedAt: string;
+    purchasedItems: string[];
+    completedMinigames: string[];
+    minigameScores: Record<string, number>;
 };
 
 // Git commit definition with better types

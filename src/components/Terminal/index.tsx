@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
+import { useTerminalTheme } from "~/contexts/TerminalThemeContext";
 import { TerminalHeader } from "./models/Header";
 import { TerminalOutput } from "./models/Output";
 import { TerminalInput } from "./models/Input";
 import { TerminalPrompt } from "./models/Prompt";
+import { TerminalThemeSwitcher } from "../TerminalThemeSwitcher";
 import { CommandService } from "./services/Command";
 import { HistoryService } from "./services/History";
 import { AutocompleteService } from "./services/Autocomplete";
@@ -47,6 +49,7 @@ export function Terminal({
     );
 
     const outputFormatter = useMemo(() => new OutputFormatterService(terminalOutput), [terminalOutput]);
+    const { currentTheme } = useTerminalTheme();
 
     // Terminal state
     const [input, setInput] = useState("");
@@ -54,6 +57,7 @@ export function Terminal({
     const [showAutocomplete, setShowAutocomplete] = useState(false);
     const [commandSuggestion, setCommandSuggestion] = useState<string>("");
     const [showCommandSuggestion, setShowCommandSuggestion] = useState<boolean>(false);
+    const [showThemeDialog, setShowThemeDialog] = useState(false);
 
     // References for DOM manipulation
     const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -211,6 +215,11 @@ export function Terminal({
         handleCommand("help", isPlaygroundMode);
     };
 
+    // Handle theme button click
+    const handleShowThemes = () => {
+        setShowThemeDialog(true);
+    };
+
     // Handle reset button click with confirmation
     const handleReset = () => {
         if (window.confirm(t("level.resetConfirm"))) {
@@ -247,43 +256,53 @@ export function Terminal({
     };
 
     return (
-        <div
-            className={`flex h-[580px] flex-col overflow-hidden rounded-md border border-purple-800/50 bg-[#1a1625] shadow-lg ${className}`}>
-            <TerminalHeader
-                isPlaygroundMode={isPlaygroundMode}
-                currentStage={currentStage}
-                currentLevel={currentLevel}
-                showHelpButton={showHelpButton}
-                showResetButton={showResetButton}
-                handleShowHelp={handleShowHelp}
-                handleReset={handleReset}
-                t={t}
-            />
+        <>
+            <div
+                className={`flex h-[580px] flex-col overflow-hidden rounded-md border shadow-lg ${className}`}
+                style={{
+                    backgroundColor: currentTheme.colors.background,
+                    borderColor: currentTheme.colors.border,
+                    color: currentTheme.colors.text,
+                }}>
+                <TerminalHeader
+                    isPlaygroundMode={isPlaygroundMode}
+                    currentStage={currentStage}
+                    currentLevel={currentLevel}
+                    showHelpButton={showHelpButton}
+                    showResetButton={showResetButton}
+                    handleShowHelp={handleShowHelp}
+                    handleReset={handleReset}
+                    handleShowThemes={handleShowThemes}
+                    t={t}
+                />
 
-            <TerminalOutput
-                terminalOutput={terminalOutput}
-                isLevelCompleted={isLevelCompleted}
-                isPlaygroundMode={isPlaygroundMode}
-                scrollAreaRef={scrollAreaRef}
-                outputContainerRef={outputContainerRef}
-                renderTerminalOutput={line => outputFormatter.renderTerminalOutput(line)}
-                t={t}
-            />
+                <TerminalOutput
+                    terminalOutput={terminalOutput}
+                    isLevelCompleted={isLevelCompleted}
+                    isPlaygroundMode={isPlaygroundMode}
+                    scrollAreaRef={scrollAreaRef}
+                    outputContainerRef={outputContainerRef}
+                    renderTerminalOutput={line => outputFormatter.renderTerminalOutput(line)}
+                    t={t}
+                />
 
-            <TerminalInput
-                input={input}
-                inputRef={inputRef}
-                handleFormSubmit={handleFormSubmit}
-                handleInputChange={handleInputChange}
-                handleKeyDown={handleKeyDown}
-                commandSuggestion={commandSuggestion}
-                showCommandSuggestion={showCommandSuggestion}
-                showAutocomplete={showAutocomplete}
-                fileAutocomplete={fileAutocomplete}
-                selectAutocompleteOption={selectAutocompleteOption}
-                renderFancyPrompt={renderFancyPrompt}
-                t={t}
-            />
-        </div>
+                <TerminalInput
+                    input={input}
+                    inputRef={inputRef}
+                    handleFormSubmit={handleFormSubmit}
+                    handleInputChange={handleInputChange}
+                    handleKeyDown={handleKeyDown}
+                    commandSuggestion={commandSuggestion}
+                    showCommandSuggestion={showCommandSuggestion}
+                    showAutocomplete={showAutocomplete}
+                    fileAutocomplete={fileAutocomplete}
+                    selectAutocompleteOption={selectAutocompleteOption}
+                    renderFancyPrompt={renderFancyPrompt}
+                    t={t}
+                />
+            </div>
+
+            <TerminalThemeSwitcher isOpen={showThemeDialog} onClose={() => setShowThemeDialog(false)} />
+        </>
     );
 }

@@ -16,8 +16,22 @@ export class ProgressManager {
                 currentLevel: 1,
                 score: 0,
                 lastSavedAt: new Date().toISOString(),
+                purchasedItems: [],
+                completedMinigames: [],
+                minigameScores: {},
             };
             this.saveProgress();
+        }
+
+        // Migration for existing users who don't have the new properties
+        if (!this.progress.purchasedItems) {
+            this.progress.purchasedItems = [];
+        }
+        if (!this.progress.completedMinigames) {
+            this.progress.completedMinigames = [];
+        }
+        if (!this.progress.minigameScores) {
+            this.progress.minigameScores = {};
         }
     }
 
@@ -62,8 +76,69 @@ export class ProgressManager {
             currentLevel: 1,
             score: 0,
             lastSavedAt: new Date().toISOString(),
+            purchasedItems: [],
+            completedMinigames: [],
+            minigameScores: {},
         };
         this.saveProgress();
+    }
+
+    // Shop functionality
+    public spendPoints(amount: number): boolean {
+        if (this.progress.score >= amount) {
+            this.progress.score -= amount;
+            this.progress.lastSavedAt = new Date().toISOString();
+            this.saveProgress();
+            return true;
+        }
+        return false;
+    }
+
+    public purchaseItem(itemId: string): boolean {
+        if (!this.progress.purchasedItems.includes(itemId)) {
+            this.progress.purchasedItems.push(itemId);
+            this.progress.lastSavedAt = new Date().toISOString();
+            this.saveProgress();
+            return true;
+        }
+        return false;
+    }
+
+    public isPurchased(itemId: string): boolean {
+        return this.progress.purchasedItems.includes(itemId);
+    }
+
+    public getPurchasedItems(): string[] {
+        return [...this.progress.purchasedItems];
+    }
+
+    // Minigame functionality
+    public completeMinigame(gameId: string, score: number): void {
+        if (!this.progress.completedMinigames.includes(gameId)) {
+            this.progress.completedMinigames.push(gameId);
+            this.progress.score += score;
+        }
+
+        // Update high score if better
+        const currentHighScore = this.progress.minigameScores[gameId] || 0;
+        if (score > currentHighScore) {
+            this.progress.minigameScores[gameId] = score;
+        }
+
+        this.progress.lastSavedAt = new Date().toISOString();
+        this.saveProgress();
+    }
+
+    public isMinigameCompleted(gameId: string): boolean {
+        return this.progress.completedMinigames.includes(gameId);
+    }
+
+    public getMinigameScore(gameId: string): number {
+        return this.progress.minigameScores[gameId] || 0;
+    }
+
+    public getCompletedMinigames(): string[] {
+        return [...this.progress.completedMinigames];
     }
 
     // Save progress to localStorage

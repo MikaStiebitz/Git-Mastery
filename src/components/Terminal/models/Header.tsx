@@ -1,5 +1,5 @@
 import { Button } from "~/components/ui/button";
-import { HelpCircleIcon, RotateCcw } from "lucide-react";
+import { HelpCircleIcon, RotateCcw, Palette } from "lucide-react";
 import type { TerminalHeaderProps } from "../types";
 
 export function TerminalHeader({
@@ -10,6 +10,7 @@ export function TerminalHeader({
     showResetButton,
     handleShowHelp,
     handleReset,
+    handleShowThemes,
     t,
 }: TerminalHeaderProps) {
     return (
@@ -28,6 +29,15 @@ export function TerminalHeader({
             </div>
 
             <div className="flex space-x-1">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-purple-300 hover:bg-purple-800/50 hover:text-white"
+                    onClick={handleShowThemes}
+                    title="Change Terminal Theme">
+                    <Palette className="h-4 w-4" />
+                </Button>
+
                 {showHelpButton && (
                     <Button
                         variant="ghost"
