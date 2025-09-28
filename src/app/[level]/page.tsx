@@ -66,6 +66,8 @@ export default function LevelPage() {
         openFileEditor,
         syncURLWithCurrentLevel,
         handleLevelFromUrl,
+        shouldShowStoryDialog,
+        setShouldShowStoryDialog,
     } = useGameContext();
 
     const searchParams = useSearchParams();
@@ -209,10 +211,9 @@ export default function LevelPage() {
         }
     };
 
-    // Handle URL query parameters for level selection
+    // Handle URL query parameters for level selection - HIGHEST PRIORITY
     useEffect(() => {
-        // Only process URL params once per mount
-        if (typeof window !== "undefined" && !urlParamsProcessed) {
+        if (typeof window !== "undefined") {
             const stageParam = searchParams.get("stage");
             const levelParam = searchParams.get("level");
 
@@ -222,21 +223,29 @@ export default function LevelPage() {
                     // Check if level exists
                     const levelExists = levelManager.getLevel(stageParam, levelNum);
                     if (levelExists) {
-                        handleLevelFromUrl(stageParam, levelNum);
+                        // Check if we need to update the game context
+                        if (currentStage !== stageParam || currentLevel !== levelNum) {
+                            console.log(`Loading level from URL: ${stageParam}-${levelNum}`);
+                            handleLevelFromUrl(stageParam, levelNum);
+                        }
                         setUrlParamsProcessed(true);
+                        levelParamProcessedRef.current = true;
                     }
                 }
+            } else {
+                // No URL params, allow sync from GameContext state
+                setUrlParamsProcessed(true);
             }
         }
-    }, [searchParams, levelManager, handleLevelFromUrl, urlParamsProcessed]);
+    }, [searchParams, levelManager, handleLevelFromUrl, currentStage, currentLevel]);
 
-    // Always sync URL when component mounts or if currentStage/currentLevel changes
+    // Sync URL only when explicitly needed (not automatically)
     useEffect(() => {
-        // Only sync URL if we're not already processing URL parameters
-        if (!levelParamProcessedRef.current) {
+        // Only sync URL if we have processed URL params and there were no URL params to begin with
+        if (urlParamsProcessed && !searchParams.get("stage") && !searchParams.get("level")) {
             syncURLWithCurrentLevel();
         }
-    }, [currentStage, currentLevel, syncURLWithCurrentLevel]);
+    }, [currentStage, currentLevel, syncURLWithCurrentLevel, urlParamsProcessed, searchParams]);
 
     // Get the current level data with translation
     const levelData: LevelType | null = levelManager.getLevel(currentStage, currentLevel, t);
@@ -272,20 +281,26 @@ export default function LevelPage() {
         handleNextLevel();
     };
 
-    // Story dialog display logic - Reset when levels change
+    // Story dialog display logic - Reset when levels change or triggered by GameContext
     useEffect(() => {
         if (levelData?.story) {
-            if (!userClosedStoryDialog) {
+            if (!userClosedStoryDialog || shouldShowStoryDialog) {
                 if (!isAdvancedMode) {
                     setShowStoryDialog(true);
                 } else {
                     setShowStoryDialog(false);
                 }
+
+                // Reset the trigger flag
+                if (shouldShowStoryDialog) {
+                    setShouldShowStoryDialog(false);
+                }
             }
         } else {
             setShowStoryDialog(false);
         }
-    }, [currentStage, currentLevel, levelData, isAdvancedMode, userClosedStoryDialog]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStage, currentLevel, levelData, isAdvancedMode, userClosedStoryDialog, shouldShowStoryDialog]);
 
     const handleCloseStoryDialog = () => {
         setShowStoryDialog(false);

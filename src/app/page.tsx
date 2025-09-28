@@ -106,11 +106,9 @@ export default function Home() {
 
     // Navigation function to use correct URL structure for [level] dynamic route
     const navigateToLevel = (stageId: string, levelId: number) => {
-        // Set the progress first - this ensures GameContext has the right data
-        progressManager.setCurrentLevel(stageId, levelId);
-
-        // Navigate using the correct URL structure for [level] dynamic route
-        router.push(`/${stageId.toLowerCase()}?level=${levelId}`);
+        // Navigate using the correct URL structure for [level] dynamic route with proper parameters
+        // Don't set localStorage here - let the [level] page handle it via URL parameters
+        router.push(`/${stageId.toLowerCase()}?stage=${stageId}&level=${levelId}`);
     };
 
     // Get stage icon component with animation

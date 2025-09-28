@@ -47,6 +47,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         typeof window !== "undefined" ? localStorage.getItem("gitgud-advanced-mode") === "true" : false,
     );
 
+    // Story dialog trigger state
+    const [shouldShowStoryDialog, setShouldShowStoryDialog] = useState<boolean>(false);
+
     // Toggle advanced mode
     const toggleAdvancedMode = () => {
         setIsAdvancedMode(prev => {
@@ -107,14 +110,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Sync URL with current level state
     const syncURLWithCurrentLevel = useCallback(() => {
-        if (typeof window !== "undefined" && window.location.pathname.includes("/level")) {
-            const currentParams = new URLSearchParams(window.location.search);
-            const currentStageParam = currentParams.get("stage");
-            const currentLevelParam = currentParams.get("level");
+        if (typeof window !== "undefined") {
+            const pathname = window.location.pathname;
+            // Check if we're on a level page (matches pattern /[level])
+            if (
+                pathname !== "/" &&
+                !pathname.includes("/playground") &&
+                !pathname.includes("/faq") &&
+                !pathname.includes("/installation") &&
+                !pathname.includes("/impressum")
+            ) {
+                const currentParams = new URLSearchParams(window.location.search);
+                const currentStageParam = currentParams.get("stage");
+                const currentLevelParam = currentParams.get("level");
 
-            // Only update URL if the parameters have actually changed
-            if (currentStageParam !== currentStage || currentLevelParam !== currentLevel.toString()) {
-                router.replace(`/level?stage=${currentStage}&level=${currentLevel}`, { scroll: false });
+                // Only update URL if the parameters have actually changed
+                if (currentStageParam !== currentStage || currentLevelParam !== currentLevel.toString()) {
+                    router.replace(`/${currentStage.toLowerCase()}?stage=${currentStage}&level=${currentLevel}`, {
+                        scroll: false,
+                    });
+                }
             }
         }
     }, [currentStage, currentLevel, router]);
@@ -299,6 +314,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // Close any open editor when switching levels
                 setIsLevelFileEditorOpen(false);
 
+                // Trigger story dialog for the new level (if not in advanced mode)
+                if (!isAdvancedMode) {
+                    setShouldShowStoryDialog(true);
+                }
+
                 // Sync URL with the new level state
                 syncURLWithCurrentLevel();
 
@@ -469,6 +489,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         terminalOutput,
         isFileEditorOpen,
         isAdvancedMode,
+        shouldShowStoryDialog,
         currentFile: getCurrentFile(),
 
         handleCommand,
@@ -484,6 +505,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getEditableFiles,
         syncURLWithCurrentLevel,
         handleLevelFromUrl,
+        setShouldShowStoryDialog,
         isCommitDialogOpen,
         handleCommit,
         closeCommitDialog,

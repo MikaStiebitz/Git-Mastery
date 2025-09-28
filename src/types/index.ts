@@ -169,6 +169,7 @@ export interface GameContextProps {
     terminalOutput: string[];
     isFileEditorOpen: boolean;
     isAdvancedMode: boolean;
+    shouldShowStoryDialog: boolean;
     currentFile: { name: string; content: string };
     isCommitDialogOpen: boolean;
 
@@ -187,6 +188,7 @@ export interface GameContextProps {
     getEditableFiles: () => Array<{ name: string; path: string }>;
     syncURLWithCurrentLevel: () => void;
     handleLevelFromUrl: (stageId: string, levelId: number) => void;
+    setShouldShowStoryDialog: (show: boolean) => void;
     handleCommit: (message: string) => void;
     closeCommitDialog: () => void;
 }
