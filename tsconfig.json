@@ -3,17 +3,17 @@
         /* Base Options: */
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "target": "es2022",
+        "target": "ES2022",
         "allowJs": true,
         "resolveJsonModule": true,
         "moduleDetection": "force",
         "isolatedModules": true,
-
+        
         /* Strictness */
         "strict": true,
         "noUncheckedIndexedAccess": true,
         "checkJs": true,
-
+        
         /* Bundled projects */
         "lib": ["dom", "dom.iterable", "ES2022"],
         "noEmit": true,

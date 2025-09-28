@@ -15,9 +15,13 @@ const config = {
         ignoreDuringBuilds: false, // Keep linting active but don't fail on warnings
     },
 
-    // Enable experimental features for better SEO
+    // Optimize package imports for better performance
+    optimizePackageImports: ["lucide-react", "@radix-ui/react-accordion", "@radix-ui/react-dialog"],
+
+    // Enable React 19 features
     experimental: {
-        optimizePackageImports: ["lucide-react", "@radix-ui/react-accordion", "@radix-ui/react-dialog"],
+        // Better development experience with server components HMR
+        serverComponentsHmrCache: true,
     },
 
     // Add headers for better SEO

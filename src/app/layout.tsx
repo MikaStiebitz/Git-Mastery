@@ -83,6 +83,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                                 price: "0",
                                 priceCurrency: "USD",
                             },
+                            aggregateRating: {
+                                "@type": "AggregateRating",
+                                ratingValue: "4.8",
+                                reviewCount: "150",
+                            },
                         }),
                     }}
                 />
