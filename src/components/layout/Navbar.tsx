@@ -18,6 +18,7 @@ import {
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { ClientOnly } from "~/components/ClientOnly";
+import { BadgeDisplay } from "~/components/BadgeDisplay";
 
 interface NavbarProps {
     showLevelInfo?: boolean;
@@ -101,12 +102,16 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     <span className="text-xl font-bold text-white">GitGud</span>
                 </Link>
 
-                {/* Current level info - only show on larger screens when relevant */}
+                {/* Current level info - responsive display */}
                 {showLevelInfo && (
                     <ClientOnly>
-                        <span className="ml-4 hidden text-purple-300 md:block">
+                        <div className="ml-4 hidden text-purple-300 xl:block">
                             Level {currentLevel} - {currentStage}
-                        </span>
+                        </div>
+                        <div className="ml-4 hidden text-purple-300 lg:block xl:hidden">
+                            L{currentLevel} - {currentStage}
+                        </div>
+                        <div className="ml-4 hidden text-purple-300 md:block lg:hidden">L{currentLevel}</div>
                     </ClientOnly>
                 )}
 
@@ -122,6 +127,11 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
 
                 {/* Show FAQ text on relevant pages */}
                 {isFaqPage && <span className="ml-4 hidden text-purple-300 md:block">{t("nav.faq")}</span>}
+
+                {/* Badge display - only show on larger screens to avoid overcrowding */}
+                <div className="ml-4 hidden lg:block">
+                    <BadgeDisplay />
+                </div>
 
                 {/* Desktop navigation */}
                 <div className="ml-auto hidden items-center space-x-4 md:flex">
@@ -257,6 +267,11 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                                 </div>
                             </ClientOnly>
                         )}
+
+                        {/* Badge display for mobile */}
+                        <div className="mb-4 flex justify-center lg:hidden">
+                            <BadgeDisplay className="justify-center" />
+                        </div>
 
                         {/* GitHub star for mobile menu (with text) */}
                         <a

@@ -43,6 +43,8 @@ import { TouchCommand } from "./filesystem/TouchCommand";
 import { MkdirCommand } from "./filesystem/MkdirCommand";
 import { RmCommand } from "./filesystem/RmCommand";
 import { PwdCommand } from "./filesystem/PwdCommand";
+import { LaCommand } from "./filesystem/LaCommand";
+import { LlCommand } from "./filesystem/LlCommand";
 
 // Helper Commands
 import { HelpCommand } from "./helpers/HelpCommand";
@@ -94,15 +96,13 @@ registry.register(new TouchCommand());
 registry.register(new MkdirCommand());
 registry.register(new RmCommand());
 registry.register(new PwdCommand());
+registry.register(new LaCommand());
+registry.register(new LlCommand());
 
 // Register Helper Commands
 registry.register(new HelpCommand());
 registry.register(new ClearCommand());
 registry.register(new NextCommand());
-
-// Register Aliases
-registry.registerAlias("ll", "ls -l");
-registry.registerAlias("la", "ls -a");
 
 // Export the registry for use in other modules
 export default registry;

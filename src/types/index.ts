@@ -161,6 +161,7 @@ export type UserProgress = {
     purchasedItems: string[];
     completedMinigames: string[];
     minigameScores: Record<string, number>;
+    doubleXpUntil?: string | null; // ISO string date when double XP expires
 };
 
 // Git commit definition with better types

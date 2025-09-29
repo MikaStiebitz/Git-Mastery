@@ -8,6 +8,7 @@ const home = {
     "home.cheatSheet": "Spickzettel",
     "home.learningPath": "Dein Lernpfad",
     "home.chooseChallenge": "Wähle deine Herausforderung",
+    "home.gameFeatures": "Spiel-Features",
     "home.completed": "abgeschlossen",
     "home.reviewLevel": "Level wiederholen",
     "home.startLevel": "Level starten",

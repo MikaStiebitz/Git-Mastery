@@ -6,6 +6,7 @@ import { type StoryContext } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { BookOpen, Code } from "lucide-react";
 import { highlightGitCommands } from "~/lib/textHighlighting";
+import { useEffect, useCallback } from "react";
 
 interface StoryDialogProps {
     isOpen: boolean;
@@ -25,17 +26,42 @@ export function StoryDialog({
     const { t } = useLanguage();
 
     // This is the key change - properly handle onOpenChange to respect the Dialog control flow
-    const handleOpenChange = (open: boolean) => {
-        if (!open) {
-            // Only call onClose when the dialog is closing
-            onClose();
+    const handleOpenChange = useCallback(
+        (open: boolean) => {
+            if (!open) {
+                // Only call onClose when the dialog is closing
+                onClose();
+            }
+        },
+        [onClose],
+    );
+
+    // Handle keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // Only handle keyboard events when dialog is open
+            if (!isOpen) return;
+
+            // Check for Ctrl+Enter (or Cmd+Enter on Mac)
+            if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+                event.preventDefault();
+                handleOpenChange(false);
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener("keydown", handleKeyDown);
         }
-    };
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen, handleOpenChange]);
 
     return (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-            <DialogContent className="max-h-[90vh] max-w-[90vw] border-purple-900/20 bg-[#1a1625] text-purple-100 md:max-h-[80vh] md:max-w-3xl">
-                <DialogHeader className="pb-2">
+            <DialogContent className="flex max-h-[90vh] max-w-[90vw] flex-col border-purple-900/20 bg-[#1a1625] text-purple-100 md:max-h-[80vh] md:max-w-3xl">
+                <DialogHeader className="flex-shrink-0 pb-2">
                     <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between">
                         <DialogTitle className="flex items-center text-white">
                             <BookOpen className="mr-2 h-5 w-5 text-purple-400" />
@@ -58,7 +84,7 @@ export function StoryDialog({
                     </div>
                 </DialogHeader>
 
-                <div className="space-y-4 overflow-y-auto py-4">
+                <div className="min-h-0 flex-grow space-y-4 overflow-y-auto py-4">
                     <div className="whitespace-pre-line text-purple-200">{highlightGitCommands(story.narrative)}</div>
 
                     <div className="rounded-md border border-purple-800/30 bg-purple-900/30 p-3">
@@ -72,11 +98,11 @@ export function StoryDialog({
                     </div>
                 </div>
 
-                <DialogFooter>
+                <DialogFooter className="flex-shrink-0">
                     <Button
                         onClick={() => handleOpenChange(false)}
                         className="w-full bg-purple-600 text-white hover:bg-purple-700 sm:w-auto">
-                        {t("level.startCoding")}
+                        {t("level.startCoding")} <span className="ml-2 text-xs opacity-75">(Ctrl+Enter)</span>
                     </Button>
                 </DialogFooter>
             </DialogContent>

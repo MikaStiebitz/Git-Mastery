@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
 import { CheckCircle2, Settings } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { DIFFICULTIES } from "~/config/difficulties";
@@ -63,7 +63,7 @@ export function DifficultySelector({ isOpen, onClose, isInitialSelection = false
 
     return (
         <Dialog open={isOpen} onOpenChange={() => !isInitialSelection && onClose()}>
-            <DialogContent className="max-w-4xl border-purple-900/20 bg-[#1a1625] text-purple-100">
+            <DialogContent className="mx-2 max-h-[90vh] w-[calc(100vw-1rem)] max-w-4xl overflow-y-auto border-purple-900/20 bg-[#1a1625] text-purple-100 sm:mx-6 sm:w-[calc(100vw-3rem)] md:mx-0 md:w-full">
                 {isInitialSelection && (
                     <div className="absolute -top-2 left-1/2 -translate-x-1/2 transform">
                         <div className="rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-1 text-xs font-semibold text-white">
@@ -73,31 +73,31 @@ export function DifficultySelector({ isOpen, onClose, isInitialSelection = false
                 )}
 
                 <DialogHeader className="text-center">
-                    <DialogTitle className="flex items-center justify-center text-2xl text-white">
-                        <Settings className="mr-2 h-6 w-6 text-purple-400" />
+                    <DialogTitle className="flex items-center justify-center text-xl text-white sm:text-2xl">
+                        <Settings className="mr-2 h-5 w-5 text-purple-400 sm:h-6 sm:w-6" />
                         {isInitialSelection ? "Welcome to Git-Gud! 🚀" : "Change Difficulty Level"}
                     </DialogTitle>
-                    <p className="text-purple-300">
+                    <DialogDescription className="text-sm text-purple-300 sm:text-base">
                         {isInitialSelection
                             ? "Before we start your Git journey, let's choose the right difficulty level for you. Don't worry - you can change this anytime!"
                             : "You can change this anytime to adjust the learning complexity"}
-                    </p>
+                    </DialogDescription>
                 </DialogHeader>
 
-                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-6 sm:gap-4 md:grid-cols-3">
                     {Object.values(DIFFICULTIES).map(diff => (
                         <Card
                             key={diff.id}
                             className={getDifficultyColorClasses(diff.id, selectedDifficulty === diff.id)}
                             onClick={() => setSelectedDifficulty(diff.id)}>
-                            <CardHeader className="text-center">
-                                <div className="mx-auto mb-2 text-4xl">{diff.icon}</div>
-                                <CardTitle className={`text-xl ${getDifficultyTextColor(diff.id)}`}>
+                            <CardHeader className="p-3 text-center sm:p-6">
+                                <div className="mx-auto mb-2 text-3xl sm:text-4xl">{diff.icon}</div>
+                                <CardTitle className={`text-lg sm:text-xl ${getDifficultyTextColor(diff.id)}`}>
                                     {diff.name}
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-3">
-                                <p className="text-center text-sm text-purple-200">{diff.description}</p>
+                            <CardContent className="space-y-2 p-3 sm:space-y-3 sm:p-6">
+                                <p className="text-center text-xs text-purple-200 sm:text-sm">{diff.description}</p>
 
                                 <div className="space-y-2">
                                     <div className="text-xs text-purple-400">
@@ -129,18 +129,18 @@ export function DifficultySelector({ isOpen, onClose, isInitialSelection = false
                     ))}
                 </div>
 
-                <div className="mt-6 flex justify-center space-x-4">
+                <div className="mt-4 flex flex-col justify-center space-y-2 sm:mt-6 sm:flex-row sm:space-x-4 sm:space-y-0">
                     {!isInitialSelection && (
                         <Button
                             variant="outline"
                             onClick={onClose}
-                            className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
+                            className="w-full border-purple-700 text-purple-300 hover:bg-purple-900/50 sm:w-auto">
                             Cancel
                         </Button>
                     )}
                     <Button
                         onClick={handleConfirm}
-                        className={`${
+                        className={`w-full sm:w-auto ${
                             selectedDifficulty === "beginner"
                                 ? "bg-green-600 hover:bg-green-700"
                                 : selectedDifficulty === "advanced"

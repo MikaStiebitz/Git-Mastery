@@ -5,14 +5,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
 import { useLanguage } from "~/contexts/LanguageContext";
-import { GitCommit } from "lucide-react";
+import { GitCommit, Smile } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
+import { getEmojiSuggestions, formatCommitWithEmoji, type EmojiSuggestion } from "~/lib/EmojiSuggestions";
 
 export function CommitDialog() {
     const { t } = useLanguage();
-    const { isCommitDialogOpen, handleCommit, closeCommitDialog } = useGameContext();
+    const { isCommitDialogOpen, handleCommit, closeCommitDialog, progressManager } = useGameContext();
     const [message, setMessage] = useState("");
+    const [showEmojiSuggestions, setShowEmojiSuggestions] = useState(false);
+    const [emojiSuggestions, setEmojiSuggestions] = useState<EmojiSuggestion[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Check if emoji commits are purchased
+    const hasEmojiCommits = progressManager.getPurchasedItems().includes("emoji-commits");
 
     // Focus textarea when dialog opens
     useEffect(() => {
@@ -27,8 +33,32 @@ export function CommitDialog() {
     useEffect(() => {
         if (!isCommitDialogOpen) {
             setMessage("");
+            setShowEmojiSuggestions(false);
+            setEmojiSuggestions([]);
         }
     }, [isCommitDialogOpen]);
+
+    // Update emoji suggestions when message changes
+    useEffect(() => {
+        if (hasEmojiCommits && message.trim()) {
+            const suggestions = getEmojiSuggestions(message);
+            setEmojiSuggestions(suggestions);
+        } else {
+            setEmojiSuggestions([]);
+        }
+    }, [message, hasEmojiCommits]);
+
+    // Handle adding emoji to message
+    const addEmojiToMessage = (emoji: string) => {
+        const formattedMessage = formatCommitWithEmoji(emoji, message);
+        setMessage(formattedMessage);
+        setShowEmojiSuggestions(false);
+
+        // Focus back to textarea
+        setTimeout(() => {
+            textareaRef.current?.focus();
+        }, 100);
+    };
 
     // Handle commit action
     const performCommit = () => {
@@ -88,6 +118,39 @@ export function CommitDialog() {
                         placeholder={t("commit.placeholder") || "Enter a commit message describing your changes..."}
                         autoFocus={!isMobileDevice()}
                     />
+
+                    {/* Emoji suggestions */}
+                    {hasEmojiCommits && emojiSuggestions.length > 0 && (
+                        <div className="mt-4">
+                            <div className="mb-2 flex items-center justify-between">
+                                <span className="text-sm text-purple-300">Suggested emojis:</span>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setShowEmojiSuggestions(!showEmojiSuggestions)}
+                                    className="text-purple-400 hover:text-purple-300">
+                                    <Smile className="mr-1 h-4 w-4" />
+                                    {showEmojiSuggestions ? "Hide" : "Show"}
+                                </Button>
+                            </div>
+
+                            {(showEmojiSuggestions || emojiSuggestions.length <= 3) && (
+                                <div className="grid grid-cols-2 gap-2">
+                                    {emojiSuggestions.slice(0, 6).map((suggestion, index) => (
+                                        <Button
+                                            key={index}
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => addEmojiToMessage(suggestion.emoji)}
+                                            className="h-auto justify-start border border-purple-800/30 bg-purple-900/10 p-2 text-left hover:bg-purple-900/20">
+                                            <span className="mr-2 text-lg">{suggestion.emoji}</span>
+                                            <span className="text-xs text-purple-300">{suggestion.description}</span>
+                                        </Button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     <div className="mt-2 text-xs text-purple-400">
                         {t("commit.tip") ||

@@ -10,6 +10,7 @@ import { GitRepository } from "~/models/GitRepository";
 import type { GameContextProps, DifficultyLevel } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { getDifficultyConfig } from "~/config/difficulties";
+import { useSoundManager } from "~/lib/SoundManager";
 
 const GameContext = createContext<GameContextProps | undefined>(undefined);
 
@@ -31,6 +32,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [levelManager] = useState<LevelManager>(new LevelManager());
     const [progressManager] = useState<ProgressManager>(new ProgressManager());
     const { t } = useLanguage();
+
+    // Initialize sound manager with purchased status
+    const hasSoundPack = progressManager.getPurchasedItems().includes("victory-sound");
+    const { playSound } = useSoundManager(hasSoundPack);
 
     const [currentStage, setCurrentStage] = useState<string>(progressManager.getProgress().currentStage);
     const [currentLevel, setCurrentLevel] = useState<number>(progressManager.getProgress().currentLevel);
@@ -304,13 +309,30 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsLevelCompleted(true);
             progressManager.completeLevel(currentStage, currentLevel);
             setTerminalOutput(prev => [...prev, "🎉 " + t("level.levelCompleted") + " 🎉", t("terminal.typeNext")]);
+
+            // Play victory sound if purchased
+            if (progressManager.getPurchasedItems().includes("victory-sound")) {
+                playSound("levelComplete");
+            }
+
+            // Trigger mascot success animation if purchased
+            if (progressManager.getPurchasedItems().includes("git-mascot")) {
+                // This will trigger the mascot success animation
+                interface WindowWithMascot extends Window {
+                    triggerMascotSuccess?: () => void;
+                }
+                if (typeof window !== "undefined") {
+                    const windowWithMascot = window as WindowWithMascot;
+                    windowWithMascot.triggerMascotSuccess?.();
+                }
+            }
         }
     };
 
     // Move to the next level
     const handleNextLevel = () => {
         if (isLevelCompleted) {
-            const { stageId, levelId } = levelManager.getNextLevel(currentStage, currentLevel);
+            const { stageId, levelId } = levelManager.getNextLevel(currentStage, currentLevel, currentDifficulty);
 
             // Fixed: Check if stageId and levelId are defined before using them
             if (stageId && typeof levelId === "number") {
@@ -340,8 +362,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                 return { stageId, levelId };
             } else {
-                // Handle case where there's no next level
-                setTerminalOutput(prev => [...prev, t("terminal.allLevelsCompleted")]);
+                // Handle case where there's no next level in current difficulty - redirect to home
+                setTerminalOutput(prev => [...prev, t("terminal.difficultyCompleted")]);
+
+                // Redirect to home page after a short delay
+                setTimeout(() => {
+                    if (typeof window !== "undefined") {
+                        router.push("/");
+                    }
+                }, 2000);
+
                 return null;
             }
         }

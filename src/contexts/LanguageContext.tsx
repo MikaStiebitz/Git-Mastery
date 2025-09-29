@@ -14,14 +14,30 @@ export type LanguageContextType = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // Change default language from "de" to "en"
+    // Default to English with auto-detection on first load
     const [language, setLanguageState] = useState<Language>("en");
 
-    // Load language from localStorage on initial render
+    // Auto-detect language from browser on initial load
     useEffect(() => {
         const savedLanguage = localStorage.getItem("gitgud-language");
+
         if (savedLanguage === "en" || savedLanguage === "de") {
+            // Use saved language preference
             setLanguageState(savedLanguage);
+        } else {
+            // Auto-detect from browser locale
+            const browserLanguage = navigator.language || navigator.languages?.[0] || "en";
+            const detectedLanguage = browserLanguage.toLowerCase();
+
+            // Check if browser language indicates German
+            if (detectedLanguage.startsWith("de")) {
+                setLanguageState("de");
+                localStorage.setItem("gitgud-language", "de");
+            } else {
+                // Default to English for all other languages
+                setLanguageState("en");
+                localStorage.setItem("gitgud-language", "en");
+            }
         }
     }, []);
 

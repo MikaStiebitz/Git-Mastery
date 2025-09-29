@@ -1,7 +1,8 @@
 import type { FileSystem } from "./FileSystem";
 import type { GitRepository } from "./GitRepository";
-import type { StageType, LevelType, FileStructure, GitState, FileChange, MergeConflict } from "~/types";
+import type { StageType, LevelType, FileStructure, GitState, FileChange, MergeConflict, DifficultyLevel } from "~/types";
 import { allStages } from "../levels";
+import { getAvailableStagesForDifficulty } from "~/config/difficulties";
 
 export class LevelManager {
     private stages: Record<string, StageType>;
@@ -425,7 +426,7 @@ export class LevelManager {
     }
 
     // Get next level information
-    public getNextLevel(stageId: string, levelId: number): { stageId: string | undefined; levelId: number } {
+    public getNextLevel(stageId: string, levelId: number, difficulty?: DifficultyLevel): { stageId: string | undefined; levelId: number } {
         const stage = this.getStage(stageId);
         if (!stage) return { stageId, levelId };
 
@@ -437,17 +438,30 @@ export class LevelManager {
             return { stageId, levelId: levelId + 1 };
         } else {
             // Move to the first level of the next stage
-            const stageIds = Object.keys(this.stages);
-            const currentStageIndex = stageIds.indexOf(stageId);
+            if (difficulty) {
+                // Use difficulty-specific stages
+                const availableStageIds = getAvailableStagesForDifficulty(difficulty);
 
-            if (currentStageIndex < stageIds.length - 1) {
-                const nextStageId = stageIds[currentStageIndex + 1];
-                return { stageId: nextStageId, levelId: 1 };
+                const currentStageIndex = availableStageIds.indexOf(stageId);
+
+                if (currentStageIndex < availableStageIds.length - 1) {
+                    const nextStageId = availableStageIds[currentStageIndex + 1];
+                    return { stageId: nextStageId, levelId: 1 };
+                }
+            } else {
+                // Fallback to all stages if no difficulty specified
+                const stageIds = Object.keys(this.stages);
+                const currentStageIndex = stageIds.indexOf(stageId);
+
+                if (currentStageIndex < stageIds.length - 1) {
+                    const nextStageId = stageIds[currentStageIndex + 1];
+                    return { stageId: nextStageId, levelId: 1 };
+                }
             }
         }
 
-        // No next level - game completed
-        return { stageId, levelId };
+        // No next level - difficulty/game completed
+        return { stageId: undefined, levelId };
     }
 
     // Add a custom level (for extensibility)

@@ -19,7 +19,6 @@ import {
     Award,
     Star,
     BookMarked,
-    Zap,
     ArrowRight,
     Github,
     Settings,
@@ -35,6 +34,7 @@ import { DifficultySelector } from "~/components/DifficultySelector";
 import { Shop } from "~/components/Shop";
 import { Minigames } from "~/components/Minigames";
 import { getAvailableStagesForDifficulty } from "~/config/difficulties";
+import type { DifficultyLevel } from "~/types";
 
 // Animation helper component
 const AnimatedElement = ({
@@ -86,7 +86,7 @@ const AnimatedElement = ({
 };
 
 export default function Home() {
-    const { levelManager, progressManager, currentDifficulty } = useGameContext();
+    const { levelManager, progressManager, currentDifficulty, setCurrentDifficulty } = useGameContext();
     const { t } = useLanguage();
     const router = useRouter();
     const [progress, setProgress] = useState(progressManager.getProgress());
@@ -206,6 +206,28 @@ export default function Home() {
         return progressManager.isLevelCompleted(stageId, levelId);
     };
 
+    // Check if current difficulty is completed
+    const isDifficultyCompleted = () => {
+        const availableStageIds = getAvailableStagesForDifficulty(currentDifficulty);
+        return availableStageIds.every(stageId => {
+            const stageData = stages[stageId];
+            if (!stageData) return false;
+            const totalLevels = Object.keys(stageData.levels).length;
+            const completedLevels = progress.completedLevels[stageId]?.length ?? 0;
+            return completedLevels === totalLevels;
+        });
+    };
+
+    // Get next difficulty level
+    const getNextDifficulty = (): DifficultyLevel | null => {
+        const difficultyOrder: DifficultyLevel[] = ["beginner", "advanced", "pro"];
+        const currentIndex = difficultyOrder.indexOf(currentDifficulty);
+        if (currentIndex >= 0 && currentIndex < difficultyOrder.length - 1) {
+            return difficultyOrder[currentIndex + 1]!;
+        }
+        return null;
+    };
+
     // Calculate progress percentage
     const calculateProgress = (stageId: string) => {
         const stageLevels = Object.keys(stages[stageId]?.levels ?? {}).length;
@@ -310,28 +332,60 @@ export default function Home() {
                     </AnimatedElement>
                 </section>
 
+                {/* Difficulty Completion Celebration */}
+                {isDifficultyCompleted() && getNextDifficulty() && (
+                    <AnimatedElement>
+                        <section className="container mx-auto px-4 py-6">
+                            <div className="mx-auto max-w-2xl rounded-lg border border-green-700/50 bg-gradient-to-r from-green-900/30 to-emerald-900/20 p-6 text-center">
+                                <div className="mb-4 flex justify-center">
+                                    <Award className="h-12 w-12 text-yellow-400" />
+                                </div>
+                                <h2 className="mb-4 text-xl font-bold text-white sm:text-2xl">
+                                    🎉 Difficulty Mastered!
+                                </h2>
+                                <p className="mb-6 text-green-200">
+                                    Congratulations! You've completed all levels in {currentDifficulty} difficulty.
+                                    Ready for the next challenge?
+                                </p>
+                                <Button
+                                    onClick={() => {
+                                        const nextDiff = getNextDifficulty();
+                                        if (nextDiff) {
+                                            setCurrentDifficulty(nextDiff);
+                                        }
+                                    }}
+                                    size="lg"
+                                    className="group bg-gradient-to-r from-green-600 to-emerald-700 text-white hover:from-green-700 hover:to-emerald-800">
+                                    <ChevronRight className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                    Advance to {getNextDifficulty()} Difficulty
+                                </Button>
+                            </div>
+                        </section>
+                    </AnimatedElement>
+                )}
+
                 {/* Animated Stats Section */}
                 <AnimatedElement>
-                    <section className="container mx-auto py-6">
+                    <section className="container mx-auto px-4 py-6">
                         <ClientOnly>
-                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                                <div className="rounded-lg border border-purple-800/30 bg-purple-900/20 p-4 text-center">
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+                                <div className="rounded-lg border border-purple-800/30 bg-purple-900/20 p-3 text-center sm:p-4">
                                     <h3 className="text-xs text-purple-400 sm:text-sm">{t("progress.points")}</h3>
-                                    <p className="text-2xl font-bold text-white">{progress.score}</p>
+                                    <p className="text-xl font-bold text-white sm:text-2xl">{progress.score}</p>
                                 </div>
-                                <div className="rounded-lg border border-purple-800/30 bg-purple-900/20 p-4 text-center">
+                                <div className="rounded-lg border border-purple-800/30 bg-purple-900/20 p-3 text-center sm:p-4">
                                     <h3 className="text-xs text-purple-400 sm:text-sm">{t("home.completed")}</h3>
-                                    <p className="text-2xl font-bold text-white">
+                                    <p className="text-xl font-bold text-white sm:text-2xl">
                                         {Object.values(progress.completedLevels).flat().length}
                                     </p>
                                 </div>
-                                <div className="rounded-lg border border-purple-800/30 bg-purple-900/20 p-4 text-center">
+                                <div className="rounded-lg border border-purple-800/30 bg-purple-900/20 p-3 text-center sm:p-4">
                                     <h3 className="text-xs text-purple-400 sm:text-sm">{t("level.level")}</h3>
-                                    <p className="text-2xl font-bold text-white">{progress.currentLevel}</p>
+                                    <p className="text-xl font-bold text-white sm:text-2xl">{progress.currentLevel}</p>
                                 </div>
-                                <div className="rounded-lg border border-purple-800/30 bg-purple-900/20 p-4 text-center">
+                                <div className="rounded-lg border border-purple-800/30 bg-purple-900/20 p-3 text-center sm:p-4">
                                     <h3 className="text-xs text-purple-400 sm:text-sm">{t("level.branch")}</h3>
-                                    <p className="text-2xl font-bold text-white">{progress.currentStage}</p>
+                                    <p className="text-xl font-bold text-white sm:text-2xl">{progress.currentStage}</p>
                                 </div>
                             </div>
                         </ClientOnly>
@@ -490,124 +544,87 @@ export default function Home() {
                     </ClientOnly>
                 </section>
 
-                {/* Enhanced Level Selection Grid */}
+                {/* Enhanced Learning Statistics & Gamification Section */}
                 <section className="container mx-auto px-4 py-8 sm:py-16">
                     <AnimatedElement>
                         <h2 className="mb-8 text-center text-2xl font-bold text-white sm:mb-12 sm:text-3xl">
                             <span className="relative">
-                                {t("home.chooseChallenge")}
+                                {t("home.gameFeatures")}
                                 <span className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-purple-500 to-purple-300"></span>
                             </span>
                         </h2>
                     </AnimatedElement>
 
-                    <ClientOnly>
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-                            {Object.entries(stages).map(([stageId, stageData], stageIndex) =>
-                                Object.entries(stageData.levels).map(([levelId, levelData], levelIndex) => {
-                                    const level = parseInt(levelId);
-                                    const levelUnlocked = isLevelUnlocked(stageId, level);
-                                    const levelCompleted = isLevelCompleted(stageId, level);
-                                    const delay = stageIndex * 100 + levelIndex * 50;
+                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        <AnimatedElement delay={200}>
+                            <Card className="group relative overflow-hidden border-green-800/30 bg-gradient-to-br from-green-900/20 to-emerald-900/10 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/10">
+                                <div className="absolute inset-0 bg-gradient-to-br from-green-400/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                                <CardContent className="relative p-8 text-center">
+                                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg">
+                                        <Activity className="h-8 w-8 text-white" />
+                                    </div>
+                                    <h3 className="mb-4 text-xl font-bold text-white">Interactive Learning</h3>
+                                    <p className="leading-relaxed text-purple-200">
+                                        Learn by doing with real Git commands in a safe sandbox environment. Practice
+                                        without fear of breaking anything.
+                                    </p>
+                                    <div className="mt-6 flex justify-center">
+                                        <div className="flex space-x-1">
+                                            <div className="h-1 w-8 rounded-full bg-green-400"></div>
+                                            <div className="h-1 w-4 rounded-full bg-green-400/50"></div>
+                                            <div className="h-1 w-2 rounded-full bg-green-400/25"></div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </AnimatedElement>
 
-                                    return (
-                                        <AnimatedElement key={`${stageId}-${levelId}`} delay={delay}>
-                                            <Card
-                                                className={`group relative overflow-hidden transition-all duration-300 ${
-                                                    levelUnlocked
-                                                        ? levelCompleted
-                                                            ? "border-green-800/30 bg-green-900/10 hover:translate-y-[-5px] hover:border-green-600 hover:shadow-lg"
-                                                            : "border-purple-900/20 bg-purple-900/10 hover:translate-y-[-5px] hover:border-purple-600 hover:shadow-lg"
-                                                        : "border-gray-800/20 bg-gray-900/10"
-                                                }`}>
-                                                {/* Background glow effect */}
-                                                {levelUnlocked && (
-                                                    <div
-                                                        className={`absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${
-                                                            levelCompleted ? "bg-green-500/5" : "bg-purple-500/5"
-                                                        }`}></div>
-                                                )}
+                        <AnimatedElement delay={400}>
+                            <Card className="group relative overflow-hidden border-purple-800/30 bg-gradient-to-br from-purple-900/20 to-indigo-900/10 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10">
+                                <div className="absolute inset-0 bg-gradient-to-br from-purple-400/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                                <CardContent className="relative p-8 text-center">
+                                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
+                                        <Gamepad2 className="h-8 w-8 text-white" />
+                                    </div>
+                                    <h3 className="mb-4 text-xl font-bold text-white">Mini Games</h3>
+                                    <p className="leading-relaxed text-purple-200">
+                                        Practice Git skills with fun challenges and earn points to unlock rewards. Make
+                                        learning addictive and enjoyable.
+                                    </p>
+                                    <div className="mt-6 flex justify-center">
+                                        <div className="flex space-x-1">
+                                            <div className="h-1 w-8 rounded-full bg-purple-400"></div>
+                                            <div className="h-1 w-4 rounded-full bg-purple-400/50"></div>
+                                            <div className="h-1 w-2 rounded-full bg-purple-400/25"></div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </AnimatedElement>
 
-                                                <CardContent className="p-4 sm:p-6">
-                                                    <div className="mb-4 flex items-center justify-between">
-                                                        <span className="text-xl sm:text-2xl">{stageData.icon}</span>
-                                                        <span
-                                                            className={`rounded-full px-2 py-1 text-xs ${
-                                                                levelUnlocked
-                                                                    ? levelCompleted
-                                                                        ? "bg-green-900/50 text-green-300"
-                                                                        : "bg-purple-900/50 text-purple-300"
-                                                                    : "bg-gray-800/50 text-gray-400"
-                                                            }`}>
-                                                            Level {levelId}
-                                                        </span>
-                                                    </div>
-
-                                                    <h3
-                                                        className={`text-base font-bold sm:text-lg ${
-                                                            levelUnlocked ? "text-white" : "text-gray-500"
-                                                        }`}>
-                                                        {levelData.name}
-                                                    </h3>
-
-                                                    <p
-                                                        className={`mt-2 text-xs sm:text-sm ${
-                                                            levelUnlocked ? "text-purple-300" : "text-gray-500"
-                                                        }`}>
-                                                        {levelData.description}
-                                                    </p>
-
-                                                    {levelUnlocked ? (
-                                                        <Button
-                                                            onClick={() => navigateToLevel(stageId, level)}
-                                                            className={`mt-4 w-full ${
-                                                                levelCompleted
-                                                                    ? "bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800"
-                                                                    : "bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800"
-                                                            } group transition-all duration-300 sm:opacity-100 sm:group-hover:shadow-md`}
-                                                            size="sm">
-                                                            {levelCompleted ? (
-                                                                <>
-                                                                    <CheckCircle2 className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-                                                                    {t("home.reviewLevel")}
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Zap className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
-                                                                    {t("home.startLevel")}
-                                                                </>
-                                                            )}
-                                                        </Button>
-                                                    ) : (
-                                                        <Button
-                                                            className="mt-4 w-full cursor-not-allowed bg-gray-700 text-gray-300 opacity-50"
-                                                            size="sm"
-                                                            disabled>
-                                                            <LockIcon className="mr-2 h-4 w-4" />
-                                                            {t("home.locked")}
-                                                        </Button>
-                                                    )}
-
-                                                    {/* Status indicators */}
-                                                    {levelCompleted && (
-                                                        <div className="absolute right-2 top-2 rounded-full bg-green-700 p-1">
-                                                            <CheckCircle2 className="h-3 w-3 text-white sm:h-4 sm:w-4" />
-                                                        </div>
-                                                    )}
-
-                                                    {!levelUnlocked && (
-                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                                                            <LockIcon className="h-8 w-8 text-gray-400 sm:h-10 sm:w-10" />
-                                                        </div>
-                                                    )}
-                                                </CardContent>
-                                            </Card>
-                                        </AnimatedElement>
-                                    );
-                                }),
-                            )}
-                        </div>
-                    </ClientOnly>
+                        <AnimatedElement delay={600}>
+                            <Card className="group relative overflow-hidden border-yellow-800/30 bg-gradient-to-br from-yellow-900/20 to-amber-900/10 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/10">
+                                <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                                <CardContent className="relative p-8 text-center">
+                                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 shadow-lg">
+                                        <ShoppingCart className="h-8 w-8 text-white" />
+                                    </div>
+                                    <h3 className="mb-4 text-xl font-bold text-white">Customization</h3>
+                                    <p className="leading-relaxed text-purple-200">
+                                        Personalize your experience with themes, sounds, and other unlockable items.
+                                        Make it truly your own learning journey.
+                                    </p>
+                                    <div className="mt-6 flex justify-center">
+                                        <div className="flex space-x-1">
+                                            <div className="h-1 w-8 rounded-full bg-yellow-400"></div>
+                                            <div className="h-1 w-4 rounded-full bg-yellow-400/50"></div>
+                                            <div className="h-1 w-2 rounded-full bg-yellow-400/25"></div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </AnimatedElement>
+                    </div>
                 </section>
 
                 {/* Call to action at the bottom */}

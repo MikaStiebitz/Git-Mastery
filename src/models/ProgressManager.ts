@@ -19,6 +19,7 @@ export class ProgressManager {
                 purchasedItems: [],
                 completedMinigames: [],
                 minigameScores: {},
+                doubleXpUntil: null,
             };
             this.saveProgress();
         }
@@ -32,6 +33,9 @@ export class ProgressManager {
         }
         if (!this.progress.minigameScores) {
             this.progress.minigameScores = {};
+        }
+        if (!this.progress.hasOwnProperty('doubleXpUntil')) {
+            this.progress.doubleXpUntil = null;
         }
     }
 
@@ -48,7 +52,10 @@ export class ProgressManager {
 
         if (!this.progress.completedLevels[stage].includes(level)) {
             this.progress.completedLevels[stage].push(level);
-            this.progress.score += score;
+
+            // Apply double XP if active
+            const finalScore = this.isDoubleXpActive() ? score * 2 : score;
+            this.progress.score += finalScore;
         }
 
         this.progress.lastSavedAt = new Date().toISOString();
@@ -161,5 +168,35 @@ export class ProgressManager {
             }
         }
         return null;
+    }
+
+    // Check if double XP is currently active
+    public isDoubleXpActive(): boolean {
+        if (!this.progress.doubleXpUntil) return false;
+
+        const expiryDate = new Date(this.progress.doubleXpUntil);
+        const now = new Date();
+
+        return now < expiryDate;
+    }
+
+    // Activate double XP for 7 days
+    public activateDoubleXp(): void {
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 7); // 7 days from now
+
+        this.progress.doubleXpUntil = expiryDate.toISOString();
+        this.saveProgress();
+    }
+
+    // Get remaining double XP time in hours
+    public getDoubleXpRemainingHours(): number {
+        if (!this.isDoubleXpActive()) return 0;
+
+        const expiryDate = new Date(this.progress.doubleXpUntil!);
+        const now = new Date();
+        const diffMs = expiryDate.getTime() - now.getTime();
+
+        return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60))); // Convert to hours
     }
 }

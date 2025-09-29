@@ -19,8 +19,8 @@ export function TerminalInput({
 }: TerminalInputProps) {
     return (
         <div className="relative border-t border-purple-800/50">
-            <form onSubmit={handleFormSubmit} className="flex items-center px-3 py-2">
-                <div className="mr-2 hidden sm:block">{renderFancyPrompt()}</div>
+            <form onSubmit={handleFormSubmit} className="flex min-h-[2.5rem] items-center gap-2 px-3 py-2">
+                <div className="hidden max-w-[60%] flex-shrink-0 overflow-hidden sm:block">{renderFancyPrompt()}</div>
 
                 {/* Command suggestion tooltip */}
                 {showCommandSuggestion && (
@@ -35,7 +35,7 @@ export function TerminalInput({
                     value={input}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
-                    className="flex-grow border-none bg-transparent font-mono text-sm text-purple-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="min-w-[100px] flex-grow border-none bg-transparent font-mono text-sm text-purple-300 focus-visible:ring-0 focus-visible:ring-offset-0"
                     placeholder={t("terminal.enterCommand")}
                     autoComplete="off"
                     spellCheck="false"
@@ -46,7 +46,7 @@ export function TerminalInput({
                     type="submit"
                     size="sm"
                     variant="ghost"
-                    className="ml-1 text-purple-400 hover:bg-purple-800/50 hover:text-purple-200">
+                    className="flex-shrink-0 text-purple-400 hover:bg-purple-800/50 hover:text-purple-200">
                     <Send className="h-4 w-4" />
                 </Button>
             </form>

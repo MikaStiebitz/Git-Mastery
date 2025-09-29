@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
 import { VisuallyHidden } from "~/components/ui/visually-hidden";
 import { Gamepad2, GitBranch, GitCommit, GitMerge, Play, Trophy } from "lucide-react";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -90,7 +90,7 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-4xl border-purple-900/20 bg-[#1a1625] text-purple-100">
+            <DialogContent className="mx-2 w-[calc(100vw-1rem)] max-w-4xl border-purple-900/20 bg-[#1a1625] text-purple-100 sm:mx-6 sm:w-[calc(100vw-3rem)] md:mx-0 md:w-full">
                 {activeMinigame ? (
                     // Show the selected minigame
                     <>
@@ -131,14 +131,16 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
                     // Show minigame selection
                     <>
                         <DialogHeader>
-                            <DialogTitle className="flex items-center text-2xl text-white">
-                                <Gamepad2 className="mr-2 h-6 w-6 text-purple-400" />
+                            <DialogTitle className="flex items-center text-xl text-white sm:text-2xl">
+                                <Gamepad2 className="mr-2 h-5 w-5 text-purple-400 sm:h-6 sm:w-6" />
                                 {t("minigame.title")}
                             </DialogTitle>
-                            <p className="text-purple-300">{t("minigame.subtitle")}</p>
+                            <DialogDescription className="text-sm text-purple-300 sm:text-base">
+                                {t("minigame.subtitle")}
+                            </DialogDescription>
                         </DialogHeader>
 
-                        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="mt-6 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {MINIGAMES.map(game => {
                                 const isCompleted = completedMinigames.includes(game.id);
 

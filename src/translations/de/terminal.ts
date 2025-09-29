@@ -13,6 +13,7 @@ const terminal = {
     "terminal.levelReset": "Level zurückgesetzt.",
     "terminal.progressReset": "Fortschritt zurückgesetzt.",
     "terminal.allLevelsCompleted": "Gratulation! Du hast alle verfügbaren Level abgeschlossen!",
+    "terminal.difficultyCompleted": "🎉 Gratulation! Du hast alle Level dieser Schwierigkeit abgeschlossen! Leite zur Startseite weiter...",
 
     // File Editor
     "editor.fileContent": "Dateiinhalt",

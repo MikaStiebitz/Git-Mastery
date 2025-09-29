@@ -27,7 +27,7 @@ export default function ImpressumPage() {
                                 <br />
                                 Mika Stiebitz
                                 <br />
-                                Karlstraße 11
+                                Rabenhofstraße 25
                                 <br />
                                 91522 Ansbach
                                 <br />

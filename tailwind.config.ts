@@ -8,6 +8,15 @@ export default {
             fontFamily: {
                 sans: ["var(--font-geist-sans)", ...fontFamily.sans],
             },
+            screens: {
+                'portrait': {'raw': '(orientation: portrait)'},
+                'landscape': {'raw': '(orientation: landscape)'},
+            },
+            animationDelay: {
+                '300': '300ms',
+                '500': '500ms',
+                '700': '700ms',
+            },
         },
         keyframes: {
             "accordion-down": {
