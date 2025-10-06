@@ -1,4 +1,4 @@
-const level = {
+const levels = {
     // Level Page
 
     "level.gitTerminal": "Git Terminal",
@@ -71,6 +71,24 @@ const level = {
     "intro.level2.story.realWorldContext":
         "Entwickler führen `git status` mehrmals täglich aus, um zu sehen, welche Dateien geändert wurden und welche für den nächsten Commit bereit sind.",
     "intro.level2.story.taskIntroduction": "Überprüfe den Status deines Repositories mit `git status`.",
+
+    "intro.level3.name": "Repositories klonen",
+    "intro.level3.description": "Lerne, bestehende Repositories zu klonen",
+    "intro.level3.objective1": "Klone ein Remote-Repository",
+    "intro.level3.objective2": "Navigiere in das geklonte Repository",
+    "intro.level3.hint1": "Verwende den Befehl `git clone <url>`",
+    "intro.level3.hint2": "Nach dem Klonen verwende `cd`, um in den Repository-Ordner zu navigieren",
+    "intro.level3.hint3": "Die Repository-URL kann jede gültige Git-Repository-URL sein",
+    "intro.level3.requirement1.description": "Klone ein Remote-Repository",
+    "intro.level3.requirement1.success": "Großartig! Du hast das Repository geklont.",
+    "intro.level3.requirement2.description": "Navigiere mit cd in das geklonte Repository",
+    "intro.level3.requirement2.success": "Perfekt! Du bist jetzt im geklonten Repository.",
+    "intro.level3.story.title": "Einem existierenden Projekt beitreten",
+    "intro.level3.story.narrative":
+        "Deine erste Woche bei TechStart läuft großartig! Alex ruft dich mit aufregenden Neuigkeiten.\n\n\"Wir haben ein Team-Projekt, bei dem wir deine Hilfe brauchen\", sagt er. \"Die Codebasis ist bereits auf unserem Git-Server. Du musst sie auf deinen lokalen Rechner klonen, um damit arbeiten zu können.\"\n\nEr erklärt: \"Wenn du einem existierenden Projekt beitrittst, fängst du nicht bei Null an. Stattdessen klonst du das Remote-Repository, was eine vollständige Kopie auf deinem Rechner erstellt - inklusive des gesamten Codes, der Historie und aller Branches.\"\n\n\"Stell es dir vor wie ein Buch aus der Bibliothek auszuleihen, nur dass du auch noch alle Bibliotheksaufzeichnungen dazu bekommst! Verwende `git clone <repository-url>` um loszulegen.\"\n\n\"Sobald geklont, kannst du mit `cd <ordner-name>` in den Projekt-Ordner wechseln und sofort mit der Arbeit beginnen. Die gesamte Projekthistorie und alle Änderungen stehen dir zur Verfügung.\"",
+    "intro.level3.story.realWorldContext":
+        "Das Klonen ist die Art und Weise, wie Entwickler existierenden Projekten beitreten. Ob beim Beitragen zu Open Source oder beim Eintritt in ein neues Team, git clone ist typischerweise der erste Befehl, den du ausführst.",
+    "intro.level3.story.taskIntroduction": "Klone ein Repository und navigiere hinein, um mit der Arbeit am Projekt zu beginnen.",
 
     // Level Content - Files Stage
     "files.name": "Dateioperationen",
@@ -304,4 +322,4 @@ const level = {
         "Rebase deinen Feature-Branch auf den aktualisierten Main-Branch, um die neuesten Änderungen einzuarbeiten.",
 };
 
-export default level;
+export default levels;

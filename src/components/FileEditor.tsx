@@ -58,14 +58,6 @@ export function FileEditor({ isOpen, onClose, fileName, initialContent = "" }: F
         return false;
     }, []);
 
-    // Calculate editor height based on viewport - memoized for performance
-    const getEditorHeight = useCallback(() => {
-        // Base height on viewport size, smaller percentage for small screens
-        const isMobile = isMobileDevice();
-        const heightPercentage = isMobile ? 40 : 60;
-        return `${Math.min(heightPercentage, 60)}vh`;
-    }, [isMobileDevice]);
-
     // Handle keyboard shortcuts - memoized for performance
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
@@ -87,7 +79,7 @@ export function FileEditor({ isOpen, onClose, fileName, initialContent = "" }: F
     return (
         <Dialog open={isOpen} onOpenChange={handleCancel}>
             <DialogContent
-                className="h-[90vh] max-h-[90vh] max-w-5xl border-purple-900/20 bg-[#1a1625] p-3 text-purple-100 sm:h-[85vh] sm:max-h-[85vh] sm:p-6 md:h-[80vh] md:max-h-[80vh]"
+                className="flex h-[92vh] max-h-[92vh] w-[95vw] max-w-[95vw] flex-col border-purple-900/20 bg-[#1a1625] p-3 text-purple-100 sm:h-[85vh] sm:max-h-[85vh] sm:w-[90vw] sm:max-w-[90vw] sm:p-6 md:h-[80vh] md:max-h-[80vh] md:max-w-5xl"
                 onKeyDown={handleKeyDown}
                 // Remove the built-in X button by overriding its CSS
                 style={
@@ -95,19 +87,17 @@ export function FileEditor({ isOpen, onClose, fileName, initialContent = "" }: F
                         "--close-button-display": "none",
                     } as React.CSSProperties
                 }>
-                <DialogHeader className="mb-2 flex flex-row items-center justify-between">
-                    <DialogTitle className="mr-2 flex items-center text-white">
-                        <span className="max-w-[150px] truncate sm:max-w-[200px] md:max-w-md">{fileName}</span>
+                <DialogHeader className="mb-2 flex flex-shrink-0 flex-row items-center justify-between">
+                    <DialogTitle className="mr-2 flex items-center text-sm text-white sm:text-base">
+                        <span className="max-w-[120px] truncate sm:max-w-[200px] md:max-w-md">{fileName}</span>
                         <span className="ml-2 text-xs text-purple-400">
                             {isDirty ? `(${t("editor.unsaved")})` : ""}
                         </span>
                     </DialogTitle>
                 </DialogHeader>
 
-                <div
-                    className="relative flex-grow overflow-hidden rounded border border-purple-800/30"
-                    style={{ height: getEditorHeight() }}>
-                    <div className="absolute left-0 top-0 z-10 w-full bg-purple-900/50 px-3 py-1 text-xs text-purple-300">
+                <div className="relative min-h-0 flex-grow overflow-hidden rounded border border-purple-800/30">
+                    <div className="absolute left-0 top-0 z-10 w-full bg-purple-900/50 px-2 py-1 text-xs text-purple-300 sm:px-3">
                         {t("editor.fileContent")}
                     </div>
                     <Textarea
@@ -116,10 +106,11 @@ export function FileEditor({ isOpen, onClose, fileName, initialContent = "" }: F
                         className="h-full w-full resize-none bg-purple-900/10 pt-7 font-mono text-xs text-purple-200 focus-visible:ring-purple-500 sm:text-sm"
                         autoFocus={!isMobileDevice()}
                         onKeyDown={handleKeyDown}
+                        style={{ minHeight: 0 }}
                     />
                 </div>
 
-                <DialogFooter className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+                <DialogFooter className="mt-2 flex flex-shrink-0 flex-col-reverse gap-2 sm:flex-row sm:justify-between">
                     <div className="hidden text-xs text-purple-400 md:block">{t("editor.escToCancel")}</div>
                     <div className="flex w-full gap-2 sm:w-auto">
                         <Button
@@ -131,8 +122,8 @@ export function FileEditor({ isOpen, onClose, fileName, initialContent = "" }: F
                         <Button
                             onClick={handleSave}
                             className="flex-1 bg-purple-600 text-white hover:bg-purple-700 sm:flex-auto">
-                            <Save className="mr-2 h-4 w-4 md:hidden" />
-                            {t("editor.save")}
+                            <Save className="mr-1 h-4 w-4 sm:mr-2" />
+                            <span className="text-sm sm:text-base">{t("editor.save")}</span>
                         </Button>
                     </div>
                 </DialogFooter>

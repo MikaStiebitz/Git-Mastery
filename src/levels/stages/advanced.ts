@@ -291,8 +291,146 @@ Let's turn this branch chaos into an organized, professional repository!`,
     })
 });
 
+const advancedLevel4 = createLevel({
+    id: 4,
+    name: "Conventional Commits Mastery",
+    description: "Master professional commit message conventions used in the industry",
+    objectives: [
+        "Understand conventional commit types (feat, fix, chore, etc.)",
+        "Write semantic commit messages",
+        "Include proper scope and breaking changes",
+        "Follow industry-standard commit guidelines"
+    ],
+    hints: [
+        "Conventional commits follow the pattern: <type>(<scope>): <description>",
+        "Common types: feat, fix, docs, style, refactor, test, chore",
+        "feat: introduces a new feature",
+        "fix: fixes a bug",
+        "Use ! or BREAKING CHANGE for breaking changes",
+        "Keep the subject line under 50 characters"
+    ],
+    requirementLogic: "all",
+    requirements: [
+        {
+            id: "feature-commit",
+            command: "git commit -m",
+            requiresArgs: ["feat"],
+            description: "Create a commit with type 'feat' for a new feature",
+            successMessage: "Feature commit created with proper convention!"
+        },
+        {
+            id: "bugfix-commit",
+            command: "git commit -m",
+            requiresArgs: ["fix"],
+            description: "Create a commit with type 'fix' for a bug fix",
+            successMessage: "Bug fix commit created correctly!"
+        },
+        {
+            id: "chore-commit",
+            command: "git commit -m",
+            requiresArgs: ["chore"],
+            description: "Create a commit with type 'chore' for maintenance",
+            successMessage: "Chore commit created successfully!"
+        }
+    ],
+    story: createStory({
+        title: "The Commit Message Convention",
+        narrative: `📝 Welcome to the world of professional commit messages!
+
+You've just joined a team at TechGiant Inc., a company that maintains dozens of open-source projects used by millions of developers. Your first code review is... interesting.
+
+Your team lead, Marcus, returns your PR with a comment:
+
+"Great code! But we need to talk about your commit messages. Here's what I see:
+
+❌ 'fixed stuff'
+❌ 'Updated file'
+❌ 'asdf'
+❌ 'FINALLY WORKS!!!'
+
+These might make sense to you right now, but imagine trying to understand them in 6 months, or trying to generate a changelog, or trying to understand what broke when bisecting through 1,000 commits."
+
+Marcus continues: "We use Conventional Commits - an industry standard that makes commits semantic and machine-readable. Let me show you..."
+
+**Conventional Commit Format:**
+\`\`\`
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer]
+\`\`\`
+
+**Common Types:**
+- **feat**: A new feature
+  - Example: \`feat(auth): add OAuth2 login support\`
+- **fix**: A bug fix
+  - Example: \`fix(payment): correct currency calculation for EUR\`
+- **docs**: Documentation changes
+  - Example: \`docs(readme): update installation instructions\`
+- **style**: Code style changes (formatting, semicolons, etc.)
+  - Example: \`style(components): format code with prettier\`
+- **refactor**: Code refactoring without feature changes
+  - Example: \`refactor(api): simplify error handling logic\`
+- **test**: Adding or updating tests
+  - Example: \`test(auth): add unit tests for login validation\`
+- **chore**: Build process, dependencies, tooling
+  - Example: \`chore(deps): update lodash to 4.17.21\`
+- **perf**: Performance improvements
+  - Example: \`perf(database): optimize query for user lookup\`
+
+**Breaking Changes:**
+Use ! after type or add BREAKING CHANGE in footer
+- Example: \`feat(api)!: remove deprecated endpoints\`
+
+**Real Benefits:**
+- Automated changelog generation
+- Semantic versioning automation
+- Better git bisect context
+- Clearer code review process
+- Team communication
+- Open source contribution standards
+
+"Now," Marcus says, "let's rewrite those commits properly!"`,
+        realWorldContext: "Conventional Commits are used by major projects like Angular, Electron, and React. They enable automation, clear communication, and professional development practices.",
+        taskIntroduction: "Learn to write professional, semantic commit messages following the Conventional Commits specification."
+    }),
+    initialState: createInitialState({
+        files: [
+            createFileStructure("/src/features/authentication.js", "// OAuth2 authentication feature\nfunction authenticateWithOAuth2(provider) {\n  return provider.authenticate();\n}"),
+            createFileStructure("/src/bugfixes/payment.js", "// Fixed currency calculation bug\nfunction calculateTotal(amount, currency) {\n  return convertCurrency(amount, currency);\n}"),
+            createFileStructure("/package.json", '{\n  "name": "techgiant-app",\n  "version": "2.1.0",\n  "dependencies": {\n    "lodash": "4.17.21"\n  }\n}'),
+            createFileStructure("/docs/CHANGELOG.md", "# Changelog\n\nAll notable changes will be documented here following Conventional Commits.\n"),
+        ],
+        git: createGitState({
+            initialized: true,
+            currentBranch: "feature/conventional-commits",
+            branches: ["main", "feature/conventional-commits"],
+            commits: [
+                {
+                    message: "Initial project setup",
+                    files: ["/package.json", "/docs/CHANGELOG.md"]
+                }
+            ],
+            fileChanges: [
+                {
+                    path: "/src/features/authentication.js",
+                    content: "// OAuth2 authentication feature\nfunction authenticateWithOAuth2(provider) {\n  return provider.authenticate();\n}",
+                    status: "untracked"
+                },
+                {
+                    path: "/src/bugfixes/payment.js",
+                    content: "// Fixed currency calculation bug\nfunction calculateTotal(amount, currency) {\n  return convertCurrency(amount, currency);\n}",
+                    status: "untracked"
+                }
+            ]
+        })
+    })
+});
+
 export const advancedLevels = {
     1: advancedLevel1,
     2: advancedLevel2,
     3: advancedLevel3,
+    4: advancedLevel4,
 };

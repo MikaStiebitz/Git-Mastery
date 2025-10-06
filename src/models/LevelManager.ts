@@ -246,7 +246,11 @@ export class LevelManager {
 
     // Get a specific level with translated content
     public getLevel(stageId: string, levelId: number, translateFunc?: (key: string) => string): LevelType | null {
-        const level = this.stages[stageId]?.levels[levelId];
+        // Find stage by ID (need to search through stages object)
+        const stageEntry = Object.values(this.stages).find(stage => stage.id === stageId);
+        if (!stageEntry) return null;
+
+        const level = stageEntry.levels[levelId];
         if (!level) return null;
 
         if (!translateFunc) {
@@ -341,6 +345,42 @@ export class LevelManager {
                         }
                         requirementSatisfied = true;
                         continue;
+                    }
+                }
+
+                // Special case for branch creation - accept both switch -c and checkout -b
+                if (requirement.command === "git switch -c" && requirement.id === "create-feature-branch") {
+                    const isSwitch = gitCommand === "switch" && gitArgs[0] === "-c";
+                    const isCheckout = gitCommand === "checkout" && gitArgs[0] === "-b";
+
+                    if (isSwitch || isCheckout) {
+                        // Check if the branch name matches
+                        const branchName = gitArgs[1];
+                        if (branchName && requirement.requiresArgs && requirement.requiresArgs.includes(branchName)) {
+                            if (requirement.id) {
+                                level.completedRequirements.push(requirement.id);
+                            }
+                            requirementSatisfied = true;
+                            continue;
+                        }
+                    }
+                }
+
+                // Special case for branch switching - accept both switch and checkout
+                if (requirement.command === "git switch" && requirement.id === "switch-to-main") {
+                    const isSwitch = gitCommand === "switch";
+                    const isCheckout = gitCommand === "checkout";
+
+                    if (isSwitch || isCheckout) {
+                        // Check if switching to the right branch
+                        const branchName = gitArgs[0];
+                        if (branchName && requirement.requiresArgs && requirement.requiresArgs.includes(branchName)) {
+                            if (requirement.id) {
+                                level.completedRequirements.push(requirement.id);
+                            }
+                            requirementSatisfied = true;
+                            continue;
+                        }
                     }
                 }
 

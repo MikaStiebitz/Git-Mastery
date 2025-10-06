@@ -3,6 +3,7 @@ import { type FileSystem } from "~/models/FileSystem";
 
 export class GitRepository {
     private initialized = false;
+    private repositoryRoot: string | null = null; // NEW: Track where repo was initialized
     private branches: string[] = ["main"];
     private currentBranch = "main";
     private HEAD = "main";
@@ -37,8 +38,53 @@ export class GitRepository {
         };
     }
 
+    // NEW: Check if a directory is within this repository
+    public isInRepository(currentDirectory: string): boolean {
+        if (!this.initialized) return false;
+
+        // Check if .git directory exists in current or parent directories
+        let checkDir = this.normalizePath(currentDirectory);
+
+        while (true) {
+            const gitPath = checkDir === '/' ? '/.git' : `${checkDir}/.git`;
+            const gitDir = this.fileSystem.getDirectoryContents(gitPath);
+            if (gitDir !== null) {
+                // Found .git directory
+                // Check if this matches our repository root
+                return this.repositoryRoot === checkDir;
+            }
+
+            // Move to parent directory
+            if (checkDir === '/') break;
+            checkDir = this.getParentPath(checkDir);
+        }
+
+        return false;
+    }
+
+    // NEW: Get repository root
+    public getRepositoryRoot(): string | null {
+        return this.repositoryRoot;
+    }
+
+    private normalizePath(path: string): string {
+        if (path !== '/' && path.endsWith('/')) {
+            return path.slice(0, -1);
+        }
+        return path || '/';
+    }
+
+    private getParentPath(path: string): string {
+        if (path === '/') return '/';
+        const parts = path.split('/').filter(p => p);
+        if (parts.length === 0) return '/';
+        parts.pop();
+        return parts.length === 0 ? '/' : '/' + parts.join('/');
+    }
+
     public partialReset(): void {
         this.initialized = true;
+        this.repositoryRoot = null; // Reset repository root
         this.branches = ["main"];
         this.currentBranch = "main";
         this.HEAD = "main";
@@ -51,23 +97,47 @@ export class GitRepository {
         };
     }
 
-    public init(): boolean {
-        if (this.initialized) return false;
+    public init(currentDirectory: string = '/'): boolean {
+        const normalizedDir = this.normalizePath(currentDirectory);
 
+        // If already initialized in this exact directory, reinitialize
+        if (this.initialized && this.repositoryRoot === normalizedDir) {
+            // Create .git directory structure in the file system
+            this.fileSystem.mkdir(`${normalizedDir}/.git`);
+            this.fileSystem.mkdir(`${normalizedDir}/.git/objects`);
+            this.fileSystem.mkdir(`${normalizedDir}/.git/refs`);
+            this.fileSystem.mkdir(`${normalizedDir}/.git/refs/heads`);
+
+            // Create basic git files
+            this.fileSystem.writeFile(`${normalizedDir}/.git/HEAD`, "ref: refs/heads/main");
+            this.fileSystem.writeFile(
+                `${normalizedDir}/.git/config`,
+                "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n",
+            );
+            return true; // Reinitialize success
+        }
+
+        // If initialized in a different directory, we can't init here (single repo limitation)
+        if (this.initialized && this.repositoryRoot !== normalizedDir) {
+            return false; // Already initialized elsewhere
+        }
+
+        // First initialization
         // Create .git directory structure in the file system
-        this.fileSystem.mkdir("/.git");
-        this.fileSystem.mkdir("/.git/objects");
-        this.fileSystem.mkdir("/.git/refs");
-        this.fileSystem.mkdir("/.git/refs/heads");
+        this.fileSystem.mkdir(`${normalizedDir}/.git`);
+        this.fileSystem.mkdir(`${normalizedDir}/.git/objects`);
+        this.fileSystem.mkdir(`${normalizedDir}/.git/refs`);
+        this.fileSystem.mkdir(`${normalizedDir}/.git/refs/heads`);
 
         // Create basic git files
-        this.fileSystem.writeFile("/.git/HEAD", "ref: refs/heads/main");
+        this.fileSystem.writeFile(`${normalizedDir}/.git/HEAD`, "ref: refs/heads/main");
         this.fileSystem.writeFile(
-            "/.git/config",
+            `${normalizedDir}/.git/config`,
             "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n",
         );
 
         this.initialized = true;
+        this.repositoryRoot = normalizedDir; // Store where we initialized
         return true;
     }
 
@@ -209,6 +279,29 @@ export class GitRepository {
             return true;
         }
         return false;
+    }
+
+    public hasUnmergedCommits(branchName: string, baseBranch?: string): boolean {
+        if (!this.initialized) return false;
+
+        const base = baseBranch || this.currentBranch;
+        const targetBranchState = this.branchStates[branchName];
+        const baseBranchState = this.branchStates[base];
+
+        if (!targetBranchState || !baseBranchState) return false;
+
+        // Check if target branch has commits not in base branch
+        const targetCommits = new Set(targetBranchState.commits);
+        const baseCommits = new Set(baseBranchState.commits);
+
+        // If target branch has any commit that base branch doesn't have, it's unmerged
+        for (const commit of targetCommits) {
+            if (!baseCommits.has(commit)) {
+                return true; // Has unmerged commits
+            }
+        }
+
+        return false; // All commits are merged or branch has no unique commits
     }
 
     // Enhanced checkout with proper branch switching and file system isolation
@@ -408,6 +501,15 @@ export class GitRepository {
         return { ...this.status };
     }
 
+    public getCommittedFileContent(path: string): string | null {
+        const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+        const currentBranchState = this.branchStates[this.currentBranch];
+
+        if (!currentBranchState) return null;
+
+        return currentBranchState.files[normalizedPath] ?? null;
+    }
+
     public stashSave(message: string = "WIP on " + this.currentBranch): boolean {
         if (!this.initialized) return false;
 
@@ -445,7 +547,16 @@ export class GitRepository {
 
     public addRemote(name: string, url: string): boolean {
         if (!this.initialized) return false;
+        // Don't allow duplicate remotes
+        if (this.remotes[name]) return false;
         this.remotes[name] = url;
+        return true;
+    }
+
+    public removeRemote(name: string): boolean {
+        if (!this.initialized) return false;
+        if (!this.remotes[name]) return false;
+        delete this.remotes[name];
         return true;
     }
 

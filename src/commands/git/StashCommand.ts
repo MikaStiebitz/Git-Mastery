@@ -25,20 +25,32 @@ export class StashCommand implements Command {
             case "push":
             case "save":
                 // Stash changes
-                return [
-                    "Saved working directory and index state WIP on " +
-                        gitRepository.getCurrentBranch() +
-                        ": Changes stashed successfully.",
-                ];
+                {
+                    const success = gitRepository.stashSave();
+                    if (!success) {
+                        return ["No local changes to save"];
+                    }
+                    return [
+                        "Saved working directory and index state WIP on " +
+                            gitRepository.getCurrentBranch() +
+                            ": Changes stashed successfully.",
+                    ];
+                }
 
             case "pop":
                 // Pop stashed changes
-                return [
-                    "On branch " +
-                        gitRepository.getCurrentBranch() +
-                        "\nChanges not staged for commit:\n  modified: (stashed changes)\n" +
-                        "Dropped refs/stash@{0}",
-                ];
+                {
+                    const success = gitRepository.stashApply(true);
+                    if (!success) {
+                        return ["No stash entries found."];
+                    }
+                    return [
+                        "On branch " +
+                            gitRepository.getCurrentBranch() +
+                            "\nChanges not staged for commit:\n  modified: (stashed changes)\n" +
+                            "Dropped refs/stash@{0}",
+                    ];
+                }
 
             case "list":
                 // List stashes (simplified)

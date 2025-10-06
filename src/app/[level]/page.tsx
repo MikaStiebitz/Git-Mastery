@@ -591,23 +591,29 @@ export default function LevelPage() {
     return (
         <PageLayout showLevelInfo>
             <div className="bg-[#1a1625] text-purple-100">
-                <div className="container mx-auto p-4">
-                    <h1 className="mb-6 text-center text-3xl font-bold text-white">Git Learning Game</h1>
-                    <ProgressBar score={progress.score} maxScore={150} className="mb-6" />
+                <div className="container mx-auto p-2 sm:p-4">
+                    <h1 className="mb-4 text-center text-2xl font-bold text-white sm:mb-6 sm:text-3xl">
+                        Git Learning Game
+                    </h1>
+                    <ProgressBar score={progress.score} maxScore={150} className="mb-4 sm:mb-6" />
 
-                    {/* Ensuring equal heights between challenge card and terminal */}
-                    {/* Portrait monitors (taller than wide) and mobile use vertical layout */}
-                    <div className="grid grid-cols-1 gap-4 portrait:grid-cols-1 portrait:grid-rows-[1fr,auto] landscape:lg:grid-cols-2 landscape:lg:grid-rows-1">
-                        <Card className="flex h-[580px] flex-col overflow-hidden border-purple-900/20 bg-purple-900/10 portrait:order-1 portrait:h-auto portrait:min-h-[300px] landscape:md:order-2 landscape:lg:h-[580px]">
-                            <CardHeader className="shrink-0">
-                                <CardTitle className="flex items-center text-white">
-                                    <Shield className="mr-2 h-5 w-5 text-purple-400" />
+                    {/* Mobile-optimized layout: Stack vertically on mobile, side-by-side on desktop */}
+                    <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+                        {/* Challenge Card - Always show first on mobile for context */}
+                        <Card className="order-1 flex flex-col overflow-hidden border-purple-900/20 bg-purple-900/10 lg:order-2 lg:h-[580px]">
+                            <CardHeader className="shrink-0 p-3 sm:p-6">
+                                <CardTitle className="flex items-center text-base text-white sm:text-lg">
+                                    <Shield className="mr-2 h-4 w-4 text-purple-400 sm:h-5 sm:w-5" />
                                     {t("level.currentChallenge")}
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="flex-grow overflow-auto pb-4">{renderLevelChallenge()}</CardContent>
+                            <CardContent className="flex-grow overflow-auto p-3 pb-4 sm:p-6">
+                                {renderLevelChallenge()}
+                            </CardContent>
                         </Card>
-                        <Terminal className="h-[580px] rounded-md portrait:order-2 portrait:h-[400px] landscape:lg:h-[580px]" />
+
+                        {/* Terminal - Second on mobile, optimized height */}
+                        <Terminal className="order-2 h-[450px] rounded-md sm:h-[500px] lg:order-1 lg:h-[580px]" />
                     </div>
 
                     <FileEditor

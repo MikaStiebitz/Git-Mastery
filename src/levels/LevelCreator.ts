@@ -18,6 +18,7 @@ export function createLevel(params: {
     objectives: string[];
     hints: string[];
     requirements: LevelRequirement[];
+    requirementLogic?: "any" | "all";
     story?: StoryContext;
     resetGitRepo?: boolean;
     initialState?: {
@@ -32,6 +33,7 @@ export function createLevel(params: {
         objectives: params.objectives,
         hints: params.hints,
         requirements: params.requirements,
+        requirementLogic: params.requirementLogic,
         story: params.story,
         resetGitRepo: params.resetGitRepo,
         initialState: params.initialState,

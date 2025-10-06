@@ -23,6 +23,15 @@ export class TouchCommand implements Command {
 
         const filePath = resolvePath(fileName, context.currentDirectory);
 
+        // Check if file already exists
+        const existingContent = fileSystem.getFileContents(filePath);
+        if (existingContent !== null) {
+            // File exists - just update timestamp by rewriting with same content
+            fileSystem.writeFile(filePath, existingContent);
+            return [`Updated timestamp for: ${fileName}`];
+        }
+
+        // File doesn't exist - create new empty file
         const success = fileSystem.writeFile(filePath, "");
 
         if (success) {

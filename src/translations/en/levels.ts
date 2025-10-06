@@ -71,6 +71,24 @@ const levels = {
         "Developers run `git status` multiple times a day to see which files have been changed and which are ready for the next commit.",
     "intro.level2.story.taskIntroduction": "Check the status of your repository with `git status`.",
 
+    "intro.level3.name": "Cloning Repositories",
+    "intro.level3.description": "Learn to clone existing repositories",
+    "intro.level3.objective1": "Clone a remote repository",
+    "intro.level3.objective2": "Navigate into the cloned repository",
+    "intro.level3.hint1": "Use the `git clone <url>` command",
+    "intro.level3.hint2": "After cloning, use `cd` to navigate into the repository folder",
+    "intro.level3.hint3": "The repository URL can be any valid Git repository URL",
+    "intro.level3.requirement1.description": "Clone a remote repository",
+    "intro.level3.requirement1.success": "Great! You've cloned the repository.",
+    "intro.level3.requirement2.description": "Navigate into the cloned repository using cd",
+    "intro.level3.requirement2.success": "Perfect! You're now inside the cloned repository.",
+    "intro.level3.story.title": "Joining an Existing Project",
+    "intro.level3.story.narrative":
+        "Your first week at TechStart is going great! Alex calls you over with exciting news.\n\n\"We have a team project that needs your help,\" he says. \"The codebase is already on our Git server. You'll need to clone it to your local machine to start working on it.\"\n\nHe explains: \"When you join an existing project, you don't start from scratch. Instead, you clone the remote repository, which creates a complete copy on your machine—including all the code, history, and branches.\"\n\n\"Think of it like checking out a book from the library, except you get the entire library's records too! Use `git clone <repository-url>` to get started.\"\n\n\"Once cloned, you can navigate into the project folder with `cd <folder-name>` and start working immediately. All the project's history and changes are available to you.\"",
+    "intro.level3.story.realWorldContext":
+        "Cloning is how developers join existing projects. Whether contributing to open source or joining a new team, git clone is typically the first command you run.",
+    "intro.level3.story.taskIntroduction": "Clone a repository and navigate into it to start working on the project.",
+
     // Level Content - Files Stage
     "files.name": "File Operations",
     "files.description": "Learn how to manage files with Git",
@@ -295,6 +313,10 @@ const levels = {
         "In collaborative environments, main branches are frequently updated. Rebasing feature branches onto main is a common workflow that helps avoid merge conflicts and keeps feature branches up to date.",
     "rebase.level4.story.taskIntroduction":
         "Rebase your feature branch onto the updated main branch to incorporate the latest changes.",
+
+    // Advanced Stage - Note: Advanced levels use direct text instead of translation keys
+    // The content is already in English in the level definitions
+
 };
 
 export default levels;

@@ -9,10 +9,13 @@ export class CommitCommand implements Command {
     supportsFileCompletion = false;
 
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository } = context;
+        const { gitRepository, currentDirectory } = context;
 
         if (!gitRepository.isInitialized()) {
             return ["Not a git repository. Run 'git init' first."];
+        }
+        if (!gitRepository.isInRepository(currentDirectory)) {
+            return ["fatal: not a git repository (or any of the parent directories): .git"];
         }
 
         // Check if there's anything to commit

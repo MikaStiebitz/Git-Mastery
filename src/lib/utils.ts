@@ -48,23 +48,46 @@ export function getAllFiles(fileSystem: FileSystem, directory: string, prefix = 
 export function resolvePath(path: string, currentDirectory: string): string {
     // Handle absolute paths
     if (path.startsWith("/")) {
-        // Normalize to ensure no double slashes
-        return path.replace(/\/+/g, "/");
+        return normalizePath(path);
     }
 
-    // Handle special cases
-    if (path === "..") {
-        const parts = currentDirectory.split("/").filter(p => p);
-        parts.pop();
-        return "/" + parts.join("/");
+    // Start with current directory
+    let result = currentDirectory;
+
+    // Split path and process each segment
+    const segments = path.split("/").filter(s => s);
+
+    for (const segment of segments) {
+        if (segment === "..") {
+            // Go up one directory
+            const parts = result.split("/").filter(p => p);
+            parts.pop();
+            result = "/" + parts.join("/");
+        } else if (segment === ".") {
+            // Stay in current directory
+            continue;
+        } else {
+            // Go into subdirectory
+            result = result === "/" ? `/${segment}` : `${result}/${segment}`;
+        }
     }
 
-    if (path === ".") {
-        return currentDirectory;
-    }
+    return normalizePath(result);
+}
 
-    // Combine paths and normalize
-    const result = currentDirectory === "/" ? `/${path}` : `${currentDirectory}/${path}`;
-    // Replace any sequences of multiple slashes with a single slash
-    return result.replace(/\/+/g, "/");
+/**
+ * Normalize a path by removing double slashes and ensuring it starts with /
+ */
+function normalizePath(path: string): string {
+    // Replace multiple slashes with single slash
+    let normalized = path.replace(/\/+/g, "/");
+    // Ensure it starts with /
+    if (!normalized.startsWith("/")) {
+        normalized = "/" + normalized;
+    }
+    // Remove trailing slash unless it's root
+    if (normalized.length > 1 && normalized.endsWith("/")) {
+        normalized = normalized.slice(0, -1);
+    }
+    return normalized;
 }
