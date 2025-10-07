@@ -120,8 +120,88 @@ const branchesLevel3 = createLevel({
     }),
 });
 
+// Level 4: git checkout zum Wechseln zwischen Branches
+const branchesLevel4 = createLevel({
+    id: 4,
+    name: "branches.level4.name",
+    description: "branches.level4.description",
+    objectives: ["branches.level4.objective1"],
+    hints: ["branches.level4.hint1", "branches.level4.hint2"],
+    requirements: [
+        createRequirement({
+            command: "git checkout",
+            description: "branches.level4.requirement1.description",
+            successMessage: "branches.level4.requirement1.success",
+        }),
+    ],
+    story: createStory({
+        title: "branches.level4.story.title",
+        narrative: "branches.level4.story.narrative",
+        realWorldContext: "branches.level4.story.realWorldContext",
+        taskIntroduction: "branches.level4.story.taskIntroduction",
+    }),
+    initialState: createInitialState({
+        files: [
+            createFileStructure("/README.md", "# Branch Project\n\nA project for learning about Git branches."),
+            createFileStructure("/src/main.js", 'console.log("Main branch");'),
+        ],
+        git: createGitState({
+            initialized: true,
+            currentBranch: "main",
+            branches: ["main", "feature", "bugfix"],
+            commits: [
+                {
+                    message: "Initial commit",
+                    files: ["/README.md", "/src/main.js"],
+                },
+            ],
+        }),
+    }),
+});
+
+// Level 5: git checkout -b zum Erstellen und Wechseln in einem Schritt
+const branchesLevel5 = createLevel({
+    id: 5,
+    name: "branches.level5.name",
+    description: "branches.level5.description",
+    objectives: ["branches.level5.objective1"],
+    hints: ["branches.level5.hint1", "branches.level5.hint2"],
+    requirements: [
+        createRequirement({
+            command: "git checkout",
+            requiresArgs: ["-b"],
+            description: "branches.level5.requirement1.description",
+            successMessage: "branches.level5.requirement1.success",
+        }),
+    ],
+    story: createStory({
+        title: "branches.level5.story.title",
+        narrative: "branches.level5.story.narrative",
+        realWorldContext: "branches.level5.story.realWorldContext",
+        taskIntroduction: "branches.level5.story.taskIntroduction",
+    }),
+    initialState: createInitialState({
+        files: [
+            createFileStructure("/README.md", "# Branch Project\n\nA project for learning about Git branches."),
+            createFileStructure("/src/main.js", 'console.log("Main branch");'),
+        ],
+        git: createGitState({
+            initialized: true,
+            currentBranch: "main",
+            commits: [
+                {
+                    message: "Initial commit",
+                    files: ["/README.md", "/src/main.js"],
+                },
+            ],
+        }),
+    }),
+});
+
 export const branchesLevels = {
     1: branchesLevel1,
     2: branchesLevel2,
     3: branchesLevel3,
+    4: branchesLevel4,
+    5: branchesLevel5,
 };

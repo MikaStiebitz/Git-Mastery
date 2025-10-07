@@ -29,9 +29,31 @@ export class PushCommand implements Command {
             branch = args.positionalArgs[1] ?? gitRepository.getCurrentBranch();
         }
 
+        // Check if branch has upstream tracking
+        const hasUpstream = gitRepository.hasUpstreamBranch(branch);
+
+        // If no arguments provided and no upstream, show error
+        if (args.positionalArgs.length === 0 && !hasUpstream && !setUpstream) {
+            return [
+                `fatal: The current branch ${branch} has no upstream branch.`,
+                `To push the current branch and set the remote as upstream, use`,
+                ``,
+                `    git push --set-upstream origin ${branch}`,
+                ``,
+                `Or use the shorthand:`,
+                ``,
+                `    git push -u origin ${branch}`,
+                ``,
+                `Or simply:`,
+                ``,
+                `    git push origin ${branch}`
+            ];
+        }
+
         // Validate remote exists
         const remotes = gitRepository.getRemotes();
         if (!remotes[remote]) {
+            return [`error: No such remote: '${remote}'`];
             return [`error: No such remote: '${remote}'`];
         }
 
@@ -45,8 +67,8 @@ export class PushCommand implements Command {
         const hasUnpushedCommits = gitRepository.hasUnpushedCommits();
         const unpushedCommitCount = gitRepository.getUnpushedCommitCount();
 
-        // Perform push
-        const success = gitRepository.push(remote, branch);
+        // Perform push with upstream flag
+        const success = gitRepository.push(remote, branch, setUpstream);
 
         if (success) {
             if (hasUnpushedCommits) {

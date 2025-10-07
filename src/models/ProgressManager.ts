@@ -37,6 +37,9 @@ export class ProgressManager {
         if (!this.progress.hasOwnProperty('doubleXpUntil')) {
             this.progress.doubleXpUntil = null;
         }
+        if (!this.progress.hasOwnProperty('gitGudActivated')) {
+            this.progress.gitGudActivated = false;
+        }
     }
 
     // Get current progress
@@ -198,5 +201,22 @@ export class ProgressManager {
         const diffMs = expiryDate.getTime() - now.getTime();
 
         return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60))); // Convert to hours
+    }
+
+    // Git Gud Easter Egg functionality
+    public hasActivatedGitGud(): boolean {
+        return this.progress.gitGudActivated || false;
+    }
+
+    public activateGitGud(): boolean {
+        if (this.progress.gitGudActivated) {
+            return false; // Already activated
+        }
+
+        this.progress.gitGudActivated = true;
+        this.progress.score += 50; // Secret bonus points!
+        this.progress.lastSavedAt = new Date().toISOString();
+        this.saveProgress();
+        return true; // First time activation
     }
 }

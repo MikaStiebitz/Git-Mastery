@@ -94,9 +94,11 @@ export type LevelType = {
 export type LevelRequirement = {
     id?: string;
     command: string;
+    alternativeCommands?: string[]; // Alternative commands that also fulfill this requirement
     requiresArgs?: string[];
     description: string;
     successMessage?: string;
+    completed?: boolean; // Track if requirement is fulfilled
 };
 
 export type StoryContext = {
@@ -162,6 +164,7 @@ export type UserProgress = {
     completedMinigames: string[];
     minigameScores: Record<string, number>;
     doubleXpUntil?: string | null; // ISO string date when double XP expires
+    gitGudActivated?: boolean; // Easter egg - has the player discovered "git gud"?
 };
 
 // Git commit definition with better types

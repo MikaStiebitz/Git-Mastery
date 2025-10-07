@@ -2,11 +2,13 @@ import commandRegistry from "../commands";
 import type { CommandContext } from "../commands/base/Command";
 import type { FileSystem } from "./FileSystem";
 import type { GitRepository } from "./GitRepository";
+import type { ProgressManager } from "./ProgressManager";
 
 export class CommandProcessor {
     constructor(
         private fileSystem: FileSystem,
         private gitRepository: GitRepository,
+        private progressManager: ProgressManager,
         private currentDirectory = "/",
     ) {}
 
@@ -25,6 +27,7 @@ export class CommandProcessor {
                     this.currentDirectory = dir;
                 }
             },
+            progressManager: this.progressManager,
         };
 
         // Delegate command execution to the registry

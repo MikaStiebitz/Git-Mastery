@@ -22,36 +22,6 @@ interface Minigame {
     category: string;
 }
 
-const MINIGAMES: Minigame[] = [
-    {
-        id: "branch-master",
-        name: "Branch Master",
-        description: "Create and switch between branches as fast as possible",
-        difficulty: "easy",
-        points: 10,
-        icon: <GitBranch className="h-6 w-6" />,
-        category: "Branching",
-    },
-    {
-        id: "commit-champion",
-        name: "Commit Champion",
-        description: "Write meaningful commit messages under pressure",
-        difficulty: "medium",
-        points: 20,
-        icon: <GitCommit className="h-6 w-6" />,
-        category: "Commits",
-    },
-    {
-        id: "merge-master",
-        name: "Merge Master",
-        description: "Resolve merge conflicts like a pro",
-        difficulty: "hard",
-        points: 30,
-        icon: <GitMerge className="h-6 w-6" />,
-        category: "Advanced",
-    },
-];
-
 interface MinigamesProps {
     isOpen: boolean;
     onClose: () => void;
@@ -63,6 +33,37 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
     const [activeMinigame, setActiveMinigame] = useState<string | null>(null);
 
     const completedMinigames = progressManager.getCompletedMinigames();
+
+    // Define minigames with translations
+    const minigames: Minigame[] = [
+        {
+            id: "branch-master",
+            name: t("minigame.branchMaster.name"),
+            description: t("minigame.branchMaster.description"),
+            difficulty: "easy",
+            points: 10,
+            icon: <GitBranch className="h-6 w-6" />,
+            category: t("minigame.branchMaster.category"),
+        },
+        {
+            id: "commit-champion",
+            name: t("minigame.commitChampion.name"),
+            description: t("minigame.commitChampion.description"),
+            difficulty: "medium",
+            points: 20,
+            icon: <GitCommit className="h-6 w-6" />,
+            category: t("minigame.commitChampion.category"),
+        },
+        {
+            id: "merge-master",
+            name: t("minigame.mergeMaster.name"),
+            description: t("minigame.mergeMaster.description"),
+            difficulty: "hard",
+            points: 30,
+            icon: <GitMerge className="h-6 w-6" />,
+            category: t("minigame.mergeMaster.category"),
+        },
+    ];
 
     const handlePlayMinigame = (game: Minigame) => {
         setActiveMinigame(game.id);
@@ -90,7 +91,10 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="mx-2 w-[calc(100vw-1rem)] max-w-4xl border-purple-900/20 bg-[#1a1625] text-purple-100 sm:mx-6 sm:w-[calc(100vw-3rem)] md:mx-0 md:w-full">
+            <DialogContent
+                className="mx-2 w-[calc(100vw-1rem)] max-w-4xl border-purple-900/20 bg-[#1a1625] text-purple-100 sm:mx-6 sm:w-[calc(100vw-3rem)] md:mx-0 md:w-full"
+                showClose={!activeMinigame} // Hide X button when minigame is active
+            >
                 {activeMinigame ? (
                     // Show the selected minigame
                     <>
@@ -141,7 +145,7 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
                         </DialogHeader>
 
                         <div className="mt-6 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            {MINIGAMES.map(game => {
+                            {minigames.map(game => {
                                 const isCompleted = completedMinigames.includes(game.id);
 
                                 return (
@@ -163,7 +167,7 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
                                                 </div>
                                                 <span
                                                     className={`rounded-full px-2 py-1 text-xs capitalize ${getDifficultyColor(game.difficulty).split(" ")[0]} ${getDifficultyColor(game.difficulty).split(" ")[1]}`}>
-                                                    {game.difficulty}
+                                                    {t(`difficulty.${game.difficulty}`)}
                                                 </span>
                                             </div>
                                         </CardHeader>
@@ -185,7 +189,7 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
                                                 {isCompleted ? (
                                                     <>
                                                         <Trophy className="mr-2 h-4 w-4" />
-                                                        Play Again
+                                                        {t("minigame.playAgain")}
                                                     </>
                                                 ) : (
                                                     <>
@@ -205,7 +209,7 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
                                 onClick={onClose}
                                 variant="outline"
                                 className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
-                                Close
+                                {t("minigame.close")}
                             </Button>
                         </div>
                     </>

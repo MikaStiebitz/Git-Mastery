@@ -50,6 +50,54 @@ const common = {
     "minigame.subtitle": "Übe Git-Fähigkeiten und verdiene extra Punkte",
     "minigame.play": "Spielen",
     "minigame.completed": "Abgeschlossen",
+    "minigame.playAgain": "Nochmal spielen",
+    "minigame.close": "Schließen",
+
+    // Minigame Names
+    "minigame.branchMaster.name": "Branch Meister",
+    "minigame.branchMaster.description": "Erstelle und wechsle so schnell wie möglich zwischen Branches",
+    "minigame.branchMaster.category": "Branching",
+    "minigame.commitChampion.name": "Commit Champion",
+    "minigame.commitChampion.description": "Schreibe aussagekräftige Commit-Nachrichten unter Zeitdruck",
+    "minigame.commitChampion.category": "Commits",
+    "minigame.mergeMaster.name": "Merge Meister",
+    "minigame.mergeMaster.description": "Löse Merge-Konflikte wie ein Profi",
+    "minigame.mergeMaster.category": "Fortgeschritten",
+
+    // Difficulty levels
+    "difficulty.easy": "Einfach",
+    "difficulty.medium": "Mittel",
+    "difficulty.hard": "Schwer",
+
+    // Shop Items
+    "shop.item.darkTerminal.name": "Dunkles Terminal-Design",
+    "shop.item.darkTerminal.description": "Ein elegantes dunkles Terminal-Design mit blauen Akzenten - klassisch und professionell",
+    "shop.item.matrixTerminal.name": "Matrix Terminal-Design",
+    "shop.item.matrixTerminal.description": "Grün-auf-schwarz Terminal-Design wie in den Matrix-Filmen - für das ultimative Hacker-Gefühl",
+    "shop.item.goldenTerminal.name": "Goldenes Terminal-Design",
+    "shop.item.goldenTerminal.description": "Ein glänzendes goldenes Terminal-Design, das allen deine Git-Meisterschaft zeigt",
+    "shop.item.gitMascot.name": "Git Maskottchen-Haustier",
+    "shop.item.gitMascot.description": "Ein niedliches animiertes Maskottchen, das dich bei schwierigen Levels anfeuert",
+    "shop.item.victorySound.name": "Siegessound-Paket",
+    "shop.item.victorySound.description": "Befriedigende Soundeffekte beim Abschließen von Levels und Lösen von Herausforderungen",
+    "shop.item.doubleXp.name": "Doppel-XP Wochenende",
+    "shop.item.doubleXp.description": "Erhalte 2x Punkte für abgeschlossene Levels für die nächsten 7 Tage",
+    "shop.item.emojiCommits.name": "Emoji Commit-Nachrichten",
+    "shop.item.emojiCommits.description": "Füge lustige Emoji-Vorschläge zu deinen Commit-Nachrichten hinzu für bessere Git-Historie",
+    "shop.item.gitLegend.name": "Git-Legenden Abzeichen",
+    "shop.item.gitLegend.description": "Exklusives Abzeichen, das zeigt, dass du fortgeschrittenes Git gemeistert hast - schalte besondere Anerkennung frei",
+
+    // Shop Categories
+    "shop.category.cosmetic": "Kosmetik",
+    "shop.category.utility": "Nützlich",
+    "shop.category.achievement": "Erfolg",
+    "shop.category.special": "Spezial",
+
+    // Shop Rarity
+    "shop.rarity.common": "Gewöhnlich",
+    "shop.rarity.rare": "Selten",
+    "shop.rarity.epic": "Episch",
+    "shop.rarity.legendary": "Legendär",
 };
 
 export default common;

@@ -50,8 +50,8 @@ export class SwitchCommand implements Command {
                 return [`fatal: A branch named '${branchName}' already exists.`];
             }
 
-            // Switch to the new branch
-            const checkoutResult = gitRepository.checkout(branchName);
+            // Switch to the new branch with createNew flag = true (allows uncommitted changes)
+            const checkoutResult = gitRepository.checkout(branchName, true);
             if (!checkoutResult.success) {
                 return [`fatal: could not create and switch to branch '${branchName}'`];
             }

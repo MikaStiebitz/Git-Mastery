@@ -28,9 +28,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const router = useRouter();
     const [fileSystem] = useState<FileSystem>(new FileSystem());
     const [gitRepository] = useState<GitRepository>(new GitRepository(fileSystem));
-    const [commandProcessor] = useState<CommandProcessor>(new CommandProcessor(fileSystem, gitRepository));
-    const [levelManager] = useState<LevelManager>(new LevelManager());
     const [progressManager] = useState<ProgressManager>(new ProgressManager());
+    const [commandProcessor] = useState<CommandProcessor>(
+        new CommandProcessor(fileSystem, gitRepository, progressManager),
+    );
+    const [levelManager] = useState<LevelManager>(new LevelManager());
     const { t } = useLanguage();
 
     // Initialize sound manager with purchased status
@@ -48,20 +50,23 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     ]);
     const [isCommitDialogOpen, setIsCommitDialogOpen] = useState<boolean>(false);
 
-    // Advanced mode state
-    const [isAdvancedMode, setIsAdvancedMode] = useState<boolean>(
-        typeof window !== "undefined" ? localStorage.getItem("gitgud-advanced-mode") === "true" : false,
-    );
+    // Advanced mode state - initialize with false to avoid hydration mismatch
+    const [isAdvancedMode, setIsAdvancedMode] = useState<boolean>(false);
 
     // Story dialog trigger state
     const [shouldShowStoryDialog, setShouldShowStoryDialog] = useState<boolean>(false);
 
-    // Difficulty system state
-    const [currentDifficulty, setCurrentDifficulty] = useState<DifficultyLevel>(
-        typeof window !== "undefined"
-            ? (localStorage.getItem("gitgud-difficulty") as DifficultyLevel) || "beginner"
-            : "beginner",
-    );
+    // Difficulty system state - initialize with default to avoid hydration mismatch
+    const [currentDifficulty, setCurrentDifficulty] = useState<DifficultyLevel>("beginner");
+
+    // Load values from localStorage after mount to avoid hydration issues
+    useEffect(() => {
+        const savedAdvancedMode = localStorage.getItem("gitgud-advanced-mode") === "true";
+        const savedDifficulty = (localStorage.getItem("gitgud-difficulty") as DifficultyLevel) || "beginner";
+
+        setIsAdvancedMode(savedAdvancedMode);
+        setCurrentDifficulty(savedDifficulty);
+    }, []);
 
     // Toggle advanced mode
     const toggleAdvancedMode = () => {
@@ -362,15 +367,28 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                 return { stageId, levelId };
             } else {
-                // Handle case where there's no next level in current difficulty - redirect to home
-                setTerminalOutput(prev => [...prev, t("terminal.difficultyCompleted")]);
+                // Handle case where there's no next level in current difficulty - redirect to home immediately
+                // Show completion message with GitHub star request
+                const completionMessages = [
+                    t("terminal.difficultyCompleted"),
+                    "",
+                    t("terminal.githubStar"),
+                    t("terminal.githubLink"),
+                    "",
+                    t("terminal.redirectingHome"),
+                ];
 
-                // Redirect to home page after a short delay
+                setTerminalOutput(prev => [...prev, ...completionMessages]);
+
+                // Ensure story dialog doesn't show during redirect
+                setShouldShowStoryDialog(false);
+
+                // Redirect to home page immediately without story dialog delay
                 setTimeout(() => {
                     if (typeof window !== "undefined") {
                         router.push("/");
                     }
-                }, 2000);
+                }, 2000); // Shorter delay, just enough to read the message
 
                 return null;
             }

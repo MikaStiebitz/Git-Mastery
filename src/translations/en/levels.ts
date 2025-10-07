@@ -183,37 +183,145 @@ const levels = {
         "Switching between branches is one of the most common Git operations. The dedicated `git switch` command makes the intent clear and reduces confusion compared to the multipurpose checkout command.",
     "branches.level3.story.taskIntroduction": "Practice switching to another branch using `git switch`.",
 
+    "branches.level4.name": "Switch Branches with Checkout",
+    "branches.level4.description": "Learn the classic git checkout command for switching branches",
+    "branches.level4.objective1": "Switch to another branch using git checkout",
+    "branches.level4.hint1": "Use the command `git checkout <branch-name>`",
+    "branches.level4.hint2": "checkout is the older command for switching branches",
+    "branches.level4.requirement1.description": "Switch to another branch using git checkout",
+    "branches.level4.requirement1.success": "Great! You now know both ways to switch branches.",
+    "branches.level4.story.title": "The Classic Approach",
+    "branches.level4.story.narrative":
+        '"It\'s important to know git checkout too," Alex explains. "While git switch is the modern way, you\'ll see checkout in older projects, tutorials, and documentation all the time."\n\nHe adds: "checkout can do many things - switch branches, restore files, and more. That\'s why Git introduced switch and restore - to make intentions clearer."',
+    "branches.level4.story.realWorldContext":
+        "git checkout was THE command for branch operations for years. Many developers and tools still use it. Knowing both makes you more versatile across different projects and teams.",
+    "branches.level4.story.taskIntroduction": "Switch to another branch using the classic git checkout command.",
+
+    "branches.level5.name": "Create Branch with Checkout",
+    "branches.level5.description": "Create and switch to a new branch using git checkout -b",
+    "branches.level5.objective1": "Create a new branch using git checkout -b",
+    "branches.level5.hint1": "Use the command `git checkout -b <new-branch-name>`",
+    "branches.level5.hint2": "The -b flag tells checkout to create a new branch",
+    "branches.level5.requirement1.description": "Create and switch to a new branch using git checkout -b",
+    "branches.level5.requirement1.success": "Perfect! You now master both methods of creating branches.",
+    "branches.level5.story.title": "Quick Branch Creation",
+    "branches.level5.story.narrative":
+        '"One last trick with checkout," Sarah says. "You can use \'git checkout -b\' to create a new branch and switch to it at the same time - just like switch -c."\n\nShe explains: "In many older Git tutorials and projects, you\'ll see this pattern. It\'s the same concept as switch -c, just with the older syntax."',
+    "branches.level5.story.realWorldContext":
+        "The checkout -b pattern is very widespread in the Git community. Many developers have built muscle memory for it and continue using it even after switch was introduced.",
+    "branches.level5.story.taskIntroduction": "Create a new branch using git checkout -b and automatically switch to it.",
+
     // Level Content - Merge Stage
     "merge.name": "Merging Branches",
     "merge.description": "Learn how to merge branches",
 
-    "merge.level1.name": "Merge Branches",
-    "merge.level1.description": "Merge one branch into the current branch",
-    "merge.level1.objective1": "Merge the 'feature' branch into the 'main' branch",
-    "merge.level1.hint1": "Use the `git merge feature` command",
-    "merge.level1.hint2": "This merges the feature branch into your current branch",
-    "merge.level1.requirement1.description": "Merge a branch",
-    "merge.level1.requirement1.success": "Excellent! You've successfully merged a branch.",
-    "merge.level1.story.title": "Code Integration",
+    "merge.level1.name": "Merging Feature Branch",
+    "merge.level1.description": "Merge a feature branch into the development branch",
+    "merge.level1.objective1": "Merge the 'feature/user-auth' branch into the 'develop' branch",
+    "merge.level1.hint1": "You're already on the develop branch",
+    "merge.level1.hint2": "Use `git merge feature/user-auth` to integrate the feature branch",
+    "merge.level1.requirement1.description": "Merge the feature branch",
+    "merge.level1.requirement1.success": "Excellent! The feature has been integrated into develop.",
+    "merge.level1.story.title": "Code Review and Integration",
     "merge.level1.story.narrative":
-        '"Great! Your feature is complete and tested," says Alex. "Now it\'s time to integrate these changes back into the main code."\n\nHe explains: "Since you\'re already on the main branch, you can merge the feature branch directly with `git merge feature`."',
+        '"Your feature is done!", says Sarah, the team lead. "But before we push it to main, we need to merge it into the develop branch and test it."\n\nShe explains: "In professional teams, we never merge directly into main. First feature → develop for testing, then develop → main for production."',
     "merge.level1.story.realWorldContext":
-        "Merging is a critical part of the Git workflow. In larger teams, this is often formalized through pull requests and code reviews.",
-    "merge.level1.story.taskIntroduction": "Merge the 'feature' branch into the 'main' branch.",
+        "🔍 Best Practice: Pull Requests\n\nIn real projects, you would now create a Pull Request (PR) or Merge Request (MR) on GitHub/GitLab:\n\n1️⃣ You push your feature branch\n\n2️⃣ You open a PR: feature/user-auth → develop\n\n3️⃣ Team members review your code\n\n4️⃣ After approval, the PR gets merged\n\nThis enables code reviews, discussions, and automatic tests before merging! 🚀",
+    "merge.level1.story.taskIntroduction":
+        "Merge the 'feature/user-auth' branch into the 'develop' branch (you're already on develop).",
 
-    "merge.level2.name": "Handling Merge Conflicts",
-    "merge.level2.description": "Learn how to handle or abort merges with conflicts",
-    "merge.level2.objective1": "Abort a merge with conflicts",
-    "merge.level2.hint1": "Use the `git merge --abort` command",
-    "merge.level2.hint2": "This will stop the merge process and return to the state before the merge began",
-    "merge.level2.requirement1.description": "Abort a merge with conflicts",
-    "merge.level2.requirement1.success": "Good job! You've successfully aborted the merge operation.",
-    "merge.level2.story.title": "When Merges Go Wrong",
+    "merge.level2.name": "Production Deploy",
+    "merge.level2.description": "Merge tested code into the main branch",
+    "merge.level2.objective1": "Merge the 'develop' branch into the 'main' branch",
+    "merge.level2.hint1": "You're already on the main branch",
+    "merge.level2.hint2": "Use `git merge develop` to integrate the tested code",
+    "merge.level2.requirement1.description": "Merge develop into main",
+    "merge.level2.requirement1.success": "Perfect! The code is now in production.",
+    "merge.level2.story.title": "Production Release",
     "merge.level2.story.narrative":
-        '"Sometimes things don\'t go as planned with merges," Alex warns. "If the same part of a file has been changed differently in the two branches you\'re merging, Git can\'t automatically combine them."\n\nHe continues: "When you encounter merge conflicts, you have two options: resolve them manually, or abort the merge if you\'re not ready to deal with them yet."',
+        '"Awesome! The feature runs perfectly on develop and all tests are green," says Sarah. "Now we can merge it into main and deploy."\n\nShe emphasizes: "main is our production branch. Only tested, stable code goes in here. That\'s why we tested on develop first!"',
     "merge.level2.story.realWorldContext":
+        "Git Flow Workflow 🌊\n\n📦 main: Production-ready code\n\n🔧 develop: Integration and testing\n\n✨ feature/*: New features\n\nThis workflow prevents untested code from reaching production. Many teams also use release branches!",
+    "merge.level2.story.taskIntroduction": "Merge the 'develop' branch into the 'main' branch.",
+
+    "merge.level3.name": "Handling Merge Conflicts",
+    "merge.level3.description": "Learn how to handle or abort merges with conflicts",
+    "merge.level3.objective1": "Abort a merge with conflicts",
+    "merge.level3.hint1": "Use the `git merge --abort` command",
+    "merge.level3.hint2": "This will stop the merge process and return to the state before the merge began",
+    "merge.level3.requirement1.description": "Abort a merge with conflicts",
+    "merge.level3.requirement1.success": "Good job! You've successfully aborted the merge operation.",
+    "merge.level3.story.title": "When Merges Go Wrong",
+    "merge.level3.story.narrative":
+        '"Sometimes merges don\'t go as planned," warns Sarah. "When the same part of a file has been changed differently in both branches, a merge conflict occurs."\n\nShe explains: "You have two options: Either you resolve the conflict manually, or you abort the merge with `git merge --abort` and prepare better."',
+    "merge.level3.story.realWorldContext":
         "Merge conflicts are a common part of collaborative development. Knowing how to handle them—whether by resolving or temporarily aborting—is an essential skill.",
-    "merge.level2.story.taskIntroduction": "Practice aborting a merge operation using git merge --abort.",
+    "merge.level3.story.taskIntroduction": "Practice aborting a merge operation using git merge --abort.",
+
+    // Stash Stage
+    "stash.name": "Git Stash",
+    "stash.description": "Learn to temporarily save your changes",
+
+    "stash.level1.name": "Stashing Changes",
+    "stash.level1.description": "Save your work temporarily and retrieve it later",
+    "stash.level1.objective1": "Stash changes, switch branches, and retrieve them",
+    "stash.level1.hint1": "Use `git stash` to save your changes",
+    "stash.level1.hint2": "Use `git stash pop` to retrieve your changes",
+    "stash.level1.requirement1.description": "Stash your current changes",
+    "stash.level1.requirement1.success": "Changes stashed successfully!",
+    "stash.level1.requirement2.description": "Switch to hotfix branch",
+    "stash.level1.requirement2.success": "Switched to hotfix!",
+    "stash.level1.requirement3.description": "Switch back to feature branch",
+    "stash.level1.requirement3.success": "Back to feature!",
+    "stash.level1.requirement4.description": "Retrieve your stashed changes",
+    "stash.level1.requirement4.success": "Changes restored!",
+    "stash.level1.story.title": "Interrupted by Hotfix",
+    "stash.level1.story.narrative":
+        '"Code Red!", your manager shouts. "Critical bug in production. You need to switch to the hotfix branch NOW!"\n\nYou look at your code - halfway through, incomplete. You can\'t commit now, it would break the build.\n\n"Use `git stash`," your colleague Lisa suggests. "It temporarily saves your changes without committing. After the hotfix, retrieve them with `git stash pop`."',
+    "stash.level1.story.realWorldContext":
+        "Git Stash is a lifesaver in daily development!\n\n**When do you need Stash?**\n\n🚨 Urgent hotfix interrupts your work\n\n🔄 You want to switch branches without committing\n\n🧪 You want to experiment without losing changes\n\n💾 Your work isn't commit-ready yet\n\n**Stash is like a clipboard** for your changes - they disappear from the working directory but stay safely stored!",
+    "stash.level1.story.taskIntroduction":
+        "Stash your changes, switch to hotfix branch, then back to feature, and retrieve your work with stash pop.",
+
+    "stash.level2.name": "Switching Between Tasks",
+    "stash.level2.description": "Juggle multiple tasks with git stash",
+    "stash.level2.objective1": "Stash old work, create new branch, return",
+    "stash.level2.hint1": "Start with `git stash` to secure current work",
+    "stash.level2.hint2": "Create new branch with `git checkout -b feature/new-task`",
+    "stash.level2.hint3": "Switch back and retrieve with `git stash pop`",
+    "stash.level2.requirement1.description": "Stash current work",
+    "stash.level2.requirement1.success": "Work secured!",
+    "stash.level2.requirement2.description": "Switch to main",
+    "stash.level2.requirement2.success": "On main branch!",
+    "stash.level2.requirement3.description": "Create feature/new-task branch",
+    "stash.level2.requirement3.success": "New branch created!",
+    "stash.level2.requirement4.description": "Switch back to feature/old-task",
+    "stash.level2.requirement4.success": "Back to old task!",
+    "stash.level2.requirement5.description": "Retrieve stashed work",
+    "stash.level2.requirement5.success": "Work restored!",
+    "stash.level2.story.title": "Multi-Tasking Master",
+    "stash.level2.story.narrative":
+        '"Hey, can you quickly work on this new feature request?", your Product Owner asks.\n\nYou\'re in the middle of another task. Previously you\'d have to commit everything or lose changes.\n\n"Stash is perfect for this," explains your Senior Developer Marc. "Save your current work, create a new branch for the new task, and later just retrieve the old work."',
+    "stash.level2.story.realWorldContext":
+        "**Stash in Team Life**\n\nDevelopers often juggle multiple tasks:\n\n- Sprint Planning changes priorities\n- Urgent bugs interrupt features\n- Code reviews require context switches\n- Meetings interrupt flow\n\n**Git Stash makes context-switching painless!**\n\nWithout Stash you'd have to either:\n- Commit unfinished code (bad for history)\n- Discard changes (work lost)\n- Stay in dirty state (can't switch)\n\nWith Stash: Save, switch, work, return - all clean! ✨",
+    "stash.level2.story.taskIntroduction":
+        "Stash your work, switch to main, create new branch, return to old task and retrieve your work.",
+
+    "stash.level3.name": "Managing Stashes",
+    "stash.level3.description": "Learn to list and manage stash entries",
+    "stash.level3.objective1": "List stashes and apply them",
+    "stash.level3.hint1": "Use `git stash list` to see all stashes",
+    "stash.level3.hint2": "Retrieve stash with `git stash pop`",
+    "stash.level3.requirement1.description": "List all stash entries",
+    "stash.level3.requirement1.success": "Stashes displayed!",
+    "stash.level3.requirement2.description": "Retrieve latest stash",
+    "stash.level3.requirement2.success": "Stash restored!",
+    "stash.level3.story.title": "Stash Organization",
+    "stash.level3.story.narrative":
+        '"Wait, where did I stash those changes again?", you wonder.\n\n"Use `git stash list`," says Lisa. "It shows all saved stashes. With `git stash pop` you retrieve the latest and remove it from the stash."\n\nShe continues: "There\'s also `git stash apply` - it applies the stash but keeps it. Useful when you need the same changes multiple times!"',
+    "stash.level3.story.realWorldContext":
+        "**Stash Management Commands**\n\n`git stash list` - Shows all stashes\n\n`git stash pop` - Applies and deletes stash\n\n`git stash apply` - Applies stash, keeps it\n\n`git stash drop` - Deletes a stash\n\n`git stash clear` - Deletes all stashes\n\n**Pro Tip**: Name your stashes with `git stash push -m \"WIP: Feature X\"` - makes the list more organized!",
+    "stash.level3.story.taskIntroduction": "List your stashes and retrieve the latest one.",
 
     // Remote Stage
     "remote.name": "Remote Repositories",
@@ -235,19 +343,84 @@ const levels = {
     "remote.level1.story.taskIntroduction": "Add a remote named 'origin' to your repository.",
 
     // Remote Level 2
-    "remote.level2.name": "Pushing Changes",
-    "remote.level2.description": "Send your changes to a remote repository",
-    "remote.level2.objective1": "Push your commits to the remote repository",
-    "remote.level2.hint1": "Use the `git push <remote> <branch>` command",
-    "remote.level2.hint2": "For your first push to a new branch, you might need to set the upstream with -u",
-    "remote.level2.requirement1.description": "Push your changes to the remote",
-    "remote.level2.requirement1.success": "Perfect! You've pushed your changes to the remote repository.",
-    "remote.level2.story.title": "Sharing Your Work",
+    "remote.level2.name": "Pushing Commits to Remote",
+    "remote.level2.description": "Learn when and how to upload your commits",
+    "remote.level2.objective1": "Push your local commits to the remote repository",
+    "remote.level2.objective2": "Understand the difference between local commit and remote push",
+    "remote.level2.hint1": "Use `git push origin main` to push to the main branch",
+    "remote.level2.hint2":
+        "IMPORTANT: Push AFTER you've made a commit! Push uploads your commits, not individual files.",
+    "remote.level2.hint3": "Tip: Use `git log` to see what commits you have",
+    "remote.level2.requirement1.description": "Push your commits to the remote",
+    "remote.level2.requirement1.success": "Perfect! Your commits are now available in the remote repository.",
+    "remote.level2.story.title": "From Local to Remote Repository",
     "remote.level2.story.narrative":
-        '"Now that we\'ve connected to the remote repository, it\'s time to share your work with the team," says Alex. "This is done using the `git push` command."\n\nHe continues: "When you push, your commits are uploaded to the remote repository, making them available to other team members. This is how collaboration happens in Git."',
+        '"Let me show you how the Git workflow works," Alex says, drawing a diagram:\n\n1️⃣ You change files (Working Directory)\n2️⃣ You stage them with `git add` (Staging Area)\n3️⃣ You commit them with `git commit` (Local Repository)\n4️⃣ You push with `git push` (Remote Repository)\n\n"Important to understand: git push uploads your COMMITS, not individual files! You must make a commit before you can push. Your local commits only exist on your computer until you push them."',
     "remote.level2.story.realWorldContext":
-        "Pushing is how you share your work in a Git-based workflow. It's the opposite of pulling, which brings others' changes to your local repository.",
-    "remote.level2.story.taskIntroduction": "Push your changes to the remote repository.",
+        "The difference between local and remote repository is fundamental: Local commits only exist on your machine. Only through git push do they become visible to your team. This means: You can make as many local commits as you want and then push them all at once!",
+    "remote.level2.story.taskIntroduction":
+        "You've already made a commit. Now push this commit to the remote repository using `git push origin main`.",
+
+    "remote.level3.name": "Push Feature Branch",
+    "remote.level3.description": "Push a feature branch to the remote repository",
+    "remote.level3.objective1": "Push your feature branch with all its commits",
+    "remote.level3.hint1": "Use `git push origin <branch-name>`",
+    "remote.level3.hint2": "You can also use `git push -u origin <branch-name>` to set the upstream",
+    "remote.level3.requirement1.description": "Push a feature branch to the remote",
+    "remote.level3.requirement1.success": "Excellent! Your feature branch is now available in the remote repository.",
+    "remote.level3.story.title": "Sharing Features",
+    "remote.level3.story.narrative":
+        '"You\'ve been working on a great new feature on a separate branch," Sarah says. "Now it\'s time to push this branch to the remote repository so other team members can see and review your work."\n\nShe explains: "When pushing a branch for the first time, you should use the -u (or --set-upstream) option. This links your local branch with the remote branch, making future pushes and pulls easier."',
+    "remote.level3.story.realWorldContext":
+        "In professional teams, new features are typically developed on separate branches and then pushed for review before being merged into the main codebase. This is a central part of the pull request workflow.",
+    "remote.level3.story.taskIntroduction": "Push your feature branch to the remote repository so others can see it.",
+
+    // Reset Stage
+    "reset.name": "Undoing Commits",
+    "reset.description": "Learn how to undo commits using git reset",
+
+    "reset.level1.name": "Soft Reset - Keep Changes",
+    "reset.level1.description": "Go back to a previous commit but keep your changes",
+    "reset.level1.objective1": "Use git reset --soft to undo a commit",
+    "reset.level1.hint1": "Use `git reset --soft HEAD~1`",
+    "reset.level1.hint2": "HEAD~1 means 'one commit before the current one'",
+    "reset.level1.requirement1.description": "Undo a commit using --soft",
+    "reset.level1.requirement1.success": "Great! The changes are still staged, but the commit has been undone.",
+    "reset.level1.story.title": "Fixing a Mistake",
+    "reset.level1.story.narrative":
+        '"Oh no!", Alex exclaims. "I just noticed the last commit has an error in the commit message and the config file is wrong. Fortunately, there\'s git reset --soft!"\n\nHe explains: "With --soft, you can go back to a previous commit, but all your changes stay in the staging area. This is perfect when you just want to change the commit message or add/remove files from the commit."',
+    "reset.level1.story.realWorldContext":
+        "git reset --soft is super useful when you want to fix your last commit without losing the work. You can edit the changes and then commit again.",
+    "reset.level1.story.taskIntroduction": "Use git reset --soft HEAD~1 to undo the last commit but keep the changes.",
+
+    "reset.level2.name": "Hard Reset - Discard Everything",
+    "reset.level2.description": "Go back to a previous commit and discard all changes",
+    "reset.level2.objective1": "Use git reset --hard to discard commits and changes",
+    "reset.level2.hint1": "Use `git reset --hard HEAD~1`",
+    "reset.level2.hint2": "WARNING: All changes since that commit will be lost!",
+    "reset.level2.hint3": "In real life: Be careful with --hard, it can destroy work!",
+    "reset.level2.requirement1.description": "Discard commits using --hard",
+    "reset.level2.requirement1.success": "The commit and all changes have been completely removed!",
+    "reset.level2.story.title": "Making a Fresh Start",
+    "reset.level2.story.narrative":
+        '"Sometimes experimental code goes completely wrong," Alex says seriously. "The last commit introduced bugs and the codebase is now unstable. We need to completely go back to the last working version."\n\nHe warns: "git reset --hard is like rewinding time. It removes commits AND discards all changes in the working directory. Use it with caution!"',
+    "reset.level2.story.realWorldContext":
+        "--hard reset is a powerful but dangerous tool. It\'s used when you really need a clean slate. In teams, be careful with reset on pushed commits - it can confuse others.",
+    "reset.level2.story.taskIntroduction": "Use git reset --hard HEAD~1 to return to the previous commit and discard everything.",
+
+    "reset.level3.name": "Reset to Specific Commit",
+    "reset.level3.description": "Go back to a specific commit in history",
+    "reset.level3.objective1": "Use git reset with a commit hash or HEAD~n",
+    "reset.level3.hint1": "Use `git log` to see commits and their hashes",
+    "reset.level3.hint2": "Then use `git reset --soft HEAD~2` to go back two commits",
+    "reset.level3.requirement1.description": "Reset to an earlier commit",
+    "reset.level3.requirement1.success": "Perfect! You can now return to any point in history.",
+    "reset.level3.story.title": "Time Travel in Git",
+    "reset.level3.story.narrative":
+        '"Sometimes you need to go back multiple commits," Sarah explains. "You can use HEAD~2 for two commits back, HEAD~3 for three, and so on. Or you can use the specific commit hash."\n\nShe shows you: "git log shows you all commits with their hashes. You can then use git reset <hash> to go back to that exact point."',
+    "reset.level3.story.realWorldContext":
+        "The ability to return to any point in history is one of Git\'s most powerful features. It gives you safety when experimenting - you can always go back.",
+    "reset.level3.story.taskIntroduction": "Use git reset to go back to an earlier commit in history.",
 
     // Rebase Stage
     "rebase.name": "Rebasing",

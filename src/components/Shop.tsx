@@ -18,81 +18,6 @@ interface ShopItem {
     rarity: "common" | "rare" | "epic" | "legendary";
 }
 
-const SHOP_ITEMS: ShopItem[] = [
-    {
-        id: "dark-terminal",
-        name: "Dark Terminal Theme",
-        description: "A sleek dark terminal theme with blue accents - classic and professional",
-        price: 25,
-        icon: <Star className="h-6 w-6" />,
-        category: "cosmetic",
-        rarity: "common",
-    },
-    {
-        id: "matrix-terminal",
-        name: "Matrix Terminal Theme",
-        description: "Green-on-black terminal theme like the Matrix movies - for the ultimate hacker feel",
-        price: 50,
-        icon: <Zap className="h-6 w-6" />,
-        category: "cosmetic",
-        rarity: "rare",
-    },
-    {
-        id: "golden-terminal",
-        name: "Golden Terminal Theme",
-        description: "A shiny gold terminal theme that shows your Git mastery to everyone",
-        price: 100,
-        icon: <Trophy className="h-6 w-6" />,
-        category: "cosmetic",
-        rarity: "legendary",
-    },
-    {
-        id: "git-mascot",
-        name: "Git Mascot Pet",
-        description: "A cute animated mascot that cheers you on during difficult levels",
-        price: 75,
-        icon: <Sparkles className="h-6 w-6" />,
-        category: "special",
-        rarity: "rare",
-    },
-    {
-        id: "victory-sound",
-        name: "Victory Sound Pack",
-        description: "Satisfying sound effects when you complete levels and solve challenges",
-        price: 40,
-        icon: <Gamepad2 className="h-6 w-6" />,
-        category: "special",
-        rarity: "common",
-    },
-    {
-        id: "double-xp",
-        name: "Double XP Weekend",
-        description: "Get 2x points for completing levels for the next 7 days",
-        price: 120,
-        icon: <Zap className="h-6 w-6" />,
-        category: "utility",
-        rarity: "epic",
-    },
-    {
-        id: "emoji-commits",
-        name: "Emoji Commit Messages",
-        description: "Add fun emoji suggestions to your commit messages for better git history",
-        price: 35,
-        icon: <Sparkles className="h-6 w-6" />,
-        category: "special",
-        rarity: "common",
-    },
-    {
-        id: "git-legend",
-        name: "Git Legend Badge",
-        description: "Exclusive badge showing you've mastered advanced Git - unlock special recognition",
-        price: 200,
-        icon: <Trophy className="h-6 w-6" />,
-        category: "achievement",
-        rarity: "legendary",
-    },
-];
-
 interface ShopProps {
     isOpen: boolean;
     onClose: () => void;
@@ -114,6 +39,82 @@ export function Shop({ isOpen, onClose }: ShopProps) {
     const progress = progressManager.getProgress();
     const playerPoints = progress.score;
     const purchasedItems = progressManager.getPurchasedItems();
+
+    // Define shop items with translations
+    const shopItems: ShopItem[] = [
+        {
+            id: "dark-terminal",
+            name: t("shop.item.darkTerminal.name"),
+            description: t("shop.item.darkTerminal.description"),
+            price: 25,
+            icon: <Star className="h-6 w-6" />,
+            category: "cosmetic",
+            rarity: "common",
+        },
+        {
+            id: "matrix-terminal",
+            name: t("shop.item.matrixTerminal.name"),
+            description: t("shop.item.matrixTerminal.description"),
+            price: 50,
+            icon: <Zap className="h-6 w-6" />,
+            category: "cosmetic",
+            rarity: "rare",
+        },
+        {
+            id: "golden-terminal",
+            name: t("shop.item.goldenTerminal.name"),
+            description: t("shop.item.goldenTerminal.description"),
+            price: 100,
+            icon: <Trophy className="h-6 w-6" />,
+            category: "cosmetic",
+            rarity: "legendary",
+        },
+        {
+            id: "git-mascot",
+            name: t("shop.item.gitMascot.name"),
+            description: t("shop.item.gitMascot.description"),
+            price: 75,
+            icon: <Sparkles className="h-6 w-6" />,
+            category: "special",
+            rarity: "rare",
+        },
+        {
+            id: "victory-sound",
+            name: t("shop.item.victorySound.name"),
+            description: t("shop.item.victorySound.description"),
+            price: 40,
+            icon: <Gamepad2 className="h-6 w-6" />,
+            category: "special",
+            rarity: "common",
+        },
+        {
+            id: "double-xp",
+            name: t("shop.item.doubleXp.name"),
+            description: t("shop.item.doubleXp.description"),
+            price: 120,
+            icon: <Zap className="h-6 w-6" />,
+            category: "utility",
+            rarity: "epic",
+        },
+        {
+            id: "emoji-commits",
+            name: t("shop.item.emojiCommits.name"),
+            description: t("shop.item.emojiCommits.description"),
+            price: 35,
+            icon: <Sparkles className="h-6 w-6" />,
+            category: "special",
+            rarity: "common",
+        },
+        {
+            id: "git-legend",
+            name: t("shop.item.gitLegend.name"),
+            description: t("shop.item.gitLegend.description"),
+            price: 200,
+            icon: <Trophy className="h-6 w-6" />,
+            category: "achievement",
+            rarity: "legendary",
+        },
+    ];
 
     const handlePurchase = (item: ShopItem) => {
         if (playerPoints >= item.price && !purchasedItems.includes(item.id)) {
@@ -183,7 +184,7 @@ export function Shop({ isOpen, onClose }: ShopProps) {
 
                 <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1 sm:pr-2">
                     <div className="mt-6 grid max-w-full grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
-                        {SHOP_ITEMS.map(item => {
+                        {shopItems.map(item => {
                             const isPurchased = purchasedItems.includes(item.id);
                             const canAfford = playerPoints >= item.price;
 
@@ -191,7 +192,7 @@ export function Shop({ isOpen, onClose }: ShopProps) {
                                 <Card
                                     key={item.id}
                                     className={`border transition-all duration-300 ${getRarityColor(item.rarity)} ${getRarityBg(item.rarity)} ${
-                                        isPurchased ? "opacity-60" : "hover:scale-105"
+                                        isPurchased ? "opacity-60" : "hover:shadow-lg hover:shadow-purple-500/20"
                                     } min-w-0`}>
                                     <CardHeader className="p-4 sm:p-6">
                                         <div className="flex items-center justify-between">
@@ -206,7 +207,7 @@ export function Shop({ isOpen, onClose }: ShopProps) {
                                             </div>
                                             <span
                                                 className={`rounded-full px-2 py-1 text-xs capitalize ${getRarityColor(item.rarity)}`}>
-                                                {item.rarity}
+                                                {t(`shop.rarity.${item.rarity}`)}
                                             </span>
                                         </div>
                                     </CardHeader>
@@ -251,7 +252,7 @@ export function Shop({ isOpen, onClose }: ShopProps) {
                         onClick={onClose}
                         variant="outline"
                         className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
-                        Close
+                        {t("minigame.close")}
                     </Button>
                 </div>
             </DialogContent>

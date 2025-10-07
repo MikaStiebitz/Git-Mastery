@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
 import { CheckCircle2, Settings } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
-import { DIFFICULTIES } from "~/config/difficulties";
+import { difficulties } from "~/config/difficulties";
 import type { DifficultyLevel } from "~/types";
 
 interface DifficultySelectorProps {
@@ -89,7 +89,7 @@ export function DifficultySelector({ isOpen, onClose, isInitialSelection = false
                 </DialogHeader>
 
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-6 sm:gap-4 md:grid-cols-3">
-                    {Object.values(DIFFICULTIES).map(diff => (
+                    {difficulties.map(diff => (
                         <Card
                             key={diff.id}
                             className={`flex flex-col ${getDifficultyColorClasses(diff.id, selectedDifficulty === diff.id)}`}

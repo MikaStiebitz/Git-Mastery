@@ -165,9 +165,11 @@ export class LevelManager {
                     }
                     break;
                 case "untracked":
-                    // Create new untracked file
-                    if (change.path && change.content) {
-                        fileSystem.writeFile(change.path, change.content);
+                    // Create new untracked file (only if content is provided)
+                    if (change.path) {
+                        if (change.content) {
+                            fileSystem.writeFile(change.path, change.content);
+                        }
                         gitRepository.updateFileStatus(change.path, "untracked");
                     }
                     break;
@@ -179,9 +181,11 @@ export class LevelManager {
                     }
                     break;
                 case "staged":
-                    // Create and stage file
-                    if (change.path && change.content) {
-                        fileSystem.writeFile(change.path, change.content);
+                    // Stage file (create it first if content is provided)
+                    if (change.path) {
+                        if (change.content) {
+                            fileSystem.writeFile(change.path, change.content);
+                        }
                         gitRepository.addFile(change.path);
                     }
                     break;
@@ -247,7 +251,10 @@ export class LevelManager {
     // Get a specific level with translated content
     public getLevel(stageId: string, levelId: number, translateFunc?: (key: string) => string): LevelType | null {
         // Find stage by ID (need to search through stages object)
-        const stageEntry = Object.values(this.stages).find(stage => stage.id === stageId);
+        // Support both lowercase ID (e.g., "intro") and capitalized key (e.g., "Intro")
+        const stageEntry = Object.values(this.stages).find(stage =>
+            stage.id === stageId || stage.id === stageId.toLowerCase()
+        );
         if (!stageEntry) return null;
 
         const level = stageEntry.levels[levelId];
@@ -348,48 +355,22 @@ export class LevelManager {
                     }
                 }
 
-                // Special case for branch creation - accept both switch -c and checkout -b
-                if (requirement.command === "git switch -c" && requirement.id === "create-feature-branch") {
-                    const isSwitch = gitCommand === "switch" && gitArgs[0] === "-c";
-                    const isCheckout = gitCommand === "checkout" && gitArgs[0] === "-b";
-
-                    if (isSwitch || isCheckout) {
-                        // Check if the branch name matches
-                        const branchName = gitArgs[1];
-                        if (branchName && requirement.requiresArgs && requirement.requiresArgs.includes(branchName)) {
-                            if (requirement.id) {
-                                level.completedRequirements.push(requirement.id);
-                            }
-                            requirementSatisfied = true;
-                            continue;
-                        }
-                    }
-                }
-
-                // Special case for branch switching - accept both switch and checkout
-                if (requirement.command === "git switch" && requirement.id === "switch-to-main") {
-                    const isSwitch = gitCommand === "switch";
-                    const isCheckout = gitCommand === "checkout";
-
-                    if (isSwitch || isCheckout) {
-                        // Check if switching to the right branch
-                        const branchName = gitArgs[0];
-                        if (branchName && requirement.requiresArgs && requirement.requiresArgs.includes(branchName)) {
-                            if (requirement.id) {
-                                level.completedRequirements.push(requirement.id);
-                            }
-                            requirementSatisfied = true;
-                            continue;
-                        }
-                    }
-                }
-
-                // Check if this is the right Git command
-                if (
+                // Check if command matches (including alternative commands)
+                const commandMatches =
                     requirement.command === `git ${gitCommand}` ||
                     requirement.command === command ||
-                    requirement.command === gitCommand
-                ) {
+                    requirement.command === gitCommand ||
+                    requirement.alternativeCommands?.some(altCmd => {
+                        const altParts = altCmd.split(' ');
+                        if (altParts[0] === 'git' && altParts.length > 1) {
+                            // Handle "git switch" vs "git checkout" etc
+                            return altParts[1] === gitCommand ||
+                                   (altParts.length > 2 && altParts[1] === gitCommand && gitArgs[0] === altParts[2]);
+                        }
+                        return altCmd === `git ${gitCommand}`;
+                    });
+
+                if (commandMatches) {
                     console.log("Command matches!");
 
                     // Check arguments if required

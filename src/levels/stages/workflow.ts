@@ -17,22 +17,21 @@ const workflowLevel1 = createLevel({
         "Merge your feature branch back to main"
     ],
     hints: [
-        "Always branch from the latest main branch",
-        "Use descriptive branch names like 'feature/user-authentication'",
-        "Make atomic commits that represent single logical changes",
-        "Write commit messages that explain the 'why', not just the 'what'",
-        "Use 'git switch -c feature/user-auth' OR 'git checkout -b feature/user-auth' to create the branch",
-        "Both commands work! Modern: git switch -c, Traditional: git checkout -b",
-        "Don't forget to modify a file before trying to stage and commit!",
-        "After pushing, switch back to main and merge your feature branch"
+        "Start by creating a feature branch: 'git switch -c feature/user-auth'",
+        "You can also use 'git checkout -b feature/user-auth' - both work!",
+        "Modify the auth.js file, then use 'git add' to stage your changes",
+        "Commit with: 'git commit'",
+        "Push to remote: 'git push origin feature/user-auth'",
+        "Switch back to main: 'git switch main'",
+        "Finally merge: 'git merge feature/user-auth'"
     ],
     requirementLogic: "all",
     requirements: [
         {
             id: "create-feature-branch",
             command: "git switch -c",
-            requiresArgs: ["feature/user-auth"],
-            description: "Create a new feature branch 'feature/user-auth' (use 'git switch -c' OR 'git checkout -b')",
+            alternativeCommands: ["git checkout -b"],
+            description: "Create a new feature branch (use 'git switch -c <branch>' OR 'git checkout -b <branch>')",
             successMessage: "Feature branch created successfully!"
         },
         {
@@ -51,13 +50,14 @@ const workflowLevel1 = createLevel({
         {
             id: "push-feature",
             command: "git push",
-            requiresArgs: ["origin", "feature/user-auth"],
-            description: "Push your feature branch to remote (git push origin feature/user-auth)",
+            requiresArgs: ["origin"],
+            description: "Push your feature branch to remote (git push origin <your-branch>)",
             successMessage: "Feature branch pushed to remote!"
         },
         {
             id: "switch-to-main",
             command: "git switch",
+            alternativeCommands: ["git checkout"],
             requiresArgs: ["main"],
             description: "Switch back to main branch (use 'git switch main' OR 'git checkout main')",
             successMessage: "Switched to main branch!"
@@ -65,8 +65,7 @@ const workflowLevel1 = createLevel({
         {
             id: "merge-feature",
             command: "git merge",
-            requiresArgs: ["feature/user-auth"],
-            description: "Merge your feature branch into main (git merge feature/user-auth)",
+            description: "Merge your feature branch into main",
             successMessage: "Feature successfully merged! This is how real teams integrate new features."
         }
     ],
@@ -124,6 +123,7 @@ In this level, we're simulating the workflow by having you push and merge direct
         files: [
             createFileStructure("/README.md", "# TechCorp Project\n\nA cutting-edge web application."),
             createFileStructure("/src/app.js", "// Main application file\nconsole.log('App starting...');"),
+            createFileStructure("/src/auth.js", "// TODO: Add user authentication"),
             createFileStructure("/package.json", '{\n  "name": "techcorp-app",\n  "version": "1.0.0"\n}')
         ],
         git: createGitState({
@@ -133,7 +133,14 @@ In this level, we're simulating the workflow by having you push and merge direct
             commits: [
                 {
                     message: "Initial project setup",
-                    files: ["/README.md", "/src/app.js", "/package.json"]
+                    files: ["/README.md", "/src/app.js", "/src/auth.js", "/package.json"]
+                }
+            ],
+            fileChanges: [
+                {
+                    path: "/src/auth.js",
+                    status: "modified",
+                    content: "// User authentication module\nfunction login(username, password) {\n  // Authentication logic here\n  return true;\n}"
                 }
             ]
         })

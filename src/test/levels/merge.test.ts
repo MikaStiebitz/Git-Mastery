@@ -26,6 +26,14 @@ describe("Merge Stage Levels", () => {
     });
 
     describe("All Levels", () => {
+        it("should have exactly 3 levels", () => {
+            const stage = allStages.Merge;
+            const levelIds = Object.keys(stage.levels).map(Number);
+
+            expect(levelIds.length).toBe(3);
+            expect(levelIds).toEqual([1, 2, 3]);
+        });
+
         it("should load and setup each level without errors", () => {
             const stage = allStages.Merge;
             const levelIds = Object.keys(stage.levels).map(Number);
@@ -59,6 +67,87 @@ describe("Merge Stage Levels", () => {
             });
 
             expect(hasMergeCommands).toBe(true);
+        });
+    });
+
+    describe("Level 1: Feature Branch Merge", () => {
+        it("should start on develop branch", () => {
+            const success = levelManager.setupLevel("merge", 1, fileSystem, gitRepository);
+            expect(success).toBe(true);
+            expect(gitRepository.getCurrentBranch()).toBe("develop");
+        });
+
+        it("should have main, develop, and feature/user-auth branches", () => {
+            levelManager.setupLevel("merge", 1, fileSystem, gitRepository);
+            const branches = gitRepository.getBranches();
+
+            expect(branches).toContain("main");
+            expect(branches).toContain("develop");
+            expect(branches).toContain("feature/user-auth");
+        });
+
+        it("should require merging feature/user-auth", () => {
+            const stage = allStages.Merge;
+            const level = stage.levels[1];
+
+            expect(level?.requirements[0]?.command).toBe("git merge");
+        });
+    });
+
+    describe("Level 2: Production Deploy", () => {
+        it("should start on main branch", () => {
+            const success = levelManager.setupLevel("merge", 2, fileSystem, gitRepository);
+            expect(success).toBe(true);
+            expect(gitRepository.getCurrentBranch()).toBe("main");
+        });
+
+        it("should have main and develop branches", () => {
+            levelManager.setupLevel("merge", 2, fileSystem, gitRepository);
+            const branches = gitRepository.getBranches();
+
+            expect(branches).toContain("main");
+            expect(branches).toContain("develop");
+        });
+
+        it("should require merging develop into main", () => {
+            const stage = allStages.Merge;
+            const level = stage.levels[2];
+
+            expect(level?.requirements[0]?.command).toBe("git merge");
+        });
+    });
+
+    describe("Level 3: Abort Merge Conflicts", () => {
+        it("should start on main branch", () => {
+            const success = levelManager.setupLevel("merge", 3, fileSystem, gitRepository);
+            expect(success).toBe(true);
+            expect(gitRepository.getCurrentBranch()).toBe("main");
+        });
+
+        it("should have main and feature branches", () => {
+            levelManager.setupLevel("merge", 3, fileSystem, gitRepository);
+            const branches = gitRepository.getBranches();
+
+            expect(branches).toContain("main");
+            expect(branches).toContain("feature");
+        });
+
+        it("should require aborting merge", () => {
+            const stage = allStages.Merge;
+            const level = stage.levels[3];
+
+            expect(level?.requirements[0]?.command).toBe("git merge");
+            expect(level?.requirements[0]?.requiresArgs).toContain("--abort");
+        });
+
+        it("should have merge conflicts setup", () => {
+            levelManager.setupLevel("merge", 3, fileSystem, gitRepository);
+
+            // The level should have merge conflicts configured
+            const level = allStages.Merge.levels[3];
+            expect(level).toBeDefined();
+            expect(level?.initialState?.git?.mergeConflicts).toBeDefined();
+            expect(level?.initialState?.git?.mergeConflicts?.length).toBeGreaterThan(0);
         });
     });
 });

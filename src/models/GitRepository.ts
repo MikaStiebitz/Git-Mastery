@@ -13,6 +13,7 @@ export class GitRepository {
     private remotes: Record<string, string> = {};
     private fileSystem: FileSystem;
     private pushedCommits: Set<string> = new Set<string>();
+    private upstreamBranches: Record<string, { remote: string; branch: string }> = {}; // Track upstream branches
 
     // Enhanced branch-specific states
     private branchStates: Record<
@@ -310,11 +311,9 @@ export class GitRepository {
 
         const cleanBranchName = branch.replace(/^["'](.*)["']$/, "$1");
 
-        if (createNew) {
-            if (!this.createBranch(cleanBranchName)) {
-                return { success: false };
-            }
-        } else if (!this.branches.includes(cleanBranchName)) {
+        // When createNew is true, the branch was already created by the caller
+        // We just need to verify it exists
+        if (!this.branches.includes(cleanBranchName)) {
             return { success: false };
         }
 
@@ -322,8 +321,9 @@ export class GitRepository {
         const warnings = this.checkForUncommittedChanges();
         const hasUncommittedChanges = warnings.length > 0;
 
-        // If switching branches and there are uncommitted changes, warn and prevent switch
-        if (cleanBranchName !== this.currentBranch && hasUncommittedChanges) {
+        // If switching to an EXISTING branch and there are uncommitted changes, warn and prevent switch
+        // When creating a NEW branch (createNew = true), allow uncommitted changes
+        if (!createNew && cleanBranchName !== this.currentBranch && hasUncommittedChanges) {
             const hasModified = Object.values(this.status).some(s => s === "modified" || s === "untracked");
             if (hasModified) {
                 return {
@@ -550,6 +550,12 @@ export class GitRepository {
         // Don't allow duplicate remotes
         if (this.remotes[name]) return false;
         this.remotes[name] = url;
+
+        // Set upstream for main branch when adding origin remote
+        if (name === "origin" && this.branches.includes("main") && !this.upstreamBranches["main"]) {
+            this.upstreamBranches["main"] = { remote: "origin", branch: "main" };
+        }
+
         return true;
     }
 
@@ -564,7 +570,7 @@ export class GitRepository {
         return { ...this.remotes };
     }
 
-    public push(remote: string, branch: string): boolean {
+    public push(remote: string, branch: string, setUpstream = false): boolean {
         if (!this.initialized) return false;
 
         if (!this.remotes[remote]) {
@@ -592,7 +598,16 @@ export class GitRepository {
             this.pushedCommits.add(commitId);
         }
 
+        // Set upstream tracking if requested or if pushing to remote for first time
+        if (setUpstream || !this.upstreamBranches[branch]) {
+            this.upstreamBranches[branch] = { remote, branch };
+        }
+
         return true;
+    }
+
+    public hasUpstreamBranch(branch: string): boolean {
+        return !!this.upstreamBranches[branch];
     }
 
     public pull(remote: string, branch: string): boolean {

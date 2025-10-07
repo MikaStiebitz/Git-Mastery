@@ -294,12 +294,18 @@ export default function LevelPage() {
 
     // Handle next level navigation and reset story dialog state
     const handleNextLevelWithStory = () => {
-        // Reset the story dialog state when navigating to a new level
-        setUserClosedStoryDialog(false);
-        if (!isAdvancedMode) {
-            setShowStoryDialog(true);
+        // Call handleNextLevel and check if there's actually a next level
+        const nextLevelInfo = handleNextLevel();
+
+        // Only show story dialog if there's actually a next level (not redirecting to home)
+        if (nextLevelInfo && nextLevelInfo.stageId && typeof nextLevelInfo.levelId === "number") {
+            // Reset the story dialog state when navigating to a new level
+            setUserClosedStoryDialog(false);
+            if (!isAdvancedMode) {
+                setShowStoryDialog(true);
+            }
         }
-        handleNextLevel();
+        // If nextLevelInfo is null or undefined, it means difficulty is completed and redirect is happening
     };
 
     // Story dialog display logic - Reset when levels change or triggered by GameContext

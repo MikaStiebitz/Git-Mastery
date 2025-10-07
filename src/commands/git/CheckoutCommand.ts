@@ -67,8 +67,8 @@ export class CheckoutCommand implements Command {
                 return [`fatal: A branch named '${branchName}' already exists.`];
             }
 
-            // Switch to the new branch
-            const checkoutResult = gitRepository.checkout(branchName);
+            // Switch to the new branch with createNew flag = true (allows uncommitted changes)
+            const checkoutResult = gitRepository.checkout(branchName, true);
             if (!checkoutResult.success) {
                 if (checkoutResult.warnings) {
                     return checkoutResult.warnings;

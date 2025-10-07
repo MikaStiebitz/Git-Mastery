@@ -5,6 +5,8 @@ import { branchesLevels } from "./stages/branches";
 import { mergeLevels } from "./stages/merge";
 import { rebaseLevels } from "./stages/rebase";
 import { remoteLevels } from "./stages/remote";
+import { resetLevels } from "./stages/reset";
+import { stashLevels } from "./stages/stash";
 import { workflowLevels } from "./stages/workflow";
 import { teamworkLevels } from "./stages/teamwork";
 import { advancedLevels } from "./stages/advanced";
@@ -67,6 +69,20 @@ export const allStages = {
         description: "Learn to work effectively with teams using Git collaboration techniques",
         icon: "👥",
         levels: teamworkLevels,
+    }),
+    Reset: createStage({
+        id: "reset",
+        name: "reset.name",
+        description: "reset.description",
+        icon: "↩️",
+        levels: resetLevels,
+    }),
+    Stash: createStage({
+        id: "stash",
+        name: "stash.name",
+        description: "stash.description",
+        icon: "📦",
+        levels: stashLevels,
     }),
     Advanced: createStage({
         id: "advanced",

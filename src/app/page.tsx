@@ -94,9 +94,17 @@ export default function Home() {
     const [showShop, setShowShop] = useState(false);
     const [showMinigames, setShowMinigames] = useState(false);
     const [isFirstVisit, setIsFirstVisit] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Handle mounting to avoid hydration issues
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     // Update progress when it changes
     useEffect(() => {
+        if (!isMounted) return;
+
         const updateProgress = () => {
             setProgress(progressManager.getProgress());
         };
@@ -110,22 +118,22 @@ export default function Home() {
         return () => {
             window.removeEventListener("storage", updateProgress);
         };
-    }, [progressManager]);
+    }, [progressManager, isMounted]);
 
     // Check for first visit and show difficulty selector
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const hasVisitedBefore = localStorage.getItem("gitgud-has-visited");
-            const hasSelectedDifficulty = localStorage.getItem("gitgud-difficulty");
+        if (!isMounted) return;
 
-            // Show difficulty selector if it's the first visit OR no difficulty has been selected
-            if (!hasVisitedBefore || !hasSelectedDifficulty) {
-                setIsFirstVisit(true);
-                setShowDifficultySelector(true);
-                localStorage.setItem("gitgud-has-visited", "true");
-            }
+        const hasVisitedBefore = localStorage.getItem("gitgud-has-visited");
+        const hasSelectedDifficulty = localStorage.getItem("gitgud-difficulty");
+
+        // Show difficulty selector if it's the first visit OR no difficulty has been selected
+        if (!hasVisitedBefore || !hasSelectedDifficulty) {
+            setIsFirstVisit(true);
+            setShowDifficultySelector(true);
+            localStorage.setItem("gitgud-has-visited", "true");
         }
-    }, []);
+    }, [isMounted]);
 
     // Get all stages with translated content - filtered by difficulty
     const allStages = levelManager.getAllStages(t);
@@ -333,7 +341,7 @@ export default function Home() {
                 </section>
 
                 {/* Difficulty Completion Celebration */}
-                {isDifficultyCompleted() && getNextDifficulty() && (
+                {isMounted && isDifficultyCompleted() && getNextDifficulty() && (
                     <AnimatedElement>
                         <section className="container mx-auto px-4 py-6">
                             <div className="mx-auto max-w-2xl rounded-lg border border-green-700/50 bg-gradient-to-r from-green-900/30 to-emerald-900/20 p-6 text-center">

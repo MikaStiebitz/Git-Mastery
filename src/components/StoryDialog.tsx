@@ -89,12 +89,16 @@ export function StoryDialog({
 
                     <div className="rounded-md border border-purple-800/30 bg-purple-900/30 p-3">
                         <h3 className="mb-2 text-sm font-medium text-purple-400">{t("level.realWorldContext")}</h3>
-                        <p className="text-sm text-purple-200">{highlightGitCommands(story.realWorldContext)}</p>
+                        <p className="whitespace-pre-line text-sm text-purple-200">
+                            {highlightGitCommands(story.realWorldContext)}
+                        </p>
                     </div>
 
                     <div className="rounded-md border border-purple-700/50 bg-purple-900/30 p-3">
                         <h3 className="mb-2 text-sm font-medium text-purple-300">{t("level.task")}</h3>
-                        <p className="text-sm text-purple-200">{highlightGitCommands(story.taskIntroduction)}</p>
+                        <p className="whitespace-pre-line text-sm text-purple-200">
+                            {highlightGitCommands(story.taskIntroduction)}
+                        </p>
                     </div>
                 </div>
 
