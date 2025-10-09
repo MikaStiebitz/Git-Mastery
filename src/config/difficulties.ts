@@ -8,7 +8,7 @@ export const difficulties: DifficultyConfig[] = [
     icon: "🌱",
     color: "green",
     stages: ["Intro", "Files", "Branches", "Remote"],
-    maxPoints: 140,
+    maxPoints: 150,
   },
   {
     id: "advanced",
@@ -26,7 +26,7 @@ export const difficulties: DifficultyConfig[] = [
     icon: "🚀",
     color: "blue",
     stages: ["Rebase", "Advanced", "Archaeology", "Mastery"],
-    maxPoints: 140,
+    maxPoints: 150,
   },
 ];
 

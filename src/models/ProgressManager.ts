@@ -15,6 +15,7 @@ export class ProgressManager {
                 currentStage: "Intro",
                 currentLevel: 1,
                 score: 0,
+                coins: 0,
                 lastSavedAt: new Date().toISOString(),
                 purchasedItems: [],
                 completedMinigames: [],
@@ -40,6 +41,10 @@ export class ProgressManager {
         if (!this.progress.hasOwnProperty('gitGudActivated')) {
             this.progress.gitGudActivated = false;
         }
+        if (!this.progress.hasOwnProperty('coins')) {
+            // Migration: existing users get coins equal to their score
+            this.progress.coins = this.progress.score || 0;
+        }
     }
 
     // Get current progress
@@ -58,7 +63,12 @@ export class ProgressManager {
 
             // Apply double XP if active
             const finalScore = this.isDoubleXpActive() ? score * 2 : score;
+            
+            // Add to score (progress points - never decreases)
             this.progress.score += finalScore;
+            
+            // Add to coins (shop currency - can be spent)
+            this.progress.coins += finalScore;
         }
 
         this.progress.lastSavedAt = new Date().toISOString();
@@ -85,6 +95,7 @@ export class ProgressManager {
             currentStage: "Intro",
             currentLevel: 1,
             score: 0,
+            coins: 0,
             lastSavedAt: new Date().toISOString(),
             purchasedItems: [],
             completedMinigames: [],
@@ -95,13 +106,25 @@ export class ProgressManager {
 
     // Shop functionality
     public spendPoints(amount: number): boolean {
-        if (this.progress.score >= amount) {
-            this.progress.score -= amount;
+        if (this.progress.coins >= amount) {
+            this.progress.coins -= amount;
             this.progress.lastSavedAt = new Date().toISOString();
             this.saveProgress();
             return true;
         }
         return false;
+    }
+
+    public addCoins(amount: number): void {
+        // Apply double XP to coin rewards if active
+        const finalAmount = this.isDoubleXpActive() ? amount * 2 : amount;
+        this.progress.coins += finalAmount;
+        this.progress.lastSavedAt = new Date().toISOString();
+        this.saveProgress();
+    }
+
+    public getCoins(): number {
+        return this.progress.coins;
     }
 
     public purchaseItem(itemId: string): boolean {
@@ -122,17 +145,19 @@ export class ProgressManager {
         return [...this.progress.purchasedItems];
     }
 
-    // Minigame functionality
-    public completeMinigame(gameId: string, score: number): void {
+    // Minigame functionality - Only gives coins, not score
+    public completeMinigame(gameId: string, coinReward: number): void {
         if (!this.progress.completedMinigames.includes(gameId)) {
             this.progress.completedMinigames.push(gameId);
-            this.progress.score += score;
+            
+            // Minigames only give coins (with double XP if active)
+            this.addCoins(coinReward);
         }
 
         // Update high score if better
         const currentHighScore = this.progress.minigameScores[gameId] || 0;
-        if (score > currentHighScore) {
-            this.progress.minigameScores[gameId] = score;
+        if (coinReward > currentHighScore) {
+            this.progress.minigameScores[gameId] = coinReward;
         }
 
         this.progress.lastSavedAt = new Date().toISOString();
@@ -214,7 +239,12 @@ export class ProgressManager {
         }
 
         this.progress.gitGudActivated = true;
-        this.progress.score += 50; // Secret bonus points!
+        
+        // Secret bonus: score + coins!
+        const bonus = this.isDoubleXpActive() ? 100 : 50;
+        this.progress.score += bonus;
+        this.progress.coins += bonus;
+        
         this.progress.lastSavedAt = new Date().toISOString();
         this.saveProgress();
         return true; // First time activation

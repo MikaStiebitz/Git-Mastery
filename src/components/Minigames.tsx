@@ -17,7 +17,7 @@ interface Minigame {
     name: string;
     description: string;
     difficulty: "easy" | "medium" | "hard";
-    points: number;
+    coins: number;
     icon: React.ReactNode;
     category: string;
 }
@@ -41,7 +41,7 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
             name: t("minigame.branchMaster.name"),
             description: t("minigame.branchMaster.description"),
             difficulty: "easy",
-            points: 10,
+            coins: 10,
             icon: <GitBranch className="h-6 w-6" />,
             category: t("minigame.branchMaster.category"),
         },
@@ -50,7 +50,7 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
             name: t("minigame.commitChampion.name"),
             description: t("minigame.commitChampion.description"),
             difficulty: "medium",
-            points: 20,
+            coins: 20,
             icon: <GitCommit className="h-6 w-6" />,
             category: t("minigame.commitChampion.category"),
         },
@@ -59,7 +59,7 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
             name: t("minigame.mergeMaster.name"),
             description: t("minigame.mergeMaster.description"),
             difficulty: "hard",
-            points: 30,
+            coins: 30,
             icon: <GitMerge className="h-6 w-6" />,
             category: t("minigame.mergeMaster.category"),
         },
@@ -178,8 +178,8 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
 
                                             <div className="mb-2 mt-4 text-center">
                                                 <div className="text-sm text-purple-400">
-                                                    <strong>{game.category}</strong> • +{game.points}{" "}
-                                                    {t("progress.points")}
+                                                    <strong>{game.category}</strong> • +{game.coins}{" "}
+                                                    {t("shop.coins")}
                                                 </div>
                                             </div>
 

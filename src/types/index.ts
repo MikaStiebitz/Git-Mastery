@@ -158,7 +158,8 @@ export type UserProgress = {
     completedLevels: Record<string, number[]>;
     currentStage: string;
     currentLevel: number;
-    score: number;
+    score: number; // Progress points (doesn't decrease when spending)
+    coins: number; // Currency for shop (can be spent)
     lastSavedAt: string;
     purchasedItems: string[];
     completedMinigames: string[];

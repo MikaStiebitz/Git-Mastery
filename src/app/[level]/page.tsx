@@ -271,6 +271,27 @@ export default function LevelPage() {
     // Get the current level data with translation
     const levelData: LevelType | null = levelManager.getLevel(currentStage, currentLevel, t);
     const progress = progressManager.getProgress();
+    
+    // Get difficulty config for max points
+    const difficultyStages = {
+        beginner: ["Intro", "Files", "Branches", "Remote"],
+        advanced: ["Merge", "Workflow", "TeamWork", "Reset", "Stash"],
+        pro: ["Rebase", "Advanced", "Archaeology", "Mastery"],
+    };
+    
+    // Determine current difficulty based on stage
+    let currentDifficultyMaxPoints = 150; // Default
+    if (difficultyStages.beginner.includes(currentStage)) {
+        currentDifficultyMaxPoints = 150;
+    } else if (difficultyStages.advanced.includes(currentStage)) {
+        currentDifficultyMaxPoints = 150;
+    } else if (difficultyStages.pro.includes(currentStage)) {
+        currentDifficultyMaxPoints = 150;
+    }
+    
+    // Get double XP info
+    const isDoubleXpActive = progressManager.isDoubleXpActive();
+    const doubleXpHoursLeft = progressManager.getDoubleXpRemainingHours();
 
     // Reset terminal once when the component mounts
     useEffect(() => {
@@ -602,13 +623,20 @@ export default function LevelPage() {
                     <h1 className="mb-4 text-center text-2xl font-bold text-white sm:mb-6 sm:text-3xl">
                         Git Learning Game
                     </h1>
-                    <ProgressBar score={progress.score} maxScore={150} className="mb-4 sm:mb-6" />
+                    <ProgressBar 
+                        score={progress.score} 
+                        coins={progress.coins}
+                        maxScore={currentDifficultyMaxPoints}
+                        isDoubleXpActive={isDoubleXpActive}
+                        doubleXpHoursLeft={doubleXpHoursLeft}
+                        className="mb-4 sm:mb-6" 
+                    />
 
                     {/* Mobile-optimized layout: Stack vertically on mobile, side-by-side on desktop */}
                     <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
                         {/* Challenge Card - Always show first on mobile for context */}
                         <Card className="order-1 flex flex-col overflow-hidden border-purple-900/20 bg-purple-900/10 lg:order-2 lg:h-[580px]">
-                            <CardHeader className="shrink-0 p-3 sm:p-6">
+                            <CardHeader className="shrink-0 p-3 sm:p-6 sm:pb-0">
                                 <CardTitle className="flex items-center text-base text-white sm:text-lg">
                                     <Shield className="mr-2 h-4 w-4 text-purple-400 sm:h-5 sm:w-5" />
                                     {t("level.currentChallenge")}

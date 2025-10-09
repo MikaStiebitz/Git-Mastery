@@ -40,7 +40,7 @@ export function Shop({ isOpen, onClose }: ShopProps) {
 
     // Get fresh data on each render to ensure updates are reflected
     const progress = progressManager.getProgress();
-    const playerPoints = progress.score;
+    const playerCoins = progress.coins; // Use coins instead of score
     const purchasedItems = progressManager.getPurchasedItems();
 
     // Define shop items with translations
@@ -129,8 +129,8 @@ export function Shop({ isOpen, onClose }: ShopProps) {
     ];
 
     const handlePurchase = (item: ShopItem) => {
-        if (playerPoints >= item.price && !purchasedItems.includes(item.id)) {
-            // Spend points and purchase item
+        if (playerCoins >= item.price && !purchasedItems.includes(item.id)) {
+            // Spend coins and purchase item
             if (progressManager.spendPoints(item.price)) {
                 progressManager.purchaseItem(item.id);
 
@@ -196,7 +196,7 @@ export function Shop({ isOpen, onClose }: ShopProps) {
                         <div className="flex items-center space-x-2 text-base font-semibold text-yellow-400 sm:text-lg">
                             <Coins className="h-4 w-4 sm:h-5 sm:w-5" />
                             <span className="text-sm sm:text-base">
-                                {t("shop.balance")}: {playerPoints} {t("progress.points")}
+                                {t("shop.balance")}: {playerCoins} {t("shop.coins")}
                             </span>
                         </div>
                     </DialogHeader>
@@ -205,7 +205,7 @@ export function Shop({ isOpen, onClose }: ShopProps) {
                         <div className="mt-6 grid max-w-full grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
                             {shopItems.map(item => {
                                 const isPurchased = purchasedItems.includes(item.id);
-                                const canAfford = playerPoints >= item.price;
+                                const canAfford = playerCoins >= item.price;
 
                                 return (
                                     <Card

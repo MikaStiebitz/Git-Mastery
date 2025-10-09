@@ -41,6 +41,7 @@ const common = {
     "shop.title": "Git Shop",
     "shop.subtitle": "Spend your earned points on useful items and upgrades",
     "shop.balance": "Your Balance",
+    "shop.coins": "coins",
     "shop.buy": "Buy",
     "shop.purchased": "Purchased",
     "shop.insufficient": "Not enough points",
