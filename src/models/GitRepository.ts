@@ -9,6 +9,13 @@ export class GitRepository {
     private HEAD = "main";
     private status: GitStatus = {};
     private commits: Record<string, { message: string; timestamp: Date; files: string[] }> = {};
+    private remoteCommits: Record<string, Array<{
+        id: string;
+        message: string;
+        timestamp: Date;
+        files: string[];
+        fileContents: Record<string, string>; // Store file contents for pull
+    }>> = {}; // Mock remote commits per branch
     private stash: Array<{ message: string; timestamp: Date; changes: Record<string, string> }> = [];
     private remotes: Record<string, string> = {};
     private fileSystem: FileSystem;
@@ -886,10 +893,193 @@ export class GitRepository {
         this.HEAD = "main";
         this.status = {};
         this.commits = {};
+        this.remoteCommits = {};
+        this.remotes = {};
         this.stash = [];
         this.pushedCommits = new Set();
+        this.upstreamBranches = {};
         this.branchStates = {
             main: { files: {}, status: {}, commits: [], workingDirectory: {} },
         };
+    }
+
+    // Mock remote commits for pull simulation
+    public setRemoteCommits(branch: string, commits: Array<{ id: string; message: string; files: Record<string, string> }>): void {
+        this.remoteCommits[branch] = commits.map(commit => ({
+            id: commit.id,
+            message: commit.message,
+            timestamp: new Date(),
+            files: Object.keys(commit.files),
+            fileContents: commit.files
+        }));
+    }
+
+    public getRemoteCommits(branch: string): Array<{ id: string; message: string; timestamp: Date; files: string[]; fileContents: Record<string, string> }> {
+        return this.remoteCommits[branch] || [];
+    }
+
+    public pullRemoteCommits(remote: string, branch: string): { success: boolean; pulledCommits: number; output: string[] } {
+        const remoteUrl = this.remotes[remote];
+        if (!remoteUrl) {
+            return {
+                success: false,
+                pulledCommits: 0,
+                output: [`error: No such remote: '${remote}'`]
+            };
+        }
+
+        const remoteCommitsForBranch = this.remoteCommits[branch] || [];
+
+        if (remoteCommitsForBranch.length === 0) {
+            return {
+                success: true,
+                pulledCommits: 0,
+                output: [
+                    `From ${remoteUrl}`,
+                    ` * branch            ${branch} -> FETCH_HEAD`,
+                    "Already up to date."
+                ]
+            };
+        }
+
+        // Apply each remote commit
+        const output: string[] = [
+            `From ${remoteUrl}`,
+            ` * branch            ${branch} -> FETCH_HEAD`
+        ];
+
+        let pulledCount = 0;
+        const conflictedFiles: string[] = [];
+
+        for (const remoteCommit of remoteCommitsForBranch) {
+            // Add commit to local history
+            this.commits[remoteCommit.id] = {
+                message: remoteCommit.message,
+                timestamp: remoteCommit.timestamp,
+                files: remoteCommit.files
+            };
+
+            // Mark pulled commit as already pushed (it came from remote)
+            this.pushedCommits.add(remoteCommit.id);
+
+            // Update file contents in filesystem - check for conflicts
+            for (const [filePath, remoteContent] of Object.entries(remoteCommit.fileContents)) {
+                // Normalize path for consistent lookup
+                const normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
+
+                const localContent = this.fileSystem.getFileContents(filePath);
+                const committedContent = this.branchStates[this.currentBranch]?.files[normalizedPath];
+                const fileStatus = this.branchStates[this.currentBranch]?.status[normalizedPath];
+
+                // Determine what content we should compare against remote
+                // If file is modified/staged locally, use local content
+                // Otherwise use committed content
+                const isModifiedLocally = fileStatus === "modified" || fileStatus === "staged";
+                const currentContent = isModifiedLocally && localContent !== null
+                    ? localContent
+                    : committedContent;
+
+                // Conflict detection:
+                // 1. File exists locally (either committed or modified)
+                // 2. Remote content differs from current local state
+                const hasLocalVersion = currentContent !== undefined;
+                const contentsDiffer = currentContent !== remoteContent;
+
+                // Merge conflict: both local AND remote modified the same file differently
+                if (hasLocalVersion && contentsDiffer) {
+                    // Create conflict markers using the current local content
+                    const conflictContent = `<<<<<<< HEAD
+${currentContent}
+=======
+${remoteContent}
+>>>>>>> ${remoteCommit.id.slice(0, 7)} (${remoteCommit.message})`;
+
+                    this.fileSystem.writeFile(filePath, conflictContent);
+                    conflictedFiles.push(filePath);
+
+                    // Mark as conflicted in status
+                    if (!this.branchStates[this.currentBranch]) {
+                        this.branchStates[this.currentBranch] = {
+                            files: {},
+                            status: {},
+                            commits: [],
+                            workingDirectory: {}
+                        };
+                    }
+                    this.branchStates[this.currentBranch]!.status[normalizedPath] = "modified";
+                } else {
+                    // No conflict: just apply remote changes
+                    this.fileSystem.writeFile(filePath, remoteContent);
+
+                    if (!this.branchStates[this.currentBranch]) {
+                        this.branchStates[this.currentBranch] = {
+                            files: {},
+                            status: {},
+                            commits: [],
+                            workingDirectory: {}
+                        };
+                    }
+                    this.branchStates[this.currentBranch]!.files[normalizedPath] = remoteContent;
+                    this.branchStates[this.currentBranch]!.workingDirectory[normalizedPath] = remoteContent;
+
+                    // Remove from status (file is now clean/committed)
+                    delete this.branchStates[this.currentBranch]!.status[normalizedPath];
+                }
+            }
+
+            // Update branch state
+            this.branchStates[this.currentBranch]!.commits.push(remoteCommit.id);
+            pulledCount++;
+        }
+
+        // Clear remote commits after pulling
+        this.remoteCommits[branch] = [];
+
+        // Build output messages
+        if (conflictedFiles.length > 0) {
+            // Merge conflict occurred
+            output.push(`Updating ${this.HEAD}..${remoteCommitsForBranch[remoteCommitsForBranch.length - 1]?.id.slice(0, 7)}`);
+            output.push(""); // Empty line for readability
+            output.push("⚠️  CONFLICT (content): Merge conflict in the following files:");
+            conflictedFiles.forEach(file => {
+                output.push(`    🔴 ${file}`);
+            });
+            output.push("");
+            output.push("Automatic merge failed; fix conflicts and then commit the result.");
+            output.push("");
+            output.push("💡 To resolve:");
+            output.push("   1. Edit the conflicted files to resolve conflicts");
+            output.push("   2. Remove the conflict markers (<<<<<<<, =======, >>>>>>>)");
+            output.push("   3. Stage resolved files: git add .");
+            output.push("   4. Complete the merge: git commit -m \"Resolve merge conflict\"");
+
+            return {
+                success: false, // Indicate merge conflict
+                pulledCommits: pulledCount,
+                output
+            };
+        } else {
+            // Clean pull
+            output.push(`Updating ${this.HEAD}..${remoteCommitsForBranch[remoteCommitsForBranch.length - 1]?.id.slice(0, 7)}`);
+            output.push(`Fast-forward`);
+
+            // List changed files
+            const allFiles = new Set<string>();
+            remoteCommitsForBranch.forEach(commit => {
+                commit.files.forEach(file => allFiles.add(file));
+            });
+
+            allFiles.forEach(file => {
+                output.push(` ${file} | changes`);
+            });
+
+            output.push(`${allFiles.size} file${allFiles.size !== 1 ? 's' : ''} changed`);
+
+            return {
+                success: true,
+                pulledCommits: pulledCount,
+                output
+            };
+        }
     }
 }

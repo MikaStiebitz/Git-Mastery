@@ -94,6 +94,9 @@ const common = {
     "shop.proTip.title": "Pro Git-Tipp",
     "shop.proTip.subtitle": "Nützliches Git-Wissen um deine Skills zu verbessern",
     "shop.proTip.another": "Weiterer Tipp",
+    "shop.proTip.hide": "Tipps ausblenden",
+    "shop.proTip.enable": "Tipps aktivieren",
+    "shop.proTip.disable": "Tipps deaktivieren",
     "shop.showTip": "Tipp anzeigen",
 
     // Shop Categories

@@ -136,6 +136,13 @@ export class LevelManager {
             if (gitState.fileChanges) {
                 this.applyFileChanges(gitRepository, fileSystem, gitState.fileChanges);
             }
+
+            // Set up remote commits if specified
+            if (gitState.remoteCommits) {
+                for (const remoteCommitSet of gitState.remoteCommits) {
+                    gitRepository.setRemoteCommits(remoteCommitSet.branch, remoteCommitSet.commits);
+                }
+            }
         }
     }
 
@@ -340,11 +347,25 @@ export class LevelManager {
 
             console.log(`Git command: ${gitCommand}, Git args:`, gitArgs);
 
-            for (const requirement of level.requirements) {
-                // Skip already completed requirements
-                if (requirement.id && level.completedRequirements.includes(requirement.id)) {
-                    continue;
-                }
+            // For 'all' logic (sequential), only check the NEXT uncompleted requirement
+            let requirementsToCheck;
+            if (level.requirementLogic === "all") {
+                // Find the first uncompleted requirement (sequential mode)
+                const nextRequirementIndex = level.requirements.findIndex(
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                );
+                requirementsToCheck = nextRequirementIndex >= 0
+                    ? [level.requirements[nextRequirementIndex]]
+                    : [];
+            } else {
+                // For 'any' logic, check all uncompleted requirements
+                requirementsToCheck = level.requirements.filter(
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                );
+            }
+
+            for (const requirement of requirementsToCheck) {
+                if (!requirement) continue; // Safety check
 
                 // Special case for git add level
                 if (requirement.command === "git add" && gitCommand === "add") {
@@ -354,7 +375,7 @@ export class LevelManager {
                             level.completedRequirements.push(requirement.id);
                         }
                         requirementSatisfied = true;
-                        continue;
+                        break; // Only one requirement per command
                     }
                 }
 
@@ -402,6 +423,7 @@ export class LevelManager {
                         level.completedRequirements.push(requirement.id);
                     }
                     requirementSatisfied = true;
+                    break; // Only one requirement per command
                 }
             }
         } else if (command === "next") {
@@ -409,11 +431,25 @@ export class LevelManager {
             return false; // The "next" command does not complete any level
         } else {
             // Non-Git commands
-            for (const requirement of level.requirements) {
-                // Skip already completed requirements
-                if (requirement.id && level.completedRequirements.includes(requirement.id)) {
-                    continue;
-                }
+            // For 'all' logic (sequential), only check the NEXT uncompleted requirement
+            let requirementsToCheck;
+            if (level.requirementLogic === "all") {
+                // Find the first uncompleted requirement (sequential mode)
+                const nextRequirementIndex = level.requirements.findIndex(
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                );
+                requirementsToCheck = nextRequirementIndex >= 0
+                    ? [level.requirements[nextRequirementIndex]]
+                    : [];
+            } else {
+                // For 'any' logic, check all uncompleted requirements
+                requirementsToCheck = level.requirements.filter(
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                );
+            }
+
+            for (const requirement of requirementsToCheck) {
+                if (!requirement) continue; // Safety check
 
                 if (requirement.command === command) {
                     if (requirement.requiresArgs) {
@@ -432,6 +468,7 @@ export class LevelManager {
                         level.completedRequirements.push(requirement.id);
                     }
                     requirementSatisfied = true;
+                    break; // Only one requirement per command
                 }
             }
         }

@@ -94,6 +94,9 @@ const common = {
     "shop.proTip.title": "Pro Git Tip",
     "shop.proTip.subtitle": "Useful Git knowledge to level up your skills",
     "shop.proTip.another": "Another Tip",
+    "shop.proTip.hide": "Hide tips",
+    "shop.proTip.enable": "Enable Tips",
+    "shop.proTip.disable": "Disable Tips",
     "shop.showTip": "Show Tip",
 
     // Shop Categories

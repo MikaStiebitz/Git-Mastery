@@ -40,11 +40,8 @@ export class PullCommand implements Command {
             return [`error: Couldn't find remote ref ${branch}`];
         }
 
-        // Simulate pull response with proper git output
-        return [
-            `From ${remotes[remote]}`,
-            ` * branch            ${branch} -> FETCH_HEAD`,
-            "Already up to date.",
-        ];
+        // Try to pull remote commits
+        const pullResult = gitRepository.pullRemoteCommits(remote, branch);
+        return pullResult.output;
     }
 }

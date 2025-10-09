@@ -32,6 +32,17 @@ export function Shop({ isOpen, onClose }: ShopProps) {
     const [, forceUpdate] = useState({});
     const [showProTip, setShowProTip] = useState(false);
     const [currentTip, setCurrentTip] = useState("");
+    const [proTipsEnabled, setProTipsEnabled] = useState(true);
+
+    // Load Pro Tips enabled state
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const saved = localStorage.getItem("proTipsEnabled");
+            if (saved !== null) {
+                setProTipsEnabled(saved === "true");
+            }
+        }
+    }, []);
 
     // Force re-render when dialog opens to show latest progress
     useEffect(() => {
@@ -244,16 +255,39 @@ export function Shop({ isOpen, onClose }: ShopProps) {
                                                 </div>
 
                                                 {item.id === "pro-tips" && isPurchased ? (
-                                                    <Button
-                                                        onClick={() => {
-                                                            setCurrentTip(getRandomGitTip());
-                                                            setShowProTip(true);
-                                                        }}
-                                                        size="sm"
-                                                        className="w-full bg-blue-600 text-white hover:bg-blue-700 sm:w-auto">
-                                                        <Lightbulb className="mr-2 h-4 w-4" />
-                                                        {t("shop.showTip")}
-                                                    </Button>
+                                                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                                                        <Button
+                                                            onClick={() => {
+                                                                setCurrentTip(getRandomGitTip());
+                                                                setShowProTip(true);
+                                                            }}
+                                                            size="sm"
+                                                            className="bg-blue-600 text-white hover:bg-blue-700">
+                                                            <Lightbulb className="mr-2 h-4 w-4" />
+                                                            {t("shop.showTip")}
+                                                        </Button>
+                                                        <Button
+                                                            onClick={() => {
+                                                                const newState = !proTipsEnabled;
+                                                                setProTipsEnabled(newState);
+                                                                localStorage.setItem(
+                                                                    "proTipsEnabled",
+                                                                    String(newState),
+                                                                );
+                                                                forceUpdate({});
+                                                            }}
+                                                            size="sm"
+                                                            variant="outline"
+                                                            className={`${
+                                                                proTipsEnabled
+                                                                    ? "border-green-600 text-green-400"
+                                                                    : "border-red-600 text-red-400"
+                                                            }`}>
+                                                            {proTipsEnabled
+                                                                ? t("shop.proTip.disable")
+                                                                : t("shop.proTip.enable")}
+                                                        </Button>
+                                                    </div>
                                                 ) : (
                                                     <Button
                                                         onClick={() => handlePurchase(item)}

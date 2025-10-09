@@ -53,8 +53,18 @@ export class PushCommand implements Command {
         // Validate remote exists
         const remotes = gitRepository.getRemotes();
         if (!remotes[remote]) {
-            return [`error: No such remote: '${remote}'`];
-            return [`error: No such remote: '${remote}'`];
+            return [
+                `error: No such remote: '${remote}'`,
+                ``,
+                `💡 You need to add a remote first:`,
+                `    git remote add ${remote} <repository-url>`,
+                ``,
+                `Example:`,
+                `    git remote add ${remote} https://github.com/user/repo.git`,
+                ``,
+                `Then try pushing again:`,
+                `    git push ${remote} ${branch}`
+            ];
         }
 
         // Validate branch exists

@@ -65,6 +65,14 @@ export type GitState = {
     currentBranch?: string;
     branches?: string[];
     commits?: GitCommit[];
+    remoteCommits?: {
+        branch: string;
+        commits: {
+            id: string;
+            message: string;
+            files: Record<string, string>; // file path -> content
+        }[];
+    }[];
     fileChanges?: FileChange[];
     mergeConflicts?: MergeConflict[];
 };

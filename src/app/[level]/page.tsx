@@ -432,10 +432,42 @@ export default function LevelPage() {
 
                     <div>
                         <h3 className="mb-2 font-medium text-purple-200">{t("level.objectives")}</h3>
-                        <ul className="list-inside list-disc space-y-1 text-purple-300">
-                            {levelData.objectives.map((objective, index) => (
-                                <li key={index}>{objective}</li>
-                            ))}
+                        <ul className="space-y-2 text-purple-300">
+                            {levelData.objectives.map((objective, index) => {
+                                // Check if this objective's requirement is completed
+                                // Assuming objectives align with requirements by index
+                                const requirement = levelData.requirements[index];
+                                const isCompleted = requirement?.id
+                                    ? levelData.completedRequirements?.includes(requirement.id) || false
+                                    : false;
+
+                                return (
+                                    <li key={index} className="flex items-start space-x-2">
+                                        <div
+                                            className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 ${
+                                                isCompleted
+                                                    ? "border-green-500 bg-green-500/20"
+                                                    : "border-purple-500/50"
+                                            }`}>
+                                            {isCompleted && (
+                                                <svg
+                                                    className="h-3 w-3 text-green-400"
+                                                    fill="none"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <span className={isCompleted ? "text-green-300 line-through" : ""}>
+                                            {objective}
+                                        </span>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
 

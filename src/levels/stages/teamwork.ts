@@ -12,10 +12,10 @@ const teamworkLevel1 = createLevel({
     name: "Team Collaboration Basics",
     description: "Learn how to work effectively with a team using Git",
     objectives: [
-        "Synchronize your local repository with the team's latest code",
-        "Create a new feature branch for your contribution",
-        "Edit the team.md file and add your name to the team members list",
-        "Stage and commit your changes with a descriptive message"
+        "Pull the latest team code from remote",
+        "Create a new feature branch for your work",
+        "Add your name to the team members list",
+        "Stage and commit your changes"
     ],
     hints: [
         "Use 'git pull origin main' to get the latest team code",
@@ -95,65 +95,103 @@ const teamworkLevel2 = createLevel({
     name: "Handling Merge Conflicts in Teams",
     description: "Resolve merge conflicts that occur when multiple developers work on the same files",
     objectives: [
-        "Understand how merge conflicts occur",
-        "Pull changes that conflict with your work",
-        "Resolve merge conflicts manually",
-        "Complete the merge process"
+        "Stage and commit your local changes",
+        "Pull remote changes (triggers conflict)",
+        "Resolve merge conflict markers",
+        "Stage and commit the merged solution"
     ],
     hints: [
-        "Merge conflicts happen when two people edit the same lines",
+        "Use 'cat /src/auth/login.js' to see your current uncommitted changes",
+        "Use 'git status' to confirm the file is modified",
+        "Commit with 'git add /src/auth/login.js' then 'git commit -m \"message\"'",
+        "Pull with 'git pull origin main' - this will trigger the conflict!",
         "Look for conflict markers: <<<<<<<, =======, >>>>>>>",
-        "Communicate with teammates when resolving conflicts",
-        "Test your code after resolving conflicts"
+        "Edit login.js to combine both your and Sarah's improvements",
+        "The best solution keeps BOTH: Sarah's email check AND your stricter lengths",
+        "After resolving: 'git add .' then 'git commit -m \"Resolve merge conflict\"'"
     ],
+    requirementLogic: "all",
     requirements: [
-        createRequirement({
-            command: "git pull origin main",
-            description: "Pull changes that will create a merge conflict",
-            successMessage: "Conflicting changes pulled!"
-        }),
-        createRequirement({
-            command: "git add .",
+        {
+            id: "stage-initial-changes",
+            command: "git add",
+            description: "Stage your local changes to login.js",
+            successMessage: "Local changes staged!"
+        },
+        {
+            id: "commit-initial-changes",
+            command: "git commit",
+            description: "Commit your local changes first",
+            successMessage: "Local changes committed!"
+        },
+        {
+            id: "pull-remote-changes",
+            command: "git pull",
+            description: "Pull Sarah's changes to trigger the conflict",
+            successMessage: "Conflicting changes pulled! Check login.js for conflict markers."
+        },
+        {
+            id: "stage-resolved-conflict",
+            command: "git add",
             description: "Stage the resolved conflict",
             successMessage: "Conflict resolution staged!"
-        }),
-        createRequirement({
-            command: "git commit -m",
+        },
+        {
+            id: "commit-merge-resolution",
+            command: "git commit",
             description: "Commit the merge resolution",
             successMessage: "Merge conflict resolved!"
-        })
+        }
     ],
     story: createStory({
         title: "The Great Merge Conflict Crisis",
-        narrative: `⚠️ Uh oh! You've just encountered your first merge conflict.
+        narrative: `⚠️ Welcome to your first merge conflict!
 
-You've been working on the user authentication system all morning. You're feeling great about your progress - clean code, good tests, everything looks perfect.
+**The Situation:**
+You've been working on \`/src/auth/login.js\` this morning. You've improved the password validation to be stricter (minimum 5 chars for username, 10 for password). Great work!
 
-But when you try to pull the latest changes from your teammate Sarah with \`git pull origin main\`, Git throws an error:
+But while you were coding, your teammate Sarah also pushed changes to the SAME FILE! She added email validation logic. Now you both have different versions of the same lines of code.
 
-"CONFLICT (content): Merge conflict in src/auth/login.js"
-"Automatic merge failed; fix conflicts and then commit the result."
+**Your Mission:**
 
-Your heart skips a beat. What happened?
+**1. Check your local changes:** Run \`cat /src/auth/login.js\` to see YOUR improvements (already done, but not committed yet!)
 
-It turns out Sarah was also working on the authentication system. She pushed her changes while you were working, and now both of your changes are trying to modify the same lines of code.
+**2. Commit YOUR changes first:**
+\` git add /src/auth/login.js
+git commit -m "Improve password validation requirements"
+\`
 
-This is completely normal in team development! Merge conflicts are a fact of life when multiple developers collaborate. The key is knowing how to resolve them properly.
+**3. Now try to pull Sarah's changes:**
+\` git pull origin main \`
 
-Your mission:
-1. Examine the conflict markers in the code (\`<<<<<<<\`, \`=======\`, \`>>>>>>>\`)
-2. Decide which changes to keep
-3. Remove the conflict markers
-4. Test that everything still works
-5. Commit the resolution with \`git add .\` and \`git commit -m "Resolve merge conflict"\`
+**4. 💥 MERGE CONFLICT!** Git can't automatically merge because you and Sarah both modified the same lines! You'll see conflict markers in the file:
+\`<<<<<<< HEAD
+(your changes)
+=======
+(Sarah's changes)
+>>>>>>> abc1234\`
 
-Remember: When in doubt, talk to your teammate! Sarah is probably just a Slack message away.`,
+**5. Resolve the conflict:**
+- Edit \`/src/auth/login.js\` to combine the best of both versions
+- Remove the conflict markers (\`<<<<<<<\`, \`=======\`, \`>>>>>>>\`)
+- Keep both your stricter password length AND Sarah's email validation!
+
+**6. Complete the merge:**
+\`git add .
+git commit -m "Merge Sarah's email validation with my password improvements"\`
+
+**Pro Tip:** The best resolution often combines both changes! In this case, keep:
+- Sarah's email validation logic (\`username.includes('@')\`)
+- Your stricter length requirements (\`username.length >= 5\` and \`password.length >= 10\`)
+
+This is completely normal in team development! Merge conflicts happen when multiple developers work on the same code. The key is resolving them thoughtfully.`,
         realWorldContext: "Merge conflicts are inevitable in team development. Learning to resolve them quickly and correctly is a crucial skill.",
         taskIntroduction: "Master merge conflict resolution to become a confident team collaborator."
     }),
     initialState: createInitialState({
         files: [
-            createFileStructure("/src/auth/login.js", "// Authentication module\nfunction validateLogin(username, password) {\n  // Your implementation\n  return username.length > 0 && password.length >= 6;\n}"),
+            // Original committed version (basic validation)
+            createFileStructure("/src/auth/login.js", "// Authentication module\nfunction validateLogin(username, password) {\n  // Basic validation\n  return username.length >= 3 && password.length >= 6;\n}"),
             createFileStructure("/src/auth/signup.js", "// User registration\nfunction createUser(userData) {\n  return database.users.create(userData);\n}")
         ],
         git: createGitState({
@@ -166,20 +204,27 @@ Remember: When in doubt, talk to your teammate! Sarah is probably just a Slack m
                     files: ["/src/auth/login.js", "/src/auth/signup.js"]
                 }
             ],
-            mergeConflicts: [
+            // Sarah's changes waiting on remote
+            remoteCommits: [
                 {
-                    file: "/src/auth/login.js",
-                    content: `// Authentication module
-function validateLogin(username, password) {
-<<<<<<< HEAD
-  // Your implementation
-  return username.length > 0 && password.length >= 6;
-=======
-  // Sarah's implementation
-  if (!username || !password) return false;
-  return username.length >= 3 && password.length >= 8;
->>>>>>> origin/main
-}`
+                    branch: "main",
+                    commits: [
+                        {
+                            id: "abc1234",
+                            message: "Add email validation to login by Sarah",
+                            files: {
+                                "/src/auth/login.js": "// Authentication module\nfunction validateLogin(username, password) {\n  // Sarah's implementation with email validation\n  if (!username || !password) return false;\n  const isValidEmail = username.includes('@');\n  return isValidEmail && password.length >= 6;\n}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            // Your local uncommitted changes (you've been working on this!)
+            fileChanges: [
+                {
+                    path: "/src/auth/login.js",
+                    status: "modified",
+                    content: "// Authentication module\nfunction validateLogin(username, password) {\n  // Your improved implementation with stronger requirements\n  if (!username || !password) return false;\n  return username.length >= 5 && password.length >= 10;\n}"
                 }
             ]
         })
@@ -191,66 +236,85 @@ const teamworkLevel3 = createLevel({
     name: "Code Review Workflow",
     description: "Learn to participate in code reviews and collaborate through pull requests",
     objectives: [
-        "Prepare code for review",
-        "Create a pull request",
-        "Address review feedback",
-        "Merge approved changes"
+        "Create a new feature branch",
+        "Stage your completed work",
+        "Commit with a clear message",
+        "Push your branch for team review"
     ],
     hints: [
-        "Write clear pull request descriptions",
-        "Make atomic commits that are easy to review",
-        "Respond to feedback professionally",
-        "Test thoroughly before requesting review"
+        "Create a feature branch: git switch -c feature/password-reset",
+        "You can also use: git checkout -b feature/password-reset",
+        "Stage all changes: git add .",
+        "Commit with a descriptive message: git commit -m \"Add password reset functionality\"",
+        "Push to remote: git push origin feature/password-reset",
+        "Alternative with shorthand: git push -u origin feature/password-reset",
+        "Note: Use the branch name you created (not 'feature/password-reset' if you chose a different name)"
     ],
+    requirementLogic: "all",
     requirements: [
         {
             id: "create-review-branch",
-            command: "git switch -c",
-            alternativeCommands: ["git checkout -b"],
+            command: "git switch",
+            alternativeCommands: ["git checkout", "git branch"],
             requiresArgs: ["any"],
             description: "Create a branch for code review demonstration",
-            successMessage: "Review branch created!"
+            successMessage: "Feature branch created! ✨"
         },
-        createRequirement({
-            command: "git add .",
+        {
+            id: "stage-code-for-review",
+            command: "git add",
             description: "Stage your code for review",
-            successMessage: "Code staged for review!"
-        }),
-        createRequirement({
-            command: "git commit -m",
+            successMessage: "Code staged for review! 📦"
+        },
+        {
+            id: "commit-for-review",
+            command: "git commit",
             description: "Commit with a clear, reviewable message",
-            successMessage: "Code committed for review!"
-        }),
-        createRequirement({
-            command: "git push origin feature/code-review-demo",
+            successMessage: "Code committed with clear message! 💬"
+        },
+        {
+            id: "push-for-review",
+            command: "git push",
+            requiresArgs: ["any"],
             description: "Push your branch for code review",
-            successMessage: "Code pushed for team review!"
-        })
+            successMessage: "Code pushed for team review! 🚀 In real teams, you'd now create a Pull Request!"
+        }
     ],
     story: createStory({
         title: "The Code Review Culture",
-        narrative: `📝 At InnovateCorp, no code goes to production without a code review. It's not about trust - it's about quality, knowledge sharing, and catching bugs before customers do.
+        narrative: `📝 Welcome to InnovateCorp's Code Review Process!
 
-Your team lead Alex explains the process:
+**The Situation:**
+You've just finished implementing the password reset feature. The code works perfectly in your local tests! 🎉
 
-"Code reviews are where we really shine as a team. Sarah might catch a bug you missed. Mike might suggest a better approach. And sometimes, you'll teach us something new!"
+But wait - at InnovateCorp, no code goes to production without a code review. It's not about trust - it's about quality, knowledge sharing, and catching bugs before customers see them.
 
-"The key is to write code that tells a story. Each commit should be logical. Your pull request description should explain not just what you changed, but why."
+**Why Code Reviews Matter:**
+- **Quality:** Sarah might catch a security issue you missed
+- **Knowledge Sharing:** Mike learns from your clever solution
+- **Better Code:** Multiple perspectives make better software
+- **Team Growth:** Everyone becomes a better developer
 
-You've just finished implementing the password reset feature. It's working perfectly in your local tests, but now it needs to go through the team's review process.
+**Your Task:**
+You need to prepare your password reset feature for team review. Follow the professional workflow:
 
-The code review process:
-1. Create a focused feature branch: \`git switch -c feature/password-reset\`
-2. Write clean, well-documented code
-3. Stage and commit your changes
-4. Push to origin: \`git push origin feature/password-reset\`
-5. Create a pull request for team review
-6. Address feedback from reviewers
-7. Merge once approved
+**Step 1: Create a Feature Branch**
+Never work directly on \`main\`! Create a dedicated branch for your feature.
 
-This is how professional development teams ensure code quality and share knowledge. Your code review skills are just as important as your coding skills!`,
-        realWorldContext: "Code reviews are standard practice in professional development, improving code quality and fostering team knowledge sharing.",
-        taskIntroduction: "Learn to participate effectively in code reviews and collaborative development workflows."
+**Step 2: Stage Your Work**
+Add your completed files to the staging area.
+
+**Step 3: Commit with a Clear Message**
+Write a commit message that explains what you built. Your teammates should understand your changes without reading every line of code.
+
+**Step 4: Push to Remote**
+Upload your feature branch so your team can review it. In real teams, you'd then create a Pull Request on GitHub/GitLab.
+
+**Remember:** The key to great code reviews is clear communication. Your branch name, commit messages, and code should tell a story!
+
+Let's get your code ready for the team! 🚀`,
+        realWorldContext: "Code reviews are standard practice in professional development. They improve code quality, catch bugs early, and help teams learn from each other. Most companies use Pull Requests (GitHub) or Merge Requests (GitLab) for this process.",
+        taskIntroduction: "Learn the professional workflow for preparing code for team review through branches, commits, and push operations."
     }),
     initialState: createInitialState({
         files: [

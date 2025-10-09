@@ -97,6 +97,14 @@ export function createGitState(params: {
         files: string[];
         branch?: string;
     }[];
+    remoteCommits?: {
+        branch: string;
+        commits: {
+            id: string;
+            message: string;
+            files: Record<string, string>; // file path -> content
+        }[];
+    }[];
     fileChanges?: {
         path: string;
         content?: string;
@@ -114,6 +122,7 @@ export function createGitState(params: {
         currentBranch: params.currentBranch,
         branches: params.branches,
         commits: params.commits,
+        remoteCommits: params.remoteCommits,
         fileChanges: params.fileChanges,
         mergeConflicts: params.mergeConflicts,
     };
