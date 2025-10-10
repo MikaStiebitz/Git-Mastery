@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { GameProvider } from "~/contexts/GameContext";
 import { LanguageProvider } from "~/contexts/LanguageContext";
 import { TerminalThemeWrapper } from "~/components/TerminalThemeWrapper";
+import { RTLWrapper } from "~/components/RTLWrapper";
 import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
@@ -60,9 +61,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <body className="dark">
                 <Analytics />
                 <LanguageProvider>
-                    <GameProvider>
-                        <TerminalThemeWrapper>{children}</TerminalThemeWrapper>
-                    </GameProvider>
+                    <RTLWrapper>
+                        <GameProvider>
+                            <TerminalThemeWrapper>{children}</TerminalThemeWrapper>
+                        </GameProvider>
+                    </RTLWrapper>
                 </LanguageProvider>
                 <script
                     type="application/ld+json"

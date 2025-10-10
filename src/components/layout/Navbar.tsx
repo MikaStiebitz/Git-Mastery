@@ -41,7 +41,13 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
 
     // Toggle language
     const toggleLanguage = () => {
-        setLanguage(language === "de" ? "en" : "de");
+        if (language === "en") {
+            setLanguage("de");
+        } else if (language === "de") {
+            setLanguage("fa");
+        } else {
+            setLanguage("en");
+        }
     };
 
     // Toggle mobile menu
@@ -175,7 +181,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                         onClick={toggleLanguage}
                         className="flex items-center text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
                         <Languages className="mr-2 h-4 w-4" />
-                        {language === "de" ? "EN" : "DE"}
+                        {language === "en" ? "DE" : language === "de" ? "فا" : "EN"}
                     </Button>
 
                     {!isHomePage && (

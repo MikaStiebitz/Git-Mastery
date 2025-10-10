@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { translations } from "~/translations";
 
-type Language = "de" | "en";
+type Language = "de" | "en" | "fa";
 
 export type LanguageContextType = {
     language: Language;
@@ -21,7 +21,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     useEffect(() => {
         const savedLanguage = localStorage.getItem("gitgud-language");
 
-        if (savedLanguage === "en" || savedLanguage === "de") {
+        if (savedLanguage === "en" || savedLanguage === "de" || savedLanguage === "fa") {
             // Use saved language preference
             setLanguageState(savedLanguage);
         } else {
@@ -33,6 +33,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             if (detectedLanguage.startsWith("de")) {
                 setLanguageState("de");
                 localStorage.setItem("gitgud-language", "de");
+            } else if (detectedLanguage.startsWith("fa")) {
+                // Check if browser language indicates Persian/Farsi
+                setLanguageState("fa");
+                localStorage.setItem("gitgud-language", "fa");
             } else {
                 // Default to English for all other languages
                 setLanguageState("en");
