@@ -13,6 +13,15 @@ const home = {
     "home.reviewLevel": "Level wiederholen",
     "home.startLevel": "Level starten",
     "home.locked": "Gesperrt",
+    "home.feature.customization.title": "Individuelle Gestaltung",
+    "home.feature.customization.description":
+        "Personalisiere deine Erfahrung mit Themes, Sounds und anderen freischaltbaren Inhalten. Mach deinen Lernweg wirklich zu deinem eigenen.",
+    "home.feature.miniGames.title": "Mini-Spiele",
+    "home.feature.miniGames.description":
+        "Übe Git-Fähigkeiten mit unterhaltsamen Herausforderungen und sammle Punkte, um Belohnungen freizuschalten. Mach Lernen spannend und motivierend.",
+    "home.feature.interactiveLearning.title": "Interaktives Lernen",
+    "home.feature.interactiveLearning.description":
+        "Lerne durch Ausprobieren mit echten Git-Befehlen in einer sicheren Sandbox. Übe ohne Angst, etwas zu beschädigen.",
 };
 
 export default home;
