@@ -9,62 +9,42 @@ import {
 
 const masteryLevel1 = createLevel({
     id: 1,
-    name: "Advanced Merge Strategies",
-    description: "Master complex merge scenarios and custom merge strategies",
+    name: "mastery.level1.name",
+    description: "mastery.level1.description",
     objectives: [
-        "Handle octopus merges with multiple branches",
-        "Use custom merge strategies",
-        "Resolve complex three-way conflicts",
-        "Maintain clean merge history"
+        "mastery.level1.objective1",
+        "mastery.level1.objective2",
+        "mastery.level1.objective3",
+        "mastery.level1.objective4"
     ],
     hints: [
-        "Octopus merges combine multiple branches at once",
-        "Use -X options for custom merge strategies",
-        "Consider merge vs rebase for different scenarios",
-        "Document complex merge decisions"
+        "mastery.level1.hint1",
+        "mastery.level1.hint2",
+        "mastery.level1.hint3",
+        "mastery.level1.hint4"
     ],
     requirements: [
         createRequirement({
             command: "git merge feature/auth feature/payments feature/ui",
-            description: "Perform an octopus merge of three feature branches",
-            successMessage: "Octopus merge completed!"
+            description: "mastery.level1.requirement1.description",
+            successMessage: "mastery.level1.requirement1.success"
         }),
         createRequirement({
             command: "git add .",
-            description: "Stage resolved merge conflicts",
-            successMessage: "Complex conflicts resolved!"
+            description: "mastery.level1.requirement2.description",
+            successMessage: "mastery.level1.requirement2.success"
         }),
         createRequirement({
             command: "git commit -m",
-            description: "Commit the complex merge with descriptive message",
-            successMessage: "Multi-branch merge committed!"
+            description: "mastery.level1.requirement3.description",
+            successMessage: "mastery.level1.requirement3.success"
         })
     ],
     story: createStory({
-        title: "The Grand Convergence",
-        narrative: `🎯 The moment of truth has arrived. You're the Lead Integration Engineer at TechCorp, and today is the day when three massive feature branches - developed in parallel by different teams over the past 3 months - must be merged into a single release.
-
-Your CTO, Dr. Martinez, addresses the room:
-
-"This is what we call 'The Grand Convergence.' Three teams, three critical features, all coming together. The authentication team, the payments team, and the UI team have been working independently. Now we need to merge their work into a cohesive release."
-
-The complexity is staggering:
-- 127 commits across three branches
-- Overlapping file changes in shared utilities
-- Different coding styles and patterns
-- Interdependent features that must work together
-
-Your mission:
-1. Perform an octopus merge of all three branches
-2. Resolve inevitable conflicts with wisdom
-3. Ensure all features work together harmoniously
-4. Document the integration decisions
-
-This isn't just about Git mechanics - it's about software architecture, team coordination, and engineering judgment. The success of the entire release depends on your ability to bring these divergent branches together.
-
-Welcome to the pinnacle of Git mastery. This is what senior engineers do.`,
-        realWorldContext: "Complex merge scenarios are common in enterprise development where multiple teams work on integrated systems simultaneously.",
-        taskIntroduction: "Master advanced merge strategies to handle complex multi-branch integration scenarios like a senior engineer."
+        title: "mastery.level1.story.title",
+        narrative: "mastery.level1.story.narrative",
+        realWorldContext: "mastery.level1.story.realWorldContext",
+        taskIntroduction: "mastery.level1.story.taskIntroduction"
     }),
     initialState: createInitialState({
         files: [
@@ -111,72 +91,42 @@ function formatCurrency(amount) {
 
 const masteryLevel2 = createLevel({
     id: 2,
-    name: "Git Hooks and Automation",
-    description: "Implement Git hooks to automate workflows and enforce quality standards",
+    name: "mastery.level2.name",
+    description: "mastery.level2.description",
     objectives: [
-        "Create pre-commit hooks for code quality",
-        "Set up post-commit hooks for notifications",
-        "Implement server-side hooks",
-        "Build automated workflow pipelines"
+        "mastery.level2.objective1",
+        "mastery.level2.objective2",
+        "mastery.level2.objective3",
+        "mastery.level2.objective4"
     ],
     hints: [
-        "Pre-commit hooks run before commits are created",
-        "Post-commit hooks run after successful commits",
-        "Use exit codes to prevent commits in pre-commit hooks",
-        "Server-side hooks control what can be pushed"
+        "mastery.level2.hint1",
+        "mastery.level2.hint2",
+        "mastery.level2.hint3",
+        "mastery.level2.hint4"
     ],
     requirements: [
         createRequirement({
             command: "chmod +x .git/hooks/pre-commit",
-            description: "Make the pre-commit hook executable",
-            successMessage: "Pre-commit hook activated!"
+            description: "mastery.level2.requirement1.description",
+            successMessage: "mastery.level2.requirement1.success"
         }),
         createRequirement({
             command: "git add .",
-            description: "Stage files to test the pre-commit hook",
-            successMessage: "Files staged!"
+            description: "mastery.level2.requirement2.description",
+            successMessage: "mastery.level2.requirement2.success"
         }),
         createRequirement({
             command: "git commit -m",
-            description: "Attempt a commit to trigger the quality checks",
-            successMessage: "Quality checks passed!"
+            description: "mastery.level2.requirement3.description",
+            successMessage: "mastery.level2.requirement3.success"
         })
     ],
     story: createStory({
-        title: "The Quality Guardian",
-        narrative: `⚡ You've been promoted to DevOps Engineer, and your first mission is to implement the "Quality Guardian" - an automated system that prevents bad code from entering the repository.
-
-The development team has been growing rapidly, and with growth comes inconsistency:
-- Commits without proper testing
-- Code style violations
-- Secrets accidentally committed
-- Broken builds pushed to main
-
-Your team lead, Sarah, explains the vision:
-
-"We need automation to enforce our quality standards. Every commit should be automatically checked for:
-- Linting and code style
-- Unit test passage
-- Security vulnerabilities
-- Commit message standards"
-
-"Git hooks are perfect for this. They're scripts that run at specific points in the Git workflow. Think of them as quality gates that code must pass through."
-
-The hook ecosystem:
-- pre-commit: Run checks before commits are created
-- pre-push: Validate before pushing to remote
-- post-commit: Send notifications or trigger builds
-- Server-side hooks: Control what can be pushed
-
-Your mission:
-1. Implement a pre-commit hook for quality checks
-2. Set up automated testing and linting
-3. Create notification systems
-4. Build a comprehensive quality pipeline
-
-This is infrastructure work that will benefit every developer on your team. You're not just writing code - you're building the foundation for code quality.`,
-        realWorldContext: "Git hooks are essential for implementing automated quality assurance and workflow automation in professional development environments.",
-        taskIntroduction: "Master Git hooks to build automated quality systems that enforce standards and improve team productivity."
+        title: "mastery.level2.story.title",
+        narrative: "mastery.level2.story.narrative",
+        realWorldContext: "mastery.level2.story.realWorldContext",
+        taskIntroduction: "mastery.level2.story.taskIntroduction"
     }),
     initialState: createInitialState({
         files: [
@@ -229,84 +179,50 @@ exit 0`),
 
 const masteryLevel3 = createLevel({
     id: 3,
-    name: "Git Mastery: The Final Challenge",
-    description: "Combine all advanced Git techniques to solve a complex real-world scenario",
+    name: "mastery.level3.name",
+    description: "mastery.level3.description",
     objectives: [
-        "Orchestrate a complex release with multiple hotfixes",
-        "Handle emergency rollbacks and recovery",
-        "Coordinate with multiple teams simultaneously",
-        "Demonstrate mastery of all Git techniques"
+        "mastery.level3.objective1",
+        "mastery.level3.objective2",
+        "mastery.level3.objective3",
+        "mastery.level3.objective4"
     ],
     hints: [
-        "This challenge combines everything you've learned",
-        "Think strategically about branch management",
-        "Communication is as important as technical skills",
-        "Document your decisions for the team"
+        "mastery.level3.hint1",
+        "mastery.level3.hint2",
+        "mastery.level3.hint3",
+        "mastery.level3.hint4"
     ],
     requirements: [
-        createRequirement({
-            command: "git checkout -b emergency/rollback-plan",
-            description: "Create an emergency rollback branch",
-            successMessage: "Emergency procedures initiated!"
-        }),
+        {
+            id: "create-emergency-branch",
+            command: "git switch -c",
+            alternativeCommands: ["git checkout -b"],
+            requiresArgs: ["any"],
+            description: "mastery.level3.requirement1.description",
+            successMessage: "mastery.level3.requirement1.success"
+        },
         createRequirement({
             command: "git cherry-pick",
-            description: "Cherry-pick critical fixes",
-            successMessage: "Critical fixes applied!"
+            description: "mastery.level3.requirement2.description",
+            successMessage: "mastery.level3.requirement2.success"
         }),
         createRequirement({
             command: "git tag -a v2.1.1 -m",
-            description: "Tag the emergency release",
-            successMessage: "Emergency release tagged!"
+            description: "mastery.level3.requirement3.description",
+            successMessage: "mastery.level3.requirement3.success"
         }),
         createRequirement({
             command: "git push origin --tags",
-            description: "Push the emergency release tags",
-            successMessage: "🎉 MASTERY ACHIEVED! You are now a Git Master!"
+            description: "mastery.level3.requirement4.description",
+            successMessage: "mastery.level3.requirement4.success"
         })
     ],
     story: createStory({
-        title: "The Ultimate Git Challenge: Black Friday Crisis",
-        narrative: `🚨 BLACK FRIDAY, 2:00 AM - THE ULTIMATE TEST
-
-You are the Senior DevOps Engineer at MegaCorp, and you're facing the perfect storm of Git challenges on the biggest shopping day of the year.
-
-The situation:
-- Production is partially broken due to a bad deployment
-- Three different teams pushed hotfixes simultaneously
-- The payment system is failing intermittently
-- Customer support is overwhelmed
-- The CEO is asking for hourly updates
-- Black Friday traffic is 50x normal levels
-
-Your CTO calls an emergency meeting:
-
-"This is why we hired you. Everything we've built, everything we've learned, comes down to this moment. We need someone who can navigate complex Git operations under extreme pressure."
-
-The challenge involves:
-1. **Emergency Rollback**: Quickly revert the problematic deployment
-2. **Selective Recovery**: Cherry-pick only the good changes
-3. **Hotfix Coordination**: Merge critical fixes from multiple teams
-4. **Release Management**: Create and deploy emergency patches
-5. **Team Communication**: Coordinate across development, QA, and operations
-
-You must use every Git technique in your arsenal:
-- \`git rebase -i\` to clean up messy commits
-- \`git cherry-pick\` to select only working features
-- Advanced merging with \`git merge\` to combine team efforts
-- \`git bisect\` to find the exact problem commit
-- \`git reflog\` to recover from mistakes
-- \`git tag\` and branches for release management
-
-This isn't just about Git commands - it's about leadership, decision-making under pressure, and the ability to think systematically when everything is on fire.
-
-The company's Black Friday revenue depends on you. Millions of customers are waiting. Your team is looking to you for guidance.
-
-This is your moment. Show them what a Git Master can do.
-
-Ready to prove your mastery? The clock is ticking...`,
-        realWorldContext: "Real-world Git mastery involves orchestrating complex operations under pressure, managing multiple stakeholders, and making critical decisions that affect business operations.",
-        taskIntroduction: "This is the ultimate Git challenge - combine all your skills to handle a complex, high-pressure emergency scenario."
+        title: "mastery.level3.story.title",
+        narrative: "mastery.level3.story.narrative",
+        realWorldContext: "mastery.level3.story.realWorldContext",
+        taskIntroduction: "mastery.level3.story.taskIntroduction"
     }),
     initialState: createInitialState({
         files: [

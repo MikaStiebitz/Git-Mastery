@@ -25,20 +25,42 @@ export class StashCommand implements Command {
             case "push":
             case "save":
                 // Stash changes
-                return [
-                    "Saved working directory and index state WIP on " +
-                        gitRepository.getCurrentBranch() +
-                        ": Changes stashed successfully.",
-                ];
+                {
+                    const success = gitRepository.stashSave();
+                    if (!success) {
+                        return ["No local changes to save"];
+                    }
+                    return [
+                        "Saved working directory and index state WIP on " +
+                            gitRepository.getCurrentBranch() +
+                            ": Changes stashed successfully.",
+                    ];
+                }
 
             case "pop":
                 // Pop stashed changes
-                return [
-                    "On branch " +
-                        gitRepository.getCurrentBranch() +
-                        "\nChanges not staged for commit:\n  modified: (stashed changes)\n" +
-                        "Dropped refs/stash@{0}",
-                ];
+                {
+                    const result = gitRepository.stashApply(true);
+                    if (!result.success) {
+                        return ["No stash entries found."];
+                    }
+
+                    const output = ["On branch " + gitRepository.getCurrentBranch()];
+
+                    if (result.files.length > 0) {
+                        output.push("Changes not staged for commit:");
+                        output.push('  (use "git add <file>..." to update what will be committed)');
+                        output.push('  (use "git restore <file>..." to discard changes in working directory)');
+                        output.push("");
+                        result.files.forEach(file => {
+                            output.push(`\tmodified:   ${file}`);
+                        });
+                        output.push("");
+                    }
+
+                    output.push("Dropped refs/stash@{0}");
+                    return output;
+                }
 
             case "list":
                 // List stashes (simplified)
@@ -46,12 +68,27 @@ export class StashCommand implements Command {
 
             case "apply":
                 // Apply stashed changes without removing them
-                return [
-                    "On branch " +
-                        gitRepository.getCurrentBranch() +
-                        "\nChanges not staged for commit:\n  modified: (stashed changes)\n" +
-                        "Applied stash@{0}",
-                ];
+                {
+                    const result = gitRepository.stashApply(false);
+                    if (!result.success) {
+                        return ["No stash entries found."];
+                    }
+
+                    const output = ["On branch " + gitRepository.getCurrentBranch()];
+
+                    if (result.files.length > 0) {
+                        output.push("Changes not staged for commit:");
+                        output.push('  (use "git add <file>..." to update what will be committed)');
+                        output.push('  (use "git restore <file>..." to discard changes in working directory)');
+                        output.push("");
+                        result.files.forEach(file => {
+                            output.push(`\tmodified:   ${file}`);
+                        });
+                        output.push("");
+                    }
+
+                    return output;
+                }
 
             default:
                 return [

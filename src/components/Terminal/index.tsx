@@ -44,8 +44,8 @@ export function Terminal({
     const historyService = useMemo(() => new HistoryService(), []);
 
     const autocompleteService = useMemo(
-        () => new AutocompleteService(commandProcessor, fileSystem),
-        [commandProcessor, fileSystem],
+        () => new AutocompleteService(commandProcessor, fileSystem, gitRepository),
+        [commandProcessor, fileSystem, gitRepository],
     );
 
     const outputFormatter = useMemo(() => new OutputFormatterService(terminalOutput), [terminalOutput]);
@@ -231,21 +231,24 @@ export function Terminal({
     const renderFancyPrompt = () => {
         const currentDir = commandProcessor.getCurrentDirectory();
         const isGitInitialized = gitRepository.isInitialized();
-        const branch = isGitInitialized ? gitRepository.getCurrentBranch() : "";
 
-        // Get git status info
-        const status = gitRepository.getStatus();
+        // Check if current directory is actually within the repository
+        const isInRepository = isGitInitialized && gitRepository.isInRepository(currentDir);
+        const branch = isInRepository ? gitRepository.getCurrentBranch() : "";
+
+        // Get git status info (only if in repository)
+        const status = isInRepository ? gitRepository.getStatus() : {};
         const stagedCount = Object.values(status).filter(s => s === "staged").length;
         const modifiedCount = Object.values(status).filter(s => s === "modified").length;
         const untrackedCount = Object.values(status).filter(s => s === "untracked").length;
 
-        // Check for unpushed commits
-        const unpushedCommitsCount = gitRepository.getUnpushedCommitCount();
+        // Check for unpushed commits (only if in repository)
+        const unpushedCommitsCount = isInRepository ? gitRepository.getUnpushedCommitCount() : 0;
 
         return (
             <TerminalPrompt
                 currentDirectory={currentDir}
-                isGitInitialized={isGitInitialized}
+                isGitInitialized={isInRepository}
                 branch={branch}
                 stagedCount={stagedCount}
                 modifiedCount={modifiedCount}
@@ -258,7 +261,7 @@ export function Terminal({
     return (
         <>
             <div
-                className={`flex h-[580px] flex-col overflow-hidden rounded-md border shadow-lg ${className}`}
+                className={`flex flex-col overflow-hidden rounded-md border shadow-lg ${className}`}
                 style={{
                     backgroundColor: currentTheme.colors.background,
                     borderColor: currentTheme.colors.border,

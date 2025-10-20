@@ -3,15 +3,24 @@ import { type FileSystem } from "~/models/FileSystem";
 
 export class GitRepository {
     private initialized = false;
+    private repositoryRoot: string | null = null; // NEW: Track where repo was initialized
     private branches: string[] = ["main"];
     private currentBranch = "main";
     private HEAD = "main";
     private status: GitStatus = {};
     private commits: Record<string, { message: string; timestamp: Date; files: string[] }> = {};
+    private remoteCommits: Record<string, Array<{
+        id: string;
+        message: string;
+        timestamp: Date;
+        files: string[];
+        fileContents: Record<string, string>; // Store file contents for pull
+    }>> = {}; // Mock remote commits per branch
     private stash: Array<{ message: string; timestamp: Date; changes: Record<string, string> }> = [];
     private remotes: Record<string, string> = {};
     private fileSystem: FileSystem;
     private pushedCommits: Set<string> = new Set<string>();
+    private upstreamBranches: Record<string, { remote: string; branch: string }> = {}; // Track upstream branches
 
     // Enhanced branch-specific states
     private branchStates: Record<
@@ -37,8 +46,53 @@ export class GitRepository {
         };
     }
 
+    // NEW: Check if a directory is within this repository
+    public isInRepository(currentDirectory: string): boolean {
+        if (!this.initialized) return false;
+
+        // Check if .git directory exists in current or parent directories
+        let checkDir = this.normalizePath(currentDirectory);
+
+        while (true) {
+            const gitPath = checkDir === '/' ? '/.git' : `${checkDir}/.git`;
+            const gitDir = this.fileSystem.getDirectoryContents(gitPath);
+            if (gitDir !== null) {
+                // Found .git directory
+                // Check if this matches our repository root
+                return this.repositoryRoot === checkDir;
+            }
+
+            // Move to parent directory
+            if (checkDir === '/') break;
+            checkDir = this.getParentPath(checkDir);
+        }
+
+        return false;
+    }
+
+    // NEW: Get repository root
+    public getRepositoryRoot(): string | null {
+        return this.repositoryRoot;
+    }
+
+    private normalizePath(path: string): string {
+        if (path !== '/' && path.endsWith('/')) {
+            return path.slice(0, -1);
+        }
+        return path || '/';
+    }
+
+    private getParentPath(path: string): string {
+        if (path === '/') return '/';
+        const parts = path.split('/').filter(p => p);
+        if (parts.length === 0) return '/';
+        parts.pop();
+        return parts.length === 0 ? '/' : '/' + parts.join('/');
+    }
+
     public partialReset(): void {
         this.initialized = true;
+        this.repositoryRoot = null; // Reset repository root
         this.branches = ["main"];
         this.currentBranch = "main";
         this.HEAD = "main";
@@ -51,23 +105,47 @@ export class GitRepository {
         };
     }
 
-    public init(): boolean {
-        if (this.initialized) return false;
+    public init(currentDirectory: string = '/'): boolean {
+        const normalizedDir = this.normalizePath(currentDirectory);
 
+        // If already initialized in this exact directory, reinitialize
+        if (this.initialized && this.repositoryRoot === normalizedDir) {
+            // Create .git directory structure in the file system
+            this.fileSystem.mkdir(`${normalizedDir}/.git`);
+            this.fileSystem.mkdir(`${normalizedDir}/.git/objects`);
+            this.fileSystem.mkdir(`${normalizedDir}/.git/refs`);
+            this.fileSystem.mkdir(`${normalizedDir}/.git/refs/heads`);
+
+            // Create basic git files
+            this.fileSystem.writeFile(`${normalizedDir}/.git/HEAD`, "ref: refs/heads/main");
+            this.fileSystem.writeFile(
+                `${normalizedDir}/.git/config`,
+                "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n",
+            );
+            return true; // Reinitialize success
+        }
+
+        // If initialized in a different directory, we can't init here (single repo limitation)
+        if (this.initialized && this.repositoryRoot !== normalizedDir) {
+            return false; // Already initialized elsewhere
+        }
+
+        // First initialization
         // Create .git directory structure in the file system
-        this.fileSystem.mkdir("/.git");
-        this.fileSystem.mkdir("/.git/objects");
-        this.fileSystem.mkdir("/.git/refs");
-        this.fileSystem.mkdir("/.git/refs/heads");
+        this.fileSystem.mkdir(`${normalizedDir}/.git`);
+        this.fileSystem.mkdir(`${normalizedDir}/.git/objects`);
+        this.fileSystem.mkdir(`${normalizedDir}/.git/refs`);
+        this.fileSystem.mkdir(`${normalizedDir}/.git/refs/heads`);
 
         // Create basic git files
-        this.fileSystem.writeFile("/.git/HEAD", "ref: refs/heads/main");
+        this.fileSystem.writeFile(`${normalizedDir}/.git/HEAD`, "ref: refs/heads/main");
         this.fileSystem.writeFile(
-            "/.git/config",
+            `${normalizedDir}/.git/config`,
             "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n",
         );
 
         this.initialized = true;
+        this.repositoryRoot = normalizedDir; // Store where we initialized
         return true;
     }
 
@@ -158,6 +236,15 @@ export class GitRepository {
         return branchCommits;
     }
 
+    // Get commits as ordered array (oldest to newest)
+    public getCommitHistory(): string[] {
+        const currentBranchState = this.branchStates[this.currentBranch];
+        if (!currentBranchState) return [];
+
+        // Return commits in chronological order (oldest first)
+        return [...currentBranchState.commits];
+    }
+
     public hasUnpushedCommits(): boolean {
         const currentBranchState = this.branchStates[this.currentBranch];
         if (!currentBranchState) return false;
@@ -172,6 +259,72 @@ export class GitRepository {
         return currentBranchState.commits.filter(id => !this.pushedCommits.has(id)).length;
     }
 
+    public getLastCommit(): { id: string; message: string; timestamp: Date; files: string[] } | null {
+        const currentBranchState = this.branchStates[this.currentBranch];
+        if (!currentBranchState || currentBranchState.commits.length === 0) return null;
+
+        const lastCommitId = currentBranchState.commits[currentBranchState.commits.length - 1];
+        if (!lastCommitId) return null;
+
+        const commitData = this.commits[lastCommitId];
+        if (!commitData) return null;
+
+        return {
+            id: lastCommitId,
+            ...commitData,
+        };
+    }
+
+    public amendLastCommit(newMessage?: string): string | null {
+        const currentBranchState = this.branchStates[this.currentBranch];
+        if (!currentBranchState || currentBranchState.commits.length === 0) {
+            return null;
+        }
+
+        const lastCommitId = currentBranchState.commits[currentBranchState.commits.length - 1];
+        if (!lastCommitId || !this.commits[lastCommitId]) {
+            return null;
+        }
+
+        // Get currently staged files
+        const stagedFiles = Object.entries(this.status)
+            .filter(([_, status]) => status === "staged")
+            .map(([file]) => file);
+
+        // Update the commit message if provided
+        if (newMessage) {
+            this.commits[lastCommitId].message = newMessage;
+        }
+
+        // If there are staged files, add them to the amended commit
+        if (stagedFiles.length > 0) {
+            // Add staged files to the commit
+            const existingFiles = new Set(this.commits[lastCommitId].files);
+
+            for (const file of stagedFiles) {
+                if (!existingFiles.has(file)) {
+                    this.commits[lastCommitId].files.push(file);
+                }
+
+                // Update status - move staged files to committed
+                this.status[file] = "committed";
+                currentBranchState.status[file] = "committed";
+
+                // Save file content to branch state
+                const content = this.fileSystem.getFileContents(file);
+                if (content !== null) {
+                    currentBranchState.files[file] = content;
+                    currentBranchState.workingDirectory[file] = content;
+                }
+            }
+        }
+
+        // Update timestamp
+        this.commits[lastCommitId].timestamp = new Date();
+
+        return lastCommitId;
+    }
+
     public createBranch(name: string): boolean {
         if (!this.initialized || this.branches.includes(name)) return false;
 
@@ -180,11 +333,22 @@ export class GitRepository {
         // Initialize new branch state as copy of current branch
         const currentBranchState = this.branchStates[this.currentBranch];
         if (currentBranchState) {
+            // Get current working directory from file system (not from cached state)
+            // This ensures modified files are included in the new branch
+            const currentWorkingDir: Record<string, string> = {};
+            this.getAllFilesFromFileSystem().forEach(filePath => {
+                const content = this.fileSystem.getFileContents(filePath);
+                if (content !== null) {
+                    const normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
+                    currentWorkingDir[normalizedPath] = content;
+                }
+            });
+
             this.branchStates[name] = {
                 files: { ...currentBranchState.files },
                 status: { ...currentBranchState.status },
                 commits: [...currentBranchState.commits],
-                workingDirectory: { ...currentBranchState.workingDirectory },
+                workingDirectory: currentWorkingDir, // Use current file system state
             };
         } else {
             // Fallback if current branch state doesn't exist
@@ -211,17 +375,38 @@ export class GitRepository {
         return false;
     }
 
+    public hasUnmergedCommits(branchName: string, baseBranch?: string): boolean {
+        if (!this.initialized) return false;
+
+        const base = baseBranch || this.currentBranch;
+        const targetBranchState = this.branchStates[branchName];
+        const baseBranchState = this.branchStates[base];
+
+        if (!targetBranchState || !baseBranchState) return false;
+
+        // Check if target branch has commits not in base branch
+        const targetCommits = new Set(targetBranchState.commits);
+        const baseCommits = new Set(baseBranchState.commits);
+
+        // If target branch has any commit that base branch doesn't have, it's unmerged
+        for (const commit of targetCommits) {
+            if (!baseCommits.has(commit)) {
+                return true; // Has unmerged commits
+            }
+        }
+
+        return false; // All commits are merged or branch has no unique commits
+    }
+
     // Enhanced checkout with proper branch switching and file system isolation
     public checkout(branch: string, createNew = false): { success: boolean; warnings?: string[] } {
         if (!this.initialized) return { success: false };
 
         const cleanBranchName = branch.replace(/^["'](.*)["']$/, "$1");
 
-        if (createNew) {
-            if (!this.createBranch(cleanBranchName)) {
-                return { success: false };
-            }
-        } else if (!this.branches.includes(cleanBranchName)) {
+        // When createNew is true, the branch was already created by the caller
+        // We just need to verify it exists
+        if (!this.branches.includes(cleanBranchName)) {
             return { success: false };
         }
 
@@ -229,8 +414,9 @@ export class GitRepository {
         const warnings = this.checkForUncommittedChanges();
         const hasUncommittedChanges = warnings.length > 0;
 
-        // If switching branches and there are uncommitted changes, warn and prevent switch
-        if (cleanBranchName !== this.currentBranch && hasUncommittedChanges) {
+        // If switching to an EXISTING branch and there are uncommitted changes, warn and prevent switch
+        // When creating a NEW branch (createNew = true), allow uncommitted changes
+        if (!createNew && cleanBranchName !== this.currentBranch && hasUncommittedChanges) {
             const hasModified = Object.values(this.status).some(s => s === "modified" || s === "untracked");
             if (hasModified) {
                 return {
@@ -361,11 +547,140 @@ export class GitRepository {
         });
     }
 
-    public merge(branch: string): boolean {
+    public merge(branch: string): {
+        success: boolean;
+        isFastForward: boolean;
+        filesChanged: string[];
+        conflictFiles?: string[];
+        mergeCommitId?: string;
+    } {
         if (!this.initialized || !this.branches.includes(branch) || branch === this.currentBranch) {
+            return { success: false, isFastForward: false, filesChanged: [] };
+        }
+
+        const currentBranchState = this.branchStates[this.currentBranch];
+        const targetBranchState = this.branchStates[branch];
+
+        if (!currentBranchState || !targetBranchState) {
+            return { success: false, isFastForward: false, filesChanged: [] };
+        }
+
+        // Check if target branch is already merged (up to date)
+        const targetCommits = new Set(targetBranchState.commits);
+        const currentCommits = new Set(currentBranchState.commits);
+
+        let hasNewCommits = false;
+        for (const commit of targetCommits) {
+            if (!currentCommits.has(commit)) {
+                hasNewCommits = true;
+                break;
+            }
+        }
+
+        if (!hasNewCommits) {
+            // Already up to date
+            return { success: true, isFastForward: false, filesChanged: [] };
+        }
+
+        // Check if we can do a fast-forward merge
+        // Fast-forward is possible if current branch is an ancestor of target branch
+        const canFastForward = this.isAncestor(currentBranchState.commits, targetBranchState.commits);
+
+        const filesChanged: string[] = [];
+
+        if (canFastForward) {
+            // Fast-forward merge: just update current branch to point to target branch
+            currentBranchState.commits = [...targetBranchState.commits];
+            currentBranchState.files = { ...targetBranchState.files };
+
+            // Update working directory with target branch files
+            Object.entries(targetBranchState.files).forEach(([filePath, content]) => {
+                const fullPath = filePath.startsWith("/") ? filePath : `/${filePath}`;
+                this.fileSystem.writeFile(fullPath, content);
+                filesChanged.push(filePath);
+            });
+
+            // Clear status after fast-forward
+            currentBranchState.status = {};
+            this.status = {};
+
+            return { success: true, isFastForward: true, filesChanged };
+        }
+
+        // Regular merge (create merge commit)
+        // Merge target branch files into current branch
+        Object.entries(targetBranchState.files).forEach(([filePath, content]) => {
+            const fullPath = filePath.startsWith("/") ? filePath : `/${filePath}`;
+
+            // Check if file exists in current branch with different content
+            const currentContent = currentBranchState.files[filePath];
+
+            if (currentContent === undefined) {
+                // New file from target branch
+                currentBranchState.files[filePath] = content;
+                this.fileSystem.writeFile(fullPath, content);
+                filesChanged.push(filePath);
+            } else if (currentContent !== content) {
+                // File exists but differs - take target version (simplified, no conflict detection)
+                currentBranchState.files[filePath] = content;
+                this.fileSystem.writeFile(fullPath, content);
+                filesChanged.push(filePath);
+            }
+        });
+
+        // Merge commits from target branch
+        targetBranchState.commits.forEach(commitId => {
+            if (!currentCommits.has(commitId)) {
+                currentBranchState.commits.push(commitId);
+            }
+        });
+
+        // Create a merge commit
+        const mergeCommitId = this.generateCommitId();
+        const mergeCommitMessage = `Merge branch '${branch}' into ${this.currentBranch}`;
+
+        this.commits[mergeCommitId] = {
+            message: mergeCommitMessage,
+            timestamp: new Date(),
+            files: filesChanged,
+        };
+
+        currentBranchState.commits.push(mergeCommitId);
+
+        // Update working directory
+        currentBranchState.workingDirectory = { ...currentBranchState.files };
+
+        // Clear status after merge
+        currentBranchState.status = {};
+        this.status = {};
+
+        return {
+            success: true,
+            isFastForward: false,
+            filesChanged,
+            mergeCommitId
+        };
+    }
+
+    private isAncestor(currentCommits: string[], targetCommits: string[]): boolean {
+        // Check if all commits in current branch exist in target branch
+        // AND target has more commits
+        if (targetCommits.length <= currentCommits.length) {
             return false;
         }
+
+        // Check if current commits are a prefix of target commits
+        for (let i = 0; i < currentCommits.length; i++) {
+            if (currentCommits[i] !== targetCommits[i]) {
+                return false;
+            }
+        }
+
         return true;
+    }
+
+    private generateCommitId(): string {
+        return Math.random().toString(16).substring(2, 9);
     }
 
     public getCurrentBranch(): string {
@@ -408,32 +723,104 @@ export class GitRepository {
         return { ...this.status };
     }
 
+    public getCommittedFileContent(path: string): string | null {
+        const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+        const currentBranchState = this.branchStates[this.currentBranch];
+
+        if (!currentBranchState) return null;
+
+        return currentBranchState.files[normalizedPath] ?? null;
+    }
+
     public stashSave(message: string = "WIP on " + this.currentBranch): boolean {
         if (!this.initialized) return false;
 
+        const currentBranchState = this.branchStates[this.currentBranch];
+        if (!currentBranchState) return false;
+
+        // Capture all current changes from filesystem
+        const changes: Record<string, string> = {};
+        let hasChanges = false;
+
+        // Check all files with a status (staged, modified, etc.)
+        Object.keys(currentBranchState.status).forEach(file => {
+            const fileStatus = currentBranchState.status[file];
+
+            // Get current file content from filesystem
+            const currentContent = this.fileSystem.getFileContents("/" + file);
+
+            if (fileStatus === "modified" || fileStatus === "staged") {
+                // Save the current content
+                changes[file] = currentContent ?? "";
+                hasChanges = true;
+            }
+        });
+
+        // If no changes to stash, return false
+        if (!hasChanges) return false;
+
+        // Save the stash entry with actual file contents
         this.stash.push({
             message,
             timestamp: new Date(),
-            changes: {},
+            changes,
         });
 
-        Object.keys(this.status).forEach(file => {
-            if (this.status[file] === "modified" || this.status[file] === "untracked") {
-                delete this.status[file];
+        // Revert files to their committed state in the filesystem
+        Object.keys(changes).forEach(file => {
+            const committedContent = currentBranchState.files[file];
+            if (committedContent !== undefined) {
+                // Restore to committed content
+                this.fileSystem.writeFile("/" + file, committedContent);
+                currentBranchState.workingDirectory[file] = committedContent;
+            } else {
+                // File doesn't exist in committed state, delete it
+                this.fileSystem.delete("/" + file);
+                delete currentBranchState.workingDirectory[file];
             }
+        });
+
+        // Clear status for stashed files (both global and branch-specific)
+        Object.keys(changes).forEach(file => {
+            delete this.status[file];
+            delete currentBranchState.status[file];
         });
 
         return true;
     }
 
-    public stashApply(pop = false): boolean {
-        if (!this.initialized || this.stash.length === 0) return false;
+    public stashApply(pop = false): { success: boolean; files: string[] } {
+        if (!this.initialized || this.stash.length === 0) {
+            return { success: false, files: [] };
+        }
 
+        const currentBranchState = this.branchStates[this.currentBranch];
+        if (!currentBranchState) return { success: false, files: [] };
+
+        // Get the most recent stash
+        const stashEntry = this.stash[this.stash.length - 1];
+        if (!stashEntry) return { success: false, files: [] };
+
+        const restoredFiles: string[] = [];
+
+        // Restore the stashed changes to filesystem and working directory
+        Object.entries(stashEntry.changes).forEach(([file, content]) => {
+            // Write to filesystem
+            this.fileSystem.writeFile("/" + file, content);
+            // Update working directory state
+            currentBranchState.workingDirectory[file] = content;
+            // Mark as modified (both global and branch-specific)
+            this.status[file] = "modified";
+            currentBranchState.status[file] = "modified";
+            restoredFiles.push(file);
+        });
+
+        // Remove from stash if pop (not just apply)
         if (pop) {
             this.stash.pop();
         }
 
-        return true;
+        return { success: true, files: restoredFiles };
     }
 
     public getStash(): Array<{ message: string; timestamp: Date }> {
@@ -445,7 +832,22 @@ export class GitRepository {
 
     public addRemote(name: string, url: string): boolean {
         if (!this.initialized) return false;
+        // Don't allow duplicate remotes
+        if (this.remotes[name]) return false;
         this.remotes[name] = url;
+
+        // Set upstream for main branch when adding origin remote
+        if (name === "origin" && this.branches.includes("main") && !this.upstreamBranches["main"]) {
+            this.upstreamBranches["main"] = { remote: "origin", branch: "main" };
+        }
+
+        return true;
+    }
+
+    public removeRemote(name: string): boolean {
+        if (!this.initialized) return false;
+        if (!this.remotes[name]) return false;
+        delete this.remotes[name];
         return true;
     }
 
@@ -453,7 +855,7 @@ export class GitRepository {
         return { ...this.remotes };
     }
 
-    public push(remote: string, branch: string): boolean {
+    public push(remote: string, branch: string, setUpstream = false): boolean {
         if (!this.initialized) return false;
 
         if (!this.remotes[remote]) {
@@ -481,7 +883,16 @@ export class GitRepository {
             this.pushedCommits.add(commitId);
         }
 
+        // Set upstream tracking if requested or if pushing to remote for first time
+        if (setUpstream || !this.upstreamBranches[branch]) {
+            this.upstreamBranches[branch] = { remote, branch };
+        }
+
         return true;
+    }
+
+    public hasUpstreamBranch(branch: string): boolean {
+        return !!this.upstreamBranches[branch];
     }
 
     public pull(remote: string, branch: string): boolean {
@@ -505,20 +916,45 @@ export class GitRepository {
         const currentBranchState = this.branchStates[this.currentBranch];
         if (!currentBranchState) return false;
 
+        // Find the index of the target commit in the current branch
+        const targetIndex = currentBranchState.commits.indexOf(commitId);
+        if (targetIndex === -1) {
+            return false; // Commit not found in current branch
+        }
+
+        // Remove commits after the target commit
+        const removedCommits = currentBranchState.commits.slice(targetIndex + 1);
+        currentBranchState.commits = currentBranchState.commits.slice(0, targetIndex + 1);
+
         switch (mode) {
             case "hard":
                 // Reset working directory, staging area, and HEAD
-                this.clearWorkingDirectory();
+                // First, collect all files that should exist after reset
+                const targetCommitFiles = new Set<string>();
+                const targetCommit = this.commits[commitId];
+                if (targetCommit) {
+                    targetCommit.files.forEach(filePath => targetCommitFiles.add(filePath));
+                }
+
+                // Delete files that don't exist in target commit
+                Object.keys(currentBranchState.workingDirectory).forEach(filePath => {
+                    if (!targetCommitFiles.has(filePath)) {
+                        this.fileSystem.delete(`/${filePath}`);
+                        delete currentBranchState.workingDirectory[filePath];
+                        delete this.status[filePath];
+                        delete currentBranchState.status[filePath];
+                    }
+                });
+
+                // Clear all status
                 this.status = {};
                 currentBranchState.status = {};
-                currentBranchState.workingDirectory = {};
 
                 // Restore files from the target commit
-                if (this.commits[commitId]) {
-                    const commit = this.commits[commitId];
-                    commit.files.forEach(filePath => {
+                if (targetCommit) {
+                    targetCommit.files.forEach(filePath => {
                         const content = currentBranchState.files[filePath];
-                        if (content) {
+                        if (content !== undefined) {
                             this.fileSystem.writeFile(`/${filePath}`, content);
                             currentBranchState.workingDirectory[filePath] = content;
                             this.status[filePath] = "committed";
@@ -530,8 +966,30 @@ export class GitRepository {
 
             case "mixed":
                 // Reset staging area and HEAD, keep working directory
+                // Files from removed commits should appear as modified
+                removedCommits.forEach(removedCommitId => {
+                    const removedCommit = this.commits[removedCommitId];
+                    if (removedCommit) {
+                        removedCommit.files.forEach(filePath => {
+                            // Get the content of the file from the branch state
+                            const fileContent = currentBranchState.files[filePath];
+
+                            // Mark files from removed commits as modified
+                            this.status[filePath] = "modified";
+                            currentBranchState.status[filePath] = "modified";
+
+                            // Make sure the file exists in the working directory
+                            if (fileContent !== undefined) {
+                                this.fileSystem.writeFile(`/${filePath}`, fileContent);
+                                currentBranchState.workingDirectory[filePath] = fileContent;
+                            }
+                        });
+                    }
+                });
+
+                // Also unstage any currently staged files
                 Object.keys(this.status).forEach(file => {
-                    if (this.status[file] === "staged") {
+                    if (this.status[file] === "staged" || this.status[file] === "staged+modified") {
                         this.status[file] = "modified";
                         currentBranchState.status[file] = "modified";
                     }
@@ -539,16 +997,31 @@ export class GitRepository {
                 break;
 
             case "soft":
-                // Only reset HEAD, keep staging area and working directory
-                // In this simulation, we don't need to do much for soft reset
+                // Only reset HEAD (commits), keep staging area and working directory
+                // The files from removed commits should now appear as staged
+                removedCommits.forEach(removedCommitId => {
+                    const removedCommit = this.commits[removedCommitId];
+                    if (removedCommit) {
+                        removedCommit.files.forEach(filePath => {
+                            // Get the content of the file from the branch state
+                            const fileContent = currentBranchState.files[filePath];
+
+                            // Mark files from removed commits as staged and restore content
+                            this.status[filePath] = "staged";
+                            currentBranchState.status[filePath] = "staged";
+
+                            // Make sure the file exists in the working directory
+                            if (fileContent !== undefined) {
+                                this.fileSystem.writeFile(`/${filePath}`, fileContent);
+                                currentBranchState.workingDirectory[filePath] = fileContent;
+                            }
+                        });
+                    }
+                });
                 break;
         }
 
         return true;
-    }
-
-    private generateCommitId(): string {
-        return Math.random().toString(16).substring(2, 10);
     }
 
     public reset(): void {
@@ -558,10 +1031,193 @@ export class GitRepository {
         this.HEAD = "main";
         this.status = {};
         this.commits = {};
+        this.remoteCommits = {};
+        this.remotes = {};
         this.stash = [];
         this.pushedCommits = new Set();
+        this.upstreamBranches = {};
         this.branchStates = {
             main: { files: {}, status: {}, commits: [], workingDirectory: {} },
         };
+    }
+
+    // Mock remote commits for pull simulation
+    public setRemoteCommits(branch: string, commits: Array<{ id: string; message: string; files: Record<string, string> }>): void {
+        this.remoteCommits[branch] = commits.map(commit => ({
+            id: commit.id,
+            message: commit.message,
+            timestamp: new Date(),
+            files: Object.keys(commit.files),
+            fileContents: commit.files
+        }));
+    }
+
+    public getRemoteCommits(branch: string): Array<{ id: string; message: string; timestamp: Date; files: string[]; fileContents: Record<string, string> }> {
+        return this.remoteCommits[branch] || [];
+    }
+
+    public pullRemoteCommits(remote: string, branch: string): { success: boolean; pulledCommits: number; output: string[] } {
+        const remoteUrl = this.remotes[remote];
+        if (!remoteUrl) {
+            return {
+                success: false,
+                pulledCommits: 0,
+                output: [`error: No such remote: '${remote}'`]
+            };
+        }
+
+        const remoteCommitsForBranch = this.remoteCommits[branch] || [];
+
+        if (remoteCommitsForBranch.length === 0) {
+            return {
+                success: true,
+                pulledCommits: 0,
+                output: [
+                    `From ${remoteUrl}`,
+                    ` * branch            ${branch} -> FETCH_HEAD`,
+                    "Already up to date."
+                ]
+            };
+        }
+
+        // Apply each remote commit
+        const output: string[] = [
+            `From ${remoteUrl}`,
+            ` * branch            ${branch} -> FETCH_HEAD`
+        ];
+
+        let pulledCount = 0;
+        const conflictedFiles: string[] = [];
+
+        for (const remoteCommit of remoteCommitsForBranch) {
+            // Add commit to local history
+            this.commits[remoteCommit.id] = {
+                message: remoteCommit.message,
+                timestamp: remoteCommit.timestamp,
+                files: remoteCommit.files
+            };
+
+            // Mark pulled commit as already pushed (it came from remote)
+            this.pushedCommits.add(remoteCommit.id);
+
+            // Update file contents in filesystem - check for conflicts
+            for (const [filePath, remoteContent] of Object.entries(remoteCommit.fileContents)) {
+                // Normalize path for consistent lookup
+                const normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
+
+                const localContent = this.fileSystem.getFileContents(filePath);
+                const committedContent = this.branchStates[this.currentBranch]?.files[normalizedPath];
+                const fileStatus = this.branchStates[this.currentBranch]?.status[normalizedPath];
+
+                // Determine what content we should compare against remote
+                // If file is modified/staged locally, use local content
+                // Otherwise use committed content
+                const isModifiedLocally = fileStatus === "modified" || fileStatus === "staged";
+                const currentContent = isModifiedLocally && localContent !== null
+                    ? localContent
+                    : committedContent;
+
+                // Conflict detection:
+                // 1. File exists locally (either committed or modified)
+                // 2. Remote content differs from current local state
+                const hasLocalVersion = currentContent !== undefined;
+                const contentsDiffer = currentContent !== remoteContent;
+
+                // Merge conflict: both local AND remote modified the same file differently
+                if (hasLocalVersion && contentsDiffer) {
+                    // Create conflict markers using the current local content
+                    const conflictContent = `<<<<<<< HEAD
+${currentContent}
+=======
+${remoteContent}
+>>>>>>> ${remoteCommit.id.slice(0, 7)} (${remoteCommit.message})`;
+
+                    this.fileSystem.writeFile(filePath, conflictContent);
+                    conflictedFiles.push(filePath);
+
+                    // Mark as conflicted in status
+                    if (!this.branchStates[this.currentBranch]) {
+                        this.branchStates[this.currentBranch] = {
+                            files: {},
+                            status: {},
+                            commits: [],
+                            workingDirectory: {}
+                        };
+                    }
+                    this.branchStates[this.currentBranch]!.status[normalizedPath] = "modified";
+                } else {
+                    // No conflict: just apply remote changes
+                    this.fileSystem.writeFile(filePath, remoteContent);
+
+                    if (!this.branchStates[this.currentBranch]) {
+                        this.branchStates[this.currentBranch] = {
+                            files: {},
+                            status: {},
+                            commits: [],
+                            workingDirectory: {}
+                        };
+                    }
+                    this.branchStates[this.currentBranch]!.files[normalizedPath] = remoteContent;
+                    this.branchStates[this.currentBranch]!.workingDirectory[normalizedPath] = remoteContent;
+
+                    // Remove from status (file is now clean/committed)
+                    delete this.branchStates[this.currentBranch]!.status[normalizedPath];
+                }
+            }
+
+            // Update branch state
+            this.branchStates[this.currentBranch]!.commits.push(remoteCommit.id);
+            pulledCount++;
+        }
+
+        // Clear remote commits after pulling
+        this.remoteCommits[branch] = [];
+
+        // Build output messages
+        if (conflictedFiles.length > 0) {
+            // Merge conflict occurred
+            output.push(`Updating ${this.HEAD}..${remoteCommitsForBranch[remoteCommitsForBranch.length - 1]?.id.slice(0, 7)}`);
+            output.push(""); // Empty line for readability
+            output.push("⚠️  CONFLICT (content): Merge conflict in the following files:");
+            conflictedFiles.forEach(file => {
+                output.push(`    🔴 ${file}`);
+            });
+            output.push("");
+            output.push("Automatic merge failed; fix conflicts and then commit the result.");
+            output.push("");
+            output.push("💡 To resolve:");
+            output.push("   1. Edit the conflicted files to resolve conflicts");
+            output.push("   2. Remove the conflict markers (<<<<<<<, =======, >>>>>>>)");
+            output.push("   3. Stage resolved files: git add .");
+            output.push("   4. Complete the merge: git commit -m \"Resolve merge conflict\"");
+
+            return {
+                success: false, // Indicate merge conflict
+                pulledCommits: pulledCount,
+                output
+            };
+        } else {
+            // Clean pull
+            output.push(`Updating ${this.HEAD}..${remoteCommitsForBranch[remoteCommitsForBranch.length - 1]?.id.slice(0, 7)}`);
+            output.push(`Fast-forward`);
+
+            // List changed files
+            const allFiles = new Set<string>();
+            remoteCommitsForBranch.forEach(commit => {
+                commit.files.forEach(file => allFiles.add(file));
+            });
+
+            allFiles.forEach(file => {
+                output.push(` ${file} | changes`);
+            });
+
+            output.push(`${allFiles.size} file${allFiles.size !== 1 ? 's' : ''} changed`);
+
+            return {
+                success: true,
+                pulledCommits: pulledCount,
+                output
+            };
+        }
     }
 }

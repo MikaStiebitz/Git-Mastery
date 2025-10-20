@@ -30,31 +30,38 @@ const mergeLevel1 = createLevel({
     }),
     initialState: createInitialState({
         files: [
-            createFileStructure("/README.md", "# Merge Project\n\nA project for learning about Git merges."),
-            createFileStructure("/src/main.js", 'console.log("Main branch");'),
-            createFileStructure("/src/feature.js", 'console.log("Feature implementation");'),
+            createFileStructure("/README.md", "# Team Project\n\nA collaborative project with proper Git workflow."),
+            createFileStructure("/src/app.js", 'console.log("App running");'),
+            createFileStructure("/src/feature.js", 'console.log("New feature");'),
         ],
         git: createGitState({
             initialized: true,
-            currentBranch: "main",
-            branches: ["main", "feature"],
+            currentBranch: "develop",
+            branches: ["main", "develop", "feature/user-auth"],
             commits: [
                 // Initial commit on main
                 {
-                    message: "Initial commit",
-                    files: ["/README.md", "/src/main.js"],
+                    message: "Initial project setup",
+                    files: ["/README.md", "/src/app.js"],
+                    branch: "main",
                 },
-                // Switch to feature branch and add feature.js
+                // Create develop branch
                 {
-                    message: "Add feature implementation",
-                    files: ["/src/feature.js"],
-                    branch: "feature",
+                    message: "Create develop branch",
+                    files: [],
+                    branch: "develop",
                 },
-                // Switch back to main for the user to merge
+                // Feature branch with new feature
+                {
+                    message: "Add user authentication feature",
+                    files: ["/src/feature.js"],
+                    branch: "feature/user-auth",
+                },
+                // Switch back to develop for merge
                 {
                     message: "",
                     files: [],
-                    branch: "main",
+                    branch: "develop",
                 },
             ],
         }),
@@ -70,7 +77,7 @@ const mergeLevel2 = createLevel({
     requirements: [
         createRequirement({
             command: "git merge",
-            requiresArgs: ["--abort"],
+            requiresArgs: ["any"],
             description: "merge.level2.requirement1.description",
             successMessage: "merge.level2.requirement1.success",
         }),
@@ -78,6 +85,60 @@ const mergeLevel2 = createLevel({
     story: createStory({
         title: "merge.level2.story.title",
         narrative: "merge.level2.story.narrative",
+        realWorldContext: "merge.level2.story.realWorldContext",
+        taskIntroduction: "merge.level2.story.taskIntroduction",
+    }),
+    initialState: createInitialState({
+        files: [
+            createFileStructure("/README.md", "# Team Project\n\nA collaborative project with proper Git workflow."),
+            createFileStructure("/src/app.js", 'console.log("App running");'),
+            createFileStructure("/src/feature.js", 'console.log("New feature");'),
+        ],
+        git: createGitState({
+            initialized: true,
+            currentBranch: "main",
+            branches: ["main", "develop"],
+            commits: [
+                // Initial commit on main
+                {
+                    message: "Initial project setup",
+                    files: ["/README.md", "/src/app.js"],
+                    branch: "main",
+                },
+                // Develop branch with tested feature
+                {
+                    message: "Add tested user authentication",
+                    files: ["/src/feature.js"],
+                    branch: "develop",
+                },
+                // Back to main for production merge
+                {
+                    message: "",
+                    files: [],
+                    branch: "main",
+                },
+            ],
+        }),
+    }),
+});
+
+const mergeLevel3 = createLevel({
+    id: 3,
+    name: "merge.level3.name",
+    description: "merge.level3.description",
+    objectives: ["merge.level3.objective1"],
+    hints: ["merge.level3.hint1", "merge.level3.hint2"],
+    requirements: [
+        createRequirement({
+            command: "git merge",
+            requiresArgs: ["--abort"],
+            description: "merge.level3.requirement1.description",
+            successMessage: "merge.level3.requirement1.success",
+        }),
+    ],
+    story: createStory({
+        title: "merge.level3.story.title",
+        narrative: "merge.level3.story.narrative",
         realWorldContext: "merge.level2.story.realWorldContext",
         taskIntroduction: "merge.level2.story.taskIntroduction",
     }),
@@ -136,4 +197,5 @@ const mergeLevel2 = createLevel({
 export const mergeLevels = {
     1: mergeLevel1,
     2: mergeLevel2,
+    3: mergeLevel3,
 };

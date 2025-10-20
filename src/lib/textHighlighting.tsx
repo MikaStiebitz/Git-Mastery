@@ -1,7 +1,8 @@
 import { Terminal } from "lucide-react";
 
-// Function to highlight Git commands in terminal style
+// Function to highlight Git commands and format bold text
 export function highlightGitCommands(text: string) {
+    // First split by backticks for code
     const parts = text.split(/(`[^`]+`)/g);
 
     return parts.map((part, index) => {
@@ -25,6 +26,26 @@ export function highlightGitCommands(text: string) {
                 </code>
             );
         }
+
+        // Handle bold text with **text**
+        const boldParts = part.split(/(\*\*[^*]+\*\*)/g);
+        if (boldParts.length > 1) {
+            return (
+                <span key={index}>
+                    {boldParts.map((boldPart, boldIndex) => {
+                        if (boldPart.startsWith("**") && boldPart.endsWith("**")) {
+                            return (
+                                <strong key={`${index}-${boldIndex}`} className="font-semibold text-purple-100">
+                                    {boldPart.slice(2, -2)}
+                                </strong>
+                            );
+                        }
+                        return boldPart;
+                    })}
+                </span>
+            );
+        }
+
         return part;
     });
 }

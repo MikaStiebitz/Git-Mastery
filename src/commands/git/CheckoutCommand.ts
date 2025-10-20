@@ -17,9 +17,12 @@ export class CheckoutCommand implements Command {
     supportsFileCompletion = true;
 
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository, fileSystem } = context;
+        const { gitRepository, fileSystem, currentDirectory } = context;
 
         if (!gitRepository.isInitialized()) {
+            return ["fatal: not a git repository (or any of the parent directories): .git"];
+        }
+        if (!gitRepository.isInRepository(currentDirectory)) {
             return ["fatal: not a git repository (or any of the parent directories): .git"];
         }
 
@@ -64,8 +67,8 @@ export class CheckoutCommand implements Command {
                 return [`fatal: A branch named '${branchName}' already exists.`];
             }
 
-            // Switch to the new branch
-            const checkoutResult = gitRepository.checkout(branchName);
+            // Switch to the new branch with createNew flag = true (allows uncommitted changes)
+            const checkoutResult = gitRepository.checkout(branchName, true);
             if (!checkoutResult.success) {
                 if (checkoutResult.warnings) {
                     return checkoutResult.warnings;

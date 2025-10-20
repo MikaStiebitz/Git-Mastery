@@ -1,15 +1,16 @@
 import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import { resolvePath } from "~/lib/utils";
 
 export class LsCommand implements Command {
     name = "ls";
     description = "List directory contents";
-    usage = "ls [options]";
-    examples = ["ls", "ls -a", "ls -l"];
+    usage = "ls [options] [directory]";
+    examples = ["ls", "ls -a", "ls -l", "ls /home"];
     includeInTabCompletion = true;
-    supportsFileCompletion = false;
+    supportsFileCompletion = true;
 
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { fileSystem } = context;
+        const { fileSystem, currentDirectory } = context;
 
         // Parse options
         const options = {
@@ -21,9 +22,14 @@ export class LsCommand implements Command {
         options.all = args.flags.a !== undefined || args.flags.all !== undefined;
         options.long = args.flags.l !== undefined;
 
-        const contents = fileSystem.getDirectoryContents(context.currentDirectory);
+        // Determine which directory to list
+        const targetPath = args.positionalArgs.length > 0
+            ? resolvePath(args.positionalArgs[0]!, currentDirectory)
+            : currentDirectory;
+
+        const contents = fileSystem.getDirectoryContents(targetPath);
         if (!contents) {
-            return ["Cannot list directory contents."];
+            return [`Cannot access '${targetPath}': No such file or directory`];
         }
 
         // Filter files based on options

@@ -33,6 +33,10 @@ import { RemoteCommand } from "./git/RemoteCommand";
 import { PushCommand } from "./git/PushCommand";
 import { PullCommand } from "./git/PullCommand";
 import { GitHelpCommand } from "./git/HelpCommand";
+import { CloneCommand } from "./git/CloneCommand";
+import { BisectCommand } from "./git/BisectCommand";
+import { TagCommand } from "./git/TagCommand";
+import { GudCommand } from "./git/GudCommand";
 
 // File System Commands
 import { LsCommand } from "./filesystem/LsCommand";
@@ -86,6 +90,10 @@ registry.register(new RemoteCommand());
 registry.register(new PushCommand());
 registry.register(new PullCommand());
 registry.register(new GitHelpCommand());
+registry.register(new CloneCommand());
+registry.register(new BisectCommand());
+registry.register(new TagCommand());
+registry.register(new GudCommand()); // Easter egg! 🎮
 
 // Register File System Commands
 registry.register(new LsCommand());

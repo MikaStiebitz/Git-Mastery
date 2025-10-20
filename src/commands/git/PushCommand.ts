@@ -29,20 +29,56 @@ export class PushCommand implements Command {
             branch = args.positionalArgs[1] ?? gitRepository.getCurrentBranch();
         }
 
-        // For learning platform, always simulate a successful push
-        // We'll auto-add a remote if it doesn't exist
+        // Check if branch has upstream tracking
+        const hasUpstream = gitRepository.hasUpstreamBranch(branch);
+
+        // If no arguments provided and no upstream, show error
+        if (args.positionalArgs.length === 0 && !hasUpstream && !setUpstream) {
+            return [
+                `fatal: The current branch ${branch} has no upstream branch.`,
+                `To push the current branch and set the remote as upstream, use`,
+                ``,
+                `    git push --set-upstream origin ${branch}`,
+                ``,
+                `Or use the shorthand:`,
+                ``,
+                `    git push -u origin ${branch}`,
+                ``,
+                `Or simply:`,
+                ``,
+                `    git push origin ${branch}`
+            ];
+        }
+
+        // Validate remote exists
         const remotes = gitRepository.getRemotes();
         if (!remotes[remote]) {
-            // Auto-create the remote for better UX in the learning platform
-            gitRepository.addRemote(remote, `https://github.com/user/${remote}.git`);
+            return [
+                `error: No such remote: '${remote}'`,
+                ``,
+                `💡 You need to add a remote first:`,
+                `    git remote add ${remote} <repository-url>`,
+                ``,
+                `Example:`,
+                `    git remote add ${remote} https://github.com/user/repo.git`,
+                ``,
+                `Then try pushing again:`,
+                `    git push ${remote} ${branch}`
+            ];
+        }
+
+        // Validate branch exists
+        const branches = gitRepository.getBranches();
+        if (!branches.includes(branch)) {
+            return [`error: src refspec ${branch} does not match any`];
         }
 
         // Check if there are unpushed commits before pushing
         const hasUnpushedCommits = gitRepository.hasUnpushedCommits();
         const unpushedCommitCount = gitRepository.getUnpushedCommitCount();
 
-        // Perform push
-        const success = gitRepository.push(remote, branch);
+        // Perform push with upstream flag
+        const success = gitRepository.push(remote, branch, setUpstream);
 
         if (success) {
             if (hasUnpushedCommits) {
@@ -54,7 +90,7 @@ export class PushCommand implements Command {
                         `Counting objects: 100% (${unpushedCommitCount * 2 + 1}/${unpushedCommitCount * 2 + 1}), done.`,
                         `Writing objects: 100% (${unpushedCommitCount}/${unpushedCommitCount}), 256 bytes | 256.00 KiB/s, done.`,
                         `Total ${unpushedCommitCount} (delta 0), reused 0 (delta 0)`,
-                        `To ${gitRepository.getRemotes()[remote]}`,
+                        `To ${remotes[remote]}`,
                         `   a1b2c3d..e4f5g6h  ${branch} -> ${branch}`,
                     ];
                 } else {
@@ -63,7 +99,7 @@ export class PushCommand implements Command {
                         `Counting objects: 100% (${unpushedCommitCount * 2 + 1}/${unpushedCommitCount * 2 + 1}), done.`,
                         `Writing objects: 100% (${unpushedCommitCount}/${unpushedCommitCount}), 256 bytes | 256.00 KiB/s, done.`,
                         `Total ${unpushedCommitCount} (delta 0), reused 0 (delta 0)`,
-                        `To ${gitRepository.getRemotes()[remote]}`,
+                        `To ${remotes[remote]}`,
                         `   a1b2c3d..e4f5g6h  ${branch} -> ${branch}`,
                     ];
                 }

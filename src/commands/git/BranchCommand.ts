@@ -18,9 +18,12 @@ export class BranchCommand implements Command {
     supportsFileCompletion = false;
 
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository } = context;
+        const { gitRepository, currentDirectory } = context;
 
         if (!gitRepository.isInitialized()) {
+            return ["fatal: not a git repository (or any of the parent directories): .git"];
+        }
+        if (!gitRepository.isInRepository(currentDirectory)) {
             return ["fatal: not a git repository (or any of the parent directories): .git"];
         }
 
@@ -77,17 +80,24 @@ export class BranchCommand implements Command {
 
         // Handle deletion
         if (isDelete || isForceDelete) {
-            if (positionalArgs.length === 0) {
+            // Branch name can be either as flag value or positional arg
+            const branchName =
+                (typeof args.flags.d === 'string' ? args.flags.d : undefined) ||
+                (typeof args.flags.D === 'string' ? args.flags.D : undefined) ||
+                positionalArgs[0];
+
+            if (!branchName) {
+                const flag = isForceDelete ? '-D' : '-d';
                 return {
                     action: "delete",
                     isForce,
-                    error: "fatal: branch name required",
+                    error: `error: branch name required\nusage: git branch ${flag} <branchname>`,
                 };
             }
 
             return {
                 action: "delete",
-                branchName: positionalArgs[0],
+                branchName,
                 isForce,
             };
         }
@@ -171,7 +181,7 @@ export class BranchCommand implements Command {
         }
 
         // Check for unmerged commits (only if not force)
-        if (!isForce && this.hasUnmergedCommits(branchName)) {
+        if (!isForce && gitRepository.hasUnmergedCommits(branchName)) {
             return [
                 `error: The branch '${branchName}' is not fully merged.`,
                 `If you are sure you want to delete it, run 'git branch -D ${branchName}'.`,
@@ -219,12 +229,6 @@ export class BranchCommand implements Command {
         }
 
         return [`Branch '${oldName}' renamed to '${newName}'.`];
-    }
-
-    private hasUnmergedCommits(branchName: string): boolean {
-        // Simplified check - in real Git this would check if the branch
-        // has commits that aren't merged into the current branch
-        return Math.random() > 0.7; // Sometimes have unmerged commits for realism
     }
 
     private getMockCommitHash(): string {

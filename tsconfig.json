@@ -8,12 +8,12 @@
         "resolveJsonModule": true,
         "moduleDetection": "force",
         "isolatedModules": true,
-        
+
         /* Strictness */
         "strict": true,
         "noUncheckedIndexedAccess": true,
         "checkJs": true,
-        
+
         /* Bundled projects */
         "lib": ["dom", "dom.iterable", "ES2022"],
         "noEmit": true,
@@ -38,5 +38,5 @@
         "**/*.js",
         ".next/types/**/*.ts"
     ],
-    "exclude": ["node_modules"]
+    "exclude": ["node_modules", "coverage", ".next", "out"]
 }

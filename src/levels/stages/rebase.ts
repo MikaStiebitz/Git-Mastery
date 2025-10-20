@@ -31,30 +31,43 @@ const rebaseLevel1 = createLevel({
     initialState: createInitialState({
         files: [
             createFileStructure("/README.md", "# Rebase Project\n\nA project for learning about Git rebases."),
-            createFileStructure("/src/main.js", 'console.log("Main branch");'),
+            createFileStructure("/src/main.js", 'console.log("Main branch with new updates");'),
             createFileStructure("/src/feature.js", 'console.log("Feature implementation");'),
         ],
         git: createGitState({
             initialized: true,
-            currentBranch: "main",
+            currentBranch: "feature",
             branches: ["main", "feature"],
             commits: [
                 // Initial commit on main
                 {
                     message: "Initial commit",
-                    files: ["/README.md", "/src/main.js"],
+                    files: ["/README.md"],
+                    branch: "main",
                 },
-                // Switch to feature branch and add feature.js
+                // First update on main branch
                 {
-                    message: "Add feature implementation",
+                    message: "Add main.js",
+                    files: ["/src/main.js"],
+                    branch: "main",
+                },
+                // Create feature branch and add feature.js
+                {
+                    message: "Start feature implementation",
                     files: ["/src/feature.js"],
                     branch: "feature",
                 },
-                // Switch back to main for the user to rebase
+                // Add another commit to main (to make rebase meaningful)
+                {
+                    message: "Update main.js",
+                    files: ["/src/main.js"],
+                    branch: "main",
+                },
+                // Switch back to feature branch for the user to rebase
                 {
                     message: "",
                     files: [],
-                    branch: "main",
+                    branch: "feature",
                 },
             ],
         }),

@@ -1,5 +1,6 @@
 import type { CommandProcessor } from "~/models/CommandProcessor";
 import type { FileSystem } from "~/models/FileSystem";
+import type { GitRepository } from "~/models/GitRepository";
 import type { AutocompleteState } from "../types";
 import commandRegistry from "~/commands";
 
@@ -7,6 +8,7 @@ export class AutocompleteService {
     constructor(
         private commandProcessor: CommandProcessor,
         private fileSystem: FileSystem,
+        private gitRepository?: GitRepository,
     ) {}
 
     getCommandSuggestion(partialCommand: string): string | undefined {
@@ -36,6 +38,13 @@ export class AutocompleteService {
         // Special handling for Git commands (two-word commands)
         if (commandName === "git" && parts.length > 1) {
             commandName = `git ${parts[1]}`;
+        }
+
+        // Check if this command needs branch autocomplete
+        const needsBranchCompletion = this.commandSupportsBranchCompletion(commandName);
+
+        if (needsBranchCompletion && this.gitRepository?.isInitialized()) {
+            return this.processBranchAutocomplete(input, commandName, parts);
         }
 
         // Check if this is a command that supports file completion
@@ -114,16 +123,107 @@ export class AutocompleteService {
         };
     }
 
-    generateCompletedCommand(input: string, selectedFile: string): string {
+    private commandSupportsBranchCompletion(commandName: string): boolean {
+        // Commands that accept branch names
+        const branchCommands = [
+            "git switch",
+            "git checkout",
+            "git merge",
+            "git rebase",
+            "git branch",
+            "git diff",
+            "git log",
+            "git reset",
+        ];
+        return branchCommands.includes(commandName);
+    }
+
+    private processBranchAutocomplete(input: string, commandName: string, parts: string[]): AutocompleteState {
+        if (!this.gitRepository) {
+            return {
+                fileMatches: [],
+                showMenu: false,
+                commandSuggestion: "",
+                showCommandSuggestion: false,
+            };
+        }
+
+        // Get all branches
+        const branches = this.gitRepository.getBranches();
+
+        // Extract the branch name part being typed
+        let branchPart = "";
+
+        // For "git switch" or "git checkout", the branch name is after the subcommand
+        if (commandName === "git switch" || commandName === "git checkout") {
+            // Handle flags like -c, -b
+            const flagIndex = parts.findIndex(p => p === "-c" || p === "-b" || p === "-C");
+            if (flagIndex !== -1 && parts.length > flagIndex + 1) {
+                // Don't autocomplete after -c/-b flags (creating new branch)
+                return {
+                    fileMatches: [],
+                    showMenu: false,
+                    commandSuggestion: "",
+                    showCommandSuggestion: false,
+                };
+            }
+
+            branchPart = parts.length > 2 ? parts.slice(2).join(" ") : "";
+        } else {
+            // For other commands, branch name comes after the subcommand
+            branchPart = parts.length > 2 ? parts.slice(2).join(" ") : "";
+        }
+
+        // Filter branches that match the current input
+        const matchingBranches = branches.filter(branch =>
+            branch.toLowerCase().startsWith(branchPart.toLowerCase())
+        );
+
+        if (matchingBranches.length === 0) {
+            return {
+                fileMatches: [],
+                showMenu: false,
+                commandSuggestion: "",
+                showCommandSuggestion: false,
+            };
+        }
+
+        return {
+            fileMatches: matchingBranches,
+            showMenu: matchingBranches.length > 1,
+            commandSuggestion: "",
+            showCommandSuggestion: false,
+        };
+    }
+
+    generateCompletedCommand(input: string, selectedItem: string): string {
         // Split current input into command and arguments
         const parts = input.trim().split(/\s+/);
 
         if (parts[0] === "git" && parts.length > 1) {
-            // For git commands: git command filename
-            return `${parts[0]} ${parts[1]} ${selectedFile}`;
+            const gitSubcommand = parts[1];
+
+            // For git commands with branch/file completion
+            if (gitSubcommand === "switch" ||
+                gitSubcommand === "checkout" ||
+                gitSubcommand === "merge" ||
+                gitSubcommand === "rebase" ||
+                gitSubcommand === "diff" ||
+                gitSubcommand === "log" ||
+                gitSubcommand === "reset") {
+                // Check if there are flags
+                const flags = parts.slice(2).filter(p => p.startsWith("-"));
+                if (flags.length > 0) {
+                    return `${parts[0]} ${gitSubcommand} ${flags.join(" ")} ${selectedItem}`;
+                }
+                return `${parts[0]} ${gitSubcommand} ${selectedItem}`;
+            }
+
+            // For other git commands with file completion
+            return `${parts[0]} ${gitSubcommand} ${selectedItem}`;
         } else {
             // For regular commands: command filename
-            return `${parts[0]} ${selectedFile}`;
+            return `${parts[0]} ${selectedItem}`;
         }
     }
 }

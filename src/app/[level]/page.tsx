@@ -272,6 +272,27 @@ export default function LevelPage() {
     const levelData: LevelType | null = levelManager.getLevel(currentStage, currentLevel, t);
     const progress = progressManager.getProgress();
 
+    // Get difficulty config for max points
+    const difficultyStages = {
+        beginner: ["Intro", "Files", "Branches", "Remote"],
+        advanced: ["Merge", "Workflow", "TeamWork", "Reset", "Stash"],
+        pro: ["Rebase", "Advanced", "Archaeology", "Mastery"],
+    };
+
+    // Determine current difficulty based on stage
+    let currentDifficultyMaxPoints = 150; // Default
+    if (difficultyStages.beginner.includes(currentStage)) {
+        currentDifficultyMaxPoints = 150;
+    } else if (difficultyStages.advanced.includes(currentStage)) {
+        currentDifficultyMaxPoints = 150;
+    } else if (difficultyStages.pro.includes(currentStage)) {
+        currentDifficultyMaxPoints = 150;
+    }
+
+    // Get double XP info
+    const isDoubleXpActive = progressManager.isDoubleXpActive();
+    const doubleXpHoursLeft = progressManager.getDoubleXpRemainingHours();
+
     // Reset terminal once when the component mounts
     useEffect(() => {
         resetTerminalForLevel();
@@ -294,12 +315,18 @@ export default function LevelPage() {
 
     // Handle next level navigation and reset story dialog state
     const handleNextLevelWithStory = () => {
-        // Reset the story dialog state when navigating to a new level
-        setUserClosedStoryDialog(false);
-        if (!isAdvancedMode) {
-            setShowStoryDialog(true);
+        // Call handleNextLevel and check if there's actually a next level
+        const nextLevelInfo = handleNextLevel();
+
+        // Only show story dialog if there's actually a next level (not redirecting to home)
+        if (nextLevelInfo && nextLevelInfo.stageId && typeof nextLevelInfo.levelId === "number") {
+            // Reset the story dialog state when navigating to a new level
+            setUserClosedStoryDialog(false);
+            if (!isAdvancedMode) {
+                setShowStoryDialog(true);
+            }
         }
-        handleNextLevel();
+        // If nextLevelInfo is null or undefined, it means difficulty is completed and redirect is happening
     };
 
     // Story dialog display logic - Reset when levels change or triggered by GameContext
@@ -405,10 +432,51 @@ export default function LevelPage() {
 
                     <div>
                         <h3 className="mb-2 font-medium text-purple-200">{t("level.objectives")}</h3>
-                        <ul className="list-inside list-disc space-y-1 text-purple-300">
-                            {levelData.objectives.map((objective, index) => (
-                                <li key={index}>{objective}</li>
-                            ))}
+                        <ul className="space-y-2 text-purple-300">
+                            {levelData.objectives.map((objective, index) => {
+                                // Check if this objective is completed
+                                // Objectives are 1-indexed (objective 1, 2, 3...)
+                                const objectiveNumber = index + 1;
+
+                                // If requirements have objectiveId, use completedObjectives
+                                // Otherwise fall back to old behavior (match by index)
+                                const hasObjectiveIds = levelData.requirements.some(
+                                    req => req.objectiveId !== undefined,
+                                );
+                                const isCompleted = hasObjectiveIds
+                                    ? levelData.completedObjectives?.includes(objectiveNumber) || false
+                                    : levelData.requirements[index]?.id
+                                      ? levelData.completedRequirements?.includes(levelData.requirements[index].id!) ||
+                                        false
+                                      : false;
+
+                                return (
+                                    <li key={index} className="flex items-start space-x-2">
+                                        <div
+                                            className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 ${
+                                                isCompleted
+                                                    ? "border-green-500 bg-green-500/20"
+                                                    : "border-purple-500/50"
+                                            }`}>
+                                            {isCompleted && (
+                                                <svg
+                                                    className="h-3 w-3 text-green-400"
+                                                    fill="none"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <span className={isCompleted ? "text-green-300 line-through" : ""}>
+                                            {objective}
+                                        </span>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
 
@@ -437,6 +505,7 @@ export default function LevelPage() {
                         {isLevelCompleted && (
                             <Button
                                 onClick={handleNextLevelWithStory}
+                                size="sm"
                                 className="flex items-center bg-purple-600 text-white hover:bg-purple-700">
                                 <ArrowRightIcon className="mr-1 h-4 w-4" />
                                 {t("level.nextLevel")}
@@ -591,23 +660,36 @@ export default function LevelPage() {
     return (
         <PageLayout showLevelInfo>
             <div className="bg-[#1a1625] text-purple-100">
-                <div className="container mx-auto p-4">
-                    <h1 className="mb-6 text-center text-3xl font-bold text-white">Git Learning Game</h1>
-                    <ProgressBar score={progress.score} maxScore={150} className="mb-6" />
+                <div className="container mx-auto p-2 sm:p-4">
+                    <h1 className="mb-4 text-center text-2xl font-bold text-white sm:mb-6 sm:text-3xl">
+                        Git Learning Game
+                    </h1>
+                    <ProgressBar
+                        score={progress.score}
+                        coins={progress.coins}
+                        maxScore={currentDifficultyMaxPoints}
+                        isDoubleXpActive={isDoubleXpActive}
+                        doubleXpHoursLeft={doubleXpHoursLeft}
+                        className="mb-4 sm:mb-6"
+                    />
 
-                    {/* Ensuring equal heights between challenge card and terminal */}
-                    {/* Portrait monitors (taller than wide) and mobile use vertical layout */}
-                    <div className="grid grid-cols-1 gap-4 portrait:grid-cols-1 portrait:grid-rows-[1fr,auto] landscape:lg:grid-cols-2 landscape:lg:grid-rows-1">
-                        <Card className="flex h-[580px] flex-col overflow-hidden border-purple-900/20 bg-purple-900/10 portrait:order-1 portrait:h-auto portrait:min-h-[300px] landscape:md:order-2 landscape:lg:h-[580px]">
-                            <CardHeader className="shrink-0">
-                                <CardTitle className="flex items-center text-white">
-                                    <Shield className="mr-2 h-5 w-5 text-purple-400" />
+                    {/* Mobile-optimized layout: Stack vertically on mobile, side-by-side on desktop */}
+                    <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+                        {/* Challenge Card - Always show first on mobile for context */}
+                        <Card className="order-1 flex flex-col overflow-hidden border-purple-900/20 bg-purple-900/10 lg:order-2 lg:h-[580px]">
+                            <CardHeader className="shrink-0 p-3 sm:p-6 sm:pb-0">
+                                <CardTitle className="flex items-center text-base text-white sm:text-lg">
+                                    <Shield className="mr-2 h-4 w-4 text-purple-400 sm:h-5 sm:w-5" />
                                     {t("level.currentChallenge")}
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="flex-grow overflow-auto pb-4">{renderLevelChallenge()}</CardContent>
+                            <CardContent className="flex-grow overflow-auto p-3 pb-4 sm:p-6">
+                                {renderLevelChallenge()}
+                            </CardContent>
                         </Card>
-                        <Terminal className="h-[580px] rounded-md portrait:order-2 portrait:h-[400px] landscape:lg:h-[580px]" />
+
+                        {/* Terminal - Second on mobile, optimized height */}
+                        <Terminal className="order-2 h-[450px] rounded-md sm:h-[500px] lg:order-1 lg:h-[580px]" />
                     </div>
 
                     <FileEditor

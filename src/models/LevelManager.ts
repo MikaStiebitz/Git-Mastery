@@ -104,17 +104,20 @@ export class LevelManager {
             // Create commits if specified
             if (gitState.commits) {
                 for (const commit of gitState.commits) {
-                    // Stage files for this commit
-                    for (const filePath of commit.files) {
-                        gitRepository.addFile(filePath);
-                    }
-
-                    // Commit the changes
-                    gitRepository.commit(commit.message);
-
-                    // Switch branch if needed for next commit
+                    // Switch branch BEFORE committing if needed
                     if (commit.branch && commit.branch !== gitRepository.getCurrentBranch()) {
                         gitRepository.checkout(commit.branch);
+                    }
+
+                    // Only commit if there's a message (empty message = just switch branch)
+                    if (commit.message) {
+                        // Stage files for this commit
+                        for (const filePath of commit.files) {
+                            gitRepository.addFile(filePath);
+                        }
+
+                        // Commit the changes
+                        gitRepository.commit(commit.message);
                     }
                 }
             }
@@ -132,6 +135,13 @@ export class LevelManager {
             // Apply file changes to create modified/untracked/deleted files
             if (gitState.fileChanges) {
                 this.applyFileChanges(gitRepository, fileSystem, gitState.fileChanges);
+            }
+
+            // Set up remote commits if specified
+            if (gitState.remoteCommits) {
+                for (const remoteCommitSet of gitState.remoteCommits) {
+                    gitRepository.setRemoteCommits(remoteCommitSet.branch, remoteCommitSet.commits);
+                }
             }
         }
     }
@@ -165,9 +175,11 @@ export class LevelManager {
                     }
                     break;
                 case "untracked":
-                    // Create new untracked file
-                    if (change.path && change.content) {
-                        fileSystem.writeFile(change.path, change.content);
+                    // Create new untracked file (only if content is provided)
+                    if (change.path) {
+                        if (change.content) {
+                            fileSystem.writeFile(change.path, change.content);
+                        }
                         gitRepository.updateFileStatus(change.path, "untracked");
                     }
                     break;
@@ -179,9 +191,11 @@ export class LevelManager {
                     }
                     break;
                 case "staged":
-                    // Create and stage file
-                    if (change.path && change.content) {
-                        fileSystem.writeFile(change.path, change.content);
+                    // Stage file (create it first if content is provided)
+                    if (change.path) {
+                        if (change.content) {
+                            fileSystem.writeFile(change.path, change.content);
+                        }
                         gitRepository.addFile(change.path);
                     }
                     break;
@@ -246,7 +260,14 @@ export class LevelManager {
 
     // Get a specific level with translated content
     public getLevel(stageId: string, levelId: number, translateFunc?: (key: string) => string): LevelType | null {
-        const level = this.stages[stageId]?.levels[levelId];
+        // Find stage by ID (need to search through stages object)
+        // Support both lowercase ID (e.g., "intro") and capitalized key (e.g., "Intro")
+        const stageEntry = Object.values(this.stages).find(stage =>
+            stage.id === stageId || stage.id === stageId.toLowerCase()
+        );
+        if (!stageEntry) return null;
+
+        const level = stageEntry.levels[levelId];
         if (!level) return null;
 
         if (!translateFunc) {
@@ -316,6 +337,11 @@ export class LevelManager {
             level.completedRequirements = [];
         }
 
+        // Initialize completed objectives array if not present
+        if (!level.completedObjectives) {
+            level.completedObjectives = [];
+        }
+
         // Track if the current command satisfies any requirement
         let requirementSatisfied = false;
 
@@ -326,11 +352,25 @@ export class LevelManager {
 
             console.log(`Git command: ${gitCommand}, Git args:`, gitArgs);
 
-            for (const requirement of level.requirements) {
-                // Skip already completed requirements
-                if (requirement.id && level.completedRequirements.includes(requirement.id)) {
-                    continue;
-                }
+            // For 'all' logic (sequential), only check the NEXT uncompleted requirement
+            let requirementsToCheck;
+            if (level.requirementLogic === "all") {
+                // Find the first uncompleted requirement (sequential mode)
+                const nextRequirementIndex = level.requirements.findIndex(
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                );
+                requirementsToCheck = nextRequirementIndex >= 0
+                    ? [level.requirements[nextRequirementIndex]]
+                    : [];
+            } else {
+                // For 'any' logic, check all uncompleted requirements
+                requirementsToCheck = level.requirements.filter(
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                );
+            }
+
+            for (const requirement of requirementsToCheck) {
+                if (!requirement) continue; // Safety check
 
                 // Special case for git add level
                 if (requirement.command === "git add" && gitCommand === "add") {
@@ -340,16 +380,34 @@ export class LevelManager {
                             level.completedRequirements.push(requirement.id);
                         }
                         requirementSatisfied = true;
-                        continue;
+                        break; // Only one requirement per command
                     }
                 }
 
-                // Check if this is the right Git command
-                if (
+                // Check if command matches (including alternative commands)
+                const commandMatches =
                     requirement.command === `git ${gitCommand}` ||
                     requirement.command === command ||
-                    requirement.command === gitCommand
-                ) {
+                    requirement.command === gitCommand ||
+                    (requirement.alternativeCommands && requirement.alternativeCommands.some(altCmd => {
+                        // Handle different formats of alternative commands
+                        const altParts = altCmd.split(' ');
+
+                        // Case 1: "git checkout" matches gitCommand "checkout"
+                        if (altParts[0] === 'git' && altParts.length >= 2) {
+                            return altParts[1] === gitCommand;
+                        }
+
+                        // Case 2: "checkout" matches gitCommand "checkout"
+                        if (altParts.length === 1) {
+                            return altParts[0] === gitCommand;
+                        }
+
+                        // Case 3: Full command match "git checkout" === "git checkout"
+                        return altCmd === `git ${gitCommand}`;
+                    }));
+
+                if (commandMatches) {
                     console.log("Command matches!");
 
                     // Check arguments if required
@@ -362,6 +420,15 @@ export class LevelManager {
                             // Fix for --abort flags
                             if (reqArg === "--abort") {
                                 return gitArgs.includes(reqArg);
+                            }
+
+                            // Special case: -c and -b are equivalent for branch creation
+                            // git switch -c === git checkout -b
+                            if (reqArg === "-c" && gitCommand === "checkout") {
+                                return gitArgs.includes("-b");
+                            }
+                            if (reqArg === "-b" && gitCommand === "switch") {
+                                return gitArgs.includes("-c");
                             }
 
                             return gitArgs.includes(reqArg);
@@ -377,7 +444,27 @@ export class LevelManager {
                     if (requirement.id) {
                         level.completedRequirements.push(requirement.id);
                     }
+
+                    // Check if this completes an objective
+                    if (requirement.objectiveId !== undefined) {
+                        // Get all requirements with the same objectiveId
+                        const objectiveRequirements = level.requirements.filter(
+                            req => req.objectiveId === requirement.objectiveId
+                        );
+
+                        // Check if all requirements for this objective are completed
+                        const allObjectiveRequirementsCompleted = objectiveRequirements.every(
+                            req => !req.id || level.completedRequirements?.includes(req.id)
+                        );
+
+                        // If all requirements for this objective are completed, mark objective as complete
+                        if (allObjectiveRequirementsCompleted && !level.completedObjectives?.includes(requirement.objectiveId)) {
+                            level.completedObjectives?.push(requirement.objectiveId);
+                        }
+                    }
+
                     requirementSatisfied = true;
+                    break; // Only one requirement per command
                 }
             }
         } else if (command === "next") {
@@ -385,11 +472,25 @@ export class LevelManager {
             return false; // The "next" command does not complete any level
         } else {
             // Non-Git commands
-            for (const requirement of level.requirements) {
-                // Skip already completed requirements
-                if (requirement.id && level.completedRequirements.includes(requirement.id)) {
-                    continue;
-                }
+            // For 'all' logic (sequential), only check the NEXT uncompleted requirement
+            let requirementsToCheck;
+            if (level.requirementLogic === "all") {
+                // Find the first uncompleted requirement (sequential mode)
+                const nextRequirementIndex = level.requirements.findIndex(
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                );
+                requirementsToCheck = nextRequirementIndex >= 0
+                    ? [level.requirements[nextRequirementIndex]]
+                    : [];
+            } else {
+                // For 'any' logic, check all uncompleted requirements
+                requirementsToCheck = level.requirements.filter(
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                );
+            }
+
+            for (const requirement of requirementsToCheck) {
+                if (!requirement) continue; // Safety check
 
                 if (requirement.command === command) {
                     if (requirement.requiresArgs) {
@@ -407,7 +508,27 @@ export class LevelManager {
                     if (requirement.id) {
                         level.completedRequirements.push(requirement.id);
                     }
+
+                    // Check if this completes an objective
+                    if (requirement.objectiveId !== undefined) {
+                        // Get all requirements with the same objectiveId
+                        const objectiveRequirements = level.requirements.filter(
+                            req => req.objectiveId === requirement.objectiveId
+                        );
+
+                        // Check if all requirements for this objective are completed
+                        const allObjectiveRequirementsCompleted = objectiveRequirements.every(
+                            req => !req.id || level.completedRequirements?.includes(req.id)
+                        );
+
+                        // If all requirements for this objective are completed, mark objective as complete
+                        if (allObjectiveRequirementsCompleted && !level.completedObjectives?.includes(requirement.objectiveId)) {
+                            level.completedObjectives?.push(requirement.objectiveId);
+                        }
+                    }
+
                     requirementSatisfied = true;
+                    break; // Only one requirement per command
                 }
             }
         }

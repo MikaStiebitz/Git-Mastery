@@ -1,0 +1,63 @@
+
+> git-gud@0.2.0 test:run
+> vitest run
+
+
+ RUN  v3.2.4 /Users/mstiebitz/Code/Git-Gud
+
+ ❯ src/test/commands/filesystem.test.ts (30 tests | 19 failed) 19ms
+   ✓ Filesystem Commands > CdCommand > should change to absolute path 2ms
+   ✓ Filesystem Commands > CdCommand > should change to relative path 0ms
+   ✓ Filesystem Commands > CdCommand > should go to parent with .. 0ms
+   ✓ Filesystem Commands > CdCommand > should go to root with / 0ms
+   × Filesystem Commands > CdCommand > should fail on non-existent directory 5ms
+     → expected 'Cannot change to directory: /nonexist…' to contain 'No such file or directory'
+   × Filesystem Commands > CdCommand > should handle multiple .. segments 2ms
+     → expected '/home/user' to be '/' // Object.is equality
+   × Filesystem Commands > LsCommand > should list directory contents 2ms
+     → expected [ 'home/' ] to include 'user'
+   × Filesystem Commands > LsCommand > should list current directory when no args 0ms
+     → expected [ 'user/' ] to include 'user'
+   × Filesystem Commands > LsCommand > should show detailed list with -l flag 1ms
+     → expected 'drw-r--r-- user group        0 2025-1…' to contain 'file.txt'
+   × Filesystem Commands > LsCommand > should show hidden files with -a flag 0ms
+     → expected [ 'home/' ] to include '.hidden'
+   × Filesystem Commands > LsCommand > should fail on non-existent directory 0ms
+     → expected 'home/' to contain 'cannot access'
+   ✓ Filesystem Commands > PwdCommand > should print current directory 0ms
+   ✓ Filesystem Commands > PwdCommand > should reflect directory changes 0ms
+   × Filesystem Commands > MkdirCommand > should create a directory 1ms
+     → expected [ 'Created directory: newdir' ] to deeply equal []
+   ✓ Filesystem Commands > MkdirCommand > should create nested directories with -p 0ms
+   ✓ Filesystem Commands > MkdirCommand > should handle absolute paths 0ms
+   × Filesystem Commands > MkdirCommand > should require directory name 0ms
+     → expected 'Please specify a directory name.' to contain 'missing operand'
+   × Filesystem Commands > TouchCommand > should create a file 0ms
+     → expected [ 'Created file: newfile.txt' ] to deeply equal []
+   × Filesystem Commands > TouchCommand > should update existing file timestamp 0ms
+     → expected '' to be 'Hello World' // Object.is equality
+   ✓ Filesystem Commands > TouchCommand > should handle relative paths 0ms
+   × Filesystem Commands > TouchCommand > should require file name 0ms
+     → expected 'Please specify a file name.' to contain 'missing file operand'
+   ✓ Filesystem Commands > CatCommand > should display file contents 0ms
+   × Filesystem Commands > CatCommand > should fail on non-existent file 0ms
+     → expected 'File not found: nonexistent.txt' to contain 'No such file'
+   × Filesystem Commands > CatCommand > should fail on directory 1ms
+     → expected 'File not found: /home' to contain 'Is a directory'
+   ✓ Filesystem Commands > CatCommand > should handle relative paths 0ms
+   × Filesystem Commands > RmCommand > should remove a file 0ms
+     → expected [ 'Removed \'/home/user/file.txt\'.' ] to deeply equal []
+   × Filesystem Commands > RmCommand > should remove directory with -r flag 0ms
+     → expected [ 'Removed \'/home/user\'.' ] to deeply equal []
+   × Filesystem Commands > RmCommand > should fail to remove directory without -r 0ms
+     → expected 'Cannot remove \'/home\': Is a directo…' to contain 'is a directory'
+   × Filesystem Commands > RmCommand > should fail on non-existent file 0ms
+     → expected 'Failed to remove \'nonexistent.txt\'.' to contain 'No such file or directory'
+   × Filesystem Commands > RmCommand > should require file name 1ms
+     → expected 'Please specify a file or directory to…' to contain 'missing operand'
+
+ Test Files  5 failed (5)
+      Tests  19 failed | 11 passed (30)
+   Start at  17:13:51
+   Duration  974ms (transform 98ms, setup 332ms, collect 112ms, tests 19ms, environment 2.15s, prepare 302ms)
+

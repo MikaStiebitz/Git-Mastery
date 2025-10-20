@@ -9,61 +9,51 @@ import {
 
 const teamworkLevel1 = createLevel({
     id: 1,
-    name: "Team Collaboration Basics",
-    description: "Learn how to work effectively with a team using Git",
+    name: "teamwork.level1.name",
+    description: "teamwork.level1.description",
     objectives: [
-        "Clone a team repository",
-        "Set up your local development environment",
-        "Make your first team contribution",
-        "Push changes to shared repository"
+        "teamwork.level1.objective1",
+        "teamwork.level1.objective2",
+        "teamwork.level1.objective3",
+        "teamwork.level1.objective4"
     ],
     hints: [
-        "Always pull latest changes before starting work",
-        "Use descriptive commit messages for team visibility",
-        "Communicate with your team about what you're working on",
-        "Follow the team's branching strategy"
+        "teamwork.level1.hint1",
+        "teamwork.level1.hint2",
+        "teamwork.level1.hint3",
+        "teamwork.level1.hint4",
+        "teamwork.level1.hint5"
     ],
     requirements: [
         createRequirement({
             command: "git pull origin main",
-            description: "Pull the latest changes from the team repository",
-            successMessage: "Latest changes pulled successfully!"
+            alternativeCommands: ["git pull"],
+            description: "teamwork.level1.requirement1.description",
+            successMessage: "teamwork.level1.requirement1.success"
         }),
         createRequirement({
-            command: "git checkout -b feature/team-profile",
-            description: "Create your feature branch for team profile",
-            successMessage: "Feature branch created!"
+            command: "git switch -c",
+            alternativeCommands: ["git checkout -b"],
+            requiresArgs: ["any"],
+            description: "teamwork.level1.requirement2.description",
+            successMessage: "teamwork.level1.requirement2.success"
         }),
         createRequirement({
             command: "git add .",
-            description: "Stage your team profile changes",
-            successMessage: "Changes staged!"
+            description: "teamwork.level1.requirement3.description",
+            successMessage: "teamwork.level1.requirement3.success"
         }),
         createRequirement({
             command: "git commit -m",
-            description: "Commit your team profile with a descriptive message",
-            successMessage: "Team profile committed!"
+            description: "teamwork.level1.requirement4.description",
+            successMessage: "teamwork.level1.requirement4.success"
         })
     ],
     story: createStory({
-        title: "Welcome to the Dev Team",
-        narrative: `🎉 Congratulations! You've just been hired as a developer at InnovateCorp, a fast-growing tech startup.
-
-Your team lead, Alex, walks you through your first day:
-
-"Welcome to the team! We use Git for everything here. The codebase is our shared workspace, and everyone contributes to it daily. Your first task is simple but important - add your profile to our team page."
-
-"Remember," Alex continues, "we have 12 developers working on this project. Everyone needs to stay synchronized. Always \`git pull\` before you push, and make sure your commit messages are clear so the rest of us know what you're working on."
-
-Your mission:
-1. Get the latest code from the team repository with \`git pull origin main\`
-2. Create your feature branch with \`git checkout -b feature/team-profile\`
-3. Add your developer profile
-4. Commit and push your changes with \`git commit -m "Add my profile"\`
-
-This is real-world team development. Let's make your first contribution!`,
-        realWorldContext: "Team collaboration is the heart of software development. Learning to work with shared repositories is essential for any developer.",
-        taskIntroduction: "Learn the fundamentals of team-based Git workflow and make your first collaborative contribution."
+        title: "teamwork.level1.story.title",
+        narrative: "teamwork.level1.story.narrative",
+        realWorldContext: "teamwork.level1.story.realWorldContext",
+        taskIntroduction: "teamwork.level1.story.taskIntroduction"
     }),
     initialState: createInitialState({
         files: [
@@ -87,68 +77,67 @@ This is real-world team development. Let's make your first contribution!`,
 
 const teamworkLevel2 = createLevel({
     id: 2,
-    name: "Handling Merge Conflicts in Teams",
-    description: "Resolve merge conflicts that occur when multiple developers work on the same files",
+    name: "teamwork.level2.name",
+    description: "teamwork.level2.description",
     objectives: [
-        "Understand how merge conflicts occur",
-        "Pull changes that conflict with your work",
-        "Resolve merge conflicts manually",
-        "Complete the merge process"
+        "teamwork.level2.objective1",
+        "teamwork.level2.objective2",
+        "teamwork.level2.objective3",
+        "teamwork.level2.objective4"
     ],
     hints: [
-        "Merge conflicts happen when two people edit the same lines",
-        "Look for conflict markers: <<<<<<<, =======, >>>>>>>",
-        "Communicate with teammates when resolving conflicts",
-        "Test your code after resolving conflicts"
+        "teamwork.level2.hint1",
+        "teamwork.level2.hint2",
+        "teamwork.level2.hint3",
+        "teamwork.level2.hint4",
+        "teamwork.level2.hint5",
+        "teamwork.level2.hint6",
+        "teamwork.level2.hint7",
+        "teamwork.level2.hint8"
     ],
+    requirementLogic: "all",
     requirements: [
-        createRequirement({
-            command: "git pull origin main",
-            description: "Pull changes that will create a merge conflict",
-            successMessage: "Conflicting changes pulled!"
-        }),
-        createRequirement({
-            command: "git add .",
-            description: "Stage the resolved conflict",
-            successMessage: "Conflict resolution staged!"
-        }),
-        createRequirement({
-            command: "git commit -m",
-            description: "Commit the merge resolution",
-            successMessage: "Merge conflict resolved!"
-        })
+        {
+            id: "stage-initial-changes",
+            command: "git add",
+            description: "teamwork.level2.requirement1.description",
+            successMessage: "teamwork.level2.requirement1.success"
+        },
+        {
+            id: "commit-initial-changes",
+            command: "git commit",
+            description: "teamwork.level2.requirement2.description",
+            successMessage: "teamwork.level2.requirement2.success"
+        },
+        {
+            id: "pull-remote-changes",
+            command: "git pull",
+            description: "teamwork.level2.requirement3.description",
+            successMessage: "teamwork.level2.requirement3.success"
+        },
+        {
+            id: "stage-resolved-conflict",
+            command: "git add",
+            description: "teamwork.level2.requirement4.description",
+            successMessage: "teamwork.level2.requirement4.success"
+        },
+        {
+            id: "commit-merge-resolution",
+            command: "git commit",
+            description: "teamwork.level2.requirement5.description",
+            successMessage: "teamwork.level2.requirement5.success"
+        }
     ],
     story: createStory({
-        title: "The Great Merge Conflict Crisis",
-        narrative: `⚠️ Uh oh! You've just encountered your first merge conflict.
-
-You've been working on the user authentication system all morning. You're feeling great about your progress - clean code, good tests, everything looks perfect.
-
-But when you try to pull the latest changes from your teammate Sarah with \`git pull origin main\`, Git throws an error:
-
-"CONFLICT (content): Merge conflict in src/auth/login.js"
-"Automatic merge failed; fix conflicts and then commit the result."
-
-Your heart skips a beat. What happened?
-
-It turns out Sarah was also working on the authentication system. She pushed her changes while you were working, and now both of your changes are trying to modify the same lines of code.
-
-This is completely normal in team development! Merge conflicts are a fact of life when multiple developers collaborate. The key is knowing how to resolve them properly.
-
-Your mission:
-1. Examine the conflict markers in the code (\`<<<<<<<\`, \`=======\`, \`>>>>>>>\`)
-2. Decide which changes to keep
-3. Remove the conflict markers
-4. Test that everything still works
-5. Commit the resolution with \`git add .\` and \`git commit -m "Resolve merge conflict"\`
-
-Remember: When in doubt, talk to your teammate! Sarah is probably just a Slack message away.`,
-        realWorldContext: "Merge conflicts are inevitable in team development. Learning to resolve them quickly and correctly is a crucial skill.",
-        taskIntroduction: "Master merge conflict resolution to become a confident team collaborator."
+        title: "teamwork.level2.story.title",
+        narrative: "teamwork.level2.story.narrative",
+        realWorldContext: "teamwork.level2.story.realWorldContext",
+        taskIntroduction: "teamwork.level2.story.taskIntroduction"
     }),
     initialState: createInitialState({
         files: [
-            createFileStructure("/src/auth/login.js", "// Authentication module\nfunction validateLogin(username, password) {\n  // Your implementation\n  return username.length > 0 && password.length >= 6;\n}"),
+            // Original committed version (basic validation)
+            createFileStructure("/src/auth/login.js", "// Authentication module\nfunction validateLogin(username, password) {\n  // Basic validation\n  return username.length >= 3 && password.length >= 6;\n}"),
             createFileStructure("/src/auth/signup.js", "// User registration\nfunction createUser(userData) {\n  return database.users.create(userData);\n}")
         ],
         git: createGitState({
@@ -161,20 +150,27 @@ Remember: When in doubt, talk to your teammate! Sarah is probably just a Slack m
                     files: ["/src/auth/login.js", "/src/auth/signup.js"]
                 }
             ],
-            mergeConflicts: [
+            // Sarah's changes waiting on remote
+            remoteCommits: [
                 {
-                    file: "/src/auth/login.js",
-                    content: `// Authentication module
-function validateLogin(username, password) {
-<<<<<<< HEAD
-  // Your implementation
-  return username.length > 0 && password.length >= 6;
-=======
-  // Sarah's implementation
-  if (!username || !password) return false;
-  return username.length >= 3 && password.length >= 8;
->>>>>>> origin/main
-}`
+                    branch: "main",
+                    commits: [
+                        {
+                            id: "abc1234",
+                            message: "Add email validation to login by Sarah",
+                            files: {
+                                "/src/auth/login.js": "// Authentication module\nfunction validateLogin(username, password) {\n  // Sarah's implementation with email validation\n  if (!username || !password) return false;\n  const isValidEmail = username.includes('@');\n  return isValidEmail && password.length >= 6;\n}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            // Your local uncommitted changes (you've been working on this!)
+            fileChanges: [
+                {
+                    path: "/src/auth/login.js",
+                    status: "modified",
+                    content: "// Authentication module\nfunction validateLogin(username, password) {\n  // Your improved implementation with stronger requirements\n  if (!username || !password) return false;\n  return username.length >= 5 && password.length >= 10;\n}"
                 }
             ]
         })
@@ -183,64 +179,58 @@ function validateLogin(username, password) {
 
 const teamworkLevel3 = createLevel({
     id: 3,
-    name: "Code Review Workflow",
-    description: "Learn to participate in code reviews and collaborate through pull requests",
+    name: "teamwork.level3.name",
+    description: "teamwork.level3.description",
     objectives: [
-        "Prepare code for review",
-        "Create a pull request",
-        "Address review feedback",
-        "Merge approved changes"
+        "teamwork.level3.objective1",
+        "teamwork.level3.objective2",
+        "teamwork.level3.objective3",
+        "teamwork.level3.objective4"
     ],
     hints: [
-        "Write clear pull request descriptions",
-        "Make atomic commits that are easy to review",
-        "Respond to feedback professionally",
-        "Test thoroughly before requesting review"
+        "teamwork.level3.hint1",
+        "teamwork.level3.hint2",
+        "teamwork.level3.hint3",
+        "teamwork.level3.hint4",
+        "teamwork.level3.hint5",
+        "teamwork.level3.hint6",
+        "teamwork.level3.hint7"
     ],
+    requirementLogic: "all",
     requirements: [
-        createRequirement({
-            command: "git checkout -b feature/code-review-demo",
-            description: "Create a branch for code review demonstration",
-            successMessage: "Review branch created!"
-        }),
-        createRequirement({
-            command: "git add .",
-            description: "Stage your code for review",
-            successMessage: "Code staged for review!"
-        }),
-        createRequirement({
-            command: "git commit -m",
-            description: "Commit with a clear, reviewable message",
-            successMessage: "Code committed for review!"
-        }),
-        createRequirement({
-            command: "git push origin feature/code-review-demo",
-            description: "Push your branch for code review",
-            successMessage: "Code pushed for team review!"
-        })
+        {
+            id: "create-review-branch",
+            command: "git switch",
+            alternativeCommands: ["git checkout", "git branch"],
+            requiresArgs: ["any"],
+            description: "teamwork.level3.requirement1.description",
+            successMessage: "teamwork.level3.requirement1.success"
+        },
+        {
+            id: "stage-code-for-review",
+            command: "git add",
+            description: "teamwork.level3.requirement2.description",
+            successMessage: "teamwork.level3.requirement2.success"
+        },
+        {
+            id: "commit-for-review",
+            command: "git commit",
+            description: "teamwork.level3.requirement3.description",
+            successMessage: "teamwork.level3.requirement3.success"
+        },
+        {
+            id: "push-for-review",
+            command: "git push",
+            requiresArgs: ["any"],
+            description: "teamwork.level3.requirement4.description",
+            successMessage: "teamwork.level3.requirement4.success"
+        }
     ],
     story: createStory({
-        title: "The Code Review Culture",
-        narrative: `📝 At InnovateCorp, no code goes to production without a code review. It's not about trust - it's about quality, knowledge sharing, and catching bugs before customers do.
-
-Your team lead Alex explains the process:
-
-"Code reviews are where we really shine as a team. Sarah might catch a bug you missed. Mike might suggest a better approach. And sometimes, you'll teach us something new!"
-
-"The key is to write code that tells a story. Each commit should be logical. Your pull request description should explain not just what you changed, but why."
-
-You've just finished implementing the password reset feature. It's working perfectly in your local tests, but now it needs to go through the team's review process.
-
-The code review process:
-1. Create a focused feature branch with \`git checkout -b feature/password-reset\`
-2. Write clean, well-documented code
-3. Push to origin with \`git push origin feature/password-reset\` and create a pull request
-4. Address feedback from reviewers
-5. Merge once approved
-
-This is how professional development teams ensure code quality and share knowledge. Your code review skills are just as important as your coding skills!`,
-        realWorldContext: "Code reviews are standard practice in professional development, improving code quality and fostering team knowledge sharing.",
-        taskIntroduction: "Learn to participate effectively in code reviews and collaborative development workflows."
+        title: "teamwork.level3.story.title",
+        narrative: "teamwork.level3.story.narrative",
+        realWorldContext: "teamwork.level3.story.realWorldContext",
+        taskIntroduction: "teamwork.level3.story.taskIntroduction"
     }),
     initialState: createInitialState({
         files: [

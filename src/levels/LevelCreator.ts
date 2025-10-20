@@ -18,6 +18,7 @@ export function createLevel(params: {
     objectives: string[];
     hints: string[];
     requirements: LevelRequirement[];
+    requirementLogic?: "any" | "all";
     story?: StoryContext;
     resetGitRepo?: boolean;
     initialState?: {
@@ -32,6 +33,7 @@ export function createLevel(params: {
         objectives: params.objectives,
         hints: params.hints,
         requirements: params.requirements,
+        requirementLogic: params.requirementLogic,
         story: params.story,
         resetGitRepo: params.resetGitRepo,
         initialState: params.initialState,
@@ -61,14 +63,18 @@ export function createStory(params: {
 export function createRequirement(params: {
     command: string;
     requiresArgs?: string[];
+    alternativeCommands?: string[];
     description: string;
     successMessage?: string;
+    id?: string;
 }): LevelRequirement {
     return {
         command: params.command,
         requiresArgs: params.requiresArgs,
+        alternativeCommands: params.alternativeCommands,
         description: params.description,
         successMessage: params.successMessage,
+        id: params.id,
     };
 }
 
@@ -91,6 +97,14 @@ export function createGitState(params: {
         files: string[];
         branch?: string;
     }[];
+    remoteCommits?: {
+        branch: string;
+        commits: {
+            id: string;
+            message: string;
+            files: Record<string, string>; // file path -> content
+        }[];
+    }[];
     fileChanges?: {
         path: string;
         content?: string;
@@ -108,6 +122,7 @@ export function createGitState(params: {
         currentBranch: params.currentBranch,
         branches: params.branches,
         commits: params.commits,
+        remoteCommits: params.remoteCommits,
         fileChanges: params.fileChanges,
         mergeConflicts: params.mergeConflicts,
     };

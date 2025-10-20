@@ -13,6 +13,9 @@ export class AddCommand implements Command {
         const { gitRepository, fileSystem } = context;
 
         if (!gitRepository.isInitialized()) return ["Not a git repository. Run 'git init' first."];
+        if (!gitRepository.isInRepository(context.currentDirectory)) {
+            return ["fatal: not a git repository (or any of the parent directories): .git"];
+        }
 
         if (args.positionalArgs.length === 0) {
             return ["Nothing specified, nothing added."];
@@ -23,6 +26,7 @@ export class AddCommand implements Command {
             // Get all files in the current directory recursively
             const allFiles = getAllFiles(fileSystem, context.currentDirectory);
             const stagedFiles = [];
+            const gitStatus = gitRepository.getStatus();
 
             // Mark appropriate files as staged
             for (const file of allFiles) {
@@ -31,19 +35,15 @@ export class AddCommand implements Command {
                     continue;
                 }
 
-                // Normalize path for consistency
+                // Normalize path for consistency - remove leading slash
                 const normalizedPath = file.startsWith("/") ? file.substring(1) : file;
 
-                // Check if file is already committed and unchanged
-                const status = gitRepository.getStatus()[normalizedPath];
-                if (status === "committed") {
-                    // Skip files that are already committed with no changes
-                    continue;
+                // Only stage files that have changes (modified, untracked, or deleted)
+                const fileStatus = gitStatus[normalizedPath];
+                if (fileStatus === "modified" || fileStatus === "untracked" || fileStatus === "deleted") {
+                    gitRepository.addFile(normalizedPath);
+                    stagedFiles.push(normalizedPath);
                 }
-
-                // Add file to staging
-                gitRepository.addFile(normalizedPath);
-                stagedFiles.push(normalizedPath);
             }
 
             if (stagedFiles.length === 0) {
@@ -63,26 +63,11 @@ export class AddCommand implements Command {
                     continue;
                 }
 
-                // Check if file is already committed and unchanged
+                // Normalize path - remove leading slash for git status
                 const normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
-                const status = gitRepository.getStatus()[normalizedPath];
 
-                if (status === "committed") {
-                    results.push(`No changes to '${argPath}', already committed.`);
-                    continue;
-                }
-
-                // Mark as untracked if not already tracked
-                if (!status) {
-                    gitRepository.updateFileStatus(filePath, "untracked");
-                }
-
-                // Stage the file
-                gitRepository.addFile(filePath);
-
-                // Ensure UI is updated - force update in GitRepository
-                const updatedStatus = gitRepository.getStatus();
-                updatedStatus[filePath] = "staged";
+                // Stage the file (addFile normalizes the path internally)
+                gitRepository.addFile(normalizedPath);
 
                 results.push(`Added ${argPath} to staging area.`);
             }

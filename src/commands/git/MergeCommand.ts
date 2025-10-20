@@ -27,7 +27,7 @@ export class MergeCommand implements Command {
             return [parseResult.error];
         }
 
-        const { isAbort, isNoFF, branches, message } = parseResult;
+        const { isAbort, branches, message } = parseResult;
 
         // Handle merge abort
         if (isAbort) {
@@ -57,41 +57,39 @@ export class MergeCommand implements Command {
         if (branches.length === 1) {
             const targetBranch = branches[0]!; // Safe due to length check above
 
-            // Check if already up to date
-            if (this.isUpToDate(currentBranch, targetBranch)) {
-                return [`Already up to date.`];
-            }
+            // Perform the merge
+            const mergeResult = gitRepository.merge(targetBranch);
 
-            // Check for fast-forward possibility
-            const canFastForward = this.canFastForward(currentBranch, targetBranch);
-
-            if (canFastForward && !isNoFF) {
-                return [
-                    `Updating ${this.getMockCommitHash()}..${this.getMockCommitHash()}`,
-                    `Fast-forward`,
-                    ` src/feature.js | 1 +`,
-                    ` 1 file changed, 1 insertion(+)`,
-                ];
-            }
-
-            // Handle merge commit
-            const success = gitRepository.merge(targetBranch);
-
-            if (!success) {
+            if (!mergeResult.success) {
                 return [
                     `Auto-merging failed. Fix conflicts and then commit the result.`,
                     `Automatic merge failed; fix conflicts and then commit the result.`,
                 ];
             }
 
-            // Successful merge commit
+            // Check if already up to date
+            if (mergeResult.filesChanged.length === 0 && !mergeResult.isFastForward) {
+                return [`Already up to date.`];
+            }
+
+            // Handle fast-forward merge
+            if (mergeResult.isFastForward) {
+                const stats = this.generateFileStats(mergeResult.filesChanged);
+                return [
+                    `Updating ${this.getMockCommitHash()}..${this.getMockCommitHash()}`,
+                    `Fast-forward`,
+                    ...stats,
+                ];
+            }
+
+            // Handle regular merge commit
             const mergeMessage = message ?? `Merge branch '${targetBranch}' into ${currentBranch}`;
-            const commitId = this.getMockCommitHash();
+            const commitId = mergeResult.mergeCommitId ?? this.getMockCommitHash();
+            const stats = this.generateFileStats(mergeResult.filesChanged);
 
             return [
                 `Merge made by the 'ort' strategy.`,
-                ` src/feature.js | 1 +`,
-                ` 1 file changed, 1 insertion(+)`,
+                ...stats,
                 `[${currentBranch} ${commitId}] ${mergeMessage}`,
             ];
         }
@@ -136,15 +134,23 @@ export class MergeCommand implements Command {
         };
     }
 
-    private isUpToDate(currentBranch: string, targetBranch: string): boolean {
-        // Simplified check - in real Git this would check commit history
-        return false; // For learning purposes, always allow merge
-    }
+    private generateFileStats(files: string[]): string[] {
+        if (files.length === 0) {
+            return [];
+        }
 
-    private canFastForward(currentBranch: string, targetBranch: string): boolean {
-        // Simplified check - in real Git this would check if current branch
-        // is an ancestor of target branch
-        return Math.random() > 0.5; // Random for variety in learning
+        const stats: string[] = [];
+
+        // Generate file-by-file stats
+        for (const file of files) {
+            stats.push(` ${file} | 1 +`);
+        }
+
+        // Generate summary
+        const pluralFiles = files.length === 1 ? "file" : "files";
+        stats.push(` ${files.length} ${pluralFiles} changed, ${files.length} insertion${files.length === 1 ? "" : "s"}(+)`);
+
+        return stats;
     }
 
     private getMockCommitHash(): string {

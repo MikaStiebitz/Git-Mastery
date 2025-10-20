@@ -65,6 +65,14 @@ export type GitState = {
     currentBranch?: string;
     branches?: string[];
     commits?: GitCommit[];
+    remoteCommits?: {
+        branch: string;
+        commits: {
+            id: string;
+            message: string;
+            files: Record<string, string>; // file path -> content
+        }[];
+    }[];
     fileChanges?: FileChange[];
     mergeConflicts?: MergeConflict[];
 };
@@ -85,6 +93,7 @@ export type LevelType = {
     requirements: LevelRequirement[];
     requirementLogic?: "any" | "all";
     completedRequirements?: string[];
+    completedObjectives?: number[]; // Track which objectives are completed (by objectiveId)
     story?: StoryContext;
     resetGitRepo?: boolean;
     initialState?: LevelInitialState;
@@ -93,10 +102,13 @@ export type LevelType = {
 // The rest of the types remain mostly the same
 export type LevelRequirement = {
     id?: string;
+    objectiveId?: number; // Group requirements by objective - all requirements with same objectiveId must complete to check off objective
     command: string;
+    alternativeCommands?: string[]; // Alternative commands that also fulfill this requirement
     requiresArgs?: string[];
     description: string;
     successMessage?: string;
+    completed?: boolean; // Track if requirement is fulfilled
 };
 
 export type StoryContext = {
@@ -156,12 +168,14 @@ export type UserProgress = {
     completedLevels: Record<string, number[]>;
     currentStage: string;
     currentLevel: number;
-    score: number;
+    score: number; // Progress points (doesn't decrease when spending)
+    coins: number; // Currency for shop (can be spent)
     lastSavedAt: string;
     purchasedItems: string[];
     completedMinigames: string[];
     minigameScores: Record<string, number>;
     doubleXpUntil?: string | null; // ISO string date when double XP expires
+    gitGudActivated?: boolean; // Easter egg - has the player discovered "git gud"?
 };
 
 // Git commit definition with better types

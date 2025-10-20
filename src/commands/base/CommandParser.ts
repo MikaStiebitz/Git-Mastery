@@ -91,6 +91,15 @@ export function parseArgs(args: string[]): CommandArgs {
 
         if (arg.startsWith("--")) {
             const flag = arg.substring(2);
+
+            // List of flags that are always boolean (never take a value)
+            const booleanFlags = ["set-upstream", "force", "all", "amend", "no-edit", "abort", "continue", "soft", "hard", "mixed", "oneline", "graph"];
+
+            if (booleanFlags.includes(flag)) {
+                result.flags[flag] = true;
+                continue;
+            }
+
             const nextArg = i + 1 < args.length ? args[i + 1] : undefined;
             if (nextArg !== undefined && !nextArg.startsWith("-")) {
                 result.flags[flag] = nextArg;
@@ -104,9 +113,19 @@ export function parseArgs(args: string[]): CommandArgs {
         if (arg.startsWith("-") && arg.length > 1) {
             const flags = arg.substring(1).split("");
 
+            // List of single-char flags that are always boolean
+            const booleanSingleFlags = ["u", "f", "a"];
+
             // Special handling for single flags that may take values
             if (flags.length === 1) {
                 const flag = flags[0] ?? "";
+
+                // Check if this is a boolean flag
+                if (booleanSingleFlags.includes(flag)) {
+                    result.flags[flag] = true;
+                    continue;
+                }
+
                 const nextArg = i + 1 < args.length ? args[i + 1] : undefined;
                 if (nextArg !== undefined && !nextArg.startsWith("-")) {
                     result.flags[flag] = nextArg;

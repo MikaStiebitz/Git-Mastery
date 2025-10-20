@@ -17,21 +17,31 @@ export class PullCommand implements Command {
 
         // Default values
         let remote = "origin";
+        let branch = gitRepository.getCurrentBranch();
 
         // Parse positional arguments
         if (args.positionalArgs.length > 0) {
             remote = args.positionalArgs[0] ?? "origin";
         }
 
-        // For learning platform, always simulate a successful pull
-        // Auto-add a remote if it doesn't exist
-        const remotes = gitRepository.getRemotes();
-        if (!remotes[remote]) {
-            // Auto-create the remote for better UX in the learning platform
-            gitRepository.addRemote(remote, `https://github.com/user/${remote}.git`);
+        if (args.positionalArgs.length > 1) {
+            branch = args.positionalArgs[1] ?? gitRepository.getCurrentBranch();
         }
 
-        // Simulate pull response
-        return ["Already up to date."];
+        // Validate remote exists
+        const remotes = gitRepository.getRemotes();
+        if (!remotes[remote]) {
+            return [`error: No such remote: '${remote}'`];
+        }
+
+        // Validate branch exists
+        const branches = gitRepository.getBranches();
+        if (!branches.includes(branch)) {
+            return [`error: Couldn't find remote ref ${branch}`];
+        }
+
+        // Try to pull remote commits
+        const pullResult = gitRepository.pullRemoteCommits(remote, branch);
+        return pullResult.output;
     }
 }

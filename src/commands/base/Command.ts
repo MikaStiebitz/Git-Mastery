@@ -1,5 +1,6 @@
 import { type FileSystem } from "~/models/FileSystem";
 import { type GitRepository } from "~/models/GitRepository";
+import { type ProgressManager } from "~/models/ProgressManager";
 
 export interface CommandArgs {
     args: string[];
@@ -12,6 +13,7 @@ export interface CommandContext {
     gitRepository: GitRepository;
     currentDirectory: string;
     setCurrentDirectory: (path: string) => void;
+    progressManager: ProgressManager;
 }
 
 export interface Command {

@@ -11,7 +11,10 @@ const terminal = {
     "terminal.levelReset": "Level reset.",
     "terminal.progressReset": "Progress reset.",
     "terminal.allLevelsCompleted": "Congratulations! You have completed all available levels!",
-    "terminal.difficultyCompleted": "🎉 Congratulations! You have completed all levels in this difficulty! Redirecting to home...",
+    "terminal.difficultyCompleted": "🎉 Congratulations! You have completed all levels in this difficulty!",
+    "terminal.githubStar": "If you like this project, please leave a star on GitHub:",
+    "terminal.githubLink": "https://github.com/MikaStiebitz/Git-Gud",
+    "terminal.redirectingHome": "Redirecting to home...",
 
     // File Editor
     "editor.fileContent": "File Content",

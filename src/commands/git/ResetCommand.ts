@@ -41,8 +41,8 @@ export class ResetCommand implements Command {
             target = args.positionalArgs[0] ?? "HEAD";
         }
 
-        // Get all commits for the current branch
-        const commits = Object.keys(gitRepository.getCommits());
+        // Get all commits for the current branch (in chronological order)
+        const commits = gitRepository.getCommitHistory();
 
         if (commits.length === 0) {
             if (target === "HEAD") {
@@ -76,6 +76,11 @@ export class ResetCommand implements Command {
             if (!targetCommitId) {
                 return [`fatal: ambiguous argument '${target}': unknown revision or path not in the working tree.`];
             }
+            // Calculate how many commits back this is
+            const targetIndex = commits.indexOf(targetCommitId);
+            if (targetIndex !== -1) {
+                commitsBack = commits.length - 1 - targetIndex;
+            }
         }
 
         if (!targetCommitId) {
@@ -92,7 +97,6 @@ export class ResetCommand implements Command {
         commitsBack: number,
     ): string[] {
         const status = gitRepository.getStatus();
-        const currentBranch = gitRepository.getCurrentBranch();
 
         switch (mode) {
             case "hard":
@@ -113,7 +117,11 @@ export class ResetCommand implements Command {
                 }
 
                 // Use the new resetToCommit method
-                gitRepository.resetToCommit(targetCommitId, "hard");
+                const hardResetSuccess = gitRepository.resetToCommit(targetCommitId, "hard");
+
+                if (!hardResetSuccess) {
+                    return [`fatal: Failed to reset to commit ${targetCommitId.substring(0, 7)}`];
+                }
 
                 if (commitsBack > 0) {
                     return [
@@ -129,6 +137,12 @@ export class ResetCommand implements Command {
 
             case "soft":
                 // Only move HEAD, keep staging area and working directory unchanged
+                const softResetSuccess = gitRepository.resetToCommit(targetCommitId, "soft");
+
+                if (!softResetSuccess) {
+                    return [`fatal: Failed to reset to commit ${targetCommitId.substring(0, 7)}`];
+                }
+
                 if (commitsBack > 0) {
                     return [
                         `HEAD is now at ${targetCommitId.substring(0, 7)} (${commitsBack} commit${commitsBack > 1 ? "s" : ""} behind)`,
@@ -154,7 +168,11 @@ export class ResetCommand implements Command {
                     }
                 }
 
-                gitRepository.resetToCommit(targetCommitId, "mixed");
+                const mixedResetSuccess = gitRepository.resetToCommit(targetCommitId, "mixed");
+
+                if (!mixedResetSuccess) {
+                    return [`fatal: Failed to reset to commit ${targetCommitId.substring(0, 7)}`];
+                }
 
                 if (commitsBack > 0) {
                     return [

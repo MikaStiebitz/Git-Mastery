@@ -5,6 +5,8 @@ import { branchesLevels } from "./stages/branches";
 import { mergeLevels } from "./stages/merge";
 import { rebaseLevels } from "./stages/rebase";
 import { remoteLevels } from "./stages/remote";
+import { resetLevels } from "./stages/reset";
+import { stashLevels } from "./stages/stash";
 import { workflowLevels } from "./stages/workflow";
 import { teamworkLevels } from "./stages/teamwork";
 import { advancedLevels } from "./stages/advanced";
@@ -56,36 +58,50 @@ export const allStages = {
     }),
     Workflow: createStage({
         id: "workflow",
-        name: "Git Workflows",
-        description: "Master professional Git workflows and collaboration patterns",
+        name: "workflow.name",
+        description: "workflow.description",
         icon: "🔄",
         levels: workflowLevels,
     }),
     TeamWork: createStage({
         id: "teamwork",
-        name: "Team Collaboration",
-        description: "Learn to work effectively with teams using Git collaboration techniques",
+        name: "teamwork.name",
+        description: "teamwork.description",
         icon: "👥",
         levels: teamworkLevels,
     }),
+    Reset: createStage({
+        id: "reset",
+        name: "reset.name",
+        description: "reset.description",
+        icon: "↩️",
+        levels: resetLevels,
+    }),
+    Stash: createStage({
+        id: "stash",
+        name: "stash.name",
+        description: "stash.description",
+        icon: "📦",
+        levels: stashLevels,
+    }),
     Advanced: createStage({
         id: "advanced",
-        name: "Advanced Techniques",
-        description: "Master sophisticated Git techniques for complex scenarios",
+        name: "advanced.name",
+        description: "advanced.description",
         icon: "⚡",
         levels: advancedLevels,
     }),
     Archaeology: createStage({
         id: "archaeology",
-        name: "Git Archaeology",
-        description: "Investigate code history and perform Git forensics like a detective",
+        name: "archaeology.name",
+        description: "archaeology.description",
         icon: "🔍",
         levels: archaeologyLevels,
     }),
     Mastery: createStage({
         id: "mastery",
-        name: "Git Mastery",
-        description: "The ultimate Git challenges for true masters",
+        name: "mastery.name",
+        description: "mastery.description",
         icon: "👑",
         levels: masteryLevels,
     }),

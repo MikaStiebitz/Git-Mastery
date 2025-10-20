@@ -68,13 +68,6 @@ Whether you're a complete beginner or looking to level up your Git skills, GitGu
 - **🏆 Achievement Badges**: Visual recognition system with special badges and legendary status
 - **🎲 Mini Games**: Practice Git skills through fun interactive challenges
 
-### 💻 Advanced Features
-- **🌙 Multiple Terminal Themes**: Switch between different visual styles
-- **📱 Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
-- **⚡ Performance Optimized**: Fast loading with server-side rendering
-- **♿ Accessibility**: Built with accessibility in mind using Radix UI components
-- **🎯 Contextual Help**: Smart suggestions and hints based on current level
-
 ## 🛠️ Tech Stack
 
 GitGud is built with modern web technologies to provide the best learning experience:
@@ -85,24 +78,13 @@ GitGud is built with modern web technologies to provide the best learning experi
 - **Tailwind CSS** - Utility-first CSS framework for rapid, responsive design
 
 ### UI & UX
-- **Radix UI** - Headless, accessible UI components for dialogs, accordions, and form elements
-- **Lucide React** - Beautiful, customizable SVG icon library
+- **Lucide React** - Customizable SVG icon library
 - **shadcn/ui** - Re-usable component system built on Radix UI and Tailwind CSS
 
 ### Game Engine & State Management
 - **Custom Git Simulation** - Full Git repository simulation in the browser
 - **React Context API** - Global state management for game progress, themes, and user data
 - **LocalStorage** - Client-side persistence for progress, purchases, and preferences
-
-### Developer Experience
-- **ESLint & Prettier** - Code linting and formatting for consistent code quality
-- **TypeScript Strict Mode** - Enhanced type checking for robust applications
-- **Hot Module Replacement** - Fast development with instant updates
-
-### Performance & Optimization
-- **Next.js Image Optimization** - Automatic image optimization and lazy loading
-- **Dynamic Imports** - Code splitting for faster initial page loads
-- **Server Components** - Improved performance with server-side rendering
 
 ## 🚦 Getting Started
 
@@ -156,17 +138,6 @@ We welcome contributions to GitGud! Whether you're fixing bugs, improving the do
 6. Open a Pull Request
 
 For more details on the project structure, check the documentation linked above.
-
-## 📝 Recent Updates & Improvements
-
-- **Enhanced Git Commands**: Improved git add functionality to properly track files ✅
-- **Smart Terminal**: Enhanced terminal tab suggestion menu with space support ✅
-- **Advanced Rebasing**: Added comprehensive rebasing levels and scenarios ✅
-- **Intelligent Suggestions**: Implemented advanced terminal command suggestions ✅
-- **Git Push Integration**: Added full git push functionality with remote tracking ✅
-- **Gamification System**: Complete shop system with themes, mascot, sounds, and XP boosts ✅
-- **Achievement Badges**: Visual recognition system with special status indicators ✅
-- **Mobile Optimization**: Responsive design improvements for all device sizes ✅
 
 ## ⭐ Support This Project
 

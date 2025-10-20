@@ -10,10 +10,15 @@ export class StatusCommand implements Command {
     supportsFileCompletion = false;
 
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository, fileSystem } = context;
+        const { gitRepository, fileSystem, currentDirectory } = context;
 
         if (!gitRepository.isInitialized()) {
             return ["Not a git repository. Run 'git init' first."];
+        }
+
+        // Check if current directory is within the repository
+        if (!gitRepository.isInRepository(currentDirectory)) {
+            return ["fatal: not a git repository (or any of the parent directories): .git"];
         }
 
         // First, ensure the status is up to date by checking for untracked files

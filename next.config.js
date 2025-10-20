@@ -15,9 +15,6 @@ const config = {
         ignoreDuringBuilds: false, // Keep linting active but don't fail on warnings
     },
 
-    // Optimize package imports for better performance
-    optimizePackageImports: ["lucide-react", "@radix-ui/react-accordion", "@radix-ui/react-dialog"],
-
     // Enable React 19 features
     experimental: {
         // Better development experience with server components HMR

@@ -20,16 +20,18 @@ export class RemoteCommand implements Command {
 
         // List remotes (default)
         if (args.positionalArgs.length === 0) {
-            // List remotes
-            const remotes = Object.keys(gitRepository.getRemotes());
+            const remotes = gitRepository.getRemotes();
+            const remoteNames = Object.keys(remotes);
 
-            // If no remotes exist and we're not in a specific level, add a default remote
-            if (remotes.length === 0 && !gitRepository.isInitialized()) {
-                gitRepository.addRemote("origin", "https://github.com/user/repo.git");
-                return ["origin"];
+            // Show URLs with -v flag
+            if (args.flags.v || args.flags.verbose) {
+                return remoteNames.flatMap(name => [
+                    `${name}\t${remotes[name]} (fetch)`,
+                    `${name}\t${remotes[name]} (push)`
+                ]);
             }
 
-            return remotes.length === 0 ? [] : remotes;
+            return remoteNames;
         }
 
         // Add a remote
@@ -41,13 +43,29 @@ export class RemoteCommand implements Command {
             const name = args.positionalArgs[1] ?? "";
             const url = args.positionalArgs[2] ?? "";
 
+            // Check if remote already exists
+            const existingRemotes = gitRepository.getRemotes();
+            if (existingRemotes[name]) {
+                return [`error: remote '${name}' already exists`];
+            }
+
             const success = gitRepository.addRemote(name, url);
-            return success ? [`Added remote '${name}' with URL '${url}'`] : [`error: remote '${name}' already exists`];
+            return success ? [`Added remote '${name}' with URL '${url}'`] : [`error: failed to add remote '${name}'`];
+        }
+
+        // Remove a remote
+        if (subcommand === "remove" || subcommand === "rm") {
+            if (args.positionalArgs.length < 2) {
+                return ["error: wrong number of arguments, usage: git remote remove <name>"];
+            }
+
+            const name = args.positionalArgs[1] ?? "";
+            const success = gitRepository.removeRemote(name);
+            return success ? [`Removed remote '${name}'`] : [`error: No such remote: '${name}'`];
         }
 
         // Show remote details
         if (args.positionalArgs[0] === "-v" || args.positionalArgs[0] === "--verbose") {
-            // List remotes with URLs
             const remotes = gitRepository.getRemotes();
             const output: string[] = [];
 
@@ -56,9 +74,9 @@ export class RemoteCommand implements Command {
                 output.push(`${name}\t${url} (push)`);
             }
 
-            return output.length === 0 ? [] : output;
+            return output;
         }
 
-        return ["error: Unknown subcommand. Supported: git remote, git remote add <name> <url>, git remote -v"];
+        return ["error: Unknown subcommand. Supported: git remote, git remote add <name> <url>, git remote remove <name>, git remote -v"];
     }
 }

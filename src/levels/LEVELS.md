@@ -135,8 +135,8 @@ Requirements define what a user must do to complete a level. The main ways to de
 
     ```typescript
     createRequirement({
-        command: "git checkout",
-        requiresArgs: ["-b"], // Required argument
+        command: "git switch",
+        requiresArgs: ["-c"], // Required argument
         description: "Create a new branch",
     });
     ```
