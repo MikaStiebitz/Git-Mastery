@@ -116,8 +116,8 @@ GitGud is built with modern web technologies to provide the best learning experi
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/gitgud.git
-cd gitgud
+git clone https://github.com/MikaStiebitz/Git-Gud.git
+cd Git-Gud
 ```
 
 2. **Install dependencies**

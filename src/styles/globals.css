@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,167 +8,31 @@
     scroll-behavior: smooth;
 }
 
-/* RTL Support */
+/* RTL base adjustments */
 html[dir="rtl"] {
     direction: rtl;
-}
-
-html[dir="rtl"] * {
-    text-align: right;
-}
-
-/* Persian font support */
-html[dir="rtl"] {
-    font-family: "Vazir", "Tahoma", "Arial", sans-serif;
-}
-
-/* Import Vazir font for better Persian rendering */
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap');
-
-html[dir="rtl"] {
     font-family: "Vazirmatn", "Vazir", "Tahoma", "Arial", sans-serif;
 }
 
-/* RTL-specific adjustments */
-html[dir="rtl"] .flex {
-    flex-direction: row-reverse;
+html[dir="rtl"] body {
+    font-family: inherit;
 }
 
-html[dir="rtl"] .space-x-4 > * + * {
-    margin-left: 0;
-    margin-right: 1rem;
-}
-
-html[dir="rtl"] .space-x-2 > * + * {
-    margin-left: 0;
-    margin-right: 0.5rem;
-}
-
-html[dir="rtl"] .ml-2 {
-    margin-left: 0;
-    margin-right: 0.5rem;
-}
-
-html[dir="rtl"] .ml-4 {
-    margin-left: 0;
-    margin-right: 1rem;
-}
-
-html[dir="rtl"] .mr-2 {
-    margin-right: 0;
-    margin-left: 0.5rem;
-}
-
-html[dir="rtl"] .mr-4 {
-    margin-right: 0;
-    margin-left: 1rem;
-}
-
-html[dir="rtl"] .pl-4 {
-    padding-left: 0;
-    padding-right: 1rem;
-}
-
-html[dir="rtl"] .pr-4 {
-    padding-right: 0;
-    padding-left: 1rem;
-}
-
-html[dir="rtl"] .text-left {
-    text-align: right;
-}
-
-html[dir="rtl"] .text-right {
-    text-align: left;
-}
-
-/* Terminal RTL adjustments */
-html[dir="rtl"] .terminal {
-    direction: ltr;
-    text-align: left;
-}
-
-html[dir="rtl"] .terminal * {
-    direction: ltr;
-    text-align: left;
-}
-
-/* Code blocks should remain LTR */
+/* Keep terminal and code samples LTR for readability */
+html[dir="rtl"] .terminal,
+html[dir="rtl"] .terminal *,
 html[dir="rtl"] code,
 html[dir="rtl"] pre,
-html[dir="rtl"] .font-mono {
-    direction: ltr;
-    text-align: left;
-}
-
-/* Git command examples should remain LTR */
+html[dir="rtl"] .font-mono,
 html[dir="rtl"] .git-command {
     direction: ltr;
     text-align: left;
 }
 
-/* Additional RTL improvements */
-html[dir="rtl"] .justify-start {
-    justify-content: flex-end;
-}
-
-html[dir="rtl"] .justify-end {
-    justify-content: flex-start;
-}
-
-html[dir="rtl"] .items-start {
-    align-items: flex-end;
-}
-
-html[dir="rtl"] .items-end {
-    align-items: flex-start;
-}
-
-/* Navigation RTL adjustments */
-html[dir="rtl"] nav .flex {
-    flex-direction: row-reverse;
-}
-
-/* Button icons in RTL */
-html[dir="rtl"] .btn-icon-left {
-    margin-left: 0;
-    margin-right: 0.5rem;
-}
-
-html[dir="rtl"] .btn-icon-right {
-    margin-right: 0;
-    margin-left: 0.5rem;
-}
-
-/* Card and container RTL adjustments */
-html[dir="rtl"] .card {
-    text-align: right;
-}
-
-html[dir="rtl"] .container {
-    direction: rtl;
-}
-
-/* Form elements RTL */
+/* Form elements should follow RTL typing direction */
 html[dir="rtl"] input,
 html[dir="rtl"] textarea,
 html[dir="rtl"] select {
-    text-align: right;
     direction: rtl;
-}
-
-/* Buttons and interactive elements */
-html[dir="rtl"] button {
-    text-align: center;
-}
-
-/* Lists RTL */
-html[dir="rtl"] ul,
-html[dir="rtl"] ol {
-    padding-right: 1.5rem;
-    padding-left: 0;
-}
-
-html[dir="rtl"] li {
     text-align: right;
 }

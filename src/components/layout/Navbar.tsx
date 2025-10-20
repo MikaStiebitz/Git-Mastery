@@ -19,6 +19,7 @@ import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { ClientOnly } from "~/components/ClientOnly";
 import { BadgeDisplay } from "~/components/BadgeDisplay";
+import { cn } from "~/lib/utils";
 
 interface NavbarProps {
     showLevelInfo?: boolean;
@@ -29,6 +30,10 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const router = useRouter();
     const { currentStage, currentLevel, progressManager } = useGameContext();
     const { language, setLanguage, t } = useLanguage();
+    const isRTL = language === "fa";
+    const marginStartClass = isRTL ? "mr-4" : "ml-4";
+    const iconMarginClass = isRTL ? "ml-2" : "mr-2";
+    const autoMarginClass = isRTL ? "mr-auto" : "ml-auto";
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [starAnimation, setStarAnimation] = useState(false);
     const [starRotation, setStarRotation] = useState(0);
@@ -103,7 +108,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
         <header className="border-b border-purple-900/20 bg-[#1a1625]">
             <nav className="container mx-auto flex h-16 items-center px-4">
                 {/* Logo and brand */}
-                <Link href="/" className="flex items-center space-x-2">
+                <Link href="/" className={cn("flex items-center space-x-2", isRTL && "space-x-reverse")}>
                     <GitBranch className="h-6 w-6 text-purple-400" />
                     <span className="text-xl font-bold text-white">GitGud</span>
                 </Link>
@@ -111,36 +116,44 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                 {/* Current level info - responsive display */}
                 {showLevelInfo && (
                     <ClientOnly>
-                        <div className="ml-4 hidden text-purple-300 xl:block">
+                        <div className={cn("hidden text-purple-300 xl:block", marginStartClass)}>
                             Level {currentLevel} - {currentStage}
                         </div>
-                        <div className="ml-4 hidden text-purple-300 lg:block xl:hidden">
+                        <div className={cn("hidden text-purple-300 lg:block xl:hidden", marginStartClass)}>
                             L{currentLevel} - {currentStage}
                         </div>
-                        <div className="ml-4 hidden text-purple-300 md:block lg:hidden">L{currentLevel}</div>
+                        <div className={cn("hidden text-purple-300 md:block lg:hidden", marginStartClass)}>
+                            L{currentLevel}
+                        </div>
                     </ClientOnly>
                 )}
 
                 {/* Show playground text on relevant pages */}
                 {isPlaygroundPage && (
-                    <span className="ml-4 hidden text-purple-300 md:block">{t("nav.playground")}</span>
+                    <span className={cn("hidden text-purple-300 md:block", marginStartClass)}>
+                        {t("nav.playground")}
+                    </span>
                 )}
 
                 {/* Show installation text on relevant pages */}
                 {isInstallationPage && (
-                    <span className="ml-4 hidden text-purple-300 md:block">{t("nav.installation")}</span>
+                    <span className={cn("hidden text-purple-300 md:block", marginStartClass)}>
+                        {t("nav.installation")}
+                    </span>
                 )}
 
                 {/* Show FAQ text on relevant pages */}
-                {isFaqPage && <span className="ml-4 hidden text-purple-300 md:block">{t("nav.faq")}</span>}
+                {isFaqPage && (
+                    <span className={cn("hidden text-purple-300 md:block", marginStartClass)}>{t("nav.faq")}</span>
+                )}
 
                 {/* Badge display - only show on larger screens to avoid overcrowding */}
-                <div className="ml-4 hidden lg:block">
+                <div className={cn("hidden lg:block", marginStartClass)}>
                     <BadgeDisplay />
                 </div>
 
                 {/* Desktop navigation */}
-                <div className="ml-auto hidden items-center space-x-4 md:flex">
+                <div className={cn("hidden items-center space-x-4 md:flex", autoMarginClass, isRTL && "space-x-reverse")}>
                     {/* GitHub star button - elegant with tooltip */}
                     <a
                         href="https://github.com/MikaStiebitz/Git-Gud"
@@ -180,8 +193,8 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                         variant="ghost"
                         onClick={toggleLanguage}
                         className="flex items-center text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                        <Languages className="mr-2 h-4 w-4" />
-                        {language === "en" ? "DE" : language === "de" ? "فا" : "EN"}
+                        <Languages className={cn(iconMarginClass, "h-4 w-4")} />
+                        {language === "en" ? "DE" : language === "de" ? "FA" : "EN"}
                     </Button>
 
                     {!isHomePage && (
@@ -189,7 +202,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <Button
                                 variant="ghost"
                                 className="text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <Home className="mr-2 h-4 w-4" />
+                                <Home className={cn(iconMarginClass, "h-4 w-4")} />
                                 {t("nav.home")}
                             </Button>
                         </Link>
@@ -201,7 +214,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <Button
                                 variant="ghost"
                                 className="text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <HelpCircle className="mr-2 h-4 w-4" />
+                                <HelpCircle className={cn(iconMarginClass, "h-4 w-4")} />
                                 {t("nav.faq")}
                             </Button>
                         </Link>
@@ -212,7 +225,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <Button
                                 variant="ghost"
                                 className="text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <Download className="mr-2 h-4 w-4" />
+                                <Download className={cn(iconMarginClass, "h-4 w-4")} />
                                 {t("nav.installation")}
                             </Button>
                         </Link>
@@ -223,20 +236,20 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <Button
                                 variant="ghost"
                                 className="text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <BookCopy className="mr-2 h-4 w-4" />
+                                <BookCopy className={cn(iconMarginClass, "h-4 w-4")} />
                                 {t("nav.playground")}
                             </Button>
                         </Link>
                     )}
 
                     <Button onClick={navigateToLearning} className="bg-purple-600 text-white hover:bg-purple-700">
-                        <Code className="mr-2 h-4 w-4" />
+                        <Code className={cn(iconMarginClass, "h-4 w-4")} />
                         {t("nav.startLearning")}
                     </Button>
                 </div>
 
                 {/* Mobile menu button */}
-                <div className="ml-auto flex items-center space-x-2 md:hidden">
+                <div className={cn("flex items-center space-x-2 md:hidden", autoMarginClass, isRTL && "space-x-reverse")}>
                     {/* GitHub star for mobile */}
                     <a
                         href="https://github.com/MikaStiebitz/Git-Gud"
@@ -285,7 +298,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex w-full items-center rounded-md border border-purple-800/40 bg-purple-900/20 px-3 py-2 text-purple-300">
-                            <Star className="mr-2 h-4 w-4 text-yellow-300" />
+                            <Star className={cn(iconMarginClass, "h-4 w-4 text-yellow-300")} />
                             <span>Star us on GitHub</span>
                         </a>
 
@@ -294,7 +307,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             variant="ghost"
                             onClick={toggleLanguage}
                             className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                            <Languages className="mr-2 h-4 w-4" />
+                            <Languages className={cn(iconMarginClass, "h-4 w-4")} />
                             {language === "de" ? "Switch to English" : "Zu Deutsch wechseln"}
                         </Button>
 
@@ -303,7 +316,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <Button
                                 variant="ghost"
                                 className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <Home className="mr-2 h-4 w-4" />
+                                <Home className={cn(iconMarginClass, "h-4 w-4")} />
                                 {t("nav.home")}
                             </Button>
                         </Link>
@@ -313,7 +326,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <Button
                                 variant="ghost"
                                 className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <HelpCircle className="mr-2 h-4 w-4" />
+                                <HelpCircle className={cn(iconMarginClass, "h-4 w-4")} />
                                 {t("nav.faq")}
                             </Button>
                         </Link>
@@ -322,7 +335,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <Button
                                 variant="ghost"
                                 className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <Download className="mr-2 h-4 w-4" />
+                                <Download className={cn(iconMarginClass, "h-4 w-4")} />
                                 {t("nav.installation")}
                             </Button>
                         </Link>
@@ -331,7 +344,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <Button
                                 variant="ghost"
                                 className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <Terminal className="mr-2 h-4 w-4" />
+                                <Terminal className={cn(iconMarginClass, "h-4 w-4")} />
                                 {t("nav.terminal")}
                             </Button>
                         </Link>
@@ -340,7 +353,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <Button
                                 variant="ghost"
                                 className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <BookCopy className="mr-2 h-4 w-4" />
+                                <BookCopy className={cn(iconMarginClass, "h-4 w-4")} />
                                 {t("nav.playground")}
                             </Button>
                         </Link>
@@ -352,7 +365,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                                     setMobileMenuOpen(false);
                                 }}
                                 className="mt-2 w-full bg-purple-600 text-white hover:bg-purple-700">
-                                <Code className="mr-2 h-4 w-4" />
+                                <Code className={cn(iconMarginClass, "h-4 w-4")} />
                                 {t("nav.startLearning")}
                             </Button>
                         )}
