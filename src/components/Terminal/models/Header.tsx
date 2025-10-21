@@ -15,8 +15,8 @@ export function TerminalHeader({
 }: TerminalHeaderProps) {
     return (
         <div className="flex items-center justify-between bg-purple-900/50 px-3 py-2 text-sm font-medium text-white">
-            <div className="flex items-center space-x-2">
-                <div className="flex space-x-1.5">
+            <div className="flex items-center gap-2">
+                <div className="flex gap-1.5">
                     <div className="h-3 w-3 rounded-full bg-red-500"></div>
                     <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
                     <div className="h-3 w-3 rounded-full bg-green-500"></div>
@@ -28,7 +28,7 @@ export function TerminalHeader({
                 </span>
             </div>
 
-            <div className="flex space-x-1">
+            <div className="flex gap-1">
                 <Button
                     variant="ghost"
                     size="sm"

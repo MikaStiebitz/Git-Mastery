@@ -12,6 +12,7 @@ const home = {
     "home.completed": "completed",
     "home.reviewLevel": "Review Level",
     "home.startLevel": "Start Level",
+    "home.levelLabel": "Level",
     "home.locked": "Locked",
     "home.feature.customization.title": "Customization",
     "home.feature.customization.description":
@@ -22,6 +23,9 @@ const home = {
     "home.feature.interactiveLearning.title": "Interactive Learning",
     "home.feature.interactiveLearning.description":
         "Learn by doing with real Git commands in a safe sandbox environment. Practice without fear of breaking anything.",
+    "home.difficultyButton": "Difficulty",
+    "home.shopButton": "Shop",
+    "home.miniGamesButton": "Mini Games",
 };
 
 export default home;

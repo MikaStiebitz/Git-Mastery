@@ -7,6 +7,9 @@ const terminal = {
     "terminal.levelCompleted":
         "Level abgeschlossen! 🎉 Tippe 'next' ein oder klicke auf 'Nächstes Level', um fortzufahren.",
     "terminal.enterCommand": "Gib einen Befehl ein...",
+    "terminal.simulationWarning":
+        "⚠️ Hinweis: Dies ist eine vereinfachte Git-Simulation zu Lernzwecken. Manche Befehle verhalten sich anders als im echten Git.",
+    "terminal.pressTabToComplete": "Drücke Tab zum Vervollständigen:",
     "terminal.typeNext": "Tippe 'next' ein oder klicke auf 'Nächstes Level', um fortzufahren.",
     "terminal.fileSaved": "Datei gespeichert: {path}",
     "terminal.fileRemoved": "Datei gelöscht: {path}",

@@ -33,7 +33,8 @@ export function Terminal({
         openCommitDialog,
     } = useGameContext();
 
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const isRTL = language === "fa";
 
     // Initialize OOP service classes - use useMemo to maintain instances across renders
     const commandService = useMemo(
@@ -287,6 +288,7 @@ export function Terminal({
                     outputContainerRef={outputContainerRef}
                     renderTerminalOutput={line => outputFormatter.renderTerminalOutput(line)}
                     t={t}
+                    isRTL={isRTL}
                 />
 
                 <TerminalInput
@@ -302,6 +304,7 @@ export function Terminal({
                     selectAutocompleteOption={selectAutocompleteOption}
                     renderFancyPrompt={renderFancyPrompt}
                     t={t}
+                    isRTL={isRTL}
                 />
             </div>
 

@@ -5,6 +5,8 @@ const terminal = {
     "terminal.playgroundMode": "Playground mode activated. Freely experiment with Git commands. Type 'help' for help.",
     "terminal.levelCompleted": "Level completed! 🎉 Type 'next' or click the \"Next Level\" button.",
     "terminal.enterCommand": "Enter a command...",
+    "terminal.simulationWarning": "⚠️ Note: This is a simplified Git simulation for learning purposes. Some commands may behave differently than in real Git.",
+    "terminal.pressTabToComplete": "Press Tab to complete:",
     "terminal.typeNext": "Type 'next' or click the \"Next Level\" button to continue.",
     "terminal.fileSaved": "File saved: {path}",
     "terminal.fileRemoved": "File removed: {path}",

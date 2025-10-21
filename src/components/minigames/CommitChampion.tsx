@@ -23,21 +23,21 @@ interface CommitChallenge {
 const COMMIT_CHALLENGES: CommitChallenge[] = [
     // Beginner
     {
-        scenario: "You fixed a typo in the README file",
+        scenario: "یک غلط املایی را در فایل README اصلاح کردی",
         changedFiles: ["README.md"],
         goodExamples: ["Fix typo in README", "Fix README typo", "Correct spelling in README"],
         badExamples: ["fixed stuff", "update", "changes", "asdf"],
         difficulty: "beginner",
     },
     {
-        scenario: "You added a new login button to the homepage",
+        scenario: "یک دکمهٔ ورود جدید به صفحهٔ اصلی اضافه کردی",
         changedFiles: ["homepage.html", "styles.css"],
         goodExamples: ["Add login button to homepage", "Add homepage login button", "Implement login button"],
         badExamples: ["add button", "homepage changes", "stuff", "wip"],
         difficulty: "beginner",
     },
     {
-        scenario: "You removed an unused CSS class",
+        scenario: "یک کلاس CSS بلااستفاده را حذف کردی",
         changedFiles: ["styles.css"],
         goodExamples: ["Remove unused CSS class", "Clean up unused styles", "Delete obsolete CSS class"],
         badExamples: ["css", "cleanup", "remove stuff", "delete"],
@@ -46,7 +46,7 @@ const COMMIT_CHALLENGES: CommitChallenge[] = [
 
     // Advanced
     {
-        scenario: "You refactored the user authentication system to use JWT tokens instead of sessions",
+        scenario: "سامانهٔ احراز هویت کاربر را بازآرایی کردی تا به‌جای سشن از توکن‌های JWT استفاده کند",
         changedFiles: ["auth.js", "middleware.js", "package.json", "config.js"],
         goodExamples: [
             "Refactor auth system to use JWT tokens",
@@ -57,7 +57,7 @@ const COMMIT_CHALLENGES: CommitChallenge[] = [
         difficulty: "advanced",
     },
     {
-        scenario: "You optimized database queries in the user service, reducing load time by 40%",
+        scenario: "کوئری‌های پایگاه‌داده در سرویس کاربر را بهینه کردی و زمان بارگذاری را ۴۰٪ کاهش دادی",
         changedFiles: ["userService.js", "database.js"],
         goodExamples: [
             "Optimize database queries in user service",
@@ -68,7 +68,7 @@ const COMMIT_CHALLENGES: CommitChallenge[] = [
         difficulty: "advanced",
     },
     {
-        scenario: "You implemented caching for API responses and added error handling for network timeouts",
+        scenario: "برای پاسخ‌های API کش پیاده‌سازی کردی و مدیریت خطای تایم‌اوت شبکه را افزودی",
         changedFiles: ["api.js", "cache.js", "errorHandler.js"],
         goodExamples: [
             "Add API response caching and timeout handling",
@@ -82,7 +82,7 @@ const COMMIT_CHALLENGES: CommitChallenge[] = [
     // Pro
     {
         scenario:
-            "You resolved a race condition in the payment processor that was causing duplicate charges during high traffic",
+            "یک وضعیت رقابتی در پردازشگر پرداخت را رفع کردی که هنگام ترافیک بالا باعث شارژ تکراری می‌شد",
         changedFiles: ["paymentProcessor.js", "transactionLock.js", "tests/payment.test.js"],
         goodExamples: [
             "Fix race condition in payment processor",
@@ -93,7 +93,7 @@ const COMMIT_CHALLENGES: CommitChallenge[] = [
         difficulty: "pro",
     },
     {
-        scenario: "You implemented a distributed cache invalidation strategy across multiple microservices",
+        scenario: "یک راهبرد ابطال کش توزیع‌شده در چند میکروسرویس پیاده‌سازی کردی",
         changedFiles: ["cacheManager.js", "serviceA.js", "serviceB.js", "eventBus.js", "config/redis.js"],
         goodExamples: [
             "Implement distributed cache invalidation",
@@ -214,12 +214,12 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
             setScore(score + result.points);
             setFeedback({
                 type: "good",
-                message: result.points === 15 ? "Excellent commit message! 🎉" : "Good commit message! 👍",
+                message: result.points === 15 ? "پیام کامیت عالی! 🎉" : "پیام کامیت خوب! 👍",
             });
         } else {
             setFeedback({
                 type: "bad",
-                message: "Could be more specific. Try describing what you did and why.",
+                message: "می‌تواند دقیق‌تر باشد. توضیح بده چه کاری انجام دادی و چرا.",
             });
         }
 
@@ -235,6 +235,12 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
     };
 
     const challenge = selectedChallenges[currentChallenge];
+    const difficultyLabel =
+        {
+            beginner: "مبتدی",
+            advanced: "پیشرفته",
+            pro: "حرفه‌ای",
+        }[difficulty] ?? "مبتدی";
 
     if (!gameStarted) {
         return (
@@ -242,7 +248,7 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
                 <CardHeader className="text-center">
                     <CardTitle className="flex items-center justify-center text-xl text-yellow-400">
                         <GitCommit className="mr-2 h-6 w-6" />
-                        Commit Champion
+                        قهرمان کامیت‌ها
                     </CardTitle>
                     <div className="absolute right-2 top-2">
                         <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
@@ -251,13 +257,13 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-center">
-                    <p className="text-purple-200">Write meaningful commit messages for different scenarios!</p>
+                    <p className="text-purple-200">برای موقعیت‌های مختلف پیام‌های کامیت معنی‌دار بنویس!</p>
                     <p className="text-sm text-purple-300">
-                        • Difficulty: {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                        • سختی: {difficultyLabel}
                     </p>
-                    <p className="text-sm text-purple-300">• 5 scenarios • 90 seconds • Quality over speed!</p>
+                    <p className="text-sm text-purple-300">• 5 سناریو • 90 ثانیه • کیفیت مهم‌تر از سرعت!</p>
                     <Button onClick={startGame} className="w-full bg-yellow-600 text-white hover:bg-yellow-700">
-                        Start Game
+                        شروع بازی
                     </Button>
                 </CardContent>
             </Card>
@@ -271,24 +277,24 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
                 <CardHeader className="text-center">
                     <CardTitle className="flex items-center justify-center text-xl text-yellow-400">
                         <Trophy className="mr-2 h-6 w-6" />
-                        Game Complete!
+                        بازی تمام شد!
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-center">
                     <div className="space-y-2">
-                        <p className="text-lg text-white">Final Score: {finalScore}</p>
-                        <p className="text-sm text-purple-200">Quality Points: {score}</p>
-                        <p className="text-sm text-purple-200">Time Bonus: {timeLeft} points</p>
+                        <p className="text-lg text-white">امتیاز نهایی: {finalScore}</p>
+                        <p className="text-sm text-purple-200">امتیاز کیفیت: {score}</p>
+                        <p className="text-sm text-purple-200">امتیاز زمانی: {timeLeft}</p>
                     </div>
                     <div className="flex gap-2">
                         <Button
                             onClick={startGame}
                             variant="outline"
                             className="flex-1 border-yellow-600 text-yellow-300 hover:bg-yellow-900/50">
-                            Play Again
+                            دوباره بازی کن
                         </Button>
                         <Button onClick={onClose} className="flex-1 bg-purple-600 text-white hover:bg-purple-700">
-                            Close
+                            بستن
                         </Button>
                     </div>
                 </CardContent>
@@ -302,14 +308,14 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
                 <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center text-lg text-yellow-400">
                         <GitCommit className="mr-2 h-5 w-5" />
-                        Commit Champion - Playing
+                        قهرمان کامیت‌ها - در حال بازی
                     </CardTitle>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center text-purple-300">
                             <Timer className="mr-1 h-4 w-4" />
                             {timeLeft}s
                         </div>
-                        <div className="text-purple-300">Score: {score}</div>
+                        <div className="text-purple-300">امتیاز: {score}</div>
                         <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
                             <X className="h-4 w-4" />
                         </Button>
@@ -317,7 +323,7 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
                 </div>
                 <div className="mt-2">
                     <div className="flex text-sm text-purple-400">
-                        Scenario {currentChallenge + 1} of {selectedChallenges.length}
+                        سناریو {currentChallenge + 1} از {selectedChallenges.length}
                     </div>
                     <div className="mt-1 h-2 w-full rounded-full bg-purple-900/30">
                         <div
@@ -331,7 +337,7 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
                 <div className="text-center">
                     <h3 className="mb-4 text-lg text-white">{challenge?.scenario}</h3>
                     <div className="mb-4">
-                        <p className="mb-2 text-sm text-purple-300">Files changed:</p>
+                        <p className="mb-2 text-sm text-purple-300">فایل‌های تغییر کرده:</p>
                         <div className="flex flex-wrap justify-center gap-1">
                             {challenge?.changedFiles.map((file, index) => (
                                 <span
@@ -347,12 +353,12 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
                 <div className="space-y-4">
                     <div>
                         <label className="mb-2 block text-sm font-medium text-purple-300">
-                            Write your commit message:
+                            پیام کامیتت را بنویس:
                         </label>
                         <Input
                             value={commitMessage}
                             onChange={e => setCommitMessage(e.target.value)}
-                            placeholder="e.g., Fix user login validation bug"
+                            placeholder="مثال: رفع خطای اعتبارسنجی ورود کاربر"
                             className="border-purple-700 bg-purple-900/20 text-white placeholder-purple-400"
                             maxLength={72}
                             onKeyPress={e => {
@@ -362,7 +368,7 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
                             }}
                         />
                         <p className="mt-1 text-xs text-purple-400">
-                            {commitMessage.length}/72 characters (Git best practice: &lt;50 chars for summary)
+                            {commitMessage.length}/72 کاراکتر (بهترین تمرین گیت: خلاصه کمتر از &lt;50 کاراکتر باشد)
                         </p>
                     </div>
 
@@ -370,7 +376,7 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
                         onClick={handleSubmitCommit}
                         disabled={!commitMessage.trim() || feedback.type !== null}
                         className="w-full bg-yellow-600 text-white hover:bg-yellow-700 disabled:cursor-not-allowed disabled:bg-gray-600">
-                        Submit Commit Message
+                        ارسال پیام کامیت
                     </Button>
 
                     {feedback.type && (
@@ -395,7 +401,7 @@ export function CommitChampion({ onComplete, onClose, difficulty = "beginner" }:
                             </div>
                             {feedback.type === "bad" && (
                                 <p className="text-xs text-purple-300">
-                                    Good examples: {challenge?.goodExamples.slice(0, 2).join(" • ")}
+                                    نمونه‌های خوب: {challenge?.goodExamples.slice(0, 2).join(" • ")}
                                 </p>
                             )}
                         </div>

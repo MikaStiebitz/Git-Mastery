@@ -1,27 +1,31 @@
 const home = {
     // Home Page
     "home.title": "Meistere Git durch",
-    "home.title2": "Spielen",
+    "home.title2": "Spiel",
     "home.subtitle":
-        "Lerne Git-Befehle und Konzepte durch ein interaktives Spiel. Schreite durch Level fort, löse Herausforderungen und werde ein Git-Experte.",
-    "home.startLearning": "Starte Lernen",
+        "Lerne Git-Befehle und Konzepte durch ein interaktives Spiel. Schreite durch Level voran, löse Herausforderungen und werde zum Git-Experten.",
+    "home.startLearning": "Lernen starten",
     "home.cheatSheet": "Spickzettel",
     "home.learningPath": "Dein Lernpfad",
     "home.chooseChallenge": "Wähle deine Herausforderung",
-    "home.gameFeatures": "Spiel-Features",
+    "home.gameFeatures": "Spieleigenschaften",
     "home.completed": "abgeschlossen",
     "home.reviewLevel": "Level wiederholen",
     "home.startLevel": "Level starten",
+    "home.levelLabel": "Level",
     "home.locked": "Gesperrt",
-    "home.feature.customization.title": "Individuelle Gestaltung",
+    "home.feature.customization.title": "Personalisierung",
     "home.feature.customization.description":
-        "Personalisiere deine Erfahrung mit Themes, Sounds und anderen freischaltbaren Inhalten. Mach deinen Lernweg wirklich zu deinem eigenen.",
-    "home.feature.miniGames.title": "Mini-Spiele",
+        "Personalisiere dein Erlebnis mit Themes, Sounds und anderen freischaltbaren Items. Mach deinen Lernweg ganz zu deinem eigenen.",
+    "home.feature.miniGames.title": "Minispiele",
     "home.feature.miniGames.description":
         "Übe Git-Fähigkeiten mit unterhaltsamen Herausforderungen und sammle Punkte, um Belohnungen freizuschalten. Mach Lernen spannend und motivierend.",
     "home.feature.interactiveLearning.title": "Interaktives Lernen",
     "home.feature.interactiveLearning.description":
-        "Lerne durch Ausprobieren mit echten Git-Befehlen in einer sicheren Sandbox. Übe ohne Angst, etwas zu beschädigen.",
+        "Lerne durch Ausprobieren mit echten Git-Befehlen in einer sicheren Sandbox. Übe ohne Angst, etwas kaputtzumachen.",
+    "home.difficultyButton": "Schwierigkeitsgrad",
+    "home.shopButton": "Shop",
+    "home.miniGamesButton": "Minispiele",
 };
 
 export default home;

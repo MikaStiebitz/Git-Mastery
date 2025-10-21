@@ -27,6 +27,7 @@ export interface TerminalOutputProps {
     outputContainerRef: RefObject<HTMLDivElement | null>;
     renderTerminalOutput: (line: string) => ReactNode;
     t: (key: string) => string;
+    isRTL: boolean;
 }
 
 export interface TerminalInputProps {
@@ -42,6 +43,7 @@ export interface TerminalInputProps {
     selectAutocompleteOption: (file: string) => void;
     renderFancyPrompt: () => ReactNode;
     t: (key: string) => string;
+    isRTL: boolean;
 }
 
 export interface TerminalPromptProps {

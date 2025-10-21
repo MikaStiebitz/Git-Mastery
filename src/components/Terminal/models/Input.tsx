@@ -16,18 +16,26 @@ export function TerminalInput({
     selectAutocompleteOption,
     renderFancyPrompt,
     t,
+    isRTL,
 }: TerminalInputProps) {
+    const direction = isRTL ? "rtl" : "ltr";
+    const suggestionPositionClass = isRTL ? "right-2 sm:right-0" : "left-2 sm:left-0";
+
     return (
         <div className="relative border-t border-purple-800/50">
             <form
                 onSubmit={handleFormSubmit}
-                className="flex min-h-[3rem] items-center gap-2 px-2 py-2 sm:min-h-[2.5rem] sm:px-3">
+                className="flex min-h-[3rem] items-center gap-2 px-2 py-2 sm:min-h-[2.5rem] sm:px-3"
+                dir={direction}>
                 <div className="hidden max-w-[60%] flex-shrink-0 overflow-hidden sm:block">{renderFancyPrompt()}</div>
 
                 {/* Command suggestion tooltip - adjusted for mobile */}
                 {showCommandSuggestion && (
-                    <div className="absolute left-2 top-0 z-10 mt-[-28px] rounded border border-purple-800 bg-purple-900/90 px-2 py-1 text-xs text-purple-300 sm:left-0 sm:mt-[-30px]">
-                        <span className="hidden sm:inline">Press Tab to complete: </span>
+                    <div
+                        className={`absolute top-0 z-10 mt-[-28px] rounded border border-purple-800 bg-purple-900/90 px-2 py-1 text-xs text-purple-300 ${suggestionPositionClass} sm:mt-[-30px]`}
+                        dir={direction}
+                        style={{ textAlign: "start" }}>
+                        <span className="hidden sm:inline">{t("terminal.pressTabToComplete")} </span>
                         <span className="font-mono font-semibold">{commandSuggestion}</span>
                     </div>
                 )}
@@ -44,6 +52,8 @@ export function TerminalInput({
                     spellCheck="false"
                     inputMode="text"
                     enterKeyHint="send"
+                    dir="auto"
+                    style={{ textAlign: "start" }}
                     onFocus={() => {
                         // On mobile, ensure input is visible
                         if (window.innerWidth < 768) {
@@ -65,7 +75,10 @@ export function TerminalInput({
 
             {/* Autocomplete dropdown - adjusted for mobile */}
             {showAutocomplete && fileAutocomplete.length > 0 && (
-                <div className="absolute bottom-full left-0 right-0 z-10 max-h-32 overflow-y-auto rounded-t border border-purple-800 bg-purple-900/95 p-1 shadow-lg backdrop-blur-sm">
+                <div
+                    className="absolute bottom-full left-0 right-0 z-10 max-h-32 overflow-y-auto rounded-t border border-purple-800 bg-purple-900/95 p-1 shadow-lg backdrop-blur-sm"
+                    dir={direction}
+                    style={{ textAlign: "start" }}>
                     {fileAutocomplete.map(file => (
                         <div
                             key={file}

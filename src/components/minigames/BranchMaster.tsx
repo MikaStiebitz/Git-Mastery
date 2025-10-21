@@ -21,19 +21,19 @@ interface Challenge {
 const CHALLENGES: Challenge[] = [
     // Beginner questions
     {
-        instruction: "Create a new branch called 'feature'",
+        instruction: "شاخهٔ جدیدی به نام «feature» بساز",
         correctAnswer: "git branch feature",
         options: ["git branch feature", "git checkout feature", "git create feature", "git new feature"],
         difficulty: "beginner",
     },
     {
-        instruction: "Switch to branch 'main'",
+        instruction: "به شاخهٔ «main» منتقل شو",
         correctAnswer: "git checkout main",
         options: ["git checkout main", "git branch main", "git switch-to main", "git go main"],
         difficulty: "beginner",
     },
     {
-        instruction: "Create and switch to a new branch 'hotfix'",
+        instruction: "شاخهٔ جدیدی به نام «hotfix» بساز و به آن سوئیچ کن",
         correctAnswer: "git checkout -b hotfix",
         options: [
             "git checkout -b hotfix",
@@ -44,13 +44,13 @@ const CHALLENGES: Challenge[] = [
         difficulty: "beginner",
     },
     {
-        instruction: "List all branches",
+        instruction: "همهٔ شاخه‌ها را فهرست کن",
         correctAnswer: "git branch",
         options: ["git branch", "git branch -a", "git list branches", "git show branches"],
         difficulty: "beginner",
     },
     {
-        instruction: "Delete branch 'old-feature'",
+        instruction: "شاخهٔ «old-feature» را حذف کن",
         correctAnswer: "git branch -d old-feature",
         options: [
             "git branch -d old-feature",
@@ -61,7 +61,7 @@ const CHALLENGES: Challenge[] = [
         difficulty: "beginner",
     },
     {
-        instruction: "Show current branch name",
+        instruction: "نام شاخهٔ فعلی را نمایش بده",
         correctAnswer: "git branch --show-current",
         options: ["git branch --show-current", "git current-branch", "git status", "git branch -c"],
         difficulty: "beginner",
@@ -69,13 +69,13 @@ const CHALLENGES: Challenge[] = [
 
     // Advanced questions
     {
-        instruction: "List all remote branches",
+        instruction: "همهٔ شاخه‌های ریموت را فهرست کن",
         correctAnswer: "git branch -r",
         options: ["git branch -r", "git branch --remote", "git remote branches", "git list remote"],
         difficulty: "advanced",
     },
     {
-        instruction: "Create a branch from a specific commit (abc123)",
+        instruction: "از کامیت مشخص (abc123) یک شاخه بساز",
         correctAnswer: "git branch new-branch abc123",
         options: [
             "git branch new-branch abc123",
@@ -86,7 +86,7 @@ const CHALLENGES: Challenge[] = [
         difficulty: "advanced",
     },
     {
-        instruction: "Force delete a branch that hasn't been merged",
+        instruction: "شاخه‌ای که هنوز ادغام نشده را با اجبار حذف کن",
         correctAnswer: "git branch -D unmerged-branch",
         options: [
             "git branch -D unmerged-branch",
@@ -97,7 +97,7 @@ const CHALLENGES: Challenge[] = [
         difficulty: "advanced",
     },
     {
-        instruction: "Rename current branch to 'new-name'",
+        instruction: "نام شاخهٔ فعلی را به «new-name» تغییر بده",
         correctAnswer: "git branch -m new-name",
         options: [
             "git branch -m new-name",
@@ -108,7 +108,7 @@ const CHALLENGES: Challenge[] = [
         difficulty: "advanced",
     },
     {
-        instruction: "Set upstream for current branch to origin/main",
+        instruction: "آپ‌استریم شاخهٔ فعلی را روی origin/main تنظیم کن",
         correctAnswer: "git branch --set-upstream-to=origin/main",
         options: [
             "git branch --set-upstream-to=origin/main",
@@ -119,7 +119,7 @@ const CHALLENGES: Challenge[] = [
         difficulty: "advanced",
     },
     {
-        instruction: "Show which remote branch current branch tracks",
+        instruction: "نشان بده شاخهٔ فعلی کدام شاخهٔ ریموت را دنبال می‌کند",
         correctAnswer: "git branch -vv",
         options: ["git branch -vv", "git branch --track-info", "git remote show origin", "git branch --upstream"],
         difficulty: "advanced",
@@ -127,7 +127,7 @@ const CHALLENGES: Challenge[] = [
 
     // Pro questions
     {
-        instruction: "Create an orphan branch (no commit history)",
+        instruction: "یک شاخهٔ یتیم (بدون تاریخچهٔ کامیت) بساز",
         correctAnswer: "git checkout --orphan orphan-branch",
         options: [
             "git checkout --orphan orphan-branch",
@@ -138,7 +138,7 @@ const CHALLENGES: Challenge[] = [
         difficulty: "pro",
     },
     {
-        instruction: "Copy a branch to a new name without checking it out",
+        instruction: "شاخه‌ای را بدون سوئیچ کردن به نام جدیدی کپی کن",
         correctAnswer: "git branch new-copy existing-branch",
         options: [
             "git branch new-copy existing-branch",
@@ -149,7 +149,7 @@ const CHALLENGES: Challenge[] = [
         difficulty: "pro",
     },
     {
-        instruction: "Delete remote tracking branch reference locally",
+        instruction: "ارجاع شاخهٔ ریموتِ در حال پیگیری را به‌صورت محلی حذف کن",
         correctAnswer: "git branch -dr origin/deleted-branch",
         options: [
             "git branch -dr origin/deleted-branch",
@@ -160,7 +160,7 @@ const CHALLENGES: Challenge[] = [
         difficulty: "pro",
     },
     {
-        instruction: "Show branches that contain a specific commit (abc123)",
+        instruction: "شاخه‌هایی را که کامیت مشخص (abc123) را دارند نمایش بده",
         correctAnswer: "git branch --contains abc123",
         options: [
             "git branch --contains abc123",
@@ -171,7 +171,7 @@ const CHALLENGES: Challenge[] = [
         difficulty: "pro",
     },
     {
-        instruction: "List branches sorted by last commit date",
+        instruction: "شاخه‌ها را بر اساس تاریخ آخرین کامیت مرتب و فهرست کن",
         correctAnswer: "git branch --sort=-committerdate",
         options: [
             "git branch --sort=-committerdate",
@@ -267,6 +267,12 @@ export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: B
     };
 
     const challenge = selectedChallenges[currentChallenge];
+    const difficultyLabel =
+        {
+            beginner: "مبتدی",
+            advanced: "پیشرفته",
+            pro: "حرفه‌ای",
+        }[difficulty] ?? "مبتدی";
 
     if (!gameStarted) {
         return (
@@ -274,7 +280,7 @@ export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: B
                 <CardHeader className="text-center">
                     <CardTitle className="flex items-center justify-center text-xl text-green-400">
                         <GitBranch className="mr-2 h-6 w-6" />
-                        Branch Master
+                        استاد شاخه‌ها
                     </CardTitle>
                     <div className="absolute right-2 top-2">
                         <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
@@ -283,13 +289,13 @@ export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: B
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-center">
-                    <p className="text-purple-200">Answer Git branching questions as fast as possible!</p>
+                    <p className="text-purple-200">به پرسش‌های شاخه‌سازی گیت تا جایی که می‌توانی سریع پاسخ بده!</p>
                     <p className="text-sm text-purple-300">
-                        • Difficulty: {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                        • سختی: {difficultyLabel}
                     </p>
-                    <p className="text-sm text-purple-300">• 8 questions • 60 seconds • Bonus points for speed</p>
+                    <p className="text-sm text-purple-300">• 8 سؤال • 60 ثانیه • امتیاز اضافه برای سرعت</p>
                     <Button onClick={startGame} className="w-full bg-green-600 text-white hover:bg-green-700">
-                        Start Game
+                        شروع بازی
                     </Button>
                 </CardContent>
             </Card>
@@ -303,26 +309,26 @@ export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: B
                 <CardHeader className="text-center">
                     <CardTitle className="flex items-center justify-center text-xl text-yellow-400">
                         <Trophy className="mr-2 h-6 w-6" />
-                        Game Complete!
+                        بازی تمام شد!
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-center">
                     <div className="space-y-2">
-                        <p className="text-lg text-white">Final Score: {finalScore}</p>
+                        <p className="text-lg text-white">امتیاز نهایی: {finalScore}</p>
                         <p className="text-sm text-purple-200">
-                            Correct Answers: {score / 10} / {selectedChallenges.length}
+                            پاسخ‌های درست: {score / 10} / {selectedChallenges.length}
                         </p>
-                        <p className="text-sm text-purple-200">Time Bonus: {timeLeft} points</p>
+                        <p className="text-sm text-purple-200">امتیاز زمانی: {timeLeft}</p>
                     </div>
                     <div className="flex gap-2">
                         <Button
                             onClick={startGame}
                             variant="outline"
                             className="flex-1 border-green-600 text-green-300 hover:bg-green-900/50">
-                            Play Again
+                            دوباره بازی کن
                         </Button>
                         <Button onClick={onClose} className="flex-1 bg-purple-600 text-white hover:bg-purple-700">
-                            Close
+                            بستن
                         </Button>
                     </div>
                 </CardContent>
@@ -336,22 +342,22 @@ export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: B
                 <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center text-lg text-green-400">
                         <GitBranch className="mr-2 h-5 w-5" />
-                        Branch Master - Playing
+                        استاد شاخه‌ها - در حال بازی
                     </CardTitle>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center text-purple-300">
                             <Timer className="mr-1 h-4 w-4" />
                             {timeLeft}s
                         </div>
-                        <div className="text-purple-300">Score: {score}</div>
+                        <div className="text-purple-300">امتیاز: {score}</div>
                         <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
                             <X className="h-4 w-4" />
                         </Button>
                     </div>
                 </div>
                 <div className="mt-2">
-                    <div className="flex text-sm text-purple-400">
-                        Question {currentChallenge + 1} of {selectedChallenges.length}
+                        <div className="flex text-sm text-purple-400">
+                            سؤال {currentChallenge + 1} از {selectedChallenges.length}
                     </div>
                     <div className="mt-1 h-2 w-full rounded-full bg-purple-900/30">
                         <div
@@ -391,11 +397,11 @@ export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: B
                     <div className="text-center">
                         <p
                             className={`text-lg ${selectedAnswer === challenge?.correctAnswer ? "text-green-400" : "text-red-400"}`}>
-                            {selectedAnswer === challenge?.correctAnswer ? "✓ Correct!" : "✗ Wrong!"}
+                            {selectedAnswer === challenge?.correctAnswer ? "✓ درست بود!" : "✗ اشتباه بود!"}
                         </p>
                         {selectedAnswer !== challenge?.correctAnswer && (
                             <p className="mt-1 text-sm text-purple-300">
-                                Correct answer:{" "}
+                                پاسخ درست:{" "}
                                 <code className="rounded bg-purple-900/50 px-2 py-1 font-mono">
                                     {challenge?.correctAnswer}
                                 </code>

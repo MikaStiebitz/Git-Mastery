@@ -22,7 +22,7 @@ interface ConflictScenario {
 const CONFLICT_SCENARIOS: ConflictScenario[] = [
     // Beginner
     {
-        description: "Two developers modified the same line in a config file",
+        description: "دو توسعه‌دهنده یک خط یکسان را در فایل پیکربندی تغییر داده‌اند",
         conflictedFile: "config.js",
         conflictContent: `module.exports = {
 <<<<<<< HEAD
@@ -39,7 +39,7 @@ const CONFLICT_SCENARIOS: ConflictScenario[] = [
         difficulty: "beginner",
     },
     {
-        description: "Conflicting version numbers in package.json",
+        description: "شماره نسخه‌های متعارض در package.json",
         conflictedFile: "package.json",
         conflictContent: `{
     "name": "my-app",
@@ -60,7 +60,7 @@ const CONFLICT_SCENARIOS: ConflictScenario[] = [
 
     // Advanced
     {
-        description: "Function implementation conflict with different approaches",
+        description: "تعارض در پیاده‌سازی تابع با رویکردهای متفاوت",
         conflictedFile: "userService.js",
         conflictContent: `function getUserData(userId) {
 <<<<<<< HEAD
@@ -80,7 +80,7 @@ const CONFLICT_SCENARIOS: ConflictScenario[] = [
         difficulty: "advanced",
     },
     {
-        description: "CSS styling conflict between different layout approaches",
+        description: "تعارض استایل CSS بین رویکردهای مختلف لایه‌بندی",
         conflictedFile: "styles.css",
         conflictContent: `.header {
 <<<<<<< HEAD
@@ -105,7 +105,7 @@ const CONFLICT_SCENARIOS: ConflictScenario[] = [
 
     // Pro
     {
-        description: "Complex merge with multiple conflicting sections",
+        description: "ادغام پیچیده با چندین بخش متعارض",
         conflictedFile: "authController.js",
         conflictContent: `class AuthController {
 <<<<<<< HEAD
@@ -237,20 +237,20 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
             userResolution.includes(">>>>>>>");
 
         if (hasConflictMarkers) {
-            return { isCorrect: false, points: 0, reason: "Conflict markers still present" };
+            return { isCorrect: false, points: 0, reason: "نشانه‌های تعارض هنوز حذف نشده‌اند" };
         }
 
         // Calculate similarity
         const similarity = calculateSimilarity(userNormalized, correctNormalized);
 
         if (similarity > 0.9) {
-            return { isCorrect: true, points: 25, reason: "Perfect resolution!" };
+            return { isCorrect: true, points: 25, reason: "حل تعارض بی‌نقص!" };
         } else if (similarity > 0.7) {
-            return { isCorrect: true, points: 15, reason: "Good resolution with minor differences" };
+            return { isCorrect: true, points: 15, reason: "حل تعارض خوب با تفاوت‌های جزئی" };
         } else if (similarity > 0.5) {
-            return { isCorrect: true, points: 8, reason: "Reasonable resolution but could be improved" };
+            return { isCorrect: true, points: 8, reason: "حل تعارض قابل قبول اما قابل بهبود" };
         } else {
-            return { isCorrect: false, points: 0, reason: "Resolution doesn't match the expected solution" };
+            return { isCorrect: false, points: 0, reason: "حل تعارض با راه‌حل مورد انتظار یکی نیست" };
         }
     };
 
@@ -319,6 +319,12 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
     };
 
     const scenario = selectedScenarios[currentScenario];
+    const difficultyLabel =
+        {
+            beginner: "مبتدی",
+            advanced: "پیشرفته",
+            pro: "حرفه‌ای",
+        }[difficulty] ?? "مبتدی";
 
     if (!gameStarted) {
         return (
@@ -326,7 +332,7 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
                 <CardHeader className="text-center">
                     <CardTitle className="flex items-center justify-center text-xl text-red-400">
                         <GitMerge className="mr-2 h-6 w-6" />
-                        Merge Master
+                        استاد ادغام
                     </CardTitle>
                     <div className="absolute right-2 top-2">
                         <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
@@ -335,15 +341,15 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-center">
-                    <p className="text-purple-200">Resolve merge conflicts like a pro developer!</p>
+                    <p className="text-purple-200">تعارض‌های ادغام را مثل یک توسعه‌دهنده حرفه‌ای حل کن!</p>
                     <p className="text-sm text-purple-300">
-                        • Difficulty: {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                        • سختی: {difficultyLabel}
                     </p>
                     <p className="text-sm text-purple-300">
-                        • 3 conflicts • 2 minutes • Remove markers and fix conflicts
+                        • 3 تعارض • 2 دقیقه • نشانه‌ها را حذف کن و تعارض را رفع کن
                     </p>
                     <Button onClick={startGame} className="w-full bg-red-600 text-white hover:bg-red-700">
-                        Start Game
+                        شروع بازی
                     </Button>
                 </CardContent>
             </Card>
@@ -357,24 +363,24 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
                 <CardHeader className="text-center">
                     <CardTitle className="flex items-center justify-center text-xl text-red-400">
                         <Trophy className="mr-2 h-6 w-6" />
-                        Game Complete!
+                        بازی تمام شد!
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-center">
                     <div className="space-y-2">
-                        <p className="text-lg text-white">Final Score: {finalScore}</p>
-                        <p className="text-sm text-purple-200">Resolution Points: {score}</p>
-                        <p className="text-sm text-purple-200">Time Bonus: {Math.floor(timeLeft / 2)} points</p>
+                        <p className="text-lg text-white">امتیاز نهایی: {finalScore}</p>
+                        <p className="text-sm text-purple-200">امتیاز حل تعارض: {score}</p>
+                        <p className="text-sm text-purple-200">امتیاز زمانی: {Math.floor(timeLeft / 2)}</p>
                     </div>
                     <div className="flex gap-2">
                         <Button
                             onClick={startGame}
                             variant="outline"
                             className="flex-1 border-red-600 text-red-300 hover:bg-red-900/50">
-                            Play Again
+                            دوباره بازی کن
                         </Button>
                         <Button onClick={onClose} className="flex-1 bg-purple-600 text-white hover:bg-purple-700">
-                            Close
+                            بستن
                         </Button>
                     </div>
                 </CardContent>
@@ -388,22 +394,22 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
                 <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center text-lg text-red-400">
                         <GitMerge className="mr-2 h-5 w-5" />
-                        Merge Master - Playing
+                        استاد ادغام - در حال بازی
                     </CardTitle>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center text-purple-300">
                             <Timer className="mr-1 h-4 w-4" />
                             {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
                         </div>
-                        <div className="text-purple-300">Score: {score}</div>
+                        <div className="text-purple-300">امتیاز: {score}</div>
                         <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
                             <X className="h-4 w-4" />
                         </Button>
                     </div>
                 </div>
                 <div className="mt-2">
-                    <div className="flex text-sm text-purple-400">
-                        Conflict {currentScenario + 1} of {selectedScenarios.length}
+                        <div className="flex text-sm text-purple-400">
+                            تعارض {currentScenario + 1} از {selectedScenarios.length}
                     </div>
                     <div className="mt-1 h-2 w-full rounded-full bg-purple-900/30">
                         <div
@@ -417,25 +423,25 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
                 <div>
                     <h3 className="mb-2 text-lg text-white">{scenario?.description}</h3>
                     <p className="mb-4 text-sm text-purple-300">
-                        File:{" "}
+                        فایل:{" "}
                         <code className="rounded bg-purple-900/50 px-2 py-1 font-mono">{scenario?.conflictedFile}</code>
                     </p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     <div>
-                        <h4 className="text-md mb-2 text-purple-300">Conflicted Code:</h4>
+                        <h4 className="text-md mb-2 text-purple-300">کد دارای تعارض:</h4>
                         <pre className="overflow-x-auto rounded-md border border-gray-700 bg-gray-900 p-4 text-sm text-gray-100">
                             <code>{scenario?.conflictContent}</code>
                         </pre>
                     </div>
 
                     <div>
-                        <h4 className="text-md mb-2 text-purple-300">Your Resolution:</h4>
+                        <h4 className="text-md mb-2 text-purple-300">راه‌حل تو:</h4>
                         <textarea
                             value={resolution}
                             onChange={e => setResolution(e.target.value)}
-                            placeholder="Remove conflict markers and resolve the conflict..."
+                            placeholder="نشانه‌های تعارض را حذف کن و تعارض را حل کن..."
                             className="h-48 w-full resize-none rounded-md border border-gray-700 bg-gray-900 p-4 font-mono text-sm text-gray-100"
                         />
                     </div>
@@ -451,23 +457,23 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
                         ) : (
                             <ChevronRight className="mr-2 h-4 w-4" />
                         )}
-                        {showHint ? "Hide Hint" : "Show Hint"}
+                        {showHint ? "پنهان کردن راهنما" : "نمایش راهنما"}
                     </Button>
 
                     <Button
                         onClick={handleSubmitResolution}
                         disabled={!resolution.trim() || feedback.type !== null}
                         className="bg-red-600 text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-600">
-                        Submit Resolution
+                        ثبت راه‌حل
                     </Button>
                 </div>
 
                 {showHint && (
                     <div className="rounded-md border border-blue-700 bg-blue-900/30 p-4">
                         <p className="text-sm text-blue-300">
-                            <strong>Hint:</strong> Remove the conflict markers (&lt;&lt;&lt;&lt;&lt;&lt;&lt;, =======,
-                            &gt;&gt;&gt;&gt;&gt;&gt;&gt;) and choose the best solution. Consider which version is more
-                            complete, follows better practices, or provides enhanced functionality.
+                            <strong>راهنما:</strong> نشانه‌های تعارض (&lt;&lt;&lt;&lt;&lt;&lt;&lt;, =======,
+                            &gt;&gt;&gt;&gt;&gt;&gt;&gt;) را حذف کن و بهترین راه‌حل را انتخاب کن. ببین کدام نسخه کامل‌تر
+                            است، استانداردهای بهتری دارد یا قابلیت بیشتری اضافه می‌کند.
                         </p>
                     </div>
                 )}

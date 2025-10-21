@@ -87,7 +87,12 @@ const AnimatedElement = ({
 
 export default function Home() {
     const { levelManager, progressManager, currentDifficulty, setCurrentDifficulty } = useGameContext();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const isRTL = language === "fa";
+    const leadingIconSpacing = isRTL ? "ml-2" : "mr-2";
+    const trailingIconSpacing = isRTL ? "mr-2" : "ml-2";
+    const leadingSmallIconSpacing = isRTL ? "ml-1" : "mr-1";
+    const trailingSmallIconSpacing = isRTL ? "mr-1" : "ml-1";
     const router = useRouter();
     const [progress, setProgress] = useState(progressManager.getProgress());
     const [showDifficultySelector, setShowDifficultySelector] = useState(false);
@@ -236,6 +241,10 @@ export default function Home() {
         return null;
     };
 
+    const formatLevelNumber = (value: number): string => {
+        return language === "fa" ? value.toLocaleString("fa-IR") : value.toString();
+    };
+
     // Calculate progress percentage
     const calculateProgress = (stageId: string) => {
         const stageLevels = Object.keys(stages[stageId]?.levels ?? {}).length;
@@ -288,9 +297,13 @@ export default function Home() {
                                         size="lg"
                                         className="group relative w-full overflow-hidden bg-gradient-to-r from-purple-600 to-purple-700 text-white transition-all duration-300 hover:from-purple-700 hover:to-purple-800 sm:w-auto">
                                         <span className="relative z-10 flex items-center">
-                                            <Code className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
+                                            <Code
+                                                className={`${leadingIconSpacing} h-4 w-4 transition-transform duration-300 group-hover:rotate-12`}
+                                            />
                                             {t("home.startLearning")}
-                                            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                            <ArrowRight
+                                                className={`${trailingIconSpacing} h-4 w-4 transition-transform duration-300 group-hover:translate-x-1`}
+                                            />
                                         </span>
                                         <span className="absolute bottom-0 left-0 h-1 w-0 bg-white/20 transition-all duration-300 group-hover:w-full"></span>
                                     </Button>
@@ -301,7 +314,9 @@ export default function Home() {
                                         size="lg"
                                         variant="outline"
                                         className="w-full border-purple-700 text-purple-300 transition-all duration-300 hover:border-purple-600 hover:bg-purple-900/50 hover:text-purple-200 sm:w-auto">
-                                        <BookOpen className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
+                                        <BookOpen
+                                            className={`${leadingIconSpacing} h-4 w-4 transition-transform duration-300 group-hover:rotate-12`}
+                                        />
                                         {t("home.cheatSheet")}
                                     </Button>
                                 </Link>
@@ -314,8 +329,8 @@ export default function Home() {
                                     variant="outline"
                                     onClick={() => setShowDifficultySelector(true)}
                                     className="w-full border-purple-700 text-purple-300 transition-all duration-300 hover:border-purple-600 hover:bg-purple-900/50 hover:text-purple-200 sm:w-auto">
-                                    <Settings className="mr-2 h-4 w-4" />
-                                    Difficulty
+                                    <Settings className={`${leadingIconSpacing} h-4 w-4`} />
+                                    {t("home.difficultyButton")}
                                 </Button>
 
                                 <Button
@@ -323,8 +338,8 @@ export default function Home() {
                                     variant="outline"
                                     onClick={() => setShowShop(true)}
                                     className="w-full border-yellow-700 text-yellow-300 transition-all duration-300 hover:border-yellow-600 hover:bg-yellow-900/50 hover:text-yellow-200 sm:w-auto">
-                                    <ShoppingCart className="mr-2 h-4 w-4" />
-                                    Shop
+                                    <ShoppingCart className={`${leadingIconSpacing} h-4 w-4`} />
+                                    {t("home.shopButton")}
                                 </Button>
 
                                 <Button
@@ -332,8 +347,8 @@ export default function Home() {
                                     variant="outline"
                                     onClick={() => setShowMinigames(true)}
                                     className="w-full border-green-700 text-green-300 transition-all duration-300 hover:border-green-600 hover:bg-green-900/50 hover:text-green-200 sm:w-auto">
-                                    <Gamepad2 className="mr-2 h-4 w-4" />
-                                    Mini Games
+                                    <Gamepad2 className={`${leadingIconSpacing} h-4 w-4`} />
+                                    {t("home.miniGamesButton")}
                                 </Button>
                             </div>
                         </div>
@@ -364,7 +379,9 @@ export default function Home() {
                                     }}
                                     size="lg"
                                     className="group bg-gradient-to-r from-green-600 to-emerald-700 text-white hover:from-green-700 hover:to-emerald-800">
-                                    <ChevronRight className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                    <ChevronRight
+                                        className={`${leadingIconSpacing} h-4 w-4 transition-transform duration-300 group-hover:translate-x-1`}
+                                    />
                                     Advance to {getNextDifficulty()} Difficulty
                                 </Button>
                             </div>
@@ -476,7 +493,7 @@ export default function Home() {
                                                             }`}>
                                                             <div className="flex items-center">
                                                                 {completedLevels}/{totalLevels}
-                                                                <Award className="ml-1 h-4 w-4" />
+                                                                <Award className={`${trailingSmallIconSpacing} h-4 w-4`} />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -523,13 +540,17 @@ export default function Home() {
                                                                                 : "border-gray-800 bg-gray-900/20 text-gray-500"
                                                                         }`}>
                                                                         {levelCompleted ? (
-                                                                            <CheckCircle2 className="mr-1 h-3 w-3 text-green-400 transition-transform duration-300 group-hover:scale-110" />
+                                                                            <CheckCircle2
+                                                                                className={`${leadingSmallIconSpacing} h-3 w-3 text-green-400 transition-transform duration-300 group-hover:scale-110`}
+                                                                            />
                                                                         ) : !levelUnlocked ? (
-                                                                            <LockIcon className="mr-1 h-3 w-3" />
+                                                                            <LockIcon className={`${leadingSmallIconSpacing} h-3 w-3`} />
                                                                         ) : (
-                                                                            <Star className="mr-1 h-3 w-3 text-purple-400 transition-transform duration-300 group-hover:rotate-45" />
+                                                                            <Star
+                                                                                className={`${leadingSmallIconSpacing} h-3 w-3 text-purple-400 transition-transform duration-300 group-hover:rotate-45`}
+                                                                            />
                                                                         )}
-                                                                        Level {levelId}
+                                                                        {`${t("home.levelLabel")} ${formatLevelNumber(levelId)}`}
                                                                     </Button>
                                                                 </div>
                                                             );
@@ -650,9 +671,13 @@ export default function Home() {
                                     size="lg"
                                     className="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-purple-700 text-white transition-all duration-300 hover:from-purple-700 hover:to-purple-800">
                                     <span className="relative z-10 flex items-center">
-                                        <Code className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
+                                        <Code
+                                            className={`${leadingIconSpacing} h-4 w-4 transition-transform duration-300 group-hover:rotate-12`}
+                                        />
                                         {t("home.startLearning")}
-                                        <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                        <ArrowRight
+                                            className={`${trailingIconSpacing} h-4 w-4 transition-transform duration-300 group-hover:translate-x-1`}
+                                        />
                                     </span>
                                     <span className="absolute bottom-0 left-0 h-1 w-0 bg-white/20 transition-all duration-300 group-hover:w-full"></span>
                                 </Button>

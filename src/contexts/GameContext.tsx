@@ -90,8 +90,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [currentLevelFile, setCurrentLevelFile] = useState({ name: "", content: "" });
     const [currentPlaygroundFile, setCurrentPlaygroundFile] = useState({ name: "", content: "" });
 
-    const GIT_SIMULATION_WARNING =
-        "⚠️ Note: This is a simplified Git simulation for learning purposes. Some commands may behave differently than in real Git.";
+    const GIT_SIMULATION_WARNING = t("terminal.simulationWarning");
 
     // Combined getter/setter for file editor state
     const isFileEditorOpen = isLevelFileEditorOpen || isPlaygroundFileEditorOpen;

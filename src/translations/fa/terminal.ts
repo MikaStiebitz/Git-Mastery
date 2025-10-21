@@ -1,5 +1,7 @@
 const terminal = {
     // Terminal
+    "terminal.simulationWarning": "⚠️ توجه: این یک شبیه‌ساز ساده‌شدهٔ Git برای اهداف آموزشی است. بعضی از دستورات ممکن است متفاوت از Git واقعی عمل کنند.",
+    "terminal.pressTabToComplete": "برای تکمیل، کلید Tab را بزنید:",
     "terminal.welcome": "به شبیه‌ساز ترمینال Git خوش آمدید!",
     "terminal.levelStarted": "سطح {level} از {stage} شروع شد. برای راهنما 'help' را تایپ کنید.",
     "terminal.playgroundMode": "حالت زمین بازی فعال شد. آزادانه با دستورات Git آزمایش کنید. برای راهنما 'help' را تایپ کنید.",

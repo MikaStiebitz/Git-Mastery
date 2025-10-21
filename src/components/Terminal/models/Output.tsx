@@ -9,13 +9,16 @@ export function TerminalOutput({
     outputContainerRef,
     renderTerminalOutput,
     t,
+    isRTL,
 }: TerminalOutputProps) {
+    const direction = isRTL ? "rtl" : "ltr";
+
     return (
-        <div className="min-h-0 flex-1">
-            <ScrollArea className="h-full px-4 py-3 font-mono text-sm text-purple-300" ref={scrollAreaRef}>
+        <div className="min-h-0 flex-1" dir={direction}>
+            <ScrollArea dir={direction} className="h-full px-4 py-3 font-mono text-sm text-purple-300" ref={scrollAreaRef}>
                 <div ref={outputContainerRef} className="pb-4">
                     {terminalOutput.map((line, i) => (
-                        <div key={i} className="whitespace-pre-wrap break-words">
+                        <div key={i} className="whitespace-pre-wrap break-words" dir="auto" style={{ textAlign: "start" }}>
                             {renderTerminalOutput(line)}
                         </div>
                     ))}

@@ -25,6 +25,18 @@ interface NavbarProps {
     showLevelInfo?: boolean;
 }
 
+const LANGUAGE_LABELS = {
+    en: "EN",
+    de: "DE",
+    fa: "FA",
+} as const;
+
+const MOBILE_LANGUAGE_TOGGLE = {
+    en: "Switch to German",
+    de: "Switch to Farsi",
+    fa: "Switch to English",
+} as const;
+
 export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const pathname = usePathname();
     const router = useRouter();
@@ -194,7 +206,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                         onClick={toggleLanguage}
                         className="flex items-center text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
                         <Languages className={cn(iconMarginClass, "h-4 w-4")} />
-                        {language === "en" ? "DE" : language === "de" ? "FA" : "EN"}
+                        {LANGUAGE_LABELS[language]}
                     </Button>
 
                     {!isHomePage && (
@@ -308,7 +320,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             onClick={toggleLanguage}
                             className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
                             <Languages className={cn(iconMarginClass, "h-4 w-4")} />
-                            {language === "de" ? "Switch to English" : "Zu Deutsch wechseln"}
+                            {MOBILE_LANGUAGE_TOGGLE[language]}
                         </Button>
 
                         {/* Navigation links */}
