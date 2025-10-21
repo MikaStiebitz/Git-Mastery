@@ -24,6 +24,7 @@ const teamworkLevel1 = createLevel({
         "teamwork.level1.hint4",
         "teamwork.level1.hint5"
     ],
+    requirementLogic: "all",
     requirements: [
         createRequirement({
             command: "git pull origin main",

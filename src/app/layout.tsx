@@ -7,7 +7,7 @@ import { TerminalThemeWrapper } from "~/components/TerminalThemeWrapper";
 import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
-    title: "GitGud - Master Git Through Play | Interactive Git Learning Platform",
+    title: "GitMastery - Master Git Through Play | Interactive Git Learning Platform",
     description:
         "Learn Git commands and concepts through fun, interactive challenges. Practice Git in a safe environment with visual feedback and structured learning paths.",
     keywords: "git, learn git, git tutorial, git commands, git practice, git visualization, interactive git learning",
@@ -30,16 +30,16 @@ export const metadata: Metadata = {
         google: "uBk1r7zKOTAgc6Srm3LfgzG4EaKwr83nhTGqw77BubI",
     },
     openGraph: {
-        title: "GitGud - Master Git Through Play",
+        title: "GitMastery - Master Git Through Play",
         description: "Learn Git commands and concepts through fun, interactive challenges",
         url: "https://www.gitmastery.me",
-        siteName: "GitGud",
+        siteName: "GitMastery",
         images: [
             {
                 url: "/home-screen.png",
                 width: 1200,
                 height: 630,
-                alt: "GitGud - Learn Git Through Play",
+                alt: "GitMastery - Learn Git Through Play",
             },
         ],
         type: "website",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "GitGud - Master Git Through Play",
+        title: "GitMastery - Master Git Through Play",
         description: "Learn Git commands and concepts through fun, interactive challenges",
         images: ["/home-screen.png"],
     },

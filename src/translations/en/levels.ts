@@ -19,6 +19,9 @@ const levels = {
     "level.resetLevel": "Reset Level",
     "level.resetAllProgress": "Reset All Progress",
     "level.resetConfirm": "Are you sure you want to reset all your progress?",
+    "level.resetOptions": "Reset Options",
+    "level.resetDescription": "Choose what you want to reset:",
+    "level.resetAllConfirm": "Are you sure you want to reset ALL your progress? This cannot be undone!",
     "level.level": "Level",
     "level.levelCompleted": "Level completed!",
     "level.realWorldContext": "Real-World Context",
@@ -171,7 +174,7 @@ const levels = {
 
     "branches.level3.name": "Switch Between Branches",
     "branches.level3.description": "Switch between existing branches",
-    "branches.level3.objective1": "Switch between branches using git switch",
+    "branches.level3.objective1": "Switch between branches",
     "branches.level3.hint1": "Use the `git switch <branch>` command",
     "branches.level3.hint2": "This switches to an existing branch",
     "branches.level3.requirement1.description": "Switch to another branch using git switch",
@@ -185,7 +188,7 @@ const levels = {
 
     "branches.level4.name": "Switch Branches with Checkout",
     "branches.level4.description": "Learn the classic git checkout command for switching branches",
-    "branches.level4.objective1": "Switch to another branch using git checkout",
+    "branches.level4.objective1": "Switch to another branch with the classic command",
     "branches.level4.hint1": "Use the command `git checkout <branch-name>`",
     "branches.level4.hint2": "checkout is the older command for switching branches",
     "branches.level4.requirement1.description": "Switch to another branch using git checkout",
@@ -1113,7 +1116,7 @@ This is completely normal in team development! Merge conflicts happen when multi
     "teamwork.level3.objective3": "Commit with a clear message",
     "teamwork.level3.objective4": "Push your branch for team review",
     "teamwork.level3.hint1": "Create a feature branch: git switch -c feature/password-reset",
-    "teamwork.level3.hint2": "You can also use: git checkout -b feature/password-reset",
+    "teamwork.level3.hint2": "Alternative (classic): git checkout -b feature/password-reset",
     "teamwork.level3.hint3": "Stage all changes: git add .",
     "teamwork.level3.hint4": "Commit with a descriptive message: git commit -m \"Add password reset functionality\"",
     "teamwork.level3.hint5": "Push to remote: git push origin feature/password-reset",
@@ -1296,11 +1299,31 @@ The challenge involves:
 
 You must use every Git technique in your arsenal:
 - \`git rebase -i\` to clean up messy commits
-- \`git cherry-pick\` to select only working features
+- \`git cherry-pick <commit-hash>\` to select only working features (copies specific commits from one branch to another)
 - Advanced merging with \`git merge\` to combine team efforts
-- \`git bisect\` to find the exact problem commit
+- \`git bisect\` to find the exact problem commit (binary search through history to find bugs)
 - \`git reflog\` to recover from mistakes
 - \`git tag\` and branches for release management
+- \`git mv <old> <new>\` to rename files while preserving Git history
+
+**What is git cherry-pick?**
+Cherry-picking allows you to copy specific commits from one branch to another. Instead of merging entire branches, you can pick and choose individual commits. Perfect for applying hotfixes from one branch to another!
+
+Example: \`git cherry-pick abc123\` - applies commit abc123 to your current branch
+
+**What is git bisect?**
+Bisect helps you find which commit introduced a bug using binary search. Git will checkout commits for you to test, and you tell it "good" or "bad" until it finds the problematic commit.
+
+Example:
+\`git bisect start\`
+\`git bisect bad\` (current commit is broken)
+\`git bisect good abc123\` (this old commit worked)
+Git will then guide you through testing commits until it finds the first bad one!
+
+**What is git mv?**
+Move or rename files while keeping Git history intact. Better than manually renaming files because Git tracks the rename.
+
+Example: \`git mv old-name.js new-name.js\`
 
 This isn't just about Git commands - it's about leadership, decision-making under pressure, and the ability to think systematically when everything is on fire.
 

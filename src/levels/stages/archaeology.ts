@@ -23,6 +23,7 @@ const archaeologyLevel1 = createLevel({
         "archaeology.level1.hint3",
         "archaeology.level1.hint4"
     ],
+    requirementLogic: "all",
     requirements: [
         createRequirement({
             command: "git blame src/utils/validator.js",
@@ -126,6 +127,7 @@ const archaeologyLevel2 = createLevel({
         "archaeology.level2.hint3",
         "archaeology.level2.hint4"
     ],
+    requirementLogic: "all",
     requirements: [
         createRequirement({
             command: "git log --grep='security'",
@@ -226,6 +228,7 @@ const archaeologyLevel3 = createLevel({
         "archaeology.level3.hint3",
         "archaeology.level3.hint4"
     ],
+    requirementLogic: "all",
     requirements: [
         createRequirement({
             command: "git reflog",

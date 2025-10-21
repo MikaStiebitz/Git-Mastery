@@ -12,7 +12,6 @@ import { highlightGitCommands } from "~/lib/textHighlighting";
 import {
     HelpCircleIcon,
     ArrowRightIcon,
-    RotateCcw,
     Shield,
     BookOpen,
     Code,
@@ -31,6 +30,8 @@ import { GitMascot } from "~/components/GitMascot";
 import dynamic from "next/dynamic";
 import { TerminalSkeleton } from "~/components/ui/TerminalSkeleton";
 import { CommitDialog } from "~/components/CommitDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
+import { RotateCcw } from "lucide-react";
 
 // Dynamically import Terminal component with SSR disabled
 const Terminal = dynamic(() => import("~/components/Terminal").then(mod => ({ default: mod.Terminal })), {
@@ -55,8 +56,6 @@ export default function LevelPage() {
         levelManager,
         progressManager,
         gitRepository,
-        resetCurrentLevel,
-        resetAllProgress,
         isFileEditorOpen,
         setIsFileEditorOpen,
         isAdvancedMode,
@@ -70,6 +69,8 @@ export default function LevelPage() {
         handleLevelFromUrl,
         shouldShowStoryDialog,
         setShouldShowStoryDialog,
+        resetCurrentLevel,
+        resetAllProgress,
     } = useGameContext();
 
     const searchParams = useSearchParams();
@@ -77,11 +78,11 @@ export default function LevelPage() {
     const levelParamProcessedRef = useRef(false);
     const { t } = useLanguage();
     const [showHints, setShowHints] = useState(false);
-    const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [editableFiles, setEditableFiles] = useState<Array<{ name: string; path: string }>>([]);
     const [showStoryDialog, setShowStoryDialog] = useState(false);
     const [userClosedStoryDialog, setUserClosedStoryDialog] = useState(false);
     const [urlParamsProcessed, setUrlParamsProcessed] = useState(false);
+    const [showResetModal, setShowResetModal] = useState(false);
 
     // Helper function to convert flat file list to tree structure
     const getFileTree = (files: Array<{ name: string; path: string }>): FileTreeNode => {
@@ -115,7 +116,7 @@ export default function LevelPage() {
                         children: {},
                     };
                 }
-                currentDir = currentDir.children[segment];
+                currentDir = currentDir.children[segment]!;
             }
 
             // Add file to the directory
@@ -357,10 +358,17 @@ export default function LevelPage() {
 
     // Show a list of user-editable files as a hierarchical tree
     const renderEditableFiles = () => {
+        const isGitInitialized = gitRepository.isInitialized();
+
         if (editableFiles.length === 0) {
             return (
                 <div className="mt-4">
-                    <h3 className="mb-2 font-medium text-purple-200">{t("level.filesToEdit")}</h3>
+                    <div className="mb-2 flex items-center justify-between">
+                        <h3 className="font-medium text-purple-200">{t("level.filesToEdit")}</h3>
+                        {!isGitInitialized && (
+                            <span className="text-xs text-yellow-400">⚠️ {t("level.gitNotInitialized")}</span>
+                        )}
+                    </div>
                     <p className="text-sm text-purple-400">No editable files found.</p>
                 </div>
             );
@@ -382,7 +390,12 @@ export default function LevelPage() {
 
         return (
             <div className="mt-4">
-                <h3 className="mb-2 font-medium text-purple-200">{t("level.filesToEdit")}</h3>
+                <div className="mb-2 flex items-center justify-between">
+                    <h3 className="font-medium text-purple-200">{t("level.filesToEdit")}</h3>
+                    {!isGitInitialized && (
+                        <span className="text-xs text-yellow-400">⚠️ {t("level.gitNotInitialized")}</span>
+                    )}
+                </div>
                 <div className="rounded border border-purple-800/30 bg-purple-900/10 p-3">
                     <FileTreeItem item={fileTree} onEditFile={handleEditFile} onDeleteFile={handleDeleteFile} />
                 </div>
@@ -398,65 +411,42 @@ export default function LevelPage() {
 
         return (
             <ClientOnly>
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-white">{levelData.name}</h2>
-
-                        {/* Advanced Mode Toggle Button */}
-                        <div className="group relative">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={toggleAdvancedMode}
-                                className={`flex items-center text-xs ${
-                                    isAdvancedMode
-                                        ? "border-purple-600 bg-purple-800/30 text-purple-300"
-                                        : "border-purple-700 text-purple-400"
-                                }`}>
-                                {isAdvancedMode ? (
-                                    <>
-                                        <Code className="h-3 w-3 md:mr-1" />
-                                        <span className="hidden md:inline">{t("level.techModeOn")}</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <BookOpen className="h-3 w-3 md:mr-1" />
-                                        <span className="hidden md:inline">{t("level.storyModeOn")}</span>
-                                    </>
-                                )}
-                            </Button>
+                <div className="space-y-6">
+                    {/* Header Section */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-semibold text-white sm:text-xl">{levelData.name}</h2>
                         </div>
+                        <p className="text-sm text-purple-200 sm:text-base">{levelData.description}</p>
                     </div>
 
-                    <p className="text-purple-200">{levelData.description}</p>
-
-                    <div>
-                        <h3 className="mb-2 font-medium text-purple-200">{t("level.objectives")}</h3>
-                        <ul className="space-y-2 text-purple-300">
+                    {/* Objectives Section */}
+                    <div className="space-y-3">
+                        <h3 className="flex items-center text-sm font-medium text-purple-200 sm:text-base">
+                            {t("level.objectives")}
+                        </h3>
+                        <div className="space-y-2">
                             {levelData.objectives.map((objective, index) => {
-                                // Check if this objective is completed
-                                // Objectives are 1-indexed (objective 1, 2, 3...)
                                 const objectiveNumber = index + 1;
-
-                                // If requirements have objectiveId, use completedObjectives
-                                // Otherwise fall back to old behavior (match by index)
                                 const hasObjectiveIds = levelData.requirements.some(
                                     req => req.objectiveId !== undefined,
                                 );
                                 const isCompleted = hasObjectiveIds
                                     ? levelData.completedObjectives?.includes(objectiveNumber) || false
                                     : levelData.requirements[index]?.id
-                                      ? levelData.completedRequirements?.includes(levelData.requirements[index].id!) ||
+                                      ? levelData.completedRequirements?.includes(levelData.requirements[index]!.id!) ||
                                         false
                                       : false;
 
                                 return (
-                                    <li key={index} className="flex items-start space-x-2">
+                                    <div
+                                        key={index}
+                                        className="flex items-start space-x-3 rounded-lg bg-purple-900/20 p-3 transition-all hover:bg-purple-900/30">
                                         <div
-                                            className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 ${
+                                            className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-all ${
                                                 isCompleted
                                                     ? "border-green-500 bg-green-500/20"
-                                                    : "border-purple-500/50"
+                                                    : "border-purple-500/50 bg-purple-900/40"
                                             }`}>
                                             {isCompleted && (
                                                 <svg
@@ -471,34 +461,35 @@ export default function LevelPage() {
                                                 </svg>
                                             )}
                                         </div>
-                                        <span className={isCompleted ? "text-green-300 line-through" : ""}>
+                                        <span
+                                            className={`text-sm sm:text-base ${isCompleted ? "text-green-300 line-through" : "text-purple-300"}`}>
                                             {objective}
                                         </span>
-                                    </li>
+                                    </div>
                                 );
                             })}
-                        </ul>
+                        </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
+                    {/* Action Buttons */}
+                    <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setShowHints(!showHints)}
-                            className="flex items-center border-purple-700 text-purple-300 hover:bg-purple-900/50">
-                            <HelpCircleIcon className="mr-1 h-4 w-4" />
-                            {showHints ? t("level.hideHints") : t("level.showHints")}
+                            className="flex flex-1 items-center justify-center border-purple-700 text-purple-300 hover:bg-purple-900/50">
+                            <HelpCircleIcon className="mr-2 h-4 w-4" />
+                            <span className="text-sm">{showHints ? t("level.hideHints") : t("level.showHints")}</span>
                         </Button>
 
-                        {/* Story button always visible regardless of mode */}
                         {levelData?.story && (
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setShowStoryDialog(true)} // Just open, don't reset userClosedStoryDialog
-                                className="flex items-center border-purple-700 text-purple-300 hover:bg-purple-900/50">
-                                <BookOpen className="mr-1 h-4 w-4" />
-                                {t("level.storyButton")}
+                                onClick={() => setShowStoryDialog(true)}
+                                className="flex flex-1 items-center justify-center border-purple-700 text-purple-300 hover:bg-purple-900/50">
+                                <BookOpen className="mr-2 h-4 w-4" />
+                                <span className="text-sm">{t("level.storyButton")}</span>
                             </Button>
                         )}
 
@@ -506,154 +497,34 @@ export default function LevelPage() {
                             <Button
                                 onClick={handleNextLevelWithStory}
                                 size="sm"
-                                className="flex items-center bg-purple-600 text-white hover:bg-purple-700">
-                                <ArrowRightIcon className="mr-1 h-4 w-4" />
-                                {t("level.nextLevel")}
+                                className="flex flex-1 items-center justify-center bg-purple-600 text-white hover:bg-purple-700">
+                                <ArrowRightIcon className="mr-2 h-4 w-4" />
+                                <span className="text-sm">{t("level.nextLevel")}</span>
                             </Button>
                         )}
                     </div>
 
+                    {/* Hints Section */}
                     {showHints && (
-                        <div className="rounded-md border border-purple-700/50 bg-purple-900/30 p-3 text-purple-200">
-                            <h3 className="mb-1 font-medium">{t("level.hints")}:</h3>
-                            <ul className="list-inside list-disc space-y-1">
+                        <div className="mt-1 rounded-lg border border-purple-700/50 bg-purple-900/30 p-3">
+                            <h3 className="mb-2 flex items-center text-sm font-medium text-purple-200">
+                                <HelpCircleIcon className="mr-2 h-4 w-4" />
+                                {t("level.hints")}
+                            </h3>
+                            <ul className="space-y-2 text-sm text-purple-200">
                                 {levelData.hints.map((hint, index) => (
-                                    <li key={index}>{highlightGitCommands(hint)}</li>
+                                    <li key={index} className="flex items-baseline">
+                                        <span className="mr-2 flex-shrink-0">•</span>
+                                        <span>{highlightGitCommands(hint)}</span>
+                                    </li>
                                 ))}
                             </ul>
                         </div>
                     )}
 
                     {renderEditableFiles()}
-
-                    <div className="mt-4 flex w-full flex-col gap-4 border-t border-purple-900/30 md:flex-row">
-                        <div className="pt-4 md:flex-1">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-                                className={`group relative w-full overflow-hidden rounded-md border ${
-                                    showAdvancedOptions
-                                        ? "border-purple-600/50 bg-purple-800/30 text-purple-200"
-                                        : "border-purple-800/40 text-purple-400 hover:border-purple-700 hover:bg-purple-900/30 hover:text-purple-100"
-                                } transition-all duration-300`}>
-                                <div className="flex items-center justify-center">
-                                    <span
-                                        className={`mr-2 transform transition-transform ${showAdvancedOptions ? "rotate-180" : ""}`}>
-                                        <ChevronDown className="h-4 w-4" />
-                                    </span>
-                                    <span className="truncate text-sm sm:text-base">
-                                        {showAdvancedOptions
-                                            ? t("level.hideAdvancedOptions")
-                                            : t("level.advancedOptions")}
-                                    </span>
-                                </div>
-
-                                {/* Animated highlight effect */}
-                                <span
-                                    className={`absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-purple-500 to-purple-300 transition-all duration-500 ${showAdvancedOptions ? "w-full" : ""} `}
-                                />
-                            </Button>
-
-                            {showAdvancedOptions && (
-                                <div className="mt-2 space-y-2 rounded-md border border-purple-800/30 bg-purple-900/20 p-3">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="group w-full border-amber-800/50 text-amber-400 hover:bg-amber-900/30"
-                                        onClick={resetCurrentLevel}>
-                                        <div className="flex w-full items-center justify-between">
-                                            <span className="flex items-center">
-                                                <RotateCcw className="mr-2 h-4 w-4 transform transition-transform group-hover:rotate-180" />
-                                                {t("level.resetLevel")}
-                                            </span>
-                                        </div>
-                                    </Button>
-
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="group w-full border-red-800/50 text-red-400 hover:bg-red-900/30"
-                                        onClick={() => {
-                                            if (window.confirm(t("level.resetConfirm"))) {
-                                                resetAllProgress();
-                                            }
-                                        }}>
-                                        <div className="flex w-full items-center justify-between">
-                                            <span className="flex items-center">
-                                                <RotateCcw className="mr-2 h-4 w-4 transform transition-transform group-hover:rotate-180" />
-                                                {t("level.resetAllProgress")}
-                                            </span>
-                                        </div>
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
-                        <div className="md:flex-1">{renderGitStatus()}</div>
-                    </div>
                 </div>
             </ClientOnly>
-        );
-    };
-
-    // Information about Git status
-    const renderGitStatus = () => {
-        const status = gitRepository.getStatus();
-        const branch = gitRepository.getCurrentBranch();
-        const isInitialized = gitRepository.isInitialized();
-
-        if (!isInitialized) {
-            return (
-                <div className="mt-4 rounded border border-purple-800/30 bg-purple-900/30 px-3 py-2 text-sm">
-                    <span className="text-yellow-400">⚠️ {t("level.gitNotInitialized")}</span>
-                </div>
-            );
-        }
-
-        const stagedCount = Object.values(status).filter(s => s === "staged").length;
-        const modifiedCount = Object.values(status).filter(s => s === "modified").length;
-        const untrackedCount = Object.values(status).filter(s => s === "untracked").length;
-
-        return (
-            <div className="mt-4 rounded border border-purple-800/30 bg-purple-900/30 px-3 py-2 text-sm">
-                <div className="flex items-center justify-between">
-                    <span>
-                        <span className="text-purple-400">{t("level.branch")}</span>{" "}
-                        <span className="text-purple-200">{branch}</span>
-                    </span>
-                    <span className="text-xs text-purple-500">{t("level.gitStatus")}</span>
-                </div>
-
-                {stagedCount > 0 && (
-                    <div className="mt-1">
-                        <span className="text-green-400">
-                            ● {stagedCount} {t("level.staged")}
-                        </span>
-                    </div>
-                )}
-
-                {modifiedCount > 0 && (
-                    <div className="mt-1">
-                        <span className="text-amber-400">
-                            ● {modifiedCount} {t("level.modified")}
-                        </span>
-                    </div>
-                )}
-
-                {untrackedCount > 0 && (
-                    <div className="mt-1">
-                        <span className="text-red-400">
-                            ● {untrackedCount} {t("level.untracked")}
-                        </span>
-                    </div>
-                )}
-
-                {stagedCount === 0 && modifiedCount === 0 && untrackedCount === 0 && (
-                    <div className="mt-1">
-                        <span className="text-green-400">✓ {t("level.workingTreeClean")}</span>
-                    </div>
-                )}
-            </div>
         );
     };
 
@@ -678,9 +549,34 @@ export default function LevelPage() {
                         {/* Challenge Card - Always show first on mobile for context */}
                         <Card className="order-1 flex flex-col overflow-hidden border-purple-900/20 bg-purple-900/10 lg:order-2 lg:h-[580px]">
                             <CardHeader className="shrink-0 p-3 sm:p-6 sm:pb-0">
-                                <CardTitle className="flex items-center text-base text-white sm:text-lg">
-                                    <Shield className="mr-2 h-4 w-4 text-purple-400 sm:h-5 sm:w-5" />
-                                    {t("level.currentChallenge")}
+                                <CardTitle className="flex items-center justify-between text-base text-white sm:text-lg">
+                                    <div className="flex items-center">
+                                        <Shield className="mr-2 h-4 w-4 text-purple-400 sm:h-5 sm:w-5" />
+                                        {t("level.currentChallenge")}
+                                    </div>
+                                    {/* Mode Toggle in top right corner */}
+                                    <div className="group relative">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={toggleAdvancedMode}
+                                            className={`h-8 w-8 rounded-full p-0 transition-all hover:bg-purple-800/50 ${
+                                                isAdvancedMode
+                                                    ? "bg-purple-600/30 text-purple-300"
+                                                    : "text-purple-400 hover:text-purple-300"
+                                            }`}>
+                                            {isAdvancedMode ? (
+                                                <Code className="h-4 w-4" />
+                                            ) : (
+                                                <BookOpen className="h-4 w-4" />
+                                            )}
+                                        </Button>
+                                        {/* Modern Tooltip */}
+                                        <div className="absolute right-0 top-full z-50 mt-2 hidden rounded-lg bg-gray-900/95 px-3 py-2 text-xs text-white shadow-lg backdrop-blur-sm group-hover:block">
+                                            <div className="absolute -top-1 right-3 h-2 w-2 rotate-45 bg-gray-900/95"></div>
+                                            {isAdvancedMode ? t("level.techModeOn") : t("level.storyModeOn")}
+                                        </div>
+                                    </div>
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="flex-grow overflow-auto p-3 pb-4 sm:p-6">
@@ -689,7 +585,10 @@ export default function LevelPage() {
                         </Card>
 
                         {/* Terminal - Second on mobile, optimized height */}
-                        <Terminal className="order-2 h-[450px] rounded-md sm:h-[500px] lg:order-1 lg:h-[580px]" />
+                        <Terminal
+                            className="order-2 h-[450px] rounded-md sm:h-[500px] lg:order-1 lg:h-[580px]"
+                            onResetClick={() => setShowResetModal(true)}
+                        />
                     </div>
 
                     <FileEditor
@@ -722,6 +621,44 @@ export default function LevelPage() {
                     onToggleAdvancedMode={toggleAdvancedMode}
                 />
             )}
+
+            {/* Reset Modal */}
+            <Dialog open={showResetModal} onOpenChange={setShowResetModal}>
+                <DialogContent className="border-gray-700/50 bg-gray-900/95 backdrop-blur-sm">
+                    <DialogHeader>
+                        <DialogTitle className="text-white">{t("level.resetOptions")}</DialogTitle>
+                        <DialogDescription className="text-gray-300">{t("level.resetDescription")}</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-3">
+                        <Button
+                            variant="outline"
+                            className="w-full border-orange-500/30 bg-orange-500/10 text-orange-400 hover:border-orange-500/50 hover:bg-orange-500/20"
+                            onClick={() => {
+                                resetCurrentLevel();
+                                setShowResetModal(false);
+                            }}>
+                            <div className="flex w-full items-center justify-center">
+                                <RotateCcw className="mr-2 h-4 w-4" />
+                                <span>{t("level.resetLevel")}</span>
+                            </div>
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="w-full border-red-500/30 bg-red-500/10 text-red-400 hover:border-red-500/50 hover:bg-red-500/20"
+                            onClick={() => {
+                                if (window.confirm(t("level.resetAllConfirm"))) {
+                                    resetAllProgress();
+                                    setShowResetModal(false);
+                                }
+                            }}>
+                            <div className="flex w-full items-center justify-center">
+                                <RotateCcw className="mr-2 h-4 w-4" />
+                                <span>{t("level.resetAllProgress")}</span>
+                            </div>
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </PageLayout>
     );
 }

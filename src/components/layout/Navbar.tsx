@@ -99,7 +99,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                 {/* Logo and brand */}
                 <Link href="/" className="flex items-center space-x-2">
                     <GitBranch className="h-6 w-6 text-purple-400" />
-                    <span className="text-xl font-bold text-white">GitGud</span>
+                    <span className="text-xl font-bold text-white">GitMastery</span>
                 </Link>
 
                 {/* Current level info - responsive display */}

@@ -23,6 +23,7 @@ const masteryLevel1 = createLevel({
         "mastery.level1.hint3",
         "mastery.level1.hint4"
     ],
+    requirementLogic: "all",
     requirements: [
         createRequirement({
             command: "git merge feature/auth feature/payments feature/ui",
@@ -105,6 +106,7 @@ const masteryLevel2 = createLevel({
         "mastery.level2.hint3",
         "mastery.level2.hint4"
     ],
+    requirementLogic: "all",
     requirements: [
         createRequirement({
             command: "chmod +x .git/hooks/pre-commit",
@@ -193,6 +195,7 @@ const masteryLevel3 = createLevel({
         "mastery.level3.hint3",
         "mastery.level3.hint4"
     ],
+    requirementLogic: "all",
     requirements: [
         {
             id: "create-emergency-branch",

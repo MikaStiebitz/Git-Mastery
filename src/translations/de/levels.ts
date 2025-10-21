@@ -20,6 +20,9 @@ const levels = {
     "level.resetLevel": "Level zurücksetzen",
     "level.resetAllProgress": "Gesamten Fortschritt zurücksetzen",
     "level.resetConfirm": "Möchtest du wirklich deinen gesamten Fortschritt zurücksetzen?",
+    "level.resetOptions": "Reset-Optionen",
+    "level.resetDescription": "Wähle aus, was du zurücksetzen möchtest:",
+    "level.resetAllConfirm": "Möchtest du wirklich ALL deinen Fortschritt zurücksetzen? Das kann nicht rückgängig gemacht werden!",
     "level.level": "Level",
     "level.levelCompleted": "Level abgeschlossen!",
     "level.realWorldContext": "Kontext in der echten Welt",
@@ -173,7 +176,7 @@ const levels = {
 
     "branches.level3.name": "Zwischen Branches wechseln",
     "branches.level3.description": "Wechsle zwischen bestehenden Branches",
-    "branches.level3.objective1": "Wechsle zwischen Branches mit git switch",
+    "branches.level3.objective1": "Wechsle zwischen Branches",
     "branches.level3.hint1": "Verwende den Befehl `git switch <branch>`",
     "branches.level3.hint2": "Dies wechselt zu einem bestehenden Branch",
     "branches.level3.requirement1.description": "Wechsle zu einem anderen Branch mit git switch",
@@ -187,7 +190,7 @@ const levels = {
 
     "branches.level4.name": "Branches mit Checkout wechseln",
     "branches.level4.description": "Lerne den klassischen git checkout Befehl zum Wechseln von Branches",
-    "branches.level4.objective1": "Wechsle zu einem anderen Branch mit git checkout",
+    "branches.level4.objective1": "Wechsle zu einem anderen Branch mit dem klassischen Befehl",
     "branches.level4.hint1": "Verwende den Befehl `git checkout <branch-name>`",
     "branches.level4.hint2": "checkout ist der ältere Befehl zum Wechseln von Branches",
     "branches.level4.requirement1.description": "Wechsle zu einem anderen Branch mit git checkout",
@@ -452,8 +455,8 @@ const levels = {
 
     "reset.level3.name": "Reset zu einem spezifischen Commit",
     "reset.level3.description": "Gehe zu einem spezifischen Commit in der History zurück",
-    "reset.level3.objective1": "Verwende git reset mit einem Commit-Hash oder HEAD~n",
-    "reset.level3.objective2": "Finde den 'good version' Commit in einer langen History",
+    "reset.level3.objective1": "Zeige die Commit-Historie an und identifiziere den guten Commit",
+    "reset.level3.objective2": "Setze zu einem spezifischen Commit mit seinem Hash zurück",
     "reset.level3.hint1": "Verwende `git log --oneline` um Commits und ihre Hashes zu sehen",
     "reset.level3.hint2": "Dann verwende `git reset --soft HEAD~2`, um zwei Commits zurückzugehen",
     "reset.level3.hint3": "Du kannst auch einen Commit-Hash verwenden: git reset --soft abc1234",
@@ -1297,15 +1300,36 @@ Das ist es. Alles wofür du trainiert hast. Zeit zu zeigen was du drauf hast!
 
 **Erinnerung: Die Werkzeuge die du hast:**
 - \`git branch\` - Branch-Verwaltung
-- \`git switch/checkout\` - Branch-Navigation
+- \`git switch/checkout\` - Branch-Navigation (bevorzuge git switch!)
 - \`git merge\` - Änderungen kombinieren
 - \`git rebase\` - Historie umschreiben
-- \`git cherry-pick\` - Selektive Commits
+- \`git cherry-pick <commit-hash>\` - Selektive Commits (kopiert spezifische Commits von einem Branch zum anderen)
 - \`git stash\` - Arbeit temporär speichern
 - \`git pull/push\` - Remote-Sync
 - \`git tag\` - Releases markieren
 - \`git log\` - Historie untersuchen
 - \`git reflog\` - Notfall-Wiederherstellung
+- \`git bisect\` - Binäre Suche nach Bugs in der History
+- \`git mv <alt> <neu>\` - Dateien umbenennen mit Git-History-Tracking
+
+**Was ist git cherry-pick?**
+Cherry-picking erlaubt dir, spezifische Commits von einem Branch zu einem anderen zu kopieren. Statt ganze Branches zu mergen, kannst du einzelne Commits auswählen. Perfekt um Hotfixes von einem Branch zum anderen zu übertragen!
+
+Beispiel: \`git cherry-pick abc123\` - wendet Commit abc123 auf deinen aktuellen Branch an
+
+**Was ist git bisect?**
+Bisect hilft dir herauszufinden, welcher Commit einen Bug eingeführt hat, mittels binärer Suche. Git wird Commits für dich auschecken zum Testen, und du sagst ihm "good" oder "bad" bis es den problematischen Commit findet.
+
+Beispiel:
+\`git bisect start\`
+\`git bisect bad\` (aktueller Commit ist kaputt)
+\`git bisect good abc123\` (dieser alte Commit funktionierte)
+Git führt dich dann durch das Testen von Commits bis es den ersten kaputten findet!
+
+**Was ist git mv?**
+Verschiebe oder benenne Dateien um während die Git-Historie erhalten bleibt. Besser als manuelles Umbenennen weil Git die Umbenennung verfolgt.
+
+Beispiel: \`git mv alter-name.js neuer-name.js\`
 
 Viel Erfolg, Git-Meister! 🚀`,
     "mastery.level3.story.realWorldContext":
