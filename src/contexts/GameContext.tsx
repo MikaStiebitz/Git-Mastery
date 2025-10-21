@@ -540,6 +540,54 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         [currentStage, currentLevel, fileSystem, gitRepository, levelManager, progressManager, t],
     );
 
+    // Debug functions
+    const debugGiveMoney = useCallback(
+        (amount: number) => {
+            // Add money to progress using the existing addCoins method
+            progressManager.addCoins(amount);
+            console.log(`Debug: Added ${amount} coins. Total: ${progressManager.getCoins()}`);
+        },
+        [progressManager],
+    );
+
+    const debugUnlockAllLevels = useCallback(() => {
+        // Complete all levels in the correct order to unlock them
+        const stages = [
+            "Intro",
+            "Files",
+            "Branches",
+            "Workflow",
+            "TeamWork",
+            "Merge",
+            "Reset",
+            "Stash",
+            "Advanced",
+            "Archaeology",
+            "Mastery",
+        ];
+
+        stages.forEach(stage => {
+            for (let level = 1; level <= 5; level++) {
+                progressManager.completeLevel(stage, level);
+            }
+        });
+        console.log("Debug: Completed all levels (unlocked)");
+    }, [progressManager]);
+
+    const debugLockAllLevels = useCallback(() => {
+        // Reset all progress to lock all levels
+        progressManager.resetProgress();
+        console.log("Debug: Reset all progress (locked all levels)");
+    }, [progressManager]);
+
+    const debugCompleteCurrentLevel = useCallback(() => {
+        if (currentStage && currentLevel) {
+            progressManager.completeLevel(currentStage, currentLevel);
+            setIsLevelCompleted(true);
+            console.log(`Debug: Completed ${currentStage} level ${currentLevel}`);
+        }
+    }, [currentStage, currentLevel, progressManager]);
+
     const value = {
         fileSystem,
         gitRepository,
@@ -575,6 +623,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         handleCommit,
         closeCommitDialog,
         openCommitDialog,
+
+        // Debug functions
+        debugGiveMoney,
+        debugUnlockAllLevels,
+        debugLockAllLevels,
+        debugCompleteCurrentLevel,
     };
 
     return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

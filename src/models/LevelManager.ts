@@ -417,11 +417,6 @@ export class LevelManager {
                                 return gitArgs.length > 0;
                             }
 
-                            // Fix for --abort flags
-                            if (reqArg === "--abort") {
-                                return gitArgs.includes(reqArg);
-                            }
-
                             // Special case: -c and -b are equivalent for branch creation
                             // git switch -c === git checkout -b
                             if (reqArg === "-c" && gitCommand === "checkout") {
@@ -431,6 +426,7 @@ export class LevelManager {
                                 return gitArgs.includes("-c");
                             }
 
+                            // General flag matching (works for --abort, --soft, --hard, -c, -b, etc.)
                             return gitArgs.includes(reqArg);
                         });
 

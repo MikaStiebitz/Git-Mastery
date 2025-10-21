@@ -1,5 +1,5 @@
 import { createEnv } from "@t3-oss/env-nextjs";
-// import { z } from "zod";
+import { z } from "zod";
 
 export const env = createEnv({
     /**
@@ -7,7 +7,7 @@ export const env = createEnv({
      * isn't built with invalid env vars.
      */
     server: {
-        // SERVERVAR: z.string(),
+        NODE_ENV: z.string().optional(),
     },
 
     /**
@@ -16,7 +16,7 @@ export const env = createEnv({
      * `NEXT_PUBLIC_`.
      */
     client: {
-        // NEXT_PUBLIC_CLIENTVAR: z.string(),
+        NEXT_PUBLIC_DEBUG_MODE: z.boolean().optional(),
     },
 
     /**
@@ -25,6 +25,7 @@ export const env = createEnv({
      */
     runtimeEnv: {
         NODE_ENV: process.env.NODE_ENV,
+        NEXT_PUBLIC_DEBUG_MODE: process.env.NEXT_PUBLIC_DEBUG_MODE === "true",
     },
     /**
      * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

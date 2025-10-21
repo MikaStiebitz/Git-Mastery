@@ -33,9 +33,9 @@ const teamworkLevel1 = createLevel({
             successMessage: "teamwork.level1.requirement1.success"
         }),
         createRequirement({
-            command: "git switch -c",
-            alternativeCommands: ["git checkout -b"],
-            requiresArgs: ["any"],
+            command: "git switch",
+            alternativeCommands: ["git checkout"],
+            requiresArgs: ["-c"],
             description: "teamwork.level1.requirement2.description",
             successMessage: "teamwork.level1.requirement2.success"
         }),
@@ -202,8 +202,8 @@ const teamworkLevel3 = createLevel({
         {
             id: "create-review-branch",
             command: "git switch",
-            alternativeCommands: ["git checkout", "git branch"],
-            requiresArgs: ["any"],
+            alternativeCommands: ["git checkout"],
+            requiresArgs: ["-c"],
             description: "teamwork.level3.requirement1.description",
             successMessage: "teamwork.level3.requirement1.success"
         },

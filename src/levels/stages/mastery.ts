@@ -199,9 +199,9 @@ const masteryLevel3 = createLevel({
     requirements: [
         {
             id: "create-emergency-branch",
-            command: "git switch -c",
-            alternativeCommands: ["git checkout -b"],
-            requiresArgs: ["any"],
+            command: "git switch",
+            alternativeCommands: ["git checkout"],
+            requiresArgs: ["-c"],
             description: "mastery.level3.requirement1.description",
             successMessage: "mastery.level3.requirement1.success"
         },
@@ -216,7 +216,8 @@ const masteryLevel3 = createLevel({
             successMessage: "mastery.level3.requirement3.success"
         }),
         createRequirement({
-            command: "git push origin --tags",
+            command: "git push",
+            requiresArgs: ["--tags"],
             description: "mastery.level3.requirement4.description",
             successMessage: "mastery.level3.requirement4.success"
         })

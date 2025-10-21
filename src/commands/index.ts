@@ -36,6 +36,8 @@ import { GitHelpCommand } from "./git/HelpCommand";
 import { CloneCommand } from "./git/CloneCommand";
 import { BisectCommand } from "./git/BisectCommand";
 import { TagCommand } from "./git/TagCommand";
+import { BlameCommand } from "./git/BlameCommand";
+import { ReflogCommand } from "./git/ReflogCommand";
 import { GudCommand } from "./git/GudCommand";
 
 // File System Commands
@@ -93,6 +95,8 @@ registry.register(new GitHelpCommand());
 registry.register(new CloneCommand());
 registry.register(new BisectCommand());
 registry.register(new TagCommand());
+registry.register(new BlameCommand());
+registry.register(new ReflogCommand());
 registry.register(new GudCommand()); // Easter egg! 🎮
 
 // Register File System Commands

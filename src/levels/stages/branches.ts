@@ -34,6 +34,7 @@ const branchesLevel1 = createLevel({
         git: createGitState({
             initialized: true,
             currentBranch: "main",
+            branches: ["main", "feature", "develop"],
             commits: [
                 {
                     message: "Initial commit",
@@ -53,7 +54,7 @@ const branchesLevel2 = createLevel({
     requirements: [
         createRequirement({
             command: "git switch",
-            requiresArgs: ["-c", "-b"],
+            requiresArgs: ["-c"],
             alternativeCommands: ["git checkout"],
             description: "branches.level2.requirement1.description",
             successMessage: "branches.level2.requirement1.success",
@@ -130,8 +131,7 @@ const branchesLevel4 = createLevel({
     hints: ["branches.level4.hint1", "branches.level4.hint2"],
     requirements: [
         createRequirement({
-            command: "git switch",
-            alternativeCommands: ["git checkout"],
+            command: "git checkout",
             description: "branches.level4.requirement1.description",
             successMessage: "branches.level4.requirement1.success",
         }),
@@ -171,8 +171,8 @@ const branchesLevel5 = createLevel({
     requirements: [
         createRequirement({
             command: "git switch",
-            requiresArgs: ["-c", "-b"],
-            alternativeCommands: ["git checkout"],
+            requiresArgs: ["-c"],
+            alternativeCommands: ["git checkout", "git branch"],
             description: "branches.level5.requirement1.description",
             successMessage: "branches.level5.requirement1.success",
         }),
