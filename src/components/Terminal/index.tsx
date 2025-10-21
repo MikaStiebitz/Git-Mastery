@@ -18,6 +18,7 @@ export function Terminal({
     showHelpButton = true,
     showResetButton = true,
     isPlaygroundMode = false,
+    onResetClick,
 }: TerminalProps) {
     const {
         terminalOutput,
@@ -222,8 +223,12 @@ export function Terminal({
 
     // Handle reset button click with confirmation
     const handleReset = () => {
-        if (window.confirm(t("level.resetConfirm"))) {
-            resetCurrentLevel();
+        if (onResetClick) {
+            onResetClick();
+        } else {
+            if (window.confirm(t("level.resetConfirm"))) {
+                resetCurrentLevel();
+            }
         }
     };
 

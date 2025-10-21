@@ -21,6 +21,13 @@ export class GitRepository {
     private fileSystem: FileSystem;
     private pushedCommits: Set<string> = new Set<string>();
     private upstreamBranches: Record<string, { remote: string; branch: string }> = {}; // Track upstream branches
+    private reflog: Array<{
+        commitHash: string;
+        action: string;
+        message: string;
+        timestamp: Date;
+        index: number;
+    }> = [];
 
     // Enhanced branch-specific states
     private branchStates: Record<
@@ -218,6 +225,9 @@ export class GitRepository {
         // Add commit to current branch
         currentBranchState.commits.push(commitId);
 
+        // Add to reflog
+        this.addReflogEntry(commitId, "commit", message);
+
         return commitId;
     }
 
@@ -228,8 +238,9 @@ export class GitRepository {
         // Return only commits that belong to the current branch
         const branchCommits: Record<string, { message: string; timestamp: Date; files: string[] }> = {};
         currentBranchState.commits.forEach(commitId => {
-            if (this.commits[commitId]) {
-                branchCommits[commitId] = this.commits[commitId];
+            const commit = this.commits[commitId];
+            if (commit) {
+                branchCommits[commitId] = commit;
             }
         });
 
@@ -293,34 +304,43 @@ export class GitRepository {
 
         // Update the commit message if provided
         if (newMessage) {
-            this.commits[lastCommitId].message = newMessage;
+            const commit = this.commits[lastCommitId];
+            if (commit) {
+                commit.message = newMessage;
+            }
         }
 
         // If there are staged files, add them to the amended commit
         if (stagedFiles.length > 0) {
             // Add staged files to the commit
-            const existingFiles = new Set(this.commits[lastCommitId].files);
+            const commit = this.commits[lastCommitId];
+            if (commit) {
+                const existingFiles = new Set(commit.files);
 
-            for (const file of stagedFiles) {
-                if (!existingFiles.has(file)) {
-                    this.commits[lastCommitId].files.push(file);
-                }
+                for (const file of stagedFiles) {
+                    if (!existingFiles.has(file)) {
+                        commit.files.push(file);
+                    }
 
-                // Update status - move staged files to committed
-                this.status[file] = "committed";
-                currentBranchState.status[file] = "committed";
+                    // Update status - move staged files to committed
+                    this.status[file] = "committed";
+                    currentBranchState.status[file] = "committed";
 
-                // Save file content to branch state
-                const content = this.fileSystem.getFileContents(file);
-                if (content !== null) {
-                    currentBranchState.files[file] = content;
-                    currentBranchState.workingDirectory[file] = content;
+                    // Save file content to branch state
+                    const content = this.fileSystem.getFileContents(file);
+                    if (content !== null) {
+                        currentBranchState.files[file] = content;
+                        currentBranchState.workingDirectory[file] = content;
+                    }
                 }
             }
         }
 
         // Update timestamp
-        this.commits[lastCommitId].timestamp = new Date();
+        const commit = this.commits[lastCommitId];
+        if (commit) {
+            commit.timestamp = new Date();
+        }
 
         return lastCommitId;
     }
@@ -450,6 +470,9 @@ export class GitRepository {
         } else {
             this.status = {};
         }
+
+        // Add to reflog
+        this.addReflogEntry(this.getCurrentCommitHash(), "checkout", `moving to ${cleanBranchName}`);
 
         return { success: true, warnings: warnings.length > 0 ? warnings : undefined };
     }
@@ -647,6 +670,9 @@ export class GitRepository {
 
         currentBranchState.commits.push(mergeCommitId);
 
+        // Add to reflog
+        this.addReflogEntry(mergeCommitId, "merge", `Merge branch '${branch}' into ${this.currentBranch}`);
+
         // Update working directory
         currentBranchState.workingDirectory = { ...currentBranchState.files };
 
@@ -685,6 +711,15 @@ export class GitRepository {
 
     public getCurrentBranch(): string {
         return this.currentBranch;
+    }
+
+    public getCurrentCommitHash(): string {
+        const currentBranchState = this.branchStates[this.currentBranch];
+        if (!currentBranchState || currentBranchState.commits.length === 0) {
+            return "0000000"; // Default hash when no commits
+        }
+        const lastCommit = currentBranchState.commits[currentBranchState.commits.length - 1];
+        return lastCommit || "0000000";
     }
 
     public getBranches(): string[] {
@@ -1021,6 +1056,9 @@ export class GitRepository {
                 break;
         }
 
+        // Add to reflog
+        this.addReflogEntry(commitId, "reset", `reset: moving to ${commitId.substring(0, 7)}`);
+
         return true;
     }
 
@@ -1219,5 +1257,31 @@ ${remoteContent}
                 output
             };
         }
+    }
+
+    // Reflog methods
+    public addReflogEntry(commitHash: string, action: string, message: string): void {
+        const entry = {
+            commitHash,
+            action,
+            message,
+            timestamp: new Date(),
+            index: this.reflog.length
+        };
+        this.reflog.unshift(entry); // Add to beginning (most recent first)
+    }
+
+    public getReflog(): Array<{
+        commitHash: string;
+        action: string;
+        message: string;
+        timestamp: Date;
+        index: number;
+    }> {
+        return this.reflog;
+    }
+
+    public clearReflog(): void {
+        this.reflog = [];
     }
 }

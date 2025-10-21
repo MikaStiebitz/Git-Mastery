@@ -5,6 +5,7 @@ export interface TerminalProps {
     showHelpButton?: boolean;
     showResetButton?: boolean;
     isPlaygroundMode?: boolean;
+    onResetClick?: () => void;
 }
 
 export interface TerminalHeaderProps {

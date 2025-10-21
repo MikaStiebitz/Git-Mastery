@@ -14,11 +14,14 @@ import {
     Star,
     Download,
     HelpCircle,
+    Settings,
 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { ClientOnly } from "~/components/ClientOnly";
 import { BadgeDisplay } from "~/components/BadgeDisplay";
+import { DebugModal } from "~/components/DebugModal";
+import { env } from "~/env";
 
 interface NavbarProps {
     showLevelInfo?: boolean;
@@ -27,11 +30,20 @@ interface NavbarProps {
 export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const pathname = usePathname();
     const router = useRouter();
-    const { currentStage, currentLevel, progressManager } = useGameContext();
+    const {
+        currentStage,
+        currentLevel,
+        progressManager,
+        debugGiveMoney,
+        debugUnlockAllLevels,
+        debugLockAllLevels,
+        debugCompleteCurrentLevel,
+    } = useGameContext();
     const { language, setLanguage, t } = useLanguage();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [starAnimation, setStarAnimation] = useState(false);
     const [starRotation, setStarRotation] = useState(0);
+    const [debugModalOpen, setDebugModalOpen] = useState(false);
 
     // Determine which page we're on
     const isHomePage = pathname === "/";
@@ -57,6 +69,48 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
 
         // Navigate to the current level from localStorage
         router.push(`/${stageId.toLowerCase()}?stage=${stageId}&level=${levelId}`);
+    };
+
+    // Debug functions
+    const handleDebugNavigateToLevel = (stage: string, level: number) => {
+        // Convert stage names to lowercase for URL routing
+        const stageMap: { [key: string]: string } = {
+            Intro: "intro",
+            Files: "files",
+            Branches: "branches",
+            Workflow: "workflow",
+            TeamWork: "teamwork",
+            Merge: "merge",
+            Reset: "reset",
+            Stash: "stash",
+            Advanced: "advanced",
+            Archaeology: "archaeology",
+            Mastery: "mastery",
+        };
+
+        const urlStage = stageMap[stage] || stage.toLowerCase();
+        router.push(`/${urlStage}?stage=${stage}&level=${level}`);
+    };
+
+    const handleDebugGiveMoney = (amount: number) => {
+        debugGiveMoney(amount);
+    };
+
+    const handleDebugUnlockAllLevels = () => {
+        debugUnlockAllLevels();
+    };
+
+    const handleDebugLockAllLevels = () => {
+        debugLockAllLevels();
+    };
+
+    const handleDebugResetProgress = () => {
+        progressManager.resetProgress();
+        console.log("Debug: Reset all progress");
+    };
+
+    const handleDebugCompleteCurrentLevel = () => {
+        debugCompleteCurrentLevel();
     };
 
     // Effect to periodically animate the star button
@@ -99,7 +153,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                 {/* Logo and brand */}
                 <Link href="/" className="flex items-center space-x-2">
                     <GitBranch className="h-6 w-6 text-purple-400" />
-                    <span className="text-xl font-bold text-white">GitGud</span>
+                    <span className="text-xl font-bold text-white">GitMastery</span>
                 </Link>
 
                 {/* Current level info - responsive display */}
@@ -352,6 +406,59 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                         )}
                     </div>
                 </div>
+            )}
+
+            {/* Debug Modal - only show in debug mode */}
+            {env.NEXT_PUBLIC_DEBUG_MODE && (
+                <>
+                    {/* Debug Button - fixed position */}
+                    <Button
+                        onClick={() => setDebugModalOpen(true)}
+                        className="fixed bottom-4 right-4 z-50 border border-purple-500 bg-purple-600 text-white shadow-lg hover:bg-purple-700"
+                        size="sm">
+                        <Settings className="h-4 w-4" />
+                    </Button>
+
+                    {/* Debug Modal */}
+                    <DebugModal
+                        isOpen={debugModalOpen}
+                        onClose={() => setDebugModalOpen(false)}
+                        onNavigateToLevel={handleDebugNavigateToLevel}
+                        onGiveMoney={handleDebugGiveMoney}
+                        onUnlockAllLevels={handleDebugUnlockAllLevels}
+                        onLockAllLevels={handleDebugLockAllLevels}
+                        onResetProgress={handleDebugResetProgress}
+                        onCompleteCurrentLevel={handleDebugCompleteCurrentLevel}
+                        currentStage={currentStage}
+                        currentLevel={currentLevel}
+                        availableStages={[
+                            "Intro",
+                            "Files",
+                            "Branches",
+                            "Workflow",
+                            "TeamWork",
+                            "Merge",
+                            "Reset",
+                            "Stash",
+                            "Advanced",
+                            "Archaeology",
+                            "Mastery",
+                        ]}
+                        availableLevels={{
+                            Intro: [1, 2, 3, 4, 5],
+                            Files: [1, 2, 3, 4, 5],
+                            Branches: [1, 2, 3, 4, 5],
+                            Workflow: [1, 2, 3, 4, 5],
+                            TeamWork: [1, 2, 3, 4, 5],
+                            Merge: [1, 2, 3, 4, 5],
+                            Reset: [1, 2, 3, 4, 5],
+                            Stash: [1, 2, 3, 4, 5],
+                            Advanced: [1, 2, 3, 4, 5],
+                            Archaeology: [1, 2, 3, 4, 5],
+                            Mastery: [1, 2, 3, 4, 5],
+                        }}
+                    />
+                </>
             )}
         </header>
     );

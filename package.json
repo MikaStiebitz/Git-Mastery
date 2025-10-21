@@ -1,6 +1,6 @@
 {
     "name": "git-gud",
-    "version": "0.2.0",
+    "version": "1.6.0",
     "private": true,
     "type": "module",
     "scripts": {

@@ -130,9 +130,9 @@ const workflowLevel2 = createLevel({
     requirements: [
         {
             id: "create-hotfix-branch",
-            command: "git switch -c",
-            alternativeCommands: ["git checkout -b"],
-            requiresArgs: ["any"],
+            command: "git switch",
+            alternativeCommands: ["git checkout"],
+            requiresArgs: ["-c"],
             description: "workflow.level2.requirement1.description",
             successMessage: "workflow.level2.requirement1.success"
         },
@@ -212,9 +212,9 @@ const workflowLevel3 = createLevel({
     requirements: [
         {
             id: "create-release-branch",
-            command: "git switch -c",
-            alternativeCommands: ["git checkout -b"],
-            requiresArgs: ["any"],
+            command: "git switch",
+            alternativeCommands: ["git checkout"],
+            requiresArgs: ["-c"],
             description: "workflow.level3.requirement1.description",
             successMessage: "workflow.level3.requirement1.success"
         },

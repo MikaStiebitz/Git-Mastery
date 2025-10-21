@@ -13,6 +13,12 @@ const home = {
     "home.reviewLevel": "Review Level",
     "home.startLevel": "Start Level",
     "home.locked": "Locked",
+    "home.feature1.title": "Interactive Learning",
+    "home.feature1.description": "Learn by doing with real Git commands in a safe sandbox environment. Practice without fear of breaking anything.",
+    "home.feature2.title": "Mini Games",
+    "home.feature2.description": "Practice Git skills with fun challenges and earn points to unlock rewards. Make learning addictive and enjoyable.",
+    "home.feature3.title": "Customization",
+    "home.feature3.description": "Personalize your experience with themes, sounds, and other unlockable items. Make it truly your own learning journey.",
 };
 
 export default home;

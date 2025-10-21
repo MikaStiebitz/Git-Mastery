@@ -225,4 +225,10 @@ export interface GameContextProps {
     setCurrentDifficulty: (difficulty: DifficultyLevel) => void;
     handleCommit: (message: string) => void;
     closeCommitDialog: () => void;
+
+    // Debug functions
+    debugGiveMoney: (amount: number) => void;
+    debugUnlockAllLevels: () => void;
+    debugLockAllLevels: () => void;
+    debugCompleteCurrentLevel: () => void;
 }

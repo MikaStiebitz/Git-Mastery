@@ -19,6 +19,9 @@ const levels = {
     "level.resetLevel": "Reset Level",
     "level.resetAllProgress": "Reset All Progress",
     "level.resetConfirm": "Are you sure you want to reset all your progress?",
+    "level.resetOptions": "Reset Options",
+    "level.resetDescription": "Choose what you want to reset:",
+    "level.resetAllConfirm": "Are you sure you want to reset ALL your progress? This cannot be undone!",
     "level.level": "Level",
     "level.levelCompleted": "Level completed!",
     "level.realWorldContext": "Real-World Context",
@@ -45,7 +48,7 @@ const levels = {
 
     "intro.level1.name": "Initialize Git",
     "intro.level1.description": "Create a new Git repository",
-    "intro.level1.objective1": "Initialize a new Git repository",
+    "intro.level1.objective1": "Initialize a new repository",
     "intro.level1.hint1": "Use the `git init` command",
     "intro.level1.hint2": "This creates a hidden .git directory",
     "intro.level1.requirement1.description": "Initialize a Git repository",
@@ -59,7 +62,7 @@ const levels = {
 
     "intro.level2.name": "Repository Status",
     "intro.level2.description": "Check the status of your repository",
-    "intro.level2.objective1": "Display the status of your Git repository",
+    "intro.level2.objective1": "Display the status of your repository",
     "intro.level2.hint1": "Use the `git status` command",
     "intro.level2.hint2": "This command shows the current status of your repository",
     "intro.level2.requirement1.description": "Show the repository status",
@@ -154,7 +157,7 @@ const levels = {
     "branches.level1.story.taskIntroduction": "Display all existing branches with git branch.",
 
     "branches.level2.name": "Create and Switch to Branch",
-    "branches.level2.description": "Create a new branch and switch to it using the modern git switch command",
+    "branches.level2.description": "Create a new branch and switch to it",
     "branches.level2.objective1": "Create a new branch named 'feature' and switch to it",
     "branches.level2.hint1": "Use the `git switch -c feature` command",
     "branches.level2.hint2": "The -c flag creates a new branch and switches to it in one step",
@@ -171,7 +174,7 @@ const levels = {
 
     "branches.level3.name": "Switch Between Branches",
     "branches.level3.description": "Switch between existing branches",
-    "branches.level3.objective1": "Switch between branches using git switch",
+    "branches.level3.objective1": "Switch between branches",
     "branches.level3.hint1": "Use the `git switch <branch>` command",
     "branches.level3.hint2": "This switches to an existing branch",
     "branches.level3.requirement1.description": "Switch to another branch using git switch",
@@ -184,8 +187,8 @@ const levels = {
     "branches.level3.story.taskIntroduction": "Practice switching to another branch using `git switch`.",
 
     "branches.level4.name": "Switch Branches with Checkout",
-    "branches.level4.description": "Learn the classic git checkout command for switching branches",
-    "branches.level4.objective1": "Switch to another branch using git checkout",
+    "branches.level4.description": "Learn the classic command for switching branches",
+    "branches.level4.objective1": "Switch to another branch with the classic command",
     "branches.level4.hint1": "Use the command `git checkout <branch-name>`",
     "branches.level4.hint2": "checkout is the older command for switching branches",
     "branches.level4.requirement1.description": "Switch to another branch using git checkout",
@@ -198,7 +201,7 @@ const levels = {
     "branches.level4.story.taskIntroduction": "Switch to another branch using the classic git checkout command.",
 
     "branches.level5.name": "Create Branch with Switch",
-    "branches.level5.description": "Create and switch to a new branch using git switch -c",
+    "branches.level5.description": "Create and switch to a new branch in one step",
     "branches.level5.objective1": "Create a new branch",
     "branches.level5.hint1": "Use the command `git switch -c <new-branch-name>`",
     "branches.level5.hint2": "The -c flag tells switch to create a new branch",
@@ -264,10 +267,10 @@ const levels = {
 
     "stash.level1.name": "Stash Your Work",
     "stash.level1.description": "Learn to temporarily save changes and switch between branches",
-    "stash.level1.objective1": "Save your work-in-progress changes with git stash",
+    "stash.level1.objective1": "Save your work-in-progress changes",
     "stash.level1.objective2": "Switch to the hotfix branch to handle urgent issue",
     "stash.level1.objective3": "Return to feature branch to continue your work",
-    "stash.level1.objective4": "Restore your stashed changes with git stash pop",
+    "stash.level1.objective4": "Restore your stashed changes",
     "stash.level1.hint1": "Use 'git stash' to temporarily save your changes",
     "stash.level1.hint2": "Switch branches with 'git switch <branch-name>' or 'git checkout <branch-name>'",
     "stash.level1.hint3": "Bring back your changes with 'git stash pop'",
@@ -320,7 +323,7 @@ const levels = {
 
     "stash.level3.name": "Managing Stashes",
     "stash.level3.description": "Learn to list and manage stash entries",
-    "stash.level3.objective1": "View all stashed changes with git stash list",
+    "stash.level3.objective1": "View all stashed changes",
     "stash.level3.objective2": "Restore the most recent stash",
     "stash.level3.hint1": "Use 'git stash list' to see all stashes",
     "stash.level3.hint2": "Retrieve stash with 'git stash pop'",
@@ -390,7 +393,7 @@ const levels = {
 
     // Reset Stage
     "reset.name": "Undoing Commits",
-    "reset.description": "Learn how to undo commits using git reset",
+    "reset.description": "Learn how to undo commits and go back in history",
 
     "reset.level1.name": "Soft Reset - Keep Changes",
     "reset.level1.description": "Go back to a previous commit but keep your changes",
@@ -771,7 +774,7 @@ Let's practice professional-grade Git! 🚀`,
 
     // Advanced Level 2: Git Log Advanced
     "advanced.level2.name": "Advanced Commit History",
-    "advanced.level2.description": "Master git log to explore repository history",
+    "advanced.level2.description": "Master advanced techniques to explore repository history",
     "advanced.level2.objective1": "View condensed commit history",
     "advanced.level2.objective2": "Filter commits by author or date",
     "advanced.level2.objective3": "Search commit messages",
@@ -1113,7 +1116,7 @@ This is completely normal in team development! Merge conflicts happen when multi
     "teamwork.level3.objective3": "Commit with a clear message",
     "teamwork.level3.objective4": "Push your branch for team review",
     "teamwork.level3.hint1": "Create a feature branch: git switch -c feature/password-reset",
-    "teamwork.level3.hint2": "You can also use: git checkout -b feature/password-reset",
+    "teamwork.level3.hint2": "Alternative (classic): git checkout -b feature/password-reset",
     "teamwork.level3.hint3": "Stage all changes: git add .",
     "teamwork.level3.hint4": "Commit with a descriptive message: git commit -m \"Add password reset functionality\"",
     "teamwork.level3.hint5": "Push to remote: git push origin feature/password-reset",
@@ -1256,7 +1259,7 @@ This is infrastructure work that will benefit every developer on your team. You'
     "mastery.level3.objective1": "Orchestrate a complex release with multiple hotfixes",
     "mastery.level3.objective2": "Handle emergency rollbacks and recovery",
     "mastery.level3.objective3": "Coordinate with multiple teams simultaneously",
-    "mastery.level3.objective4": "Demonstrate mastery of all Git techniques",
+    "mastery.level3.objective4": "Demonstrate mastery of all techniques",
     "mastery.level3.hint1": "This challenge combines everything you've learned",
     "mastery.level3.hint2": "Think strategically about branch management",
     "mastery.level3.hint3": "Communication is as important as technical skills",
@@ -1296,11 +1299,31 @@ The challenge involves:
 
 You must use every Git technique in your arsenal:
 - \`git rebase -i\` to clean up messy commits
-- \`git cherry-pick\` to select only working features
+- \`git cherry-pick <commit-hash>\` to select only working features (copies specific commits from one branch to another)
 - Advanced merging with \`git merge\` to combine team efforts
-- \`git bisect\` to find the exact problem commit
+- \`git bisect\` to find the exact problem commit (binary search through history to find bugs)
 - \`git reflog\` to recover from mistakes
 - \`git tag\` and branches for release management
+- \`git mv <old> <new>\` to rename files while preserving Git history
+
+**What is git cherry-pick?**
+Cherry-picking allows you to copy specific commits from one branch to another. Instead of merging entire branches, you can pick and choose individual commits. Perfect for applying hotfixes from one branch to another!
+
+Example: \`git cherry-pick abc123\` - applies commit abc123 to your current branch
+
+**What is git bisect?**
+Bisect helps you find which commit introduced a bug using binary search. Git will checkout commits for you to test, and you tell it "good" or "bad" until it finds the problematic commit.
+
+Example:
+\`git bisect start\`
+\`git bisect bad\` (current commit is broken)
+\`git bisect good abc123\` (this old commit worked)
+Git will then guide you through testing commits until it finds the first bad one!
+
+**What is git mv?**
+Move or rename files while keeping Git history intact. Better than manually renaming files because Git tracks the rename.
+
+Example: \`git mv old-name.js new-name.js\`
 
 This isn't just about Git commands - it's about leadership, decision-making under pressure, and the ability to think systematically when everything is on fire.
 
@@ -1317,7 +1340,7 @@ Ready to prove your mastery? The clock is ticking...`,
     // Archaeology Stage Levels
     "archaeology.level1.name": "Git Blame - Code Archaeology",
     "archaeology.level1.description": "Investigate code history to understand changes and find the origin of bugs",
-    "archaeology.level1.objective1": "Use git blame to find who wrote specific lines",
+    "archaeology.level1.objective1": "Find who wrote specific lines",
     "archaeology.level1.objective2": "Track down the history of a bug",
     "archaeology.level1.objective3": "Understand the context of code changes",
     "archaeology.level1.objective4": "Find related commits and changes",
@@ -1337,7 +1360,7 @@ Ready to prove your mastery? The clock is ticking...`,
     "archaeology.level1.story.taskIntroduction": "Learn to investigate code history and track down the source of bugs using Git forensic tools.",
 
     "archaeology.level2.name": "Commit Forensics with Git Log",
-    "archaeology.level2.description": "Master advanced git log techniques to investigate complex code history",
+    "archaeology.level2.description": "Master advanced techniques to investigate complex code history",
     "archaeology.level2.objective1": "Use advanced log filtering to find specific changes",
     "archaeology.level2.objective2": "Track file renames and moves",
     "archaeology.level2.objective3": "Find commits by content changes",

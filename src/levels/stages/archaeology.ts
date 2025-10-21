@@ -23,6 +23,7 @@ const archaeologyLevel1 = createLevel({
         "archaeology.level1.hint3",
         "archaeology.level1.hint4"
     ],
+    requirementLogic: "all",
     requirements: [
         createRequirement({
             command: "git blame src/utils/validator.js",
@@ -30,7 +31,8 @@ const archaeologyLevel1 = createLevel({
             successMessage: "archaeology.level1.requirement1.success"
         }),
         createRequirement({
-            command: "git log --oneline -n 10",
+            command: "git log",
+            requiresArgs: ["--oneline"],
             description: "archaeology.level1.requirement2.description",
             successMessage: "archaeology.level1.requirement2.success"
         }),
@@ -126,19 +128,23 @@ const archaeologyLevel2 = createLevel({
         "archaeology.level2.hint3",
         "archaeology.level2.hint4"
     ],
+    requirementLogic: "all",
     requirements: [
         createRequirement({
-            command: "git log --grep='security'",
+            command: "git log",
+            requiresArgs: ["--grep"],
             description: "archaeology.level2.requirement1.description",
             successMessage: "archaeology.level2.requirement1.success"
         }),
         createRequirement({
-            command: "git log -S'password'",
+            command: "git log",
+            requiresArgs: ["-S"],
             description: "archaeology.level2.requirement2.description",
             successMessage: "archaeology.level2.requirement2.success"
         }),
         createRequirement({
-            command: "git log --oneline --author='Sarah'",
+            command: "git log",
+            requiresArgs: ["--author"],
             description: "archaeology.level2.requirement3.description",
             successMessage: "archaeology.level2.requirement3.success"
         })
@@ -226,6 +232,7 @@ const archaeologyLevel3 = createLevel({
         "archaeology.level3.hint3",
         "archaeology.level3.hint4"
     ],
+    requirementLogic: "all",
     requirements: [
         createRequirement({
             command: "git reflog",
@@ -233,7 +240,8 @@ const archaeologyLevel3 = createLevel({
             successMessage: "archaeology.level3.requirement1.success"
         }),
         createRequirement({
-            command: "git reset --hard HEAD@{2}",
+            command: "git reset",
+            requiresArgs: ["--hard"],
             description: "archaeology.level3.requirement2.description",
             successMessage: "archaeology.level3.requirement2.success"
         }),

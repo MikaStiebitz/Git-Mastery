@@ -571,11 +571,8 @@ export default function Home() {
                                     <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg">
                                         <Activity className="h-8 w-8 text-white" />
                                     </div>
-                                    <h3 className="mb-4 text-xl font-bold text-white">Interactive Learning</h3>
-                                    <p className="leading-relaxed text-purple-200">
-                                        Learn by doing with real Git commands in a safe sandbox environment. Practice
-                                        without fear of breaking anything.
-                                    </p>
+                                    <h3 className="mb-4 text-xl font-bold text-white">{t("home.feature1.title")}</h3>
+                                    <p className="leading-relaxed text-purple-200">{t("home.feature1.description")}</p>
                                     <div className="mt-6 flex justify-center">
                                         <div className="flex space-x-1">
                                             <div className="h-1 w-8 rounded-full bg-green-400"></div>
@@ -594,11 +591,8 @@ export default function Home() {
                                     <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
                                         <Gamepad2 className="h-8 w-8 text-white" />
                                     </div>
-                                    <h3 className="mb-4 text-xl font-bold text-white">Mini Games</h3>
-                                    <p className="leading-relaxed text-purple-200">
-                                        Practice Git skills with fun challenges and earn points to unlock rewards. Make
-                                        learning addictive and enjoyable.
-                                    </p>
+                                    <h3 className="mb-4 text-xl font-bold text-white">{t("home.feature2.title")}</h3>
+                                    <p className="leading-relaxed text-purple-200">{t("home.feature2.description")}</p>
                                     <div className="mt-6 flex justify-center">
                                         <div className="flex space-x-1">
                                             <div className="h-1 w-8 rounded-full bg-purple-400"></div>
@@ -617,11 +611,8 @@ export default function Home() {
                                     <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 shadow-lg">
                                         <ShoppingCart className="h-8 w-8 text-white" />
                                     </div>
-                                    <h3 className="mb-4 text-xl font-bold text-white">Customization</h3>
-                                    <p className="leading-relaxed text-purple-200">
-                                        Personalize your experience with themes, sounds, and other unlockable items.
-                                        Make it truly your own learning journey.
-                                    </p>
+                                    <h3 className="mb-4 text-xl font-bold text-white">{t("home.feature3.title")}</h3>
+                                    <p className="leading-relaxed text-purple-200">{t("home.feature3.description")}</p>
                                     <div className="mt-6 flex justify-center">
                                         <div className="flex space-x-1">
                                             <div className="h-1 w-8 rounded-full bg-yellow-400"></div>
