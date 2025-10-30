@@ -98,7 +98,7 @@ GitMastery is built with modern web technologies to provide the best learning ex
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/gitmastery.git
+git clone https://github.com/MikaStiebitz/Git-Mastery
 cd gitmastery
 ```
 
