@@ -18,6 +18,7 @@ const branchesLevel1 = createLevel({
             command: "git branch",
             description: "branches.level1.requirement1.description",
             successMessage: "branches.level1.requirement1.success",
+            id: "git-branch",
         }),
     ],
     story: createStory({
@@ -58,6 +59,7 @@ const branchesLevel2 = createLevel({
             alternativeCommands: ["git checkout"],
             description: "branches.level2.requirement1.description",
             successMessage: "branches.level2.requirement1.success",
+            id: "git-switch"
         }),
     ],
     story: createStory({
@@ -95,6 +97,7 @@ const branchesLevel3 = createLevel({
             command: "git switch",
             description: "branches.level3.requirement1.description",
             successMessage: "branches.level3.requirement1.success",
+            id: "git-switch-2"
         }),
     ],
     story: createStory({
@@ -134,6 +137,7 @@ const branchesLevel4 = createLevel({
             command: "git checkout",
             description: "branches.level4.requirement1.description",
             successMessage: "branches.level4.requirement1.success",
+            id: "git-checkout"
         }),
     ],
     story: createStory({
@@ -175,6 +179,7 @@ const branchesLevel5 = createLevel({
             alternativeCommands: ["git checkout", "git branch"],
             description: "branches.level5.requirement1.description",
             successMessage: "branches.level5.requirement1.success",
+            id: "git-switch-3"
         }),
     ],
     story: createStory({
