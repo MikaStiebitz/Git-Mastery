@@ -223,7 +223,27 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setTerminalOutput(prev => [...prev, `$ ${command}`]);
 
         // Special case for "next" command
-        if (command.trim() === "next" && isLevelCompleted) {
+        if (command.trim() === "next") {
+
+            // Playground mode: next command is disabled
+            if (isPlaygroundMode) {
+                setTerminalOutput(prev => [
+                    ...prev,
+                    "The 'next' command is not available in Playground mode.",
+                ]);
+                return;
+            }
+        
+            // Normal mode: level not complete
+            if (!isLevelCompleted) {
+                setTerminalOutput(prev => [
+                    ...prev,
+                    "You must complete the level before using 'next'.",
+                ]);
+                return;
+            }
+        
+            // Normal mode: level is complete → proceed
             handleNextLevel();
             return;
         }
