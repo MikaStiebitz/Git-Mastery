@@ -28,17 +28,20 @@ const masteryLevel1 = createLevel({
         createRequirement({
             command: "git merge feature/auth feature/payments feature/ui",
             description: "mastery.level1.requirement1.description",
-            successMessage: "mastery.level1.requirement1.success"
+            successMessage: "mastery.level1.requirement1.success",
+            id: "git-merge-feature"
         }),
         createRequirement({
             command: "git add .",
             description: "mastery.level1.requirement2.description",
-            successMessage: "mastery.level1.requirement2.success"
+            successMessage: "mastery.level1.requirement2.success",
+            id: "git-add-all",
         }),
         createRequirement({
             command: "git commit -m",
             description: "mastery.level1.requirement3.description",
-            successMessage: "mastery.level1.requirement3.success"
+            successMessage: "mastery.level1.requirement3.success",
+            id: "git-commit-message",
         })
     ],
     story: createStory({
@@ -67,13 +70,10 @@ const masteryLevel1 = createLevel({
                     file: "/src/utils/shared.js",
                     content: `// Shared utilities
 function formatDate(date) {
-<<<<<<< feature/auth
   // Auth team needs ISO format
   return date.toISOString();
-=======
   // Payments team needs locale format
   return date.toLocaleDateString();
->>>>>>> feature/payments
 }
 
 <<<<<<< feature/ui
@@ -111,17 +111,20 @@ const masteryLevel2 = createLevel({
         createRequirement({
             command: "chmod +x .git/hooks/pre-commit",
             description: "mastery.level2.requirement1.description",
-            successMessage: "mastery.level2.requirement1.success"
+            successMessage: "mastery.level2.requirement1.success",
+            id: "chmod-git",
         }),
         createRequirement({
             command: "git add .",
             description: "mastery.level2.requirement2.description",
-            successMessage: "mastery.level2.requirement2.success"
+            successMessage: "mastery.level2.requirement2.success",
+            id: "git-add-2",
         }),
         createRequirement({
             command: "git commit -m",
             description: "mastery.level2.requirement3.description",
-            successMessage: "mastery.level2.requirement3.success"
+            successMessage: "mastery.level2.requirement3.success",
+            id: "git-commit-2",
         })
     ],
     story: createStory({
@@ -208,18 +211,21 @@ const masteryLevel3 = createLevel({
         createRequirement({
             command: "git cherry-pick",
             description: "mastery.level3.requirement2.description",
-            successMessage: "mastery.level3.requirement2.success"
+            successMessage: "mastery.level3.requirement2.success",
+            id: "git-check-pick",
         }),
         createRequirement({
             command: "git tag -a v2.1.1 -m",
             description: "mastery.level3.requirement3.description",
-            successMessage: "mastery.level3.requirement3.success"
+            successMessage: "mastery.level3.requirement3.success",
+            id: "git-tag",
         }),
         createRequirement({
             command: "git push",
             requiresArgs: ["--tags"],
             description: "mastery.level3.requirement4.description",
-            successMessage: "mastery.level3.requirement4.success"
+            successMessage: "mastery.level3.requirement4.success",
+            id: "git-push",
         })
     ],
     story: createStory({

@@ -19,6 +19,7 @@ const filesLevel1 = createLevel({
             requiresArgs: ["any"],
             description: "files.level1.requirement1.description",
             successMessage: "files.level1.requirement1.success",
+            id: "git-add",
         }),
     ],
     story: createStory({
@@ -57,6 +58,7 @@ const filesLevel2 = createLevel({
             command: "git commit",
             description: "files.level2.requirement1.description",
             successMessage: "files.level2.requirement1.success",
+            id: "git-commit"
         }),
     ],
     story: createStory({
@@ -96,6 +98,7 @@ const filesLevel3 = createLevel({
             requiresArgs: ["any"],
             description: "files.level3.requirement1.description",
             successMessage: "files.level3.requirement1.success",
+            id: "git-rm",
         }),
     ],
     story: createStory({
