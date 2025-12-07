@@ -60,7 +60,6 @@ export default function LevelPage() {
         setIsFileEditorOpen,
         isAdvancedMode,
         toggleAdvancedMode,
-        resetTerminalForLevel,
         getEditableFiles,
         handleCommand,
         currentFile,
@@ -226,11 +225,10 @@ export default function LevelPage() {
                     // Check if level exists
                     const levelExists = levelManager.getLevel(stageParam, levelNum);
                     if (levelExists) {
-                        // Check if we need to update the game context
-                        if (currentStage !== stageParam || currentLevel !== levelNum) {
-                            console.log(`Loading level from URL: ${stageParam}-${levelNum}`);
-                            handleLevelFromUrl(stageParam, levelNum);
-                        }
+                        // Always call handleLevelFromUrl to ensure terminal is correctly initialized
+                        // The function already checks if an update is needed internally
+                        console.log(`Loading level from URL: ${stageParam}-${levelNum}`);
+                        handleLevelFromUrl(stageParam, levelNum);
                         setUrlParamsProcessed(true);
                         levelParamProcessedRef.current = true;
                     }
@@ -240,10 +238,8 @@ export default function LevelPage() {
                 console.log("No URL params found, loading from localStorage");
                 const progress = progressManager.getProgress();
                 if (progress.currentStage && progress.currentLevel) {
-                    // Use localStorage values if they differ from current context
-                    if (currentStage !== progress.currentStage || currentLevel !== progress.currentLevel) {
-                        handleLevelFromUrl(progress.currentStage, progress.currentLevel);
-                    }
+                    // Always call to ensure terminal is correctly initialized
+                    handleLevelFromUrl(progress.currentStage, progress.currentLevel);
                 }
                 setUrlParamsProcessed(true);
                 // Sync URL to match current state
@@ -254,8 +250,6 @@ export default function LevelPage() {
         searchParams,
         levelManager,
         handleLevelFromUrl,
-        currentStage,
-        currentLevel,
         progressManager,
         syncURLWithCurrentLevel,
     ]);
@@ -294,18 +288,13 @@ export default function LevelPage() {
     const isDoubleXpActive = progressManager.isDoubleXpActive();
     const doubleXpHoursLeft = progressManager.getDoubleXpRemainingHours();
 
-    // Reset terminal only after URL params (or localStorage) have been processed
+    // Reset URL params state when the component unmounts
     useEffect(() => {
-        if (urlParamsProcessed) {
-            resetTerminalForLevel();
-        }
-
         return () => {
             setUrlParamsProcessed(false);
             levelParamProcessedRef.current = false;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [urlParamsProcessed]);
+    }, []);
 
     // Update editable files when terminal output changes (indicator of file system changes)
     const updateEditableFiles = useCallback(() => {

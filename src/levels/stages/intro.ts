@@ -15,6 +15,7 @@ const introLevel1 = createLevel({
     hints: ["intro.level1.hint1", "intro.level1.hint2"],
     requirements: [
         createRequirement({
+            id: "init-repo",
             command: "git init",
             description: "intro.level1.requirement1.description",
             successMessage: "intro.level1.requirement1.success",
@@ -46,6 +47,7 @@ const introLevel2 = createLevel({
             command: "git status",
             description: "intro.level2.requirement1.description",
             successMessage: "intro.level2.requirement1.success",
+            id: "status"
         }),
     ],
     story: createStory({

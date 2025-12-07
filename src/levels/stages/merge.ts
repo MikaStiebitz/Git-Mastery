@@ -20,6 +20,7 @@ const mergeLevel1 = createLevel({
             requiresArgs: ["any"],
             description: "merge.level1.requirement1.description",
             successMessage: "merge.level1.requirement1.success",
+            id: "git-merge",
         }),
     ],
     story: createStory({
@@ -80,6 +81,7 @@ const mergeLevel2 = createLevel({
             requiresArgs: ["any"],
             description: "merge.level2.requirement1.description",
             successMessage: "merge.level2.requirement1.success",
+            id: "git-merge-2",
         }),
     ],
     story: createStory({
@@ -134,6 +136,7 @@ const mergeLevel3 = createLevel({
             requiresArgs: ["--abort"],
             description: "merge.level3.requirement1.description",
             successMessage: "merge.level3.requirement1.success",
+            id: "git-merge-abort",
         }),
     ],
     story: createStory({
