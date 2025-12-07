@@ -154,7 +154,7 @@ export default function FAQPage() {
 
     // Helper function to render a FAQ section
     const renderFAQSection = (category: string, items: FAQItem[]) => (
-        <div key={category} className="mb-8">
+        <div className="mb-8">
             <h2 className="mb-4 text-xl font-semibold text-white">{t(`faq.categories.${category}`)}</h2>
             <Accordion type="single" collapsible className="space-y-3">
                 {items.map(item => (
@@ -194,7 +194,9 @@ export default function FAQPage() {
                             <p className="mb-6 text-purple-200">{t("faq.intro")}</p>
 
                             {/* Render each FAQ section */}
-                            {faqItems.map(section => renderFAQSection(section.category, section.items))}
+                            {faqItems.map(section => (
+                                <div key={section.category}>{renderFAQSection(section.category, section.items)}</div>
+                            ))}
 
                             {/* Final encouragement section */}
                             <div className="mt-8 rounded-lg border border-purple-700/30 bg-purple-900/30 p-6 text-center">
