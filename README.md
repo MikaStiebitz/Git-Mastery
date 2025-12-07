@@ -99,7 +99,7 @@ GitMastery is built with modern web technologies to provide the best learning ex
 
 ```bash
 git clone https://github.com/MikaStiebitz/Git-Mastery
-cd gitmastery
+cd Git-Mastery
 ```
 
 2. **Install dependencies**
