@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { allStages } from "~/levels";
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = "https://www.gitmastery.me";
@@ -18,12 +19,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.6,
         },
         {
-            url: `${baseUrl}/impressum`,
-            lastModified: new Date(),
-            changeFrequency: "yearly" as const,
-            priority: 0.3,
-        },
-        {
             url: `${baseUrl}/installation`,
             lastModified: new Date(),
             changeFrequency: "monthly" as const,
@@ -35,17 +30,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: "weekly" as const,
             priority: 0.8,
         },
+        // Impressum is excluded from sitemap (has noindex)
     ];
 
-    // Stage-based level pages (intro, files, branches, merge, rebase, remote)
-    const stages = ["intro", "files", "branches", "merge", "rebase", "remote"];
+    // Stage-based level pages - generate URLs for all actual levels
     const levelPages: MetadataRoute.Sitemap = [];
 
-    stages.forEach(stage => {
-        // Each stage has different number of levels, but we'll generate for up to 10 levels per stage
-        for (let level = 1; level <= 10; level++) {
+    Object.values(allStages).forEach(stage => {
+        const stageId = stage.id.toLowerCase();
+        const numLevels = Object.keys(stage.levels).length;
+
+        // Generate URL for each level in this stage
+        for (let level = 1; level <= numLevels; level++) {
             levelPages.push({
-                url: `${baseUrl}/${stage}?level=${level}`,
+                url: `${baseUrl}/${stageId}?stage=${stage.id}&level=${level}`,
                 lastModified: new Date(),
                 changeFrequency: "monthly" as const,
                 priority: 0.8,

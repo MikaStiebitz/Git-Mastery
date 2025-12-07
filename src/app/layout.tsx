@@ -52,8 +52,9 @@ export const metadata: Metadata = {
         images: ["/home-screen.png"],
     },
     icons: [
-        { rel: "icon", url: "/gitBranch.svg", type: "image/svg+xml" },
-        { rel: "apple-touch-icon", url: "/gitBranch.svg" },
+        { rel: "icon", url: "/gitBranch-favicon.svg", type: "image/svg+xml" },
+        { rel: "icon", url: "/gitBranch.svg", type: "image/svg+xml", sizes: "any" },
+        { rel: "apple-touch-icon", url: "/gitBranch-favicon.svg" },
     ],
 };
 
