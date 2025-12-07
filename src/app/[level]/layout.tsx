@@ -19,26 +19,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const levelName = levelNames[level] || `Level ${level}`;
 
     return {
-        title: `${levelName} - GitGud | Interactive Git Learning`,
+        title: `${levelName} - Git Mastery | Interactive Git Learning`,
         description: `Learn ${levelName.toLowerCase()} through interactive Git challenges. Practice Git commands in a safe environment with step-by-step guidance.`,
         openGraph: {
-            title: `${levelName} - GitGud`,
+            title: `${levelName} - Git Mastery`,
             description: `Learn ${levelName.toLowerCase()} through interactive Git challenges`,
             url: `https://www.gitmastery.me/${level}`,
-            siteName: "GitGud",
+            siteName: "Git Mastery",
             images: [
                 {
                     url: "/home-screen.png",
                     width: 1200,
                     height: 630,
-                    alt: `GitGud - ${levelName}`,
+                    alt: `Git Mastery - ${levelName}`,
                 },
             ],
             type: "website",
         },
         twitter: {
             card: "summary_large_image",
-            title: `${levelName} - GitGud`,
+            title: `${levelName} - Git Mastery`,
             description: `Learn ${levelName.toLowerCase()} through interactive Git challenges`,
             images: ["/home-screen.png"],
         },

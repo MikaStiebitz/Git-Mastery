@@ -79,7 +79,7 @@ export function DifficultySelector({ isOpen, onClose, isInitialSelection = false
                 <DialogHeader className="mt-8 text-center sm:mt-3">
                     <DialogTitle className="flex items-center justify-center text-xl text-white sm:text-2xl">
                         <Settings className="mr-2 h-5 w-5 text-purple-400 sm:h-6 sm:w-6" />
-                        {isInitialSelection ? "Welcome to Git-Gud! 🚀" : "Change Difficulty Level"}
+                        {isInitialSelection ? "Welcome to Git Mastery! 🚀" : "Change Difficulty Level"}
                     </DialogTitle>
                     <DialogDescription className="px-2 text-sm text-purple-300 sm:px-0 sm:text-base">
                         {isInitialSelection

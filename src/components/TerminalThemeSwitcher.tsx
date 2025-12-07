@@ -64,7 +64,7 @@ export function TerminalThemeSwitcher({ isOpen, onClose }: TerminalThemeSwitcher
                                             color: theme.colors.text,
                                         }}>
                                         <div className="mb-1 flex items-center space-x-1">
-                                            <span style={{ color: theme.colors.prompt }}>git-gud:~$</span>
+                                            <span style={{ color: theme.colors.prompt }}>git-mastery:~$</span>
                                             <span>git status</span>
                                         </div>
                                         <div style={{ color: theme.colors.success }} className="mb-1">

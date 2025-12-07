@@ -27,7 +27,7 @@ export function TerminalPrompt({
         <div className="flex max-w-full flex-wrap items-center space-x-1">
             {/* Username segment */}
             <span className="whitespace-nowrap rounded-r bg-gradient-to-r from-purple-700 to-purple-600 px-2 py-0.5 text-xs text-white">
-                user@gitgud
+                user@gitmastery
             </span>
 
             {/* Directory segment */}
