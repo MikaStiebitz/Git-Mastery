@@ -502,7 +502,16 @@ export class LevelManager {
                             if (reqArg === "any") {
                                 return args.length > 0;
                             }
-                            return args.includes(reqArg);
+                            // Check for exact match
+                            if (args.includes(reqArg)) {
+                                return true;
+                            }
+                            // For flags that take values (like --author="sam" or --author=sam),
+                            // check if any arg starts with the required flag
+                            if (reqArg.startsWith("--")) {
+                                return args.some(arg => arg === reqArg || arg.startsWith(reqArg + "="));
+                            }
+                            return false;
                         });
 
                         if (!allArgsMatch) continue;
