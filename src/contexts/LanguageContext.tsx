@@ -49,11 +49,21 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                         detectedLang = "fa";
                     }
                     // India -> Hindi
-                    else if (timezone.includes("Calcutta") || timezone.includes("Kolkata") || timezone.includes("Mumbai") || timezone.includes("Delhi") || timezone.includes("Asia/Kolkata")) {
+                    else if (
+                        timezone.includes("Kolkata") ||
+                        timezone.includes("Mumbai") ||
+                        timezone.includes("Delhi") ||
+                        timezone.includes("Asia/Kolkata") ||
+                        timezone.includes("Asia/Calcutta")
+                    ) {
                         detectedLang = "hi";
                     }
                     // Germany, Austria, Switzerland -> German
-                    else if (timezone.includes("Berlin") || timezone.includes("Vienna") || timezone.includes("Zurich")) {
+                    else if (
+                        timezone.includes("Berlin") ||
+                        timezone.includes("Vienna") ||
+                        timezone.includes("Zurich")
+                    ) {
                         detectedLang = "de";
                     }
                 } catch (e) {
