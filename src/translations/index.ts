@@ -14,6 +14,22 @@ import playgroundDe from "./de/playground";
 import installationDe from "./de/installation";
 import faqDe from "./de/faq";
 
+import commonFa from "./fa/common";
+import levelsFa from "./fa/levels";
+import terminalFa from "./fa/terminal";
+import homeFa from "./fa/home";
+import playgroundFa from "./fa/playground";
+import installationFa from "./fa/installation";
+import faqFa from "./fa/faq";
+
+import commonHi from "./hi/common";
+import levelsHi from "./hi/levels";
+import terminalHi from "./hi/terminal";
+import homeHi from "./hi/home";
+import playgroundHi from "./hi/playground";
+import installationHi from "./hi/installation";
+import faqHi from "./hi/faq";
+
 export const translations = {
     en: {
         ...commonEn,
@@ -32,5 +48,23 @@ export const translations = {
         ...playgroundDe,
         ...installationDe,
         ...faqDe,
+    },
+    fa: {
+        ...commonFa,
+        ...levelsFa,
+        ...terminalFa,
+        ...homeFa,
+        ...playgroundFa,
+        ...installationFa,
+        ...faqFa,
+    },
+    hi: {
+        ...commonHi,
+        ...levelsHi,
+        ...terminalHi,
+        ...homeHi,
+        ...playgroundHi,
+        ...installationHi,
+        ...faqHi,
     },
 };
