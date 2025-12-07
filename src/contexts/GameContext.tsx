@@ -233,7 +233,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 ]);
                 return;
             }
-        
+
             // Normal mode: level not complete
             if (!isLevelCompleted) {
                 setTerminalOutput(prev => [
@@ -242,7 +242,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 ]);
                 return;
             }
-        
+
             // Normal mode: level is complete → proceed
             handleNextLevel();
             return;
@@ -535,8 +535,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const handleLevelFromUrl = useCallback(
         (stageId: string, levelId: number) => {
-            // Only update if different from current values to prevent loops
-            if (stageId !== currentStage || levelId !== currentLevel) {
+            const levelChanged = stageId !== currentStage || levelId !== currentLevel;
+
+            // If level changed, set up the environment and update state
+            if (levelChanged) {
                 console.log(`Loading level from URL: ${stageId}-${levelId}`);
 
                 // First set up the environment
@@ -547,15 +549,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setCurrentLevel(levelId);
                 setIsLevelCompleted(progressManager.isLevelCompleted(stageId, levelId));
 
-                // Update terminal output
-                setTerminalOutput([
-                    t("terminal.welcome"),
-                    t("terminal.levelStarted").replace("{level}", levelId.toString()).replace("{stage}", stageId),
-                ]);
-
                 // Update localStorage last
                 progressManager.setCurrentLevel(stageId, levelId);
             }
+
+            // Always update terminal output to ensure it shows the correct level
+            // This fixes the issue where terminal shows previous level after navigation
+            setTerminalOutput([
+                t("terminal.welcome"),
+                t("terminal.levelStarted").replace("{level}", levelId.toString()).replace("{stage}", stageId),
+            ]);
         },
         [currentStage, currentLevel, fileSystem, gitRepository, levelManager, progressManager, t],
     );
