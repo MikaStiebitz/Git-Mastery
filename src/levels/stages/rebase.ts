@@ -20,7 +20,7 @@ const rebaseLevel1 = createLevel({
             requiresArgs: ["any"],
             description: "rebase.level1.requirement1.description",
             successMessage: "rebase.level1.requirement1.success",
-            id: " git-rebase",
+            id: "git-rebase",
         }),
     ],
     story: createStory({
@@ -160,7 +160,7 @@ const rebaseLevel3 = createLevel({
             requiresArgs: ["-i"],
             description: "rebase.level3.requirement1.description",
             successMessage: "rebase.level3.requirement1.success",
-            id: " git-rebase-i",
+            id: "git-rebase-i",
         }),
     ],
     story: createStory({
