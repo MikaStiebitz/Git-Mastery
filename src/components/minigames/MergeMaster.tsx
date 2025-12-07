@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { GitMerge, Timer, Trophy, X, ChevronDown, ChevronRight } from "lucide-react";
+import { GitMerge, Timer, Trophy, X, ChevronDown, ChevronRight, Copy } from "lucide-react";
 
 interface MergeMasterProps {
     onComplete: (score: number) => void;
@@ -292,6 +292,13 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
         return matrix[str2.length]![str1.length]!;
     };
 
+    const handleCopyConflictedCode = () => {
+        const scenario = selectedScenarios[currentScenario];
+        if (scenario) {
+            setResolution(scenario.conflictContent);
+        }
+    };
+
     const handleSubmitResolution = () => {
         if (!resolution.trim()) return;
 
@@ -423,20 +430,33 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <div>
-                        <h4 className="text-md mb-2 text-purple-300">Conflicted Code:</h4>
-                        <pre className="overflow-x-auto rounded-md border border-gray-700 bg-gray-900 p-4 text-sm text-gray-100">
+                    <div className="flex flex-col">
+                        <div className="mb-2 flex h-8 items-center">
+                            <h4 className="text-md text-purple-300">Conflicted Code:</h4>
+                        </div>
+                        <pre className="h-64 overflow-x-auto overflow-y-auto rounded-md border border-gray-700 bg-gray-900 p-4 text-sm text-gray-100">
                             <code>{scenario?.conflictContent}</code>
                         </pre>
                     </div>
 
-                    <div>
-                        <h4 className="text-md mb-2 text-purple-300">Your Resolution:</h4>
+                    <div className="flex flex-col">
+                        <div className="mb-2 flex h-8 items-center justify-between">
+                            <h4 className="text-md text-purple-300">Your Resolution:</h4>
+                            <Button
+                                onClick={handleCopyConflictedCode}
+                                variant="outline"
+                                size="sm"
+                                className="border-purple-600 text-purple-300 hover:bg-purple-900/50"
+                                title="Copy conflicted code to resolution field">
+                                <Copy className="mr-1.5 h-3.5 w-3.5" />
+                                Copy Conflicted Code
+                            </Button>
+                        </div>
                         <textarea
                             value={resolution}
                             onChange={e => setResolution(e.target.value)}
                             placeholder="Remove conflict markers and resolve the conflict..."
-                            className="h-48 w-full resize-none rounded-md border border-gray-700 bg-gray-900 p-4 font-mono text-sm text-gray-100"
+                            className="h-64 w-full resize-none rounded-md border border-gray-700 bg-gray-900 p-4 font-mono text-sm text-gray-100"
                         />
                     </div>
                 </div>
