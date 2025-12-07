@@ -51,7 +51,10 @@ export const metadata: Metadata = {
         description: "Learn Git commands and concepts through fun, interactive challenges",
         images: ["/home-screen.png"],
     },
-    icons: [{ rel: "icon", url: "/gitBranch.svg" }],
+    icons: [
+        { rel: "icon", url: "/gitBranch.svg", type: "image/svg+xml" },
+        { rel: "apple-touch-icon", url: "/gitBranch.svg" },
+    ],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
