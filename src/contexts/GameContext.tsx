@@ -224,22 +224,15 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Special case for "next" command
         if (command.trim() === "next") {
-
             // Playground mode: next command is disabled
             if (isPlaygroundMode) {
-                setTerminalOutput(prev => [
-                    ...prev,
-                    "The 'next' command is not available in Playground mode.",
-                ]);
+                setTerminalOutput(prev => [...prev, "The 'next' command is not available in Playground mode."]);
                 return;
             }
 
             // Normal mode: level not complete
             if (!isLevelCompleted) {
-                setTerminalOutput(prev => [
-                    ...prev,
-                    "You must complete the level before using 'next'.",
-                ]);
+                setTerminalOutput(prev => [...prev, "You must complete the level before using 'next'."]);
                 return;
             }
 
@@ -544,6 +537,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // First set up the environment
                 levelManager.setupLevel(stageId, levelId, fileSystem, gitRepository);
 
+                // Reset the command processor's current directory to "/"
+                // This ensures path resolution works correctly in the new level
+                commandProcessor.setCurrentDirectory("/");
+
+                // Close any open file editor when switching levels
+                setIsLevelFileEditorOpen(false);
+
                 // Then update state in a single batch to prevent cascading renders
                 setCurrentStage(stageId);
                 setCurrentLevel(levelId);
@@ -560,7 +560,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 t("terminal.levelStarted").replace("{level}", levelId.toString()).replace("{stage}", stageId),
             ]);
         },
-        [currentStage, currentLevel, fileSystem, gitRepository, levelManager, progressManager, t],
+        [currentStage, currentLevel, fileSystem, gitRepository, levelManager, progressManager, commandProcessor, t],
     );
 
     // Debug functions

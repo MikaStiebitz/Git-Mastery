@@ -22,7 +22,7 @@
       <img src="https://img.shields.io/github/stars/MikaStiebitz/Git-Mastery?style=social" alt="GitHub stars" />
     </a>
     <br/>
-    <b>If you find this project helpful, please consider giving it a star on <a href="https://github.com/MikaStiebitz/Git-Mastery">GitHub</a>!</b>
+    <b>If you find this project helpful, please consider giving it a star 🌟</b>
   </p>
 
   <p align="center">
