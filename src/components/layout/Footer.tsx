@@ -20,7 +20,7 @@ export function Footer({ className = "" }: FooterProps) {
                 <div className="container mx-auto px-4 text-center text-purple-400">
                     <p className="flex flex-col items-center justify-center sm:flex-row">
                         <span className="flex items-center">
-                            GitGud - Made with <Heart className="mx-1 h-4 w-4 text-red-400" /> by{" "}
+                            Git Mastery - Made with <Heart className="mx-1 h-4 w-4 text-red-400" /> by{" "}
                             <Link
                                 className="ml-1 text-purple-300 hover:underline"
                                 href="https://github.com/MikaStiebitz"

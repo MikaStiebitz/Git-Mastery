@@ -14,7 +14,7 @@ export interface DifficultyConfig {
     description: string;
     icon: string;
     color: string;
-    stages: string[]; // Which stages are available for this difficulty
+    stages: string[];
     maxPoints: number;
 }
 
@@ -101,7 +101,7 @@ export type LevelType = {
 
 // The rest of the types remain mostly the same
 export type LevelRequirement = {
-    id?: string;
+    id: string; // Required - unique identifier for tracking completion
     objectiveId?: number; // Group requirements by objective - all requirements with same objectiveId must complete to check off objective
     command: string;
     alternativeCommands?: string[]; // Alternative commands that also fulfill this requirement

@@ -1,6 +1,6 @@
 # Levels System Documentation
 
-This document explains how the levels and stages system works in GitGud and how to add new levels.
+This document explains how the levels and stages system works in Git Mastery and how to add new levels.
 
 ## Level Architecture
 

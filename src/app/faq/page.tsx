@@ -194,7 +194,9 @@ export default function FAQPage() {
                             <p className="mb-6 text-purple-200">{t("faq.intro")}</p>
 
                             {/* Render each FAQ section */}
-                            {faqItems.map(section => renderFAQSection(section.category, section.items))}
+                            {faqItems.map(section => (
+                                <div key={section.category}>{renderFAQSection(section.category, section.items)}</div>
+                            ))}
 
                             {/* Final encouragement section */}
                             <div className="mt-8 rounded-lg border border-purple-700/30 bg-purple-900/30 p-6 text-center">

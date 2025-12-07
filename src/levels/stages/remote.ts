@@ -19,6 +19,7 @@ const remoteLevel1 = createLevel({
             requiresArgs: ["add"],
             description: "remote.level1.requirement1.description",
             successMessage: "remote.level1.requirement1.success",
+            id: "git-remote-add",
         }),
     ],
     story: createStory({
@@ -56,6 +57,7 @@ const remoteLevel2 = createLevel({
             command: "git push",
             description: "remote.level2.requirement1.description",
             successMessage: "remote.level2.requirement1.success",
+            id: "git-push-remote",
         }),
     ],
     story: createStory({
@@ -96,6 +98,7 @@ const remoteLevel3 = createLevel({
             command: "git push",
             description: "remote.level3.requirement1.description",
             successMessage: "remote.level3.requirement1.success",
+            id: "git-push-3",
         }),
     ],
     story: createStory({

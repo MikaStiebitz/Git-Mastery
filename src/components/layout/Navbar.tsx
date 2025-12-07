@@ -3,6 +3,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "~/components/ui/dialog";
+import {
     GitBranch,
     Terminal,
     BookCopy,
@@ -15,6 +22,7 @@ import {
     Download,
     HelpCircle,
     Settings,
+    Check,
 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -44,6 +52,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const [starAnimation, setStarAnimation] = useState(false);
     const [starRotation, setStarRotation] = useState(0);
     const [debugModalOpen, setDebugModalOpen] = useState(false);
+    const [languageDialogOpen, setLanguageDialogOpen] = useState(false);
 
     // Determine which page we're on
     const isHomePage = pathname === "/";
@@ -51,9 +60,17 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const isInstallationPage = pathname === "/installation";
     const isFaqPage = pathname === "/faq";
 
-    // Toggle language
-    const toggleLanguage = () => {
-        setLanguage(language === "de" ? "en" : "de");
+    // Language options
+    const languages = [
+        { code: "en", name: "English", nativeName: "English" },
+        { code: "de", name: "German", nativeName: "Deutsch" },
+        { code: "fa", name: "Persian", nativeName: "فارسی" },
+        { code: "hi", name: "Hindi", nativeName: "हिन्दी" },
+    ];
+
+    const handleLanguageSelect = (langCode: "en" | "de" | "fa" | "hi") => {
+        setLanguage(langCode);
+        setLanguageDialogOpen(false);
     };
 
     // Toggle mobile menu
@@ -191,7 +208,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                 <div className="ml-auto hidden items-center space-x-4 md:flex">
                     {/* GitHub star button - elegant with tooltip */}
                     <a
-                        href="https://github.com/MikaStiebitz/Git-Gud"
+                        href="https://github.com/MikaStiebitz/Git-Mastery"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group relative flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 hover:bg-purple-800/50"
@@ -223,13 +240,13 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                         )}
                     </a>
 
-                    {/* Language toggle */}
+                    {/* Language selector */}
                     <Button
                         variant="ghost"
-                        onClick={toggleLanguage}
+                        onClick={() => setLanguageDialogOpen(true)}
                         className="flex items-center text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
                         <Languages className="mr-2 h-4 w-4" />
-                        {language === "de" ? "EN" : "DE"}
+                        {languages.find((l) => l.code === language)?.nativeName || language.toUpperCase()}
                     </Button>
 
                     {!isHomePage && (
@@ -287,7 +304,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                 <div className="ml-auto flex items-center space-x-2 md:hidden">
                     {/* GitHub star for mobile */}
                     <a
-                        href="https://github.com/MikaStiebitz/Git-Gud"
+                        href="https://github.com/MikaStiebitz/Git-Mastery"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="relative flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 hover:bg-purple-800/50"
@@ -329,7 +346,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
 
                         {/* GitHub star for mobile menu (with text) */}
                         <a
-                            href="https://github.com/MikaStiebitz/Git-Gud"
+                            href="https://github.com/MikaStiebitz/Git-Mastery"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex w-full items-center rounded-md border border-purple-800/40 bg-purple-900/20 px-3 py-2 text-purple-300">
@@ -337,13 +354,16 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <span>Star us on GitHub</span>
                         </a>
 
-                        {/* Language toggle for mobile */}
+                        {/* Language selector for mobile */}
                         <Button
                             variant="ghost"
-                            onClick={toggleLanguage}
+                            onClick={() => {
+                                setLanguageDialogOpen(true);
+                                setMobileMenuOpen(false);
+                            }}
                             className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
                             <Languages className="mr-2 h-4 w-4" />
-                            {language === "de" ? "Switch to English" : "Zu Deutsch wechseln"}
+                            {t("nav.language")}: {languages.find((l) => l.code === language)?.nativeName || language.toUpperCase()}
                         </Button>
 
                         {/* Navigation links */}
@@ -460,6 +480,39 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     />
                 </>
             )}
+
+            {/* Language Selection Dialog */}
+            <Dialog open={languageDialogOpen} onOpenChange={setLanguageDialogOpen}>
+                <DialogContent className="bg-[#1a1625] border-purple-900/20">
+                    <DialogHeader>
+                        <DialogTitle className="text-white">{t("nav.language")}</DialogTitle>
+                        <DialogDescription className="text-purple-300">
+                            Select your preferred language
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2 mt-4">
+                        {languages.map((lang) => (
+                            <Button
+                                key={lang.code}
+                                variant={language === lang.code ? "default" : "ghost"}
+                                onClick={() => handleLanguageSelect(lang.code as "en" | "de" | "fa" | "hi")}
+                                className={`w-full justify-start ${
+                                    language === lang.code
+                                        ? "bg-purple-600 text-white hover:bg-purple-700"
+                                        : "text-purple-300 hover:bg-purple-900/50 hover:text-purple-100"
+                                }`}>
+                                <div className="flex items-center justify-between w-full">
+                                    <div className="flex flex-col items-start">
+                                        <span className="font-medium">{lang.nativeName}</span>
+                                        <span className="text-xs opacity-75">{lang.name}</span>
+                                    </div>
+                                    {language === lang.code && <Check className="h-4 w-4" />}
+                                </div>
+                            </Button>
+                        ))}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </header>
     );
 }

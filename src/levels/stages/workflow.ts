@@ -130,6 +130,7 @@ const workflowLevel2 = createLevel({
     requirements: [
         {
             id: "create-hotfix-branch",
+            objectiveId: 1,
             command: "git switch",
             alternativeCommands: ["git checkout"],
             requiresArgs: ["-c"],
@@ -138,12 +139,14 @@ const workflowLevel2 = createLevel({
         },
         {
             id: "stage-fixes",
+            objectiveId: 2,
             command: "git add",
             description: "workflow.level2.requirement2.description",
             successMessage: "workflow.level2.requirement2.success"
         },
         {
             id: "commit-fixes",
+            objectiveId: 2,
             command: "git commit",
             requiresArgs: ["any"],
             description: "workflow.level2.requirement3.description",
@@ -151,6 +154,7 @@ const workflowLevel2 = createLevel({
         },
         {
             id: "switch-to-main",
+            objectiveId: 3,
             command: "git switch",
             alternativeCommands: ["git checkout"],
             requiresArgs: ["main"],
@@ -159,6 +163,7 @@ const workflowLevel2 = createLevel({
         },
         {
             id: "merge-hotfix",
+            objectiveId: 4,
             command: "git merge",
             requiresArgs: ["any"],
             description: "workflow.level2.requirement5.description",

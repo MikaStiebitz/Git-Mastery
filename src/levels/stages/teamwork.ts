@@ -30,24 +30,28 @@ const teamworkLevel1 = createLevel({
             command: "git pull origin main",
             alternativeCommands: ["git pull"],
             description: "teamwork.level1.requirement1.description",
-            successMessage: "teamwork.level1.requirement1.success"
+            successMessage: "teamwork.level1.requirement1.success",
+            id: "git-pull-origin",
         }),
         createRequirement({
             command: "git switch",
             alternativeCommands: ["git checkout"],
             requiresArgs: ["-c"],
             description: "teamwork.level1.requirement2.description",
-            successMessage: "teamwork.level1.requirement2.success"
+            successMessage: "teamwork.level1.requirement2.success",
+            id: "git-switch",
         }),
         createRequirement({
             command: "git add .",
             description: "teamwork.level1.requirement3.description",
-            successMessage: "teamwork.level1.requirement3.success"
+            successMessage: "teamwork.level1.requirement3.success",
+            id: "git-add-teamwork",
         }),
         createRequirement({
             command: "git commit -m",
             description: "teamwork.level1.requirement4.description",
-            successMessage: "teamwork.level1.requirement4.success"
+            successMessage: "teamwork.level1.requirement4.success",
+            id: "git-commit-teamwork",
         })
     ],
     story: createStory({

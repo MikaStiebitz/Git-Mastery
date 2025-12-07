@@ -1,10 +1,10 @@
 # Git Commands Implementation Guide
 
-This document explains how Git commands are implemented in the GitGud learning platform and how to add new commands.
+This document explains how Git commands are implemented in the Git Mastery learning platform and how to add new commands.
 
 ## Command Architecture
 
-Commands in GitGud are implemented using a class-based architecture with the following components:
+Commands in Git Mastery are implemented using a class-based architecture with the following components:
 
 - **Command Interface**: Defines the structure of all commands (`src/commands/base/Command.ts`)
 - **CommandRegistry**: Central registry for all commands (`src/commands/base/CommandRegistry.ts`)
@@ -136,4 +136,4 @@ When adding a new command, test it thoroughly in the playground mode to ensure i
 
 ## Command Limitations
 
-Note that the Git implementation in GitGud is a simulation, not a full Git implementation. Some advanced features and edge cases may behave differently than real Git.
+Note that the Git implementation in Git Mastery is a simulation, not a full Git implementation. Some advanced features and edge cases may behave differently than real Git.

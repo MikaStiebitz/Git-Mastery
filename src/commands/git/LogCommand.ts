@@ -18,10 +18,27 @@ export class LogCommand implements Command {
             return ["fatal: not a git repository (or any of the parent directories): .git"];
         }
 
-        // Handle --oneline flag
-        const isOneline = args.flags.oneline !== undefined;
-        // Handle --graph flag (simplified - we don't actually show a graph)
-        const showGraph = args.flags.graph !== undefined;
+        // Flags (support both parsed flags and raw positional tokens for robustness)
+        const tokens = args.positionalArgs ?? [];
+        const isOneline = args.flags.oneline !== undefined || tokens.includes("--oneline");
+        const showGraph = args.flags.graph !== undefined || tokens.includes("--graph");
+
+        // Parse --author and --grep (support --key=value or --key value)
+        const getOptionValue = (key: string): string | undefined => {
+            const eqToken = tokens.find(t => t.startsWith(`${key}=`));
+            if (eqToken) return eqToken.substring(key.length + 1).replace(/^"|"$/g, "");
+            const idx = tokens.indexOf(key);
+            if (idx !== -1) {
+                const next = tokens[idx + 1];
+                if (typeof next === "string") {
+                    return next.replace(/^"|"$/g, "");
+                }
+            }
+            return undefined;
+        };
+
+        const authorFilter = getOptionValue("--author");
+        const grepFilter = getOptionValue("--grep");
 
         const commits = gitRepository.getCommits();
 
@@ -31,24 +48,50 @@ export class LogCommand implements Command {
 
         const output: string[] = [];
 
-        // Show commits in reverse chronological order (newest first)
-        Object.entries(commits)
-            .reverse()
-            .forEach(([commitId, commit]) => {
-                const shortId = commitId.substring(0, 7);
-                const date = commit.timestamp.toISOString().split("T")[0];
+        // Deterministic pseudo-author assignment for simulation purposes
+        const pseudoAuthors: string[] = ["Sam", "Alex", "Taylor", "Lee"];
+        const getPseudoAuthor = (id: string): string => {
+            const idx = Math.abs(id.charCodeAt(0) || 0) % pseudoAuthors.length;
+            const a = pseudoAuthors[idx];
+            return a ?? "Unknown";
+        };
 
-                if (isOneline) {
-                    const graphPrefix = showGraph ? "* " : "";
-                    output.push(`${graphPrefix}${shortId} ${commit.message}`);
-                } else {
-                    output.push(`commit ${commitId}`);
-                    output.push(`Date: ${date}`);
-                    output.push("");
-                    output.push(`    ${commit.message}`);
-                    output.push("");
-                }
-            });
+        // Build list newest-first, then apply filters
+        const commitEntries = Object.entries(commits).reverse();
+
+        const filtered = commitEntries.filter(([id, commit]) => {
+            const author = getPseudoAuthor(id) || "Unknown";
+            const authorOk = authorFilter
+                ? author.toLowerCase().includes((authorFilter ?? "").toLowerCase())
+                : true;
+            const grepOk = grepFilter
+                ? commit.message.toLowerCase().includes((grepFilter ?? "").toLowerCase())
+                : true;
+            return authorOk && grepOk;
+        });
+
+        // If filters remove everything, show friendly message (mimics Git's empty result)
+        if (filtered.length === 0) {
+            return [];
+        }
+
+        filtered.forEach(([commitId, commit]) => {
+            const shortId = commitId.substring(0, 7);
+            const date = commit.timestamp.toISOString().split("T")[0];
+            const author = getPseudoAuthor(commitId);
+
+            if (isOneline) {
+                const graphPrefix = showGraph ? "* " : "";
+                output.push(`${graphPrefix}${shortId} ${commit.message}`);
+            } else {
+                output.push(`commit ${commitId}`);
+                output.push(`Author: ${author}`);
+                output.push(`Date: ${date}`);
+                output.push("");
+                output.push(`    ${commit.message}`);
+                output.push("");
+            }
+        });
 
         return output;
     }

@@ -66,7 +66,7 @@ export function createRequirement(params: {
     alternativeCommands?: string[];
     description: string;
     successMessage?: string;
-    id?: string;
+    id: string;
 }): LevelRequirement {
     return {
         command: params.command,

@@ -28,18 +28,22 @@ const archaeologyLevel1 = createLevel({
         createRequirement({
             command: "git blame src/utils/validator.js",
             description: "archaeology.level1.requirement1.description",
-            successMessage: "archaeology.level1.requirement1.success"
+            successMessage: "archaeology.level1.requirement1.success",
+            id:"git-blame",
         }),
         createRequirement({
             command: "git log",
             requiresArgs: ["--oneline"],
             description: "archaeology.level1.requirement2.description",
-            successMessage: "archaeology.level1.requirement2.success"
+            successMessage: "archaeology.level1.requirement2.success",
+            id: "git-log",
+            
         }),
         createRequirement({
             command: "git show",
             description: "archaeology.level1.requirement3.description",
-            successMessage: "archaeology.level1.requirement3.success"
+            successMessage: "archaeology.level1.requirement3.success",
+            id: "git-show",
         })
     ],
     story: createStory({
@@ -134,19 +138,23 @@ const archaeologyLevel2 = createLevel({
             command: "git log",
             requiresArgs: ["--grep"],
             description: "archaeology.level2.requirement1.description",
-            successMessage: "archaeology.level2.requirement1.success"
+            successMessage: "archaeology.level2.requirement1.success",
+            id: "git-log-1"
         }),
         createRequirement({
             command: "git log",
             requiresArgs: ["-S"],
             description: "archaeology.level2.requirement2.description",
-            successMessage: "archaeology.level2.requirement2.success"
+            successMessage: "archaeology.level2.requirement2.success",
+            id: "git-log-2",
+            
         }),
         createRequirement({
             command: "git log",
             requiresArgs: ["--author"],
             description: "archaeology.level2.requirement3.description",
-            successMessage: "archaeology.level2.requirement3.success"
+            successMessage: "archaeology.level2.requirement3.success",
+            id: "git-log-3",
         })
     ],
     story: createStory({
@@ -237,18 +245,21 @@ const archaeologyLevel3 = createLevel({
         createRequirement({
             command: "git reflog",
             description: "archaeology.level3.requirement1.description",
-            successMessage: "archaeology.level3.requirement1.success"
+            successMessage: "archaeology.level3.requirement1.success",
+            id: "git-reflog"
         }),
         createRequirement({
             command: "git reset",
             requiresArgs: ["--hard"],
             description: "archaeology.level3.requirement2.description",
-            successMessage: "archaeology.level3.requirement2.success"
+            successMessage: "archaeology.level3.requirement2.success",
+            id: "git-reset"
         }),
         createRequirement({
             command: "git branch recovery HEAD@{1}",
             description: "archaeology.level3.requirement3.description",
-            successMessage: "archaeology.level3.requirement3.success"
+            successMessage: "archaeology.level3.requirement3.success",
+            id: "git-branch"
         })
     ],
     story: createStory({

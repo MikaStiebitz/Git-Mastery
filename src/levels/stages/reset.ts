@@ -213,6 +213,7 @@ const resetLevel3 = createLevel({
         {
             id: "reset-to-specific-commit",
             command: "git reset",
+            requiresArgs: ["<hash>"],
             description: "reset.level3.requirement2.description",
             successMessage: "reset.level3.requirement2.success"
         }

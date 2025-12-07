@@ -426,6 +426,14 @@ export class LevelManager {
                                 return gitArgs.includes("-c");
                             }
 
+                            // Special placeholder: require a commit hash (prevents HEAD~n shortcuts)
+                            if (reqArg === "<hash>") {
+                                const hexLike = /^(?:[0-9a-f]{7,})$/i;
+                                // Accept if any arg is a real commit id or a short hex-ish prefix
+                                const commitIds = Object.keys(gitRepository.getCommits());
+                                return gitArgs.some(a => hexLike.test(a) || commitIds.some(id => id.startsWith(a)));
+                            }
+
                             // General flag matching (works for --abort, --soft, --hard, -c, -b, etc.)
                             return gitArgs.includes(reqArg);
                         });

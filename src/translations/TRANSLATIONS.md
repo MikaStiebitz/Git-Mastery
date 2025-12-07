@@ -1,10 +1,10 @@
 # Translation System Documentation
 
-This document explains how the translation system in GitGud works and how to add translations for new languages or extend existing ones.
+This document explains how the translation system in Git Mastery works and how to add translations for new languages or extend existing ones.
 
 ## Translation Architecture
 
-GitGud uses a key-based translation system implemented through React Context. The main components are:
+Git Mastery uses a key-based translation system implemented through React Context. The main components are:
 
 - **LanguageContext**: Context provider for current language and translation function
 - **Translation Files**: Organized by language and category

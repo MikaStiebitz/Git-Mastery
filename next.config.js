@@ -9,12 +9,6 @@ const config = {
     // Ensure trailing slash consistency
     trailingSlash: false,
 
-    // ESLint configuration
-    eslint: {
-        // Allow production builds to successfully complete even if there are ESLint warnings
-        ignoreDuringBuilds: false, // Keep linting active but don't fail on warnings
-    },
-
     // Enable React 19 features
     experimental: {
         // Better development experience with server components HMR

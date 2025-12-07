@@ -15,7 +15,7 @@ const terminal = {
     "terminal.allLevelsCompleted": "Gratulation! Du hast alle verfügbaren Level abgeschlossen!",
     "terminal.difficultyCompleted": "🎉 Gratulation! Du hast alle Level dieser Schwierigkeit abgeschlossen!",
     "terminal.githubStar": "Falls dir das Projekt gefällt, lass gerne einen Star auf GitHub da:",
-    "terminal.githubLink": "https://github.com/MikaStiebitz/Git-Gud",
+    "terminal.githubLink": "https://github.com/MikaStiebitz/Git-Mastery",
     "terminal.redirectingHome": "Leite zur Startseite weiter...",
 
     // File Editor

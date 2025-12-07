@@ -1,8 +1,8 @@
-# GitGud: Master Git Through Play
+# GitMastery: Master Git Through Play
 
 <div align="center">
   <a href="https://www.gitmastery.me">
-    <img src="./public/gitBranch.svg" alt="GitGud Logo" width="140" height="140" />
+    <img src="./public/gitBranch.svg" alt="GitMastery Logo" width="140" height="140" />
   </a>
 
   <h3 align="center">An interactive Git learning platform that makes mastering Git fun</h3>
@@ -18,11 +18,11 @@
   </p>
 
   <p align="center">
-    <a href="https://github.com/MikaStiebitz/Git-Gud" target="_blank">
-      <img src="https://img.shields.io/github/stars/MikaStiebitz/Git-Gud?style=social" alt="GitHub stars" />
+    <a href="https://github.com/MikaStiebitz/Git-Mastery" target="_blank">
+      <img src="https://img.shields.io/github/stars/MikaStiebitz/Git-Mastery?style=social" alt="GitHub stars" />
     </a>
     <br/>
-    <b>If you find this project helpful, please consider giving it a star on <a href="https://github.com/MikaStiebitz/Git-Gud">GitHub</a>!</b>
+    <b>If you find this project helpful, please consider giving it a star 🌟</b>
   </p>
 
   <p align="center">
@@ -34,16 +34,16 @@
 
 ## 🚀 About The Project
 
-**GitGud** is an interactive learning platform designed to help developers master Git through hands-on practice. While traditional tutorials often rely on passive learning, GitGud provides a fully simulated Git environment where you can:
+**GitMastery** is an interactive learning platform designed to help developers master Git through hands-on practice. While traditional tutorials often rely on passive learning, GitMastery provides a fully simulated Git environment where you can:
 
 - Execute real Git commands in a safe sandbox
 - See immediate visual feedback
 - Progress through structured, bite-sized challenges
 - Learn Git intuitively through gamification
 
-Whether you're a complete beginner or looking to level up your Git skills, GitGud offers an engaging, interactive approach to learning this essential developer tool.
+Whether you're a complete beginner or looking to level up your Git skills, GitMastery offers an engaging, interactive approach to learning this essential developer tool.
 
-**🌐 Visit GitGud at [www.gitmastery.me](https://www.gitmastery.me) to start your journey!**
+**🌐 Visit GitMastery at [www.gitmastery.me](https://www.gitmastery.me) to start your journey!**
 
 ###### No registration needed!
 
@@ -70,7 +70,7 @@ Whether you're a complete beginner or looking to level up your Git skills, GitGu
 
 ## 🛠️ Tech Stack
 
-GitGud is built with modern web technologies to provide the best learning experience:
+GitMastery is built with modern web technologies to provide the best learning experience:
 
 ### Frontend Framework
 - **Next.js 15** - React framework with server-side rendering, App Router, and performance optimizations
@@ -98,8 +98,8 @@ GitGud is built with modern web technologies to provide the best learning experi
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/gitgud.git
-cd gitgud
+git clone https://github.com/MikaStiebitz/Git-Mastery
+cd gitmastery
 ```
 
 2. **Install dependencies**
@@ -128,7 +128,7 @@ For developers and contributors, detailed documentation is available to help you
 
 ## 🤝 Contributing
 
-We welcome contributions to GitGud! Whether you're fixing bugs, improving the documentation, or adding new features, please follow these steps:
+We welcome contributions to GitMastery! Whether you're fixing bugs, improving the documentation, or adding new features, please follow these steps:
 
 1. Fork the repository
 2. Create a new branch for your feature (`git checkout -b feature/amazing-feature`)
@@ -141,9 +141,9 @@ For more details on the project structure, check the documentation linked above.
 
 ## ⭐ Support This Project
 
-If you find GitGud helpful in your Git learning journey, please consider:
+If you find GitMastery helpful in your Git learning journey, please consider:
 
-- **Giving it a star on GitHub**: Visit [github.com/MikaStiebitz/Git-Gud](https://github.com/MikaStiebitz/Git-Gud) and click the star button
+- **Giving it a star on GitHub**: Visit [github.com/MikaStiebitz/Git-Mastery](https://github.com/MikaStiebitz/Git-Mastery) and click the star button
 - **Sharing it** with friends and colleagues who are learning Git
 - **Contributing** to make it even better
 

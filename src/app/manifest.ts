@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'GitGud - Interactive Git Learning Platform',
-    short_name: 'GitGud',
+    name: 'GitMastery - Interactive Git Learning Platform',
+    short_name: 'GitMastery',
     description: 'Learn Git commands and concepts through fun, interactive challenges',
     start_url: '/',
     display: 'standalone',
