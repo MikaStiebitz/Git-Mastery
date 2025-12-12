@@ -30,8 +30,8 @@ const teamworkLevel1 = createLevel({
     requirementLogic: "all",
     requirements: [
         createRequirement({
-            command: "git pull origin main",
-            alternativeCommands: ["git pull"],
+            command: "git pull",
+            alternativeCommands: ["git pull origin main", "git pull origin"],
             description: "teamwork.level1.requirement1.description",
             successMessage: "teamwork.level1.requirement1.success",
             id: "git-pull-origin",
@@ -137,30 +137,43 @@ const teamworkLevel2 = createLevel({
     requirements: [
         {
             id: "stage-initial-changes",
+            objectiveId: 1, // Objective 1: Stage and commit your local changes
             command: "git add",
             description: "teamwork.level2.requirement1.description",
             successMessage: "teamwork.level2.requirement1.success"
         },
         {
             id: "commit-initial-changes",
+            objectiveId: 1, // Objective 1: Stage and commit your local changes (both add AND commit needed)
             command: "git commit",
             description: "teamwork.level2.requirement2.description",
             successMessage: "teamwork.level2.requirement2.success"
         },
         {
             id: "pull-remote-changes",
+            objectiveId: 2, // Objective 2: Pull remote changes (triggers conflict)
             command: "git pull",
             description: "teamwork.level2.requirement3.description",
             successMessage: "teamwork.level2.requirement3.success"
         },
         {
-            id: "stage-resolved-conflict",
-            command: "git add",
+            id: "resolve-conflict-markers",
+            objectiveId: 3, // Objective 3: Resolve merge conflict markers
+            command: "", // State-based check
+            checkFileChanged: "/src/auth/login.js",
             description: "teamwork.level2.requirement4.description",
             successMessage: "teamwork.level2.requirement4.success"
         },
         {
+            id: "stage-resolved-conflict",
+            objectiveId: 4, // Objective 4: Stage and commit the merged solution
+            command: "git add",
+            description: "teamwork.level2.requirement5.description",
+            successMessage: "teamwork.level2.requirement5.success"
+        },
+        {
             id: "commit-merge-resolution",
+            objectiveId: 4, // Objective 4: Stage and commit the merged solution (both add AND commit needed)
             command: "git commit",
             description: "teamwork.level2.requirement5.description",
             successMessage: "teamwork.level2.requirement5.success"

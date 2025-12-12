@@ -95,6 +95,8 @@ const branchesLevel3 = createLevel({
     requirements: [
         createRequirement({
             command: "git switch",
+            alternativeCommands: ["git checkout"],
+            requiresArgs: ["any"],
             description: "branches.level3.requirement1.description",
             successMessage: "branches.level3.requirement1.success",
             id: "git-switch-2"

@@ -495,6 +495,25 @@ export class LevelManager {
                         if (requirement.id) {
                             level.completedRequirements.push(requirement.id);
                         }
+
+                        // Check if this completes an objective
+                        if (requirement.objectiveId !== undefined) {
+                            // Get all requirements with the same objectiveId
+                            const objectiveRequirements = level.requirements.filter(
+                                req => req.objectiveId === requirement.objectiveId
+                            );
+
+                            // Check if all requirements for this objective are completed
+                            const allObjectiveRequirementsCompleted = objectiveRequirements.every(
+                                req => !req.id || level.completedRequirements?.includes(req.id)
+                            );
+
+                            // If all requirements for this objective are completed, mark objective as complete
+                            if (allObjectiveRequirementsCompleted && !level.completedObjectives?.includes(requirement.objectiveId)) {
+                                level.completedObjectives?.push(requirement.objectiveId);
+                            }
+                        }
+
                         requirementSatisfied = true;
                         break; // Only one requirement per command
                     }
@@ -550,8 +569,23 @@ export class LevelManager {
                                 return gitArgs.some(a => hexLike.test(a) || commitIds.some(id => id.startsWith(a)));
                             }
 
-                            // General flag matching (works for --abort, --soft, --hard, -c, -b, etc.)
-                            return gitArgs.includes(reqArg);
+                            // Check for exact match first
+                            if (gitArgs.includes(reqArg)) {
+                                return true;
+                            }
+
+                            // For long flags that take values (like --author="sam" or --author=sam or --grep=text)
+                            if (reqArg.startsWith("--")) {
+                                return gitArgs.some(arg => arg === reqArg || arg.startsWith(reqArg + "="));
+                            }
+
+                            // For short flags like -S that take values (like -S "value" or -Svalue)
+                            if (reqArg.startsWith("-") && reqArg.length === 2) {
+                                return gitArgs.some(arg => arg === reqArg || arg.startsWith(reqArg));
+                            }
+
+                            // General flag matching (fallback)
+                            return false;
                         });
 
                         console.log("Args required:", requirement.requiresArgs);
@@ -626,6 +660,10 @@ export class LevelManager {
                             // check if any arg starts with the required flag
                             if (reqArg.startsWith("--")) {
                                 return args.some(arg => arg === reqArg || arg.startsWith(reqArg + "="));
+                            }
+                            // For short flags like -S that take values (like -S "value" or -Svalue)
+                            if (reqArg.startsWith("-") && reqArg.length === 2) {
+                                return args.some(arg => arg === reqArg || arg.startsWith(reqArg));
                             }
                             return false;
                         });
