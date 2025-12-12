@@ -155,8 +155,7 @@ const advancedLevel3 = createLevel({
     name: "advanced.level3.name",
     description: "advanced.level3.description",
     objectives: [
-        "advanced.level3.objective1",
-        "advanced.level3.objective2"
+        "advanced.level3.objective1"
     ],
     hints: [
         "advanced.level3.hint1",
@@ -168,15 +167,9 @@ const advancedLevel3 = createLevel({
         {
             id: "show-commit",
             command: "git show",
+            requiresArgs: ["<hash>"],
             description: "advanced.level3.requirement1.description",
             successMessage: "advanced.level3.requirement1.success",
-        },
-        {
-            id: "show-files",
-            command: "git show",
-            requiresArgs: ["--name-only"],
-            description: "advanced.level3.requirement2.description",
-            successMessage: "advanced.level3.requirement2.success",
         },
     ],
     story: createStory({
