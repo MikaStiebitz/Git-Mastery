@@ -250,6 +250,9 @@ export function Terminal({
         // Check for unpushed commits (only if in repository)
         const unpushedCommitsCount = isInRepository ? gitRepository.getUnpushedCommitCount() : 0;
 
+        // Check for unpulled commits (remote commits available to pull)
+        const unpulledCommitsCount = isInRepository ? gitRepository.getUnpulledCommitCount() : 0;
+
         return (
             <TerminalPrompt
                 currentDirectory={currentDir}
@@ -259,6 +262,7 @@ export function Terminal({
                 modifiedCount={modifiedCount}
                 untrackedCount={untrackedCount}
                 unpushedCommitsCount={unpushedCommitsCount}
+                unpulledCommitsCount={unpulledCommitsCount}
             />
         );
     };

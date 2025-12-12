@@ -1000,21 +1000,28 @@ This is enterprise-level Git management. Welcome to the big leagues!`,
     "teamwork.level1.description": "Learn how to work effectively with a team using Git",
     "teamwork.level1.objective1": "Pull the latest team code from remote",
     "teamwork.level1.objective2": "Create a new feature branch for your work",
-    "teamwork.level1.objective3": "Add your name to the team members list",
-    "teamwork.level1.objective4": "Stage and commit your changes",
+    "teamwork.level1.objective3": "Edit team.md and add your name to the team members list",
+    "teamwork.level1.objective4": "Stage your changes",
+    "teamwork.level1.objective5": "Commit your changes",
+    "teamwork.level1.objective6": "Push your changes to the remote repository",
     "teamwork.level1.hint1": "Use 'git pull origin main' to get the latest team code",
     "teamwork.level1.hint2": "Create a new branch with 'git switch -c feature/YOUR-NAME'",
     "teamwork.level1.hint3": "Edit the team.md file to add your name and role",
     "teamwork.level1.hint4": "Stage all changes with 'git add .'",
     "teamwork.level1.hint5": "Commit with a clear message: 'git commit -m \"Add my profile\"'",
+    "teamwork.level1.hint6": "Push your branch with 'git push origin feature/YOUR-NAME' or 'git push --set-upstream origin feature/YOUR-NAME'",
     "teamwork.level1.requirement1.description": "Pull the latest changes from the team repository",
     "teamwork.level1.requirement1.success": "Latest changes pulled successfully!",
     "teamwork.level1.requirement2.description": "Create your feature branch for team profile",
     "teamwork.level1.requirement2.success": "Feature branch created!",
-    "teamwork.level1.requirement3.description": "Stage your team profile changes",
-    "teamwork.level1.requirement3.success": "Changes staged!",
-    "teamwork.level1.requirement4.description": "Commit your team profile with a descriptive message",
-    "teamwork.level1.requirement4.success": "Team profile committed!",
+    "teamwork.level1.requirement3.description": "Edit team.md and add your name to the list",
+    "teamwork.level1.requirement3.success": "File modified! Your name has been added.",
+    "teamwork.level1.requirement4.description": "Stage your team profile changes",
+    "teamwork.level1.requirement4.success": "Changes staged!",
+    "teamwork.level1.requirement5.description": "Commit your team profile with a descriptive message",
+    "teamwork.level1.requirement5.success": "Team profile committed!",
+    "teamwork.level1.requirement6.description": "Push your changes to the remote repository",
+    "teamwork.level1.requirement6.success": "Changes pushed to remote!",
     "teamwork.level1.story.title": "Welcome to the Dev Team",
     "teamwork.level1.story.narrative":
         `🎉 Congratulations! You've just been hired as a developer at InnovateCorp, a fast-growing tech startup.
@@ -1031,6 +1038,7 @@ Your mission:
 3. Add your developer profile to the team page
 4. Stage changes: \`git add .\`
 5. Commit your changes: \`git commit -m "Add my profile"\`
+6. Push your branch: \`git push origin feature/team-profile\`
 
 This is real-world team development. Let's make your first contribution!`,
     "teamwork.level1.story.realWorldContext":

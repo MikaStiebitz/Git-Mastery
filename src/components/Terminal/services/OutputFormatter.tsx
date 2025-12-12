@@ -123,7 +123,7 @@ export class OutputFormatterService {
             );
         }
 
-        // Default formatting
-        return <div className="text-purple-300">{line}</div>;
+        // Default formatting - use non-breaking space for empty lines to preserve height
+        return <div className="text-purple-300">{line || '\u00A0'}</div>;
     }
 }

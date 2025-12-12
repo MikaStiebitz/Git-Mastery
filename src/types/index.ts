@@ -109,6 +109,10 @@ export type LevelRequirement = {
     description: string;
     successMessage?: string;
     completed?: boolean; // Track if requirement is fulfilled
+    // State-based checks (alternative to command-based)
+    checkFileChanged?: string; // Check if this file has been modified (path like "/team.md")
+    checkFileExists?: string; // Check if this file exists
+    checkBranchExists?: string; // Check if this branch exists
 };
 
 export type StoryContext = {

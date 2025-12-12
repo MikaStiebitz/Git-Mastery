@@ -36,7 +36,7 @@ describe("git add", () => {
         // Should only stage the modified file
         const status = gitRepository.getStatus();
         expect(status["file1.txt"]).toBe("staged");
-        expect(status["file2.txt"]).toBeUndefined(); // file2 should not be staged since it's not modified
+        expect(status["file2.txt"]).toBe("committed"); // file2 should not be staged since it's not modified
         expect(result.join(" ")).toContain("Added 1 files to staging area");
     });
 

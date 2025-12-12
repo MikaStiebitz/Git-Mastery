@@ -147,7 +147,9 @@ describe("Level Setup Integration Tests", () => {
                     }
 
                     level.requirements.forEach((req, reqIdx) => {
-                        if (!req.command || req.command.trim() === '') {
+                        // Allow empty command for state-based requirements (checkFileChanged, checkFileExists, checkBranchExists)
+                        const isStateBased = req.checkFileChanged || req.checkFileExists || req.checkBranchExists;
+                        if (!isStateBased && (!req.command || req.command.trim() === '')) {
                             issues.push(`${stageKey} Level ${levelId} Req ${reqIdx}: Empty command`);
                         }
 

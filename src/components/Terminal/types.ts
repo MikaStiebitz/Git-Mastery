@@ -53,6 +53,7 @@ export interface TerminalPromptProps {
     modifiedCount: number;
     untrackedCount: number;
     unpushedCommitsCount: number;
+    unpulledCommitsCount: number;
 }
 
 export interface HistoryState {

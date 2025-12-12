@@ -270,6 +270,11 @@ export class GitRepository {
         return currentBranchState.commits.filter(id => !this.pushedCommits.has(id)).length;
     }
 
+    public getUnpulledCommitCount(): number {
+        const remoteCommitsForBranch = this.remoteCommits[this.currentBranch] || [];
+        return remoteCommitsForBranch.length;
+    }
+
     public getLastCommit(): { id: string; message: string; timestamp: Date; files: string[] } | null {
         const currentBranchState = this.branchStates[this.currentBranch];
         if (!currentBranchState || currentBranchState.commits.length === 0) return null;
