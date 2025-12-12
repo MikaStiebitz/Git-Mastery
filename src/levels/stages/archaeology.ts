@@ -26,7 +26,8 @@ const archaeologyLevel1 = createLevel({
     requirementLogic: "all",
     requirements: [
         createRequirement({
-            command: "git blame src/utils/validator.js",
+            command: "git blame",
+            requiresArgs: ["any"],
             description: "archaeology.level1.requirement1.description",
             successMessage: "archaeology.level1.requirement1.success",
             id:"git-blame",
@@ -37,10 +38,11 @@ const archaeologyLevel1 = createLevel({
             description: "archaeology.level1.requirement2.description",
             successMessage: "archaeology.level1.requirement2.success",
             id: "git-log",
-            
+
         }),
         createRequirement({
             command: "git show",
+            requiresArgs: ["any"],
             description: "archaeology.level1.requirement3.description",
             successMessage: "archaeology.level1.requirement3.success",
             id: "git-show",
@@ -147,7 +149,7 @@ const archaeologyLevel2 = createLevel({
             description: "archaeology.level2.requirement2.description",
             successMessage: "archaeology.level2.requirement2.success",
             id: "git-log-2",
-            
+
         }),
         createRequirement({
             command: "git log",
@@ -256,7 +258,8 @@ const archaeologyLevel3 = createLevel({
             id: "git-reset"
         }),
         createRequirement({
-            command: "git branch recovery HEAD@{1}",
+            command: "git branch",
+            requiresArgs: ["any"],
             description: "archaeology.level3.requirement3.description",
             successMessage: "archaeology.level3.requirement3.success",
             id: "git-branch"

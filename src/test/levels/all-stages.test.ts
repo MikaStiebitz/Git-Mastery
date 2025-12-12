@@ -105,8 +105,11 @@ describe("All Stages Validation", () => {
                             expect(req.description).toBeDefined();
                             expect(req.successMessage).toBeDefined();
 
-                            // Command should not be empty
-                            expect(req.command.trim().length).toBeGreaterThan(0);
+                            // Command should not be empty, unless it's a state-based requirement
+                            const isStateBased = req.checkFileChanged || req.checkFileExists || req.checkBranchExists;
+                            if (!isStateBased) {
+                                expect(req.command.trim().length).toBeGreaterThan(0);
+                            }
                         });
                     });
                 });

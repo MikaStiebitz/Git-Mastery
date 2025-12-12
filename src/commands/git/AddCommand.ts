@@ -31,19 +31,25 @@ export class AddCommand implements Command {
             // Mark appropriate files as staged
             for (const file of allFiles) {
                 // Skip .git directory
-                if (file.startsWith("/.git") || file.includes("/.git/")) {
+                if (file.startsWith("/.git") || file.includes("/.git/") || file.startsWith(".git")) {
                     continue;
                 }
 
                 // Normalize path for consistency - remove leading slash
                 const normalizedPath = file.startsWith("/") ? file.substring(1) : file;
 
-                // Only stage files that have changes (modified, untracked, or deleted)
+                // Get file status - files without status are treated as untracked
                 const fileStatus = gitStatus[normalizedPath];
-                if (fileStatus === "modified" || fileStatus === "untracked" || fileStatus === "deleted") {
-                    gitRepository.addFile(normalizedPath);
-                    stagedFiles.push(normalizedPath);
+
+                // Skip files that are already staged or committed (clean)
+                if (fileStatus === "staged" || fileStatus === "committed") {
+                    continue;
                 }
+
+                // Stage files that have changes or are new (untracked/no status)
+                // modified, untracked, deleted, or undefined (new file not yet tracked)
+                gitRepository.addFile(normalizedPath);
+                stagedFiles.push(normalizedPath);
             }
 
             if (stagedFiles.length === 0) {

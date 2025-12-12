@@ -15,20 +15,23 @@ const teamworkLevel1 = createLevel({
         "teamwork.level1.objective1",
         "teamwork.level1.objective2",
         "teamwork.level1.objective3",
-        "teamwork.level1.objective4"
+        "teamwork.level1.objective4",
+        "teamwork.level1.objective5",
+        "teamwork.level1.objective6"
     ],
     hints: [
         "teamwork.level1.hint1",
         "teamwork.level1.hint2",
         "teamwork.level1.hint3",
         "teamwork.level1.hint4",
-        "teamwork.level1.hint5"
+        "teamwork.level1.hint5",
+        "teamwork.level1.hint6"
     ],
     requirementLogic: "all",
     requirements: [
         createRequirement({
-            command: "git pull origin main",
-            alternativeCommands: ["git pull"],
+            command: "git pull",
+            alternativeCommands: ["git pull origin main", "git pull origin"],
             description: "teamwork.level1.requirement1.description",
             successMessage: "teamwork.level1.requirement1.success",
             id: "git-pull-origin",
@@ -42,16 +45,32 @@ const teamworkLevel1 = createLevel({
             id: "git-switch",
         }),
         createRequirement({
-            command: "git add .",
+            command: "", // No command needed - state-based check
+            checkFileChanged: "/team.md",
             description: "teamwork.level1.requirement3.description",
             successMessage: "teamwork.level1.requirement3.success",
+            id: "edit-team-file",
+        }),
+        createRequirement({
+            command: "git add",
+            requiresArgs: ["any"],
+            description: "teamwork.level1.requirement4.description",
+            successMessage: "teamwork.level1.requirement4.success",
             id: "git-add-teamwork",
         }),
         createRequirement({
-            command: "git commit -m",
-            description: "teamwork.level1.requirement4.description",
-            successMessage: "teamwork.level1.requirement4.success",
+            command: "git commit",
+            requiresArgs: ["-m"],
+            description: "teamwork.level1.requirement5.description",
+            successMessage: "teamwork.level1.requirement5.success",
             id: "git-commit-teamwork",
+        }),
+        createRequirement({
+            command: "git push",
+            requiresArgs: ["any"],
+            description: "teamwork.level1.requirement6.description",
+            successMessage: "teamwork.level1.requirement6.success",
+            id: "git-push-teamwork",
         })
     ],
     story: createStory({
@@ -74,6 +93,20 @@ const teamworkLevel1 = createLevel({
                 {
                     message: "Initial team structure setup",
                     files: ["/team.md", "/src/components/TeamPage.jsx", "/README.md"]
+                }
+            ],
+            remoteCommits: [
+                {
+                    branch: "main",
+                    commits: [
+                        {
+                            id: "remote001",
+                            message: "Update team guidelines",
+                            files: {
+                                "/team.md": "# Development Team\n\n## Team Members\n- Alex Chen - Team Lead\n- Sarah Miller - Senior Developer\n- Mike Johnson - Frontend Developer\n\n## Guidelines\nPlease add your name below!\n\n## Add your profile here!"
+                            }
+                        }
+                    ]
                 }
             ]
         })
@@ -104,30 +137,43 @@ const teamworkLevel2 = createLevel({
     requirements: [
         {
             id: "stage-initial-changes",
+            objectiveId: 1, // Objective 1: Stage and commit your local changes
             command: "git add",
             description: "teamwork.level2.requirement1.description",
             successMessage: "teamwork.level2.requirement1.success"
         },
         {
             id: "commit-initial-changes",
+            objectiveId: 1, // Objective 1: Stage and commit your local changes (both add AND commit needed)
             command: "git commit",
             description: "teamwork.level2.requirement2.description",
             successMessage: "teamwork.level2.requirement2.success"
         },
         {
             id: "pull-remote-changes",
+            objectiveId: 2, // Objective 2: Pull remote changes (triggers conflict)
             command: "git pull",
             description: "teamwork.level2.requirement3.description",
             successMessage: "teamwork.level2.requirement3.success"
         },
         {
-            id: "stage-resolved-conflict",
-            command: "git add",
+            id: "resolve-conflict-markers",
+            objectiveId: 3, // Objective 3: Resolve merge conflict markers
+            command: "", // State-based check
+            checkFileChanged: "/src/auth/login.js",
             description: "teamwork.level2.requirement4.description",
             successMessage: "teamwork.level2.requirement4.success"
         },
         {
+            id: "stage-resolved-conflict",
+            objectiveId: 4, // Objective 4: Stage and commit the merged solution
+            command: "git add",
+            description: "teamwork.level2.requirement5.description",
+            successMessage: "teamwork.level2.requirement5.success"
+        },
+        {
             id: "commit-merge-resolution",
+            objectiveId: 4, // Objective 4: Stage and commit the merged solution (both add AND commit needed)
             command: "git commit",
             description: "teamwork.level2.requirement5.description",
             successMessage: "teamwork.level2.requirement5.success"

@@ -67,6 +67,10 @@ export function createRequirement(params: {
     description: string;
     successMessage?: string;
     id: string;
+    // State-based checks (alternative to command-based)
+    checkFileChanged?: string; // Check if this file has been modified
+    checkFileExists?: string; // Check if this file exists
+    checkBranchExists?: string; // Check if this branch exists
 }): LevelRequirement {
     return {
         command: params.command,
@@ -75,6 +79,9 @@ export function createRequirement(params: {
         description: params.description,
         successMessage: params.successMessage,
         id: params.id,
+        checkFileChanged: params.checkFileChanged,
+        checkFileExists: params.checkFileExists,
+        checkBranchExists: params.checkBranchExists,
     };
 }
 

@@ -67,6 +67,15 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentDifficulty(savedDifficulty);
     }, []);
 
+    // Initialize level state on mount - ensures git is set up after page reload
+    useEffect(() => {
+        const progress = progressManager.getProgress();
+        levelManager.setupLevel(progress.currentStage, progress.currentLevel, fileSystem, gitRepository);
+        // Reset command processor's current directory to root
+        commandProcessor.setCurrentDirectory("/");
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Empty deps = runs once on mount
+
     // Toggle advanced mode
     const toggleAdvancedMode = () => {
         setIsAdvancedMode(prev => {
@@ -288,16 +297,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Check if the command was successful by looking for error messages in the output
-        const commandFailed = output.some(
-            line =>
-                line.toLowerCase().includes("error:") ||
-                line.toLowerCase().includes("fatal:") ||
-                line.toLowerCase().includes("failed") ||
-                line.toLowerCase().includes("not a git repository") ||
-                line.toLowerCase().includes("nothing specified") ||
-                line.toLowerCase().includes("did not match any files") ||
-                (line.toLowerCase().includes("pathspec") && line.toLowerCase().includes("did not match")),
-        );
+        // Note: "merge failed" due to conflicts is NOT a command failure - it's a normal workflow state
+        const commandFailed = output.some(line => {
+            const lowerLine = line.toLowerCase();
+            // Merge conflicts are not failures - they're normal workflow states
+            if (lowerLine.includes("merge") && lowerLine.includes("failed")) {
+                return false;
+            }
+            if (lowerLine.includes("automatic merge failed")) {
+                return false;
+            }
+            return (
+                lowerLine.includes("error:") ||
+                lowerLine.includes("fatal:") ||
+                lowerLine.includes("failed") ||
+                lowerLine.includes("not a git repository") ||
+                lowerLine.includes("nothing specified") ||
+                lowerLine.includes("did not match any files") ||
+                (lowerLine.includes("pathspec") && lowerLine.includes("did not match"))
+            );
+        });
 
         if (commandFailed) {
             return; // Don't mark level as completed if command failed
@@ -445,6 +464,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Only add one message to terminal output
         setTerminalOutput(prev => [...prev, t("terminal.fileSaved").replace("{path}", normalizedPath)]);
+
+        // Check state-based requirements (like file modified checks)
+        if (levelManager.checkStateBasedRequirements(currentStage, currentLevel, gitRepository, fileSystem)) {
+            markLevelAsCompleted();
+        }
     };
 
     // Reset the current level

@@ -1,4 +1,4 @@
-import { Github, FileIcon, X, Circle, ArrowUpIcon } from "lucide-react";
+import { Github, FileIcon, X, Circle, ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import type { TerminalPromptProps } from "../types";
 
 export function TerminalPrompt({
@@ -9,6 +9,7 @@ export function TerminalPrompt({
     modifiedCount,
     untrackedCount,
     unpushedCommitsCount,
+    unpulledCommitsCount,
 }: TerminalPromptProps) {
     // Format display path
     const displayPath = currentDirectory === "/" ? "/" : currentDirectory;
@@ -78,6 +79,14 @@ export function TerminalPrompt({
                             <span className="flex items-center text-blue-300">
                                 <ArrowUpIcon className="mr-0.5 h-3 w-3" />
                                 {unpushedCommitsCount}
+                            </span>
+                        )}
+
+                        {/* Unpulled commits indicator (available to pull from remote) */}
+                        {unpulledCommitsCount > 0 && (
+                            <span className="flex items-center text-cyan-300">
+                                <ArrowDownIcon className="mr-0.5 h-3 w-3" />
+                                {unpulledCommitsCount}
                             </span>
                         )}
                     </div>

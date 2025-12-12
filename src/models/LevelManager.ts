@@ -210,14 +210,130 @@ export class LevelManager {
         return filePath.substring(0, lastSlashIndex) || "/";
     }
 
-    // Check if all files are staged (for git add level)
+    // Check if all changed files are staged (for git add level)
     private areAllFilesStaged(gitRepository: GitRepository): boolean {
         const status = gitRepository.getStatus();
-        // Get all non-.git files
-        const files = Object.keys(status).filter(file => !file.startsWith("/.git") && !file.includes("/.git/"));
 
-        // Check if all files are staged
-        return files.length > 0 && files.every(file => status[file] === "staged");
+        let hasStaged = false;
+        let hasUnstaged = false;
+
+        for (const [file, fileStatus] of Object.entries(status)) {
+            // Skip .git files
+            if (file.startsWith("/.git") || file.includes("/.git/") || file.startsWith(".git")) {
+                continue;
+            }
+
+            if (fileStatus === "staged") {
+                hasStaged = true;
+            } else if (fileStatus === "modified" || fileStatus === "untracked" || fileStatus === "deleted") {
+                hasUnstaged = true;
+            }
+            // "committed" files are ignored - they don't need to be staged
+        }
+
+        // Return true if there's at least one staged file and no unstaged changes
+        return hasStaged && !hasUnstaged;
+    }
+
+    // Check state-based requirements (file changes, file existence, branch existence)
+    public checkStateBasedRequirements(
+        stageId: string,
+        levelId: number,
+        gitRepository: GitRepository,
+        fileSystem: FileSystem
+    ): boolean {
+        const level = this.getLevel(stageId, levelId);
+        if (!level) return false;
+
+        // Initialize completed requirements array if not present
+        if (!level.completedRequirements) {
+            level.completedRequirements = [];
+        }
+
+        // Initialize completed objectives array if not present
+        if (!level.completedObjectives) {
+            level.completedObjectives = [];
+        }
+
+        let anyRequirementCompleted = false;
+
+        // For 'all' logic (sequential), only check the NEXT uncompleted requirement
+        let requirementsToCheck;
+        if (level.requirementLogic === "all") {
+            const nextRequirementIndex = level.requirements.findIndex(
+                req => !req.id || !(level.completedRequirements || []).includes(req.id)
+            );
+            requirementsToCheck = nextRequirementIndex >= 0
+                ? [level.requirements[nextRequirementIndex]]
+                : [];
+        } else {
+            requirementsToCheck = level.requirements.filter(
+                req => !req.id || !(level.completedRequirements || []).includes(req.id)
+            );
+        }
+
+        for (const requirement of requirementsToCheck) {
+            if (!requirement) continue;
+
+            let stateCheckPassed = false;
+
+            // Check if file has been changed/modified
+            if (requirement.checkFileChanged) {
+                const filePath = requirement.checkFileChanged;
+                const normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
+                const status = gitRepository.getStatus();
+                const fileStatus = status[normalizedPath];
+                // File is considered changed if it's modified, staged, or untracked (new)
+                if (fileStatus === "modified" || fileStatus === "staged" || fileStatus === "untracked") {
+                    stateCheckPassed = true;
+                }
+            }
+
+            // Check if file exists
+            if (requirement.checkFileExists) {
+                const filePath = requirement.checkFileExists;
+                const content = fileSystem.getFileContents(filePath);
+                if (content !== null) {
+                    stateCheckPassed = true;
+                }
+            }
+
+            // Check if branch exists
+            if (requirement.checkBranchExists) {
+                const branches = gitRepository.getBranches();
+                if (branches.includes(requirement.checkBranchExists)) {
+                    stateCheckPassed = true;
+                }
+            }
+
+            // If any state check passed, mark requirement as completed
+            if (stateCheckPassed && requirement.id && !level.completedRequirements.includes(requirement.id)) {
+                level.completedRequirements.push(requirement.id);
+                anyRequirementCompleted = true;
+
+                // Check if this completes an objective
+                if (requirement.objectiveId !== undefined) {
+                    const objectiveRequirements = level.requirements.filter(
+                        req => req.objectiveId === requirement.objectiveId
+                    );
+                    const allObjectiveRequirementsCompleted = objectiveRequirements.every(
+                        req => !req.id || level.completedRequirements?.includes(req.id)
+                    );
+                    if (allObjectiveRequirementsCompleted && !level.completedObjectives?.includes(requirement.objectiveId)) {
+                        level.completedObjectives?.push(requirement.objectiveId);
+                    }
+                }
+            }
+        }
+
+        // For 'all' logic, check if all requirements have been completed
+        if (level.requirementLogic === "all") {
+            return level.requirements.every(
+                req => !req.id || level.completedRequirements?.includes(req.id)
+            );
+        }
+
+        return anyRequirementCompleted;
     }
 
     // Get all stages with translated content
@@ -379,6 +495,25 @@ export class LevelManager {
                         if (requirement.id) {
                             level.completedRequirements.push(requirement.id);
                         }
+
+                        // Check if this completes an objective
+                        if (requirement.objectiveId !== undefined) {
+                            // Get all requirements with the same objectiveId
+                            const objectiveRequirements = level.requirements.filter(
+                                req => req.objectiveId === requirement.objectiveId
+                            );
+
+                            // Check if all requirements for this objective are completed
+                            const allObjectiveRequirementsCompleted = objectiveRequirements.every(
+                                req => !req.id || level.completedRequirements?.includes(req.id)
+                            );
+
+                            // If all requirements for this objective are completed, mark objective as complete
+                            if (allObjectiveRequirementsCompleted && !level.completedObjectives?.includes(requirement.objectiveId)) {
+                                level.completedObjectives?.push(requirement.objectiveId);
+                            }
+                        }
+
                         requirementSatisfied = true;
                         break; // Only one requirement per command
                     }
@@ -434,8 +569,23 @@ export class LevelManager {
                                 return gitArgs.some(a => hexLike.test(a) || commitIds.some(id => id.startsWith(a)));
                             }
 
-                            // General flag matching (works for --abort, --soft, --hard, -c, -b, etc.)
-                            return gitArgs.includes(reqArg);
+                            // Check for exact match first
+                            if (gitArgs.includes(reqArg)) {
+                                return true;
+                            }
+
+                            // For long flags that take values (like --author="sam" or --author=sam or --grep=text)
+                            if (reqArg.startsWith("--")) {
+                                return gitArgs.some(arg => arg === reqArg || arg.startsWith(reqArg + "="));
+                            }
+
+                            // For short flags like -S that take values (like -S "value" or -Svalue)
+                            if (reqArg.startsWith("-") && reqArg.length === 2) {
+                                return gitArgs.some(arg => arg === reqArg || arg.startsWith(reqArg));
+                            }
+
+                            // General flag matching (fallback)
+                            return false;
                         });
 
                         console.log("Args required:", requirement.requiresArgs);
@@ -510,6 +660,10 @@ export class LevelManager {
                             // check if any arg starts with the required flag
                             if (reqArg.startsWith("--")) {
                                 return args.some(arg => arg === reqArg || arg.startsWith(reqArg + "="));
+                            }
+                            // For short flags like -S that take values (like -S "value" or -Svalue)
+                            if (reqArg.startsWith("-") && reqArg.length === 2) {
+                                return args.some(arg => arg === reqArg || arg.startsWith(reqArg));
                             }
                             return false;
                         });
