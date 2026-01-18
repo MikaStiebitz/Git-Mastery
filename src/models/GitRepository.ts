@@ -21,6 +21,8 @@ export class GitRepository {
     private fileSystem: FileSystem;
     private pushedCommits: Set<string> = new Set<string>();
     private upstreamBranches: Record<string, { remote: string; branch: string }> = {}; // Track upstream branches
+    private tags: Map<string, string> = new Map(); // tagName -> commitHash
+    private pushedTags: Set<string> = new Set<string>(); // Track which tags have been pushed
     private reflog: Array<{
         commitHash: string;
         action: string;
@@ -1288,5 +1290,119 @@ ${remoteContent}
 
     public clearReflog(): void {
         this.reflog = [];
+    }
+
+    // Tag methods
+    public createTag(tagName: string, commitHash?: string): { success: boolean; message: string; commitHash?: string } {
+        if (!this.initialized) {
+            return { success: false, message: "fatal: not a git repository" };
+        }
+
+        // Check if tag already exists
+        if (this.tags.has(tagName)) {
+            return { success: false, message: `fatal: tag '${tagName}' already exists` };
+        }
+
+        // Get the commit to tag
+        const commitIds = Object.keys(this.commits);
+        let targetCommit: string;
+
+        if (commitHash) {
+            // Find the commit by hash
+            const foundCommit = commitIds.find(id => id.startsWith(commitHash));
+            if (!foundCommit) {
+                return { success: false, message: `fatal: commit '${commitHash}' not found` };
+            }
+            targetCommit = foundCommit;
+        } else {
+            // Tag the latest commit
+            if (commitIds.length === 0) {
+                return { success: false, message: "fatal: No commits yet to tag" };
+            }
+            const lastCommitId = commitIds[commitIds.length - 1];
+            if (!lastCommitId) {
+                return { success: false, message: "fatal: No commits yet to tag" };
+            }
+            targetCommit = lastCommitId;
+        }
+
+        // Create the tag
+        this.tags.set(tagName, targetCommit);
+
+        return { success: true, message: `Created tag '${tagName}'`, commitHash: targetCommit };
+    }
+
+    public deleteTag(tagName: string): { success: boolean; message: string } {
+        if (!this.tags.has(tagName)) {
+            return { success: false, message: `error: tag '${tagName}' not found` };
+        }
+
+        this.tags.delete(tagName);
+        this.pushedTags.delete(tagName); // Also remove from pushed tags
+        return { success: true, message: `Deleted tag '${tagName}'` };
+    }
+
+    public getTags(): Map<string, string> {
+        return this.tags;
+    }
+
+    public getTagsList(): string[] {
+        return Array.from(this.tags.keys()).sort();
+    }
+
+    public hasTag(tagName: string): boolean {
+        return this.tags.has(tagName);
+    }
+
+    public pushTags(remote: string, specificTag?: string): { success: boolean; messages: string[] } {
+        const messages: string[] = [];
+
+        // Validate remote exists
+        if (!this.remotes[remote]) {
+            return {
+                success: false,
+                messages: [`error: No such remote: '${remote}'`]
+            };
+        }
+
+        if (specificTag) {
+            // Push a specific tag
+            if (!this.tags.has(specificTag)) {
+                return {
+                    success: false,
+                    messages: [`error: src refspec ${specificTag} does not match any`]
+                };
+            }
+
+            this.pushedTags.add(specificTag);
+            const commitHash = this.tags.get(specificTag);
+            messages.push(`To ${this.remotes[remote]}`);
+            messages.push(` * [new tag]         ${specificTag} -> ${specificTag}`);
+        } else {
+            // Push all tags
+            if (this.tags.size === 0) {
+                return {
+                    success: true,
+                    messages: ["Everything up-to-date"]
+                };
+            }
+
+            const unpushedTags = Array.from(this.tags.keys()).filter(tag => !this.pushedTags.has(tag));
+
+            if (unpushedTags.length === 0) {
+                return {
+                    success: true,
+                    messages: ["Everything up-to-date"]
+                };
+            }
+
+            messages.push(`To ${this.remotes[remote]}`);
+            unpushedTags.forEach(tag => {
+                this.pushedTags.add(tag);
+                messages.push(` * [new tag]         ${tag} -> ${tag}`);
+            });
+        }
+
+        return { success: true, messages };
     }
 }

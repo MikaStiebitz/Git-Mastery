@@ -3,8 +3,15 @@ import type { Command, CommandArgs, CommandContext } from "../base/Command";
 export class PushCommand implements Command {
     name = "git push";
     description = "Update remote refs along with associated objects";
-    usage = "git push [<remote> [<branch>]]";
-    examples = ["git push", "git push origin main", "git push -u origin feature"];
+    usage = "git push [--tags] [<remote> [<branch>|<tag>]]";
+    examples = [
+        "git push",
+        "git push origin main",
+        "git push -u origin feature",
+        "git push origin v1.0.0",
+        "git push --tags",
+        "git push origin --tags"
+    ];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
@@ -14,6 +21,9 @@ export class PushCommand implements Command {
         if (!gitRepository.isInitialized()) {
             return ["Not a git repository. Run 'git init' first."];
         }
+
+        // Check for --tags flag
+        const pushAllTags = args.flags.tags !== undefined || args.flags["--tags"] !== undefined;
 
         // Default values
         let remote = "origin";
@@ -27,6 +37,35 @@ export class PushCommand implements Command {
 
         if (args.positionalArgs.length > 1) {
             branch = args.positionalArgs[1] ?? gitRepository.getCurrentBranch();
+        }
+
+        // Validate remote exists
+        const remotes = gitRepository.getRemotes();
+        if (!remotes[remote]) {
+            return [
+                `error: No such remote: '${remote}'`,
+                ``,
+                `💡 You need to add a remote first:`,
+                `    git remote add ${remote} <repository-url>`,
+                ``,
+                `Example:`,
+                `    git remote add ${remote} https://github.com/user/repo.git`,
+                ``,
+                `Then try pushing again:`,
+                `    git push ${remote} ${branch}`
+            ];
+        }
+
+        // Handle pushing tags
+        if (pushAllTags) {
+            const result = gitRepository.pushTags(remote);
+            return result.messages;
+        }
+
+        // Check if the refspec is a tag instead of a branch
+        if (gitRepository.hasTag(branch)) {
+            const result = gitRepository.pushTags(remote, branch);
+            return result.messages;
         }
 
         // Check if branch has upstream tracking
@@ -47,23 +86,6 @@ export class PushCommand implements Command {
                 `Or simply:`,
                 ``,
                 `    git push origin ${branch}`
-            ];
-        }
-
-        // Validate remote exists
-        const remotes = gitRepository.getRemotes();
-        if (!remotes[remote]) {
-            return [
-                `error: No such remote: '${remote}'`,
-                ``,
-                `💡 You need to add a remote first:`,
-                `    git remote add ${remote} <repository-url>`,
-                ``,
-                `Example:`,
-                `    git remote add ${remote} https://github.com/user/repo.git`,
-                ``,
-                `Then try pushing again:`,
-                `    git push ${remote} ${branch}`
             ];
         }
 
