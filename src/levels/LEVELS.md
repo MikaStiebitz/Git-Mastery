@@ -44,12 +44,12 @@ export type LevelRequirement = {
 
 ## Creating a New Level
 
-Levels are created using the helper functions in `src/level/LevelCreator.ts`:
+Levels are created using the helper functions in `src/levels/LevelCreator.ts`:
 
 1. **Create a new level in the appropriate stage file**:
 
 ```typescript
-// In src/level/stages/my-stage.ts
+// In src/levels/stages/my-stage.ts
 import {
     createLevel,
     createRequirement,
@@ -101,7 +101,7 @@ export const myStageLevels = {
 };
 ```
 
-2. **Add the stage to the allStages object in `src/level/index.ts`**:
+2. **Add the stage to the allStages object in `src/levels/index.ts`**:
 
 ```typescript
 import { myStageLevels } from "./stages/my-stage";
