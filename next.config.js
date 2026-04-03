@@ -7,9 +7,14 @@ await import("./src/env.js");
 const isGitHubActions = process.env.GITHUB_ACTIONS === "true";
 const repositoryName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
 const siteUrl = process.env.SITE_URL ?? "";
-const siteHost = siteUrl.replace(/^https?:\/\//, "").split("/")[0]?.toLowerCase() ?? "";
+const siteHost =
+    siteUrl
+        .replace(/^https?:\/\//, "")
+        .split("/")[0]
+        ?.toLowerCase() ?? "";
 const siteUsesGithubPagesDomain = siteHost.endsWith("github.io");
-const hasCustomDomain = Boolean(process.env.GITHUB_PAGES_CUSTOM_DOMAIN) || Boolean(siteHost && !siteUsesGithubPagesDomain);
+const hasCustomDomain =
+    Boolean(process.env.GITHUB_PAGES_CUSTOM_DOMAIN) || Boolean(siteHost && !siteUsesGithubPagesDomain);
 const useRepoBasePath = isGitHubActions && repositoryName && !hasCustomDomain;
 const basePath = useRepoBasePath ? `/${repositoryName}` : "";
 

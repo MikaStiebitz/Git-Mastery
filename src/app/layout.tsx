@@ -1,11 +1,14 @@
 import "~/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
+import Script from "next/script";
 import { GameProvider } from "~/contexts/GameContext";
 import { LanguageProvider } from "~/contexts/LanguageContext";
 import { TerminalThemeWrapper } from "~/components/TerminalThemeWrapper";
-import { Analytics } from "@vercel/analytics/react";
+import { env } from "~/env";
 import { getPageUrl, getSiteUrl } from "~/lib/site";
+
+const cloudflareAnalyticsToken = env.NEXT_PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN;
 
 export const metadata: Metadata = {
     title: "GitMastery - Master Git Through Play | Interactive Git Learning Platform",
@@ -63,7 +66,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     return (
         <html lang="en" className={`${GeistSans.variable}`}>
             <body className="dark">
-                <Analytics />
+                {cloudflareAnalyticsToken ? (
+                    <Script
+                        defer
+                        src="https://static.cloudflareinsights.com/beacon.min.js"
+                        data-cf-beacon={JSON.stringify({ token: cloudflareAnalyticsToken })}
+                    />
+                ) : null}
                 <LanguageProvider>
                     <GameProvider>
                         <TerminalThemeWrapper>{children}</TerminalThemeWrapper>

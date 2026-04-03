@@ -35,6 +35,7 @@ jobs:
                   SKIP_ENV_VALIDATION: "true"
                   SITE_URL: "https://gitmastery.me"
                   GITHUB_PAGES_CUSTOM_DOMAIN: "gitmastery.me"
+                  NEXT_PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_ANALYTICS_TOKEN }}
               run: npm run build
 
             - name: Add .nojekyll
