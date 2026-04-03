@@ -33,7 +33,6 @@ jobs:
             - name: Build static site
               env:
                   SKIP_ENV_VALIDATION: "true"
-                  GITHUB_PAGES_CUSTOM_DOMAIN: "www.gitmastery.me"
               run: npm run build
 
             - name: Add .nojekyll
