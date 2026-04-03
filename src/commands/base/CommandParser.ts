@@ -21,7 +21,7 @@ export function parseCommand(commandStr: string): {
     };
 }
 
-function splitCommandRespectingQuotes(commandStr: string): string[] {
+export function splitCommandRespectingQuotes(commandStr: string): string[] {
     const result: string[] = [];
     let current = "";
     let inQuotes = false;
