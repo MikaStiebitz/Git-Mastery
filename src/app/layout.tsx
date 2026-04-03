@@ -5,13 +5,14 @@ import { GameProvider } from "~/contexts/GameContext";
 import { LanguageProvider } from "~/contexts/LanguageContext";
 import { TerminalThemeWrapper } from "~/components/TerminalThemeWrapper";
 import { Analytics } from "@vercel/analytics/react";
+import { getPageUrl, getSiteUrl } from "~/lib/site";
 
 export const metadata: Metadata = {
     title: "GitMastery - Master Git Through Play | Interactive Git Learning Platform",
     description:
         "Learn Git commands and concepts through fun, interactive challenges. Practice Git in a safe environment with visual feedback and structured learning paths.",
     keywords: "git, learn git, git tutorial, git commands, git practice, git visualization, interactive git learning",
-    metadataBase: new URL("https://www.gitmastery.me"),
+    metadataBase: new URL(getSiteUrl()),
     alternates: {
         canonical: "/",
     },
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "GitMastery - Master Git Through Play",
         description: "Learn Git commands and concepts through fun, interactive challenges",
-        url: "https://www.gitmastery.me",
+        url: getPageUrl(),
         siteName: "GitMastery",
         images: [
             {
@@ -76,14 +77,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                             "@type": "WebApplication",
                             name: "GitMastery - Learn Git Through Play",
                             description: "An interactive Git learning platform with hands-on practice",
-                            url: "https://www.gitmastery.me",
+                            url: getPageUrl(),
                             applicationCategory: "EducationalApplication",
                             operatingSystem: "Web",
                             inLanguage: "en",
                             publisher: {
                                 "@type": "Organization",
                                 name: "GitMastery",
-                                url: "https://www.gitmastery.me",
+                                url: getPageUrl(),
                             },
                             offers: {
                                 "@type": "Offer",

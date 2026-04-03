@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
 import { allStages } from "~/levels";
+import { getPageUrl } from "~/lib/site";
 
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = "https://www.gitmastery.me";
+    const baseUrl = getPageUrl();
 
     // Static pages
     const staticPages = [

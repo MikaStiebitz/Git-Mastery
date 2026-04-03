@@ -1,14 +1,14 @@
 # GitMastery: Master Git Through Play
 
 <div align="center">
-  <a href="https://www.gitmastery.me">
+  <a href="https://gitmastery.me">
     <img src="./public/gitBranch.svg" alt="GitMastery Logo" width="140" height="140" />
   </a>
 
   <h3 align="center">An interactive Git learning platform that makes mastering Git fun</h3>
 
   <p align="center">
-    <a href="https://www.gitmastery.me">Try It Live</a>
+    <a href="https://gitmastery.me">Try It Live</a>
     ·
     <a href="#features">Features</a>
     ·
@@ -43,7 +43,7 @@
 
 Whether you're a complete beginner or looking to level up your Git skills, GitMastery offers an engaging, interactive approach to learning this essential developer tool.
 
-**🌐 Visit GitMastery at [www.gitmastery.me](https://www.gitmastery.me) to start your journey!**
+**🌐 Visit GitMastery at [gitmastery.me](https://gitmastery.me) to start your journey!**
 
 ###### No registration needed!
 

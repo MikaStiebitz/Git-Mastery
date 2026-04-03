@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { allStages } from "~/levels";
+import { getPageUrl } from "~/lib/site";
 
 interface Props {
     params: Promise<{ level: string }>;
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         openGraph: {
             title: `${levelName} - Git Mastery`,
             description: `Learn ${levelName.toLowerCase()} through interactive Git challenges`,
-            url: `https://www.gitmastery.me/${level}`,
+            url: getPageUrl(`/${level}`),
             siteName: "Git Mastery",
             images: [
                 {

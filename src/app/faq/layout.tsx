@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getPageUrl } from "~/lib/site";
 
 export const metadata: Metadata = {
     title: "FAQ - Git Mastery | Interactive Git Learning Platform",
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "FAQ - Git Mastery",
         description: "Frequently asked questions about Git Mastery and Git learning",
-        url: "https://www.gitmastery.me/faq",
+        url: getPageUrl("/faq"),
         siteName: "Git Mastery",
         images: [
             {

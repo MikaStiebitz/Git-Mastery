@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getPageUrl } from "~/lib/site";
 
 export const dynamic = "force-static";
 
@@ -9,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: "/",
             disallow: ["/api/", "/_next/", "/private/"],
         },
-        sitemap: "https://www.gitmastery.me/sitemap.xml",
+        sitemap: getPageUrl("/sitemap.xml"),
     };
 }
