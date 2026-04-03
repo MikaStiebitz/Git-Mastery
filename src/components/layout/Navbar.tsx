@@ -166,9 +166,11 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
 
     return (
         <header className="border-b border-purple-900/20 bg-[#1a1625]">
-            <nav className="container mx-auto flex h-16 items-center px-4">
+            <nav className="container mx-auto flex flex-wrap min-h-16 items-center px-4">
+                <div className="flex flex-wrap items-center justify-between w-full gap-2">
+                    
                 {/* Logo and brand */}
-                <Link href="/" className="flex items-center space-x-2">
+                <Link href="/" className="flex items-center space-x-2 shrink-0">
                     <GitBranch className="h-6 w-6 text-purple-400" />
                     <span className="text-xl font-bold text-white">GitMastery</span>
                 </Link>
@@ -205,7 +207,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                 </div>
 
                 {/* Desktop navigation */}
-                <div className="ml-auto hidden items-center space-x-4 md:flex">
+                <div className="ml-auto hidden items-center space-x-4 md:flex flex-wrap">
                     {/* GitHub star button - elegant with tooltip */}
                     <a
                         href="https://github.com/MikaStiebitz/Git-Mastery"
