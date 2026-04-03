@@ -17,6 +17,7 @@ import { LevelManager } from "~/models/LevelManager";
 import { CommandProcessor } from "~/models/CommandProcessor";
 import { ProgressManager } from "~/models/ProgressManager";
 import { allStages } from "~/levels";
+import { splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 
 // Types for our solution map
 type LevelSolution = {
@@ -328,7 +329,7 @@ const LEVEL_SOLUTIONS: Record<string, StageSolutions> = {
             commands: [
                 "git log --oneline",
                 "git log --author=admin",
-                "git log --grep=feature",
+                "git log --grep='feature 2'",
             ],
             description: "Advanced log searching",
         },
@@ -459,7 +460,7 @@ function executeCommandAndCheckCompletion(
     const output = commandProcessor.processCommand(command);
 
     // Parse the command to check completion
-    const parts = command.trim().split(/\s+/);
+    const parts = splitCommandRespectingQuotes(command.trim());
     const baseCommand = parts[0] || "";
     const args = parts.slice(1);
 
