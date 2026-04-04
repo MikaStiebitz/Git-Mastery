@@ -49,14 +49,16 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const [languageDialogOpen, setLanguageDialogOpen] = useState(false);
 
     // Determine which page we're on
-    const isHomePage = pathname === "/";
-    const isPlaygroundPage = pathname === "/playground";
-    const isInstallationPage = pathname === "/installation";
-    const isFaqPage = pathname === "/faq";
-    const useLevelResponsiveLayout = showLevelInfo;
-    const desktopNavClass = useLevelResponsiveLayout ? "xl:flex xl:flex-nowrap" : "lg:flex lg:flex-nowrap";
-    const mobileNavClass = useLevelResponsiveLayout ? "xl:hidden" : "lg:hidden";
-    const badgeDesktopClass = useLevelResponsiveLayout ? "xl:block" : "lg:block";
+    const normalizedPathname = pathname === "/" ? "/" : pathname.replace(/\/+$/, "");
+    const isHomePage = normalizedPathname === "/";
+    const isPlaygroundPage = normalizedPathname === "/playground";
+    const isInstallationPage = normalizedPathname === "/installation";
+    const isFaqPage = normalizedPathname === "/faq";
+    const useCompactResponsiveLayout = showLevelInfo || isPlaygroundPage || isInstallationPage || isFaqPage;
+    const desktopNavClass = useCompactResponsiveLayout ? "xl:flex xl:flex-nowrap" : "lg:flex lg:flex-nowrap";
+    const mobileNavClass = useCompactResponsiveLayout ? "xl:hidden" : "lg:hidden";
+    const badgeDesktopClass = useCompactResponsiveLayout ? "xl:block" : "lg:block";
+    const pageLabelClass = useCompactResponsiveLayout ? "xl:block" : "lg:block";
 
     // Language options
     const languages = [
@@ -191,16 +193,18 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
 
                     {/* Show playground text on relevant pages */}
                     {isPlaygroundPage && (
-                        <span className="ml-4 hidden text-purple-300 lg:block">{t("nav.playground")}</span>
+                        <span className={`ml-4 hidden text-purple-300 ${pageLabelClass}`}>{t("nav.playground")}</span>
                     )}
 
                     {/* Show installation text on relevant pages */}
                     {isInstallationPage && (
-                        <span className="ml-4 hidden text-purple-300 lg:block">{t("nav.installation")}</span>
+                        <span className={`ml-4 hidden text-purple-300 ${pageLabelClass}`}>{t("nav.installation")}</span>
                     )}
 
                     {/* Show FAQ text on relevant pages */}
-                    {isFaqPage && <span className="ml-4 hidden text-purple-300 lg:block">{t("nav.faq")}</span>}
+                    {isFaqPage && (
+                        <span className={`ml-4 hidden text-purple-300 ${pageLabelClass}`}>{t("nav.faq")}</span>
+                    )}
 
                     {/* Badge display - only show on larger screens to avoid overcrowding */}
                     <div className={`ml-4 hidden ${badgeDesktopClass}`}>
