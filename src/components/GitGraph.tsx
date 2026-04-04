@@ -37,12 +37,31 @@ interface Props {
     graph: CommitGraph;
 }
 
+const CHAR_W = 7;       // monospace char width at font-size 11/12px
+const BADGE_PAD = 10;   // horizontal padding inside each badge (each side)
+const BADGE_GAP = 6;    // gap between badges
+const HASH_CHARS = 7;   // short hash length
+const HASH_GAP = 10;    // gap between last badge and hash
+const MSG_GAP = 12;     // gap between hash and message
+const MAX_MSG_CHARS = 60;
+
+function estimateRowWidth(node: { branches: string[]; message: string; isHead: boolean }, lanesWidth: number): number {
+    const badgesWidth = node.branches.reduce((acc: number, b: string, bi: number) => {
+        const label = node.isHead && bi === 0 ? `HEAD → ${b}` : b;
+        return acc + label.length * CHAR_W + BADGE_PAD * 2 + BADGE_GAP;
+    }, 0);
+    const hashWidth = HASH_CHARS * CHAR_W + HASH_GAP + MSG_GAP;
+    const msgWidth = Math.min(node.message.length, MAX_MSG_CHARS) * CHAR_W;
+    return lanesWidth + badgesWidth + hashWidth + msgWidth + 20;
+}
+
 export function GitGraph({ graph }: Props) {
     const { nodes, edges, colCount } = graph;
 
     if (nodes.length === 0) return null;
 
-    const svgWidth = LEFT_PAD + colCount * COL_W + TEXT_LEFT + 480;
+    const lanesWidth = LEFT_PAD + colCount * COL_W + TEXT_LEFT;
+    const svgWidth = Math.max(...nodes.map(n => estimateRowWidth(n, lanesWidth)));
     const svgHeight = nodes.length * ROW_H;
 
     return (
@@ -50,7 +69,7 @@ export function GitGraph({ graph }: Props) {
             width={svgWidth}
             height={svgHeight}
             className="font-mono select-text overflow-visible"
-            style={{ maxWidth: "100%" }}
+            style={{ maxWidth: "100%", display: "block" }}
         >
             {/* Edges first (behind circles) */}
             {edges.map((edge, i) => {
@@ -107,47 +126,33 @@ export function GitGraph({ graph }: Props) {
                             </>
                         )}
 
-                        {/* Branch labels + hash + message — computed together so positions don't diverge */}
+                        {/* Branch labels + hash + message — single running x so positions never diverge */}
                         {(() => {
-                            const CHAR_W = 7; // monospace char width at font-size 11
-                            const PAD = 10;   // horizontal padding inside badge (both sides)
-                            const GAP = 6;    // gap between badges
-                            const HASH_GAP = 10; // gap between last badge and hash
-
                             let curX = textX;
 
                             const labels = node.branches.map((branch, bi) => {
                                 const isHead = node.isHead && bi === 0;
                                 const label = isHead ? `HEAD → ${branch}` : branch;
-                                const badgeW = label.length * CHAR_W + PAD * 2;
+                                const badgeW = label.length * CHAR_W + BADGE_PAD * 2;
                                 const el = (
                                     <g key={bi} transform={`translate(${curX}, ${y - 10})`}>
-                                        <rect
-                                            x={0}
-                                            y={0}
-                                            width={badgeW}
-                                            height={18}
-                                            rx={3}
-                                            fill={isHead ? color : "#374151"}
-                                            opacity={0.9}
-                                        />
-                                        <text
-                                            x={PAD}
-                                            y={13}
-                                            fontSize={11}
-                                            fill={isHead ? "#ffffff" : color}
-                                            fontFamily="monospace"
-                                        >
+                                        <rect x={0} y={0} width={badgeW} height={18} rx={3}
+                                            fill={isHead ? color : "#374151"} opacity={0.9} />
+                                        <text x={BADGE_PAD} y={13} fontSize={11}
+                                            fill={isHead ? "#ffffff" : color} fontFamily="monospace">
                                             {label}
                                         </text>
                                     </g>
                                 );
-                                curX += badgeW + GAP;
+                                curX += badgeW + BADGE_GAP;
                                 return el;
                             });
 
                             const hashX = curX + (node.branches.length > 0 ? HASH_GAP : 0);
-                            const msgX = hashX + 7 * 8 + 12; // 7-char hash + spacing
+                            const msgX = hashX + HASH_CHARS * CHAR_W + MSG_GAP;
+                            const msg = node.message.length > MAX_MSG_CHARS
+                                ? node.message.substring(0, MAX_MSG_CHARS - 1) + "…"
+                                : node.message;
 
                             return (
                                 <>
@@ -156,7 +161,7 @@ export function GitGraph({ graph }: Props) {
                                         {node.shortId}
                                     </text>
                                     <text x={msgX} y={y + 4} fontSize={12} fill="#e5e4e2" fontFamily="monospace">
-                                        {node.message.length > 52 ? node.message.substring(0, 49) + "…" : node.message}
+                                        {msg}
                                     </text>
                                 </>
                             );
