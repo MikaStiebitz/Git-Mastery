@@ -162,7 +162,7 @@ export function GitGraph({ graph }: Props) {
                             const author = node.author.length > MAX_AUTHOR_CHARS
                                 ? node.author.substring(0, MAX_AUTHOR_CHARS - 1) + "…"
                                 : node.author;
-                            const dateX = authorX + MAX_AUTHOR_CHARS * CHAR_W + DATE_GAP;
+                            const dateX = authorX + author.length * CHAR_W + DATE_GAP;
                             const _d = new Date(node.timestamp);
                             const _p = _d.toDateString().split(' '); // ["Sat", "Sep", "21", "2024"]
                             const _t = _d.toTimeString().split(' ')[0]!; // "19:21:59"
