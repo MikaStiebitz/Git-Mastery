@@ -107,26 +107,32 @@ export function GitGraph({ graph }: Props) {
                             </>
                         )}
 
-                        {/* Branch labels */}
-                        {node.branches.length > 0 && (() => {
-                            let labelX = textX;
-                            return node.branches.map((branch, bi) => {
+                        {/* Branch labels + hash + message — computed together so positions don't diverge */}
+                        {(() => {
+                            const CHAR_W = 7; // monospace char width at font-size 11
+                            const PAD = 10;   // horizontal padding inside badge (both sides)
+                            const GAP = 6;    // gap between badges
+                            const HASH_GAP = 10; // gap between last badge and hash
+
+                            let curX = textX;
+
+                            const labels = node.branches.map((branch, bi) => {
                                 const isHead = node.isHead && bi === 0;
                                 const label = isHead ? `HEAD → ${branch}` : branch;
-                                const approxW = label.length * 7 + 12;
+                                const badgeW = label.length * CHAR_W + PAD * 2;
                                 const el = (
-                                    <g key={bi} transform={`translate(${labelX}, ${y - 10})`}>
+                                    <g key={bi} transform={`translate(${curX}, ${y - 10})`}>
                                         <rect
                                             x={0}
                                             y={0}
-                                            width={approxW}
+                                            width={badgeW}
                                             height={18}
                                             rx={3}
                                             fill={isHead ? color : "#374151"}
                                             opacity={0.9}
                                         />
                                         <text
-                                            x={6}
+                                            x={PAD}
                                             y={13}
                                             fontSize={11}
                                             fill={isHead ? "#ffffff" : color}
@@ -136,32 +142,25 @@ export function GitGraph({ graph }: Props) {
                                         </text>
                                     </g>
                                 );
-                                labelX += approxW + 6;
+                                curX += badgeW + GAP;
                                 return el;
                             });
+
+                            const hashX = curX + (node.branches.length > 0 ? HASH_GAP : 0);
+                            const msgX = hashX + 7 * 8 + 12; // 7-char hash + spacing
+
+                            return (
+                                <>
+                                    {labels}
+                                    <text x={hashX} y={y + 4} fontSize={12} fill="#9ca3af" fontFamily="monospace">
+                                        {node.shortId}
+                                    </text>
+                                    <text x={msgX} y={y + 4} fontSize={12} fill="#e5e4e2" fontFamily="monospace">
+                                        {node.message.length > 52 ? node.message.substring(0, 49) + "…" : node.message}
+                                    </text>
+                                </>
+                            );
                         })()}
-
-                        {/* Short hash */}
-                        <text
-                            x={textX + (node.branches.length > 0 ? node.branches.reduce((acc, b) => acc + (b.length * 7 + 18), 0) : 0)}
-                            y={y + 4}
-                            fontSize={12}
-                            fill="#9ca3af"
-                            fontFamily="monospace"
-                        >
-                            {node.shortId}
-                        </text>
-
-                        {/* Commit message */}
-                        <text
-                            x={textX + (node.branches.length > 0 ? node.branches.reduce((acc, b) => acc + (b.length * 7 + 18), 0) : 0) + 64}
-                            y={y + 4}
-                            fontSize={12}
-                            fill="#e5e4e2"
-                            fontFamily="monospace"
-                        >
-                            {node.message.length > 52 ? node.message.substring(0, 49) + "…" : node.message}
-                        </text>
                     </g>
                 );
             })}
