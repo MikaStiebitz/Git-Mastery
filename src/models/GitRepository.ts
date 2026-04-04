@@ -8,7 +8,7 @@ export class GitRepository {
     private currentBranch = "main";
     private HEAD = "main";
     private status: GitStatus = {};
-    private commits: Record<string, { message: string; timestamp: Date; files: string[] }> = {};
+    private commits: Record<string, { message: string; timestamp: Date; files: string[]; parents: string[]; isMergeCommit?: boolean }> = {};
     private remoteCommits: Record<string, Array<{
         id: string;
         message: string;
@@ -205,10 +205,12 @@ export class GitRepository {
         if (stagedFiles.length === 0) return null;
 
         const commitId = this.generateCommitId();
+        const lastCommitId = currentBranchState.commits[currentBranchState.commits.length - 1];
         this.commits[commitId] = {
             message,
             timestamp: new Date(),
             files: stagedFiles,
+            parents: lastCommitId ? [lastCommitId] : [],
         };
 
         // Update status - move staged files to committed
@@ -247,6 +249,19 @@ export class GitRepository {
         });
 
         return branchCommits;
+    }
+
+    public getAllCommits(): Record<string, { message: string; timestamp: Date; files: string[]; parents: string[]; isMergeCommit?: boolean }> {
+        return { ...this.commits };
+    }
+
+    public getBranchHeads(): Record<string, string> {
+        const heads: Record<string, string> = {};
+        for (const [branch, state] of Object.entries(this.branchStates)) {
+            const last = state.commits[state.commits.length - 1];
+            if (last) heads[branch] = last;
+        }
+        return heads;
     }
 
     // Get commits as ordered array (oldest to newest)
@@ -669,10 +684,14 @@ export class GitRepository {
         const mergeCommitId = this.generateCommitId();
         const mergeCommitMessage = `Merge branch '${branch}' into ${this.currentBranch}`;
 
+        const currentHead = currentBranchState.commits[currentBranchState.commits.length - 1];
+        const targetHead = targetBranchState.commits[targetBranchState.commits.length - 1];
         this.commits[mergeCommitId] = {
             message: mergeCommitMessage,
             timestamp: new Date(),
             files: filesChanged,
+            parents: [currentHead, targetHead].filter(Boolean) as string[],
+            isMergeCommit: true,
         };
 
         currentBranchState.commits.push(mergeCommitId);
@@ -1136,10 +1155,12 @@ export class GitRepository {
 
         for (const remoteCommit of remoteCommitsForBranch) {
             // Add commit to local history
+            const prevCommitId = this.branchStates[this.currentBranch]?.commits.slice(-1)[0];
             this.commits[remoteCommit.id] = {
                 message: remoteCommit.message,
                 timestamp: remoteCommit.timestamp,
-                files: remoteCommit.files
+                files: remoteCommit.files,
+                parents: prevCommitId ? [prevCommitId] : [],
             };
 
             // Mark pulled commit as already pushed (it came from remote)

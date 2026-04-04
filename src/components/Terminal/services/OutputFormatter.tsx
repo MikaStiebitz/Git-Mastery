@@ -1,9 +1,32 @@
 import React from "react";
+import { GitGraph } from "~/components/GitGraph";
+import type { CommitGraph } from "~/lib/buildCommitGraph";
+
+const GIT_GRAPH_PREFIX = "__GIT_GRAPH__:";
 
 export class OutputFormatterService {
     constructor(private terminalOutput: string[]) {}
 
     renderTerminalOutput(line: string): React.ReactNode {
+        // Render inline SVG git graph
+        if (line.startsWith(GIT_GRAPH_PREFIX)) {
+            try {
+                const raw = JSON.parse(line.substring(GIT_GRAPH_PREFIX.length)) as CommitGraph;
+                // Dates are serialized as strings — restore them
+                const graph = {
+                    ...raw,
+                    nodes: raw.nodes.map(n => ({ ...n, timestamp: new Date(n.timestamp) })),
+                };
+                return (
+                    <div className="py-2 overflow-x-auto">
+                        <GitGraph graph={graph} />
+                    </div>
+                );
+            } catch {
+                return <div className="text-red-400">Failed to render git graph</div>;
+            }
+        }
+
         // Check if this is a command line (starts with $)
         if (line.startsWith("$")) {
             const cmd = line.substring(1).trim();

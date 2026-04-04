@@ -1,4 +1,5 @@
 import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import { buildCommitGraph } from "~/lib/buildCommitGraph";
 
 export class LogCommand implements Command {
     name = "git log";
@@ -75,14 +76,21 @@ export class LogCommand implements Command {
             return [];
         }
 
+        if (showGraph) {
+            const allCommits = gitRepository.getAllCommits();
+            const branchHeads = gitRepository.getBranchHeads();
+            const currentBranch = gitRepository.getCurrentBranch();
+            const graph = buildCommitGraph(allCommits, branchHeads, currentBranch);
+            return [`__GIT_GRAPH__:${JSON.stringify(graph)}`];
+        }
+
         filtered.forEach(([commitId, commit]) => {
             const shortId = commitId.substring(0, 7);
             const date = commit.timestamp.toISOString().split("T")[0];
             const author = getPseudoAuthor(commitId);
 
             if (isOneline) {
-                const graphPrefix = showGraph ? "* " : "";
-                output.push(`${graphPrefix}${shortId} ${commit.message}`);
+                output.push(`${shortId} ${commit.message}`);
             } else {
                 output.push(`commit ${commitId}`);
                 output.push(`Author: ${author}`);
