@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import type { CommitGraph } from "~/lib/buildCommitGraph";
 
 const ROW_H = 44;
@@ -44,9 +43,9 @@ const HASH_CHARS = 7;   // short hash length
 const HASH_GAP = 10;    // gap between last badge and hash
 const MSG_GAP = 12;     // gap between hash and message
 const MAX_MSG_CHARS = 52;
-const AUTHOR_GAP = 10;  // gap between message and author
+const AUTHOR_GAP = 16;  // gap between message and author
 const MAX_AUTHOR_CHARS = 12;
-const DATE_GAP = 12;    // gap between author and date
+const DATE_GAP = 6;     // gap between author and date
 const DATE_CHARS = 24;  // "Sat Sep 21 19:21:59 2024"
 
 function estimateRowWidth(node: { branches: string[]; message: string; isHead: boolean }, lanesWidth: number): number {
