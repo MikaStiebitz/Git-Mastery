@@ -3,6 +3,7 @@ import { FileSystem } from "~/models/FileSystem";
 import { GitRepository } from "~/models/GitRepository";
 import { LevelManager } from "~/models/LevelManager";
 import { allStages } from "~/levels";
+import { splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 
 describe("Advanced Stage Levels", () => {
     let fileSystem: FileSystem;
@@ -72,6 +73,30 @@ describe("Advanced Stage Levels", () => {
             });
 
             expect(hasAdvancedCommands).toBe(true);
+        });
+
+        it("should complete advanced level 2 with quoted --grep value", () => {
+            const success = levelManager.setupLevel("advanced", 2, fileSystem, gitRepository);
+            expect(success).toBe(true);
+
+            const commands = [
+                "git log --oneline",
+                "git log --author=admin",
+                "git log --grep='feature 2'",
+            ];
+
+            commands.forEach(command => {
+                const parts = splitCommandRespectingQuotes(command);
+                const cmd = parts[0] ?? "";
+                const args = parts.slice(1);
+
+                levelManager.checkLevelCompletion("advanced", 2, cmd, args, gitRepository);
+            });
+
+            const level = levelManager.getLevel("advanced", 2);
+            expect(level?.completedRequirements).toContain("log-grep");
+            expect(level?.completedRequirements).toContain("log-oneline");
+            expect(level?.completedRequirements).toContain("log-author");
         });
     });
 });

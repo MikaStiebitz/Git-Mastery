@@ -7,6 +7,7 @@ import { FileSystem } from "~/models/FileSystem";
 import { LevelManager } from "~/models/LevelManager";
 import { ProgressManager } from "~/models/ProgressManager";
 import { GitRepository } from "~/models/GitRepository";
+import { splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import type { GameContextProps, DifficultyLevel } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { useSoundManager } from "~/lib/SoundManager";
@@ -135,7 +136,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Check for level completion after dialog commit (only if not in playground mode)
         if (typeof window !== "undefined" && !window.location.pathname.includes("/playground")) {
-            const [cmd, ...args] = `git commit -m "${escapedMessage}"`.trim().split(/\s+/);
+            const [cmd, ...args] = splitCommandRespectingQuotes(`git commit -m "${escapedMessage}"`.trim());
             if (cmd && levelManager.checkLevelCompletion(currentStage, currentLevel, cmd, args, gitRepository)) {
                 markLevelAsCompleted();
             }
@@ -252,7 +253,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Special case for nano command - handle it directly
         if (command.trim().startsWith("nano ")) {
-            const args = command.trim().split(/\s+/);
+            const args = splitCommandRespectingQuotes(command.trim());
             if (args.length > 1) {
                 const fileName = args[1] ?? "";
 
@@ -274,7 +275,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             // Check for level completion regardless of dialog opening
             if (!isPlaygroundMode) {
-                const [cmd, ...args] = command.trim().split(/\s+/);
+                const [cmd, ...args] = splitCommandRespectingQuotes(command.trim());
                 if (cmd && levelManager.checkLevelCompletion(currentStage, currentLevel, cmd, args, gitRepository)) {
                     markLevelAsCompleted();
                 }
@@ -323,7 +324,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Check if the command completes the level
-        const [cmd, ...args] = command.trim().split(/\s+/);
+        const [cmd, ...args] = splitCommandRespectingQuotes(command.trim());
 
         // Handle special case for git commands
         if (cmd === "git") {

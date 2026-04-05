@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { LevelManager } from "../models/LevelManager";
 import { FileSystem } from "../models/FileSystem";
 import { GitRepository } from "../models/GitRepository";
+import { splitCommandRespectingQuotes } from "../commands/base/CommandParser";
 
 describe("Debug git pull matching", () => {
     let levelManager: LevelManager;
@@ -20,7 +21,7 @@ describe("Debug git pull matching", () => {
     it("should match 'git pull' command", () => {
         // Simulate the command parsing that happens in GameContext
         const userInput = "git pull";
-        const [cmd, ...args] = userInput.trim().split(/\s+/);
+        const [cmd, ...args] = splitCommandRespectingQuotes(userInput.trim());
 
         console.log("User input:", userInput);
         console.log("Parsed cmd:", cmd);
@@ -46,10 +47,12 @@ describe("Debug git pull matching", () => {
 
         // The pull requirement should be completed
         expect(level?.completedRequirements).toContain("pull-remote-changes");
-    });    it("should match 'git pull origin main' command", () => {
+    });
+
+    it("should match 'git pull origin main' command", () => {
         // Simulate the command parsing that happens in GameContext
         const userInput = "git pull origin main";
-        const [cmd, ...args] = userInput.trim().split(/\s+/);
+        const [cmd, ...args] = splitCommandRespectingQuotes(userInput.trim());
 
         console.log("User input:", userInput);
         console.log("Parsed cmd:", cmd);

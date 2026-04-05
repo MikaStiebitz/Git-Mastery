@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseCommand } from "../commands/base/CommandParser";
+import { parseCommand, splitCommandRespectingQuotes } from "../commands/base/CommandParser";
 
 describe("CommandParser - Flag Parsing", () => {
     it("should parse --set-upstream as boolean flag", () => {
@@ -34,5 +34,35 @@ describe("CommandParser - Flag Parsing", () => {
 
         expect(result.command).toBe("git push");
         expect(result.args.positionalArgs).toEqual(["origin", "feature/test"]);
+    });
+});
+
+describe("CommandParser - Quote Handling", () => {
+    it("should preserve --grep value with spaces in double quotes", () => {
+        const parts = splitCommandRespectingQuotes('git log --grep="fix bug"');
+
+        expect(parts).toEqual(["git", "log", "--grep=fix bug"]);
+    });
+
+    it("should preserve --grep value with spaces in single quotes", () => {
+        const parts = splitCommandRespectingQuotes("git log --grep='security issue'");
+
+        expect(parts).toEqual(["git", "log", "--grep=security issue"]);
+    });
+
+    it("should parse mixed quoted long flags", () => {
+        const result = parseCommand("git log --author='John Doe' --grep=\"feature fix\"");
+
+        expect(result.command).toBe("git log");
+        expect(result.args.flags.author).toBe("John Doe");
+        expect(result.args.flags.grep).toBe("feature fix");
+    });
+
+    it("should keep escaped quotes inside a quoted value as one token", () => {
+        const parts = splitCommandRespectingQuotes('git log --grep="fix \\\"critical\\\" bug"');
+        const result = parseCommand('git log --grep="fix \\\"critical\\\" bug"');
+
+        expect(parts).toEqual(["git", "log", '--grep=fix \\\"critical\\\" bug']);
+        expect(result.args.flags.grep).toBe('fix \\\"critical\\\" bug');
     });
 });
