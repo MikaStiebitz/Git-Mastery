@@ -244,6 +244,13 @@ export default function Home() {
         return stageLevels > 0 ? (completedLevels / stageLevels) * 100 : 0;
     };
 
+    //Changes learning path heading based on difficulty (and language)
+    function learningPathHeading(): string {
+        const headingKey = `home.learningPath.${currentDifficulty}`;
+        const translatedHeading = t(headingKey);
+        return translatedHeading === headingKey ? t("home.learningPath.default") : translatedHeading;
+    }
+
     return (
         <PageLayout>
             <div className="min-h-screen bg-gradient-to-b from-[#1a1625] to-[#231c33] text-purple-100">
@@ -405,7 +412,7 @@ export default function Home() {
                     <AnimatedElement>
                         <h2 className="mb-8 text-center text-2xl font-bold text-white sm:mb-12 sm:text-3xl">
                             <span className="relative">
-                                {t("home.learningPath")}
+                                {learningPathHeading()}
                                 <span className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-purple-500 to-purple-300"></span>
                             </span>
                         </h2>

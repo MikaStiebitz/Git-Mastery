@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
@@ -18,6 +18,11 @@ interface DifficultySelectorProps {
 export function DifficultySelector({ isOpen, onClose, isInitialSelection = false }: DifficultySelectorProps) {
     const { currentDifficulty, setCurrentDifficulty } = useGameContext();
     const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>(currentDifficulty);
+
+    // Updates selectedDifficulty whenever currentDifficulty changes
+    useEffect(() => {
+        setSelectedDifficulty(currentDifficulty);
+    }, [currentDifficulty]);
 
     const handleConfirm = () => {
         setCurrentDifficulty(selectedDifficulty);
