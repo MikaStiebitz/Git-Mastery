@@ -151,7 +151,7 @@ const levels = {
     "branches.level1.requirement1.success": "Very good! Now you can see all branches in your repository.",
     "branches.level1.story.title": "Code Branches",
     "branches.level1.story.narrative":
-        '"Time for something more advanced," says Alex and draws a tree with branches on a whiteboard. "These branches are like Git branches. They allow you to work on different versions of your code simultaneously."\n\nHe continues: "Currently you\'re working on the \'main\' branch. Let\'s first check which branches we have."',
+        '"Time for something more advanced," says Alex and he draws a tree with branches on a whiteboard. "These branches are like Git branches. They allow you to work on different versions of your code simultaneously."\n\nHe continues: "Currently you\'re working on the \'main\' branch. Let\'s first check which branches we have."',
     "branches.level1.story.realWorldContext":
         "Branches are a fundamental concept in Git. They enable parallel development, feature isolation, and experimental work without affecting the main code.",
     "branches.level1.story.taskIntroduction": "Display all existing branches with git branch.",
