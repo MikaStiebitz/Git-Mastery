@@ -66,6 +66,18 @@ const CHALLENGES: Challenge[] = [
         options: ["git branch --show-current", "git current-branch", "git status", "git branch -c"],
         difficulty: "beginner",
     },
+    {
+        instruction: "Check the status of your repository",
+        correctAnswer: "git status",
+        options: ["git status", "git check", "git info", "git state"],
+        difficulty: "beginner",
+    },
+    {
+        instruction: "Add all current changes to the staging area",
+        correctAnswer: "git add .",
+        options: ["git add .", "git stage all", "git put .", "git add --all"],
+        difficulty: "beginner",
+    },
 
     // Advanced questions
     {
@@ -124,6 +136,18 @@ const CHALLENGES: Challenge[] = [
         options: ["git branch -vv", "git branch --track-info", "git remote show origin", "git branch --upstream"],
         difficulty: "advanced",
     },
+    {
+        instruction: "Prune stale remote-tracking branches",
+        correctAnswer: "git remote prune origin",
+        options: ["git remote prune origin", "git branch -p", "git fetch --clear", "git remote clean"],
+        difficulty: "advanced",
+    },
+    {
+        instruction: "View a summary of the commit log (one line per commit)",
+        correctAnswer: "git log --oneline",
+        options: ["git log --oneline", "git show --summary", "git list --short", "git commit --list"],
+        difficulty: "advanced",    
+    },
 
     // Pro questions
     {
@@ -181,7 +205,57 @@ const CHALLENGES: Challenge[] = [
         ],
         difficulty: "pro",
     },
+    
+    {
+        instruction: "Search for the string 'bug' in the commit history",
+        correctAnswer: "git log -S 'bug'",
+        options: ["git log -S 'bug'", "git grep 'bug'", "git find 'bug'", "git commit --search='bug'"],
+        difficulty: "pro",
+    },
+    {
+        instruction: "Apply a specific commit (abc123) to the current branch",
+        correctAnswer: "git cherry-pick abc123",
+        options: ["git cherry-pick abc123", "git apply abc123", "git merge-commit abc123", "git include abc123"],
+        difficulty: "pro",
+    },
+    {
+        instruction: "Temporarily store uncommitted changes",
+        correctAnswer: "git stash",
+        options: ["git stash", "git save", "git pause", "git hold"],
+        difficulty: "pro",
+    },
 ];
+
+/**
+ * Returns a new array with elements shuffled using the Fisher–Yates algorithm.
+ *
+ * - Produces an unbiased random permutation (uniform distribution).
+ * - Does NOT mutate the original array (creates a shallow copy).
+ * - Runs in O(n) time.
+ *
+ * Implementation details:
+ * - Iterates from the end of the array and swaps each element
+ *   with a randomly selected earlier index (including itself).
+ * - Uses a temporary variable for swapping to avoid destructuring issues
+ *   with strict TypeScript settings.
+ *
+ * ⚠️ Note:
+ * - Non-null assertions (`!`) are used because TypeScript cannot infer
+ *   that indices are always within bounds, though they are guaranteed
+ *   by the algorithm.
+ *
+ */
+const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+
+        const temp = shuffled[i]!;
+        shuffled[i] = shuffled[j]!;
+        shuffled[j] = temp;
+    }
+    return shuffled;
+};
 
 export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: BranchMasterProps) {
     const [currentChallenge, setCurrentChallenge] = useState(0);
@@ -212,8 +286,24 @@ export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: B
                 break;
         }
 
-        // Shuffle and take 8 questions
-        return filteredChallenges.sort(() => Math.random() - 0.5).slice(0, 8);
+       /**
+         * Selects 8 random challenges and shuffles their options.
+         *
+         * Uses the Fisher–Yates algorithm to ensure an unbiased shuffle.
+         * Does not mutate the original array.
+         *
+         * Steps:
+         * 1. Shuffle all challenges.
+         * 2. Take the first 8.
+         * 3. Shuffle options within each challenge.
+         * 
+         */
+        const selected = shuffleArray(filteredChallenges).slice(0, 8);
+
+        return selected.map(challenge => ({
+            ...challenge,
+            options: shuffleArray(challenge.options)
+        }));
     };
 
     const endGame = useCallback(() => {
