@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { translations } from "~/translations";
 
-type Language = "de" | "en" | "fa" | "hi";
+type Language = "de" | "en" | "fa" | "hi" | "tr";
 
 export type LanguageContextType = {
     language: Language;
@@ -21,7 +21,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     useEffect(() => {
         const savedLanguage = localStorage.getItem("gitgud-language");
 
-        if (savedLanguage === "en" || savedLanguage === "de" || savedLanguage === "fa" || savedLanguage === "hi") {
+        if (
+            savedLanguage === "en" ||
+            savedLanguage === "de" ||
+            savedLanguage === "fa" ||
+            savedLanguage === "hi" ||
+            savedLanguage === "tr"
+        ) {
             // Use saved language preference
             setLanguageState(savedLanguage as Language);
         } else {
@@ -38,6 +44,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 detectedLang = "fa";
             } else if (detectedLanguage.startsWith("hi")) {
                 detectedLang = "hi";
+            } else if (detectedLanguage.startsWith("tr")) {
+                detectedLang = "tr";
             } else {
                 // Try geolocation-based detection using timezone
                 try {
@@ -57,6 +65,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                         timezone.includes("Asia/Calcutta")
                     ) {
                         detectedLang = "hi";
+                    }
+                    // Turkey -> Turkish
+                    else if (timezone.includes("Istanbul")) {
+                        detectedLang = "tr";
                     }
                     // Germany, Austria, Switzerland -> German
                     else if (
