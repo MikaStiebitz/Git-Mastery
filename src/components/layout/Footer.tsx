@@ -1,4 +1,5 @@
 import { Heart, GitBranch, Github, BookCopy, Gamepad2, Download, HelpCircle, Home, Scale } from "lucide-react";
+import { useSponsor } from "../SponsorDialog";
 import Link from "next/link";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { ProTipDisplay } from "../ProTipDisplay";
@@ -14,6 +15,7 @@ interface FooterProps {
  */
 export function Footer({ className = "" }: FooterProps) {
     const { t } = useLanguage();
+    const { openSponsor } = useSponsor();
 
     const links = [
         { href: "/", label: t("nav.home"), icon: Home },
@@ -75,6 +77,13 @@ export function Footer({ className = "" }: FooterProps) {
                             <Github className="text-gm-ink-dim h-4 w-4" aria-hidden="true" />
                             GitHub
                         </a>
+                        <button
+                            type="button"
+                            onClick={openSponsor}
+                            className="text-gm-ink-soft hover:text-gm-gold focus-visible:outline-gm-cyan -ms-2 inline-flex min-h-9 cursor-pointer items-center gap-2.5 rounded-[0.7rem] px-2 text-start text-sm font-semibold transition-colors duration-150 focus-visible:outline-3 focus-visible:-outline-offset-2">
+                            <Heart className="text-gm-gold h-4 w-4" aria-hidden="true" />
+                            {t("sponsor.action")}
+                        </button>
                         <Link
                             href="/impressum"
                             className="text-gm-ink-soft hover:text-gm-lime focus-visible:outline-gm-cyan -ms-2 inline-flex min-h-9 items-center gap-2.5 rounded-[0.7rem] px-2 text-sm font-semibold transition-colors duration-150 focus-visible:outline-3 focus-visible:-outline-offset-2">

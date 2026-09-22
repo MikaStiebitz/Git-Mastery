@@ -5,6 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import {
     Coins,
+    Heart,
     Trophy,
     GitBranch,
     Terminal,
@@ -29,6 +30,7 @@ import { allStages } from "~/levels";
 import { BadgeDisplay } from "~/components/BadgeDisplay";
 import { DebugModal } from "~/components/DebugModal";
 import { cn } from "~/lib/utils";
+import { useSponsor } from "~/components/SponsorDialog";
 import { ProgressManager } from "~/models/ProgressManager";
 import { env } from "~/env";
 
@@ -49,6 +51,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
         debugCompleteCurrentLevel,
     } = useGameContext();
     const { language, setLanguage, t } = useLanguage();
+    const { openSponsor } = useSponsor();
     const stageName = t(allStages[currentStage as keyof typeof allStages]?.name ?? currentStage);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [repoStars, setRepoStars] = useState<number | null>(null);
@@ -345,6 +348,16 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     <Button
                         variant="ghost"
                         size="icon"
+                        className="hidden sm:inline-flex"
+                        onClick={openSponsor}
+                        title={t("sponsor.action")}
+                        aria-label={t("sponsor.action")}>
+                        <Heart className="text-gm-gold h-4 w-4" aria-hidden="true" />
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         className="hidden lg:inline-flex"
                         onClick={() => setLanguageDialogOpen(true)}
                         title={t("nav.language")}
@@ -429,6 +442,17 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                                 <Terminal className="h-4 w-4" aria-hidden="true" />
                                 {t("nav.terminal")}
                             </Link>
+                        </Button>
+
+                        <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                            onClick={() => {
+                                openSponsor();
+                                setMobileMenuOpen(false);
+                            }}>
+                            <Heart className="text-gm-gold h-4 w-4" aria-hidden="true" />
+                            {t("sponsor.action")}
                         </Button>
 
                         <Button

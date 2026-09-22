@@ -148,6 +148,17 @@ const common = {
     "shop.rarity.legendary": "Legendary",
     "common.copy": "Copy",
     "common.copied": "Copied",
+    "sponsor.action": "Sponsor",
+    "sponsor.title": "Keep GitMastery free",
+    "sponsor.lead": "No ads, no account, no paywall. Sponsors pay the bills that keep it that way.",
+    "sponsor.hosting": "Keeps the domain and the servers online",
+    "sponsor.development": "Funds new levels, mini games and fixes",
+    "sponsor.openSource": "Keeps every line open source on GitHub",
+    "sponsor.github": "Sponsor on GitHub",
+    "sponsor.coffee": "Buy me a coffee",
+    "sponsor.note": "Entirely optional — playing stays free either way.",
+    "sponsor.landingLine": "Free, open source, and kept alive by its sponsors.",
+    "sponsor.landingCta": "Support the project",
 };
 
 export default common;

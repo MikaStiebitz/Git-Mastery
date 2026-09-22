@@ -147,6 +147,17 @@ const common = {
     "shop.rarity.legendary": "पौराणिक",
     "common.copy": "कॉपी करें",
     "common.copied": "कॉपी हो गया",
+    "sponsor.action": "सहयोग करें",
+    "sponsor.title": "GitMastery को मुफ़्त रखें",
+    "sponsor.lead": "कोई विज्ञापन नहीं, कोई खाता नहीं, कोई पेवॉल नहीं। स्पॉन्सर ही ख़र्च उठाते हैं ताकि यह ऐसा ही रहे।",
+    "sponsor.hosting": "डोमेन और सर्वर को चालू रखता है",
+    "sponsor.development": "नए लेवल, मिनी गेम और सुधारों का ख़र्च उठाता है",
+    "sponsor.openSource": "हर पंक्ति को GitHub पर ओपन सोर्स रखता है",
+    "sponsor.github": "GitHub पर स्पॉन्सर करें",
+    "sponsor.coffee": "मुझे कॉफ़ी पिलाएँ",
+    "sponsor.note": "पूरी तरह वैकल्पिक — खेलना हमेशा मुफ़्त रहेगा।",
+    "sponsor.landingLine": "मुफ़्त, ओपन सोर्स और स्पॉन्सर के सहारे चलता हुआ।",
+    "sponsor.landingCta": "प्रोजेक्ट का समर्थन करें",
 };
 
 export default common;

@@ -19,6 +19,7 @@ import {
     Settings2,
     ShoppingCart,
     Gamepad2,
+    Heart,
     Play,
     TerminalSquare,
     Coins,
@@ -32,6 +33,7 @@ import { DifficultySelector } from "~/components/DifficultySelector";
 import { Shop } from "~/components/Shop";
 import { Minigames } from "~/components/Minigames";
 import { HeroDemo } from "~/components/home/HeroDemo";
+import { useSponsor } from "~/components/SponsorDialog";
 import { MINIGAMES } from "~/components/minigames/registry";
 import { getAvailableStagesForDifficulty } from "~/config/difficulties";
 import type { DifficultyLevel } from "~/types";
@@ -123,6 +125,7 @@ function HeroBackdrop() {
 export default function Home() {
     const { levelManager, progressManager, currentDifficulty, setCurrentDifficulty } = useGameContext();
     const { t } = useLanguage();
+    const { openSponsor } = useSponsor();
     const router = useRouter();
     const [progress, setProgress] = useState(progressManager.getProgress());
     const [showDifficultySelector, setShowDifficultySelector] = useState(false);
@@ -981,6 +984,19 @@ export default function Home() {
                                 {t("home.difficulty")}
                             </button>
                         </div>
+
+                        {/* The ask, kept quiet: one line of fact, one link. The dialog does the
+                            explaining for anyone who taps it. */}
+                        <p className="text-gm-ink-dim mt-10 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm">
+                            {t("sponsor.landingLine")}
+                            <button
+                                type="button"
+                                onClick={openSponsor}
+                                className="text-gm-gold hover:text-gm-ink focus-visible:outline-gm-cyan inline-flex cursor-pointer items-center gap-1.5 rounded font-semibold underline-offset-4 transition-colors duration-150 hover:underline focus-visible:outline-3 focus-visible:outline-offset-2">
+                                <Heart className="h-4 w-4 fill-current" aria-hidden="true" />
+                                {t("sponsor.landingCta")}
+                            </button>
+                        </p>
                     </div>
                 </section>
             </div>

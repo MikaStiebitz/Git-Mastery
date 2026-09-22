@@ -151,6 +151,17 @@ const common = {
     "shop.rarity.legendary": "Efsanevi",
     "common.copy": "Kopyala",
     "common.copied": "Kopyalandı",
+    "sponsor.action": "Destek ol",
+    "sponsor.title": "GitMastery'yi ücretsiz tut",
+    "sponsor.lead": "Reklam yok, hesap yok, ödeme duvarı yok. Sponsorlar böyle kalması için faturaları ödüyor.",
+    "sponsor.hosting": "Alan adını ve sunucuları ayakta tutar",
+    "sponsor.development": "Yeni bölümleri, mini oyunları ve düzeltmeleri finanse eder",
+    "sponsor.openSource": "Her satırı GitHub'da açık kaynak tutar",
+    "sponsor.github": "GitHub'da sponsor ol",
+    "sponsor.coffee": "Bana bir kahve ısmarla",
+    "sponsor.note": "Tamamen isteğe bağlı — oynamak her durumda ücretsiz kalır.",
+    "sponsor.landingLine": "Ücretsiz, açık kaynak ve sponsorları sayesinde ayakta.",
+    "sponsor.landingCta": "Projeye destek ol",
 };
 
 export default common;

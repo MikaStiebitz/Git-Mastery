@@ -188,7 +188,7 @@ A dark violet stage with four loud accents, where every accent is a Git role —
 ### Tertiary
 - **Feature Cyan** (`oklch(0.83 0.13 214)`, `gm-cyan`): the feature branch in any commit graph, and the global focus ring. Cyan means *a second line of history*.
 - **Fix Coral** (`oklch(0.74 0.17 22)`, `gm-coral`): fix branches, destructive or scary Git output, error states.
-- **Points Gold** (`oklch(0.86 0.15 86)`, `gm-gold`): score, coins, rewards, the shop. Gold is currency and nothing else.
+- **Points Gold** (`oklch(0.86 0.15 86)`, `gm-gold`): score, coins, rewards, the shop — and the one surface where currency is real rather than in-game, the sponsor dialog. Gold is value exchanged and nothing else.
 - Each accent has a matching `-edge` token (`gm-cyan-edge`, `gm-coral-edge`, `gm-gold-edge`) for pressed edges and dark-on-light pairings.
 
 ### Neutral
@@ -293,6 +293,16 @@ opacity. Placeholders are `gm-ink-dim` (7.8:1) — never a lighter grey. Labels 
 `gm-chip`: a pill with a 2px border slot, `0.75rem` semibold text and an optional leading icon,
 filled with the accent whose meaning it carries. Chips state facts (difficulty, reward, branch,
 status); they are never buttons. A chip that needs a click is a `Button size="sm"`.
+
+### Sponsor dialog
+The only place the project asks for money, and it asks quietly: a gold heart keycap, one
+sentence of fact (no ads, no account, no paywall), three `gm-inset` rows naming exactly what a
+sponsorship pays for — hosting, development, staying open source — then the two destinations as
+arcade buttons (GitHub Sponsors in gold, Buy Me a Coffee quiet) and a closing line stating that
+playing stays free. Three entry points share one instance: a gold heart icon in the navbar, a
+link in the footer's project column, and a single line under the landing page's closing call to
+action. Its entrance only *moves* elements that are already painted, never fades them in from
+zero, so a stalled ticker can never leave the ask blank.
 
 ### Terminal
 The product's own voice, and the one place mono is not costume.

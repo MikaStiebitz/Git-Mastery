@@ -7,6 +7,7 @@ import Script from "next/script";
 import { GameProvider } from "~/contexts/GameContext";
 import { LanguageProvider } from "~/contexts/LanguageContext";
 import { TerminalThemeWrapper } from "~/components/TerminalThemeWrapper";
+import { SponsorProvider } from "~/components/SponsorDialog";
 import { env } from "~/env";
 import { getPageUrl, getSiteUrl } from "~/lib/site";
 
@@ -86,7 +87,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 ) : null}
                 <LanguageProvider>
                     <GameProvider>
-                        <TerminalThemeWrapper>{children}</TerminalThemeWrapper>
+                        <TerminalThemeWrapper>
+                            {/* One sponsor dialog for the whole app: the navbar, the footer and
+                                the landing page all open this instance. */}
+                            <SponsorProvider>{children}</SponsorProvider>
+                        </TerminalThemeWrapper>
                     </GameProvider>
                 </LanguageProvider>
                 <script

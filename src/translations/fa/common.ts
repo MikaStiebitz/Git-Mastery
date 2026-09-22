@@ -148,6 +148,18 @@ const common = {
     "shop.rarity.legendary": "افسانه‌ای",
     "common.copy": "کپی",
     "common.copied": "کپی شد",
+    "sponsor.action": "حمایت",
+    "sponsor.title": "GitMastery را رایگان نگه دارید",
+    "sponsor.lead":
+        "بدون تبلیغ، بدون حساب کاربری، بدون پرداخت اجباری. حامیان هزینه‌ها را می‌پردازند تا همین‌طور بماند.",
+    "sponsor.hosting": "دامنه و سرورها را سرپا نگه می‌دارد",
+    "sponsor.development": "هزینه مراحل تازه، بازی‌های کوچک و رفع اشکال را تأمین می‌کند",
+    "sponsor.openSource": "همه کد را روی گیت‌هاب متن‌باز نگه می‌دارد",
+    "sponsor.github": "حمایت در گیت‌هاب",
+    "sponsor.coffee": "برایم یک قهوه بخر",
+    "sponsor.note": "کاملاً اختیاری — بازی در هر صورت رایگان می‌ماند.",
+    "sponsor.landingLine": "رایگان، متن‌باز و زنده به لطف حامیانش.",
+    "sponsor.landingCta": "حمایت از پروژه",
 };
 
 export default common;
