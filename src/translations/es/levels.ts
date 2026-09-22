@@ -83,7 +83,7 @@ const levels = {
     "intro.level2.requirement1.success": "¡Perfecto! Ahora puedes ver el estado de tu repositorio.",
     "intro.level2.story.title": "¿Qué está pasando en tu Repositorio?",
     "intro.level2.story.narrative":
-        "¡Genial! Has creado tu primer repositorio Git. El directorio oculto .git ahora contiene toda la información que Git necesita.\n\nAlex se acerca: \"¡Buen trabajo! A continuación deberías ver qué está pasando en tu repositorio. Con `git status` puedes comprobar el estado actual en cualquier momento.\"",
+        '¡Genial! Has creado tu primer repositorio Git. El directorio oculto .git ahora contiene toda la información que Git necesita.\n\nAlex se acerca: "¡Buen trabajo! A continuación deberías ver qué está pasando en tu repositorio. Con `git status` puedes comprobar el estado actual en cualquier momento."',
     "intro.level2.story.realWorldContext":
         "Los desarrolladores ejecutan `git status` varias veces al día para ver qué archivos han cambiado y cuáles están listos para el próximo commit.",
     "intro.level2.story.taskIntroduction": "Comprueba el estado de tu repositorio con `git status`.",
@@ -226,7 +226,8 @@ const levels = {
         "\"Otro truco útil,\" dice Sarah. \"Puedes usar 'git switch -c' para crear una nueva rama y cambiar a ella al mismo tiempo.\"\n\nExplica: \"Esta es la forma moderna en Git. El indicador -c significa 'crear' y hace exactamente lo mismo que el antiguo 'git checkout -b', pero es más claro e intuitivo.\"",
     "branches.level5.story.realWorldContext":
         "El patrón switch -c es el método moderno y recomendado para crear y cambiar de rama. Se introdujo en Git 2.23 para separar las operaciones de rama de otras funciones de checkout y hacerlas más intuitivas.",
-    "branches.level5.story.taskIntroduction": "Crea una nueva rama usando git switch -c y cambia automáticamente a ella.",
+    "branches.level5.story.taskIntroduction":
+        "Crea una nueva rama usando git switch -c y cambia automáticamente a ella.",
 
     // Level Content - Merge Stage
     "merge.name": "Fusionar Ramas",
@@ -299,7 +300,7 @@ const levels = {
     "stash.level1.requirement4.success": "✅ ¡Excelente! ¡Tus cambios han sido restaurados!",
     "stash.level1.story.title": "Interrupción de Emergencia",
     "stash.level1.story.narrative":
-        "Estás completamente concentrado, trabajando en una nueva funcionalidad. Tu código está a medias, las pruebas están fallando, y de repente... ¡Slack explota! 💥\n\n\"URGENTE: ¡Producción está caída! ¡Necesito un hotfix AHORA!\" 🚨\n\nNo puedes confirmar este desastre, pero tampoco puedes dejarlo así. ¿Qué haces?\n\n**Entra git stash**: ¡tu botón de guardado de emergencia! 🎯\n\nPiensa en ello como pausar un videojuego. Tu trabajo se guarda en un lugar especial, tu espacio de trabajo queda limpio y puedes cambiar de tarea. Cuando vuelvas, solo dale a reanudar (git stash pop) y continúa exactamente donde lo dejaste.",
+        'Estás completamente concentrado, trabajando en una nueva funcionalidad. Tu código está a medias, las pruebas están fallando, y de repente... ¡Slack explota! 💥\n\n"URGENTE: ¡Producción está caída! ¡Necesito un hotfix AHORA!" 🚨\n\nNo puedes confirmar este desastre, pero tampoco puedes dejarlo así. ¿Qué haces?\n\n**Entra git stash**: ¡tu botón de guardado de emergencia! 🎯\n\nPiensa en ello como pausar un videojuego. Tu trabajo se guarda en un lugar especial, tu espacio de trabajo queda limpio y puedes cambiar de tarea. Cuando vuelvas, solo dale a reanudar (git stash pop) y continúa exactamente donde lo dejaste.',
     "stash.level1.story.realWorldContext":
         "En el desarrollo real, las interrupciones ocurren constantemente. Los product managers necesitan 'cambios rápidos', aparecen errores en producción y los compañeros necesitan revisiones urgentes de código. Git stash es tu herramienta de supervivencia para cambiar de contexto sin perder el hilo.",
     "stash.level1.story.taskIntroduction":
@@ -397,13 +398,15 @@ const levels = {
     "remote.level3.hint1": "Usa `git push origin <nombre-de-rama>`",
     "remote.level3.hint2": "También puedes usar `git push -u origin <nombre-de-rama>` para configurar el upstream",
     "remote.level3.requirement1.description": "Subir una rama de funcionalidad al remoto",
-    "remote.level3.requirement1.success": "¡Excelente! Tu rama de funcionalidad ya está disponible en el repositorio remoto.",
+    "remote.level3.requirement1.success":
+        "¡Excelente! Tu rama de funcionalidad ya está disponible en el repositorio remoto.",
     "remote.level3.story.title": "Compartiendo Funcionalidades",
     "remote.level3.story.narrative":
         '"Has estado trabajando en una nueva funcionalidad genial en una rama separada," dice Sarah. "Ahora es el momento de subir esta rama al repositorio remoto para que otros miembros del equipo puedan ver y revisar tu trabajo."\n\nExplica: "Cuando subes una rama por primera vez, deberías usar la opción -u (o --set-upstream). Esto vincula tu rama local con la rama remota, haciendo los futuros push y pull más fáciles."',
     "remote.level3.story.realWorldContext":
         "En equipos profesionales, las nuevas funcionalidades se desarrollan típicamente en ramas separadas y luego se suben para revisión antes de fusionarse en el código principal. Esta es una parte central del flujo de trabajo de pull request.",
-    "remote.level3.story.taskIntroduction": "Sube tu rama de funcionalidad al repositorio remoto para que otros puedan verla.",
+    "remote.level3.story.taskIntroduction":
+        "Sube tu rama de funcionalidad al repositorio remoto para que otros puedan verla.",
 
     // Reset Stage
     "reset.name": "Deshacer Commits",
@@ -418,72 +421,74 @@ const levels = {
     "reset.level1.hint2": "Primero visualiza el historial de commits: `git log --oneline`",
     "reset.level1.hint3": "`git reset --soft HEAD` conserva todo tal cual (sin cambios)",
     "reset.level1.hint4": "`git reset --soft HEAD~2` retrocede 2 commits",
-    "reset.level1.hint5": "¡Los archivos quedan preparados tras el reset --soft! Perfecto para corregir mensajes de commit",
+    "reset.level1.hint5":
+        "¡Los archivos quedan preparados tras el reset --soft! Perfecto para corregir mensajes de commit",
     "reset.level1.hint6": "Usa `git status` para ver qué está preparado después del reset",
     "reset.level1.requirement1.description": "Deshacer el último commit usando --soft",
     "reset.level1.requirement1.success": "✅ ¡Bien! ¡El commit desapareció pero los archivos siguen preparados!",
     "reset.level1.requirement2.description": "Restablecer a HEAD para entender el concepto",
-    "reset.level1.requirement2.success": "✅ ¡Perfecto! Restablecer a HEAD significa 'quedarse donde estás': ¡sin cambios!",
+    "reset.level1.requirement2.success":
+        "✅ ¡Perfecto! Restablecer a HEAD significa 'quedarse donde estás': ¡sin cambios!",
     "reset.level1.requirement3.description": "Restablecer a un commit anterior usando HEAD~n",
     "reset.level1.requirement3.success": "✅ ¡Excelente! ¡Has dominado la notación HEAD~n para los soft resets!",
     "reset.level1.story.title": "Entendiendo git reset --soft",
-    "reset.level1.story.narrative": `🔄 **Understanding git reset --soft**
+    "reset.level1.story.narrative": `🔄 **Entendiendo git reset --soft**
 
-**The Situation:**
-You're working on a feature and made 5 commits. But looking back, you realize:
-- Commit 5: "Add database config" - Oops! This has sensitive credentials! 🔐
-- Commit 4: "Update API endpoints" - This is good ✅
-- Commit 3: "Add authentication" - Good ✅
-- Commit 2: "Setup routing" - Good ✅
-- Commit 1: "Initial project setup" - Good ✅
+**La situación:**
+Estás trabajando en una función y has hecho 5 commits. Pero al mirar atrás, te das cuenta de que:
+- Commit 5: "Add database config" - ¡Ups! ¡Esto tiene credenciales sensibles! 🔐
+- Commit 4: "Update API endpoints" - Este está bien ✅
+- Commit 3: "Add authentication" - Bien ✅
+- Commit 2: "Setup routing" - Bien ✅
+- Commit 1: "Initial project setup" - Bien ✅
 
-You need to undo commit 5, fix it, and commit again properly!
+¡Necesitas deshacer el commit 5, arreglarlo y volver a confirmarlo correctamente!
 
-**What is git reset --soft?**
-Think of Git commits like a stack of boxes 📦📦📦. Each box is a commit.
+**¿Qué es git reset --soft?**
+Piensa en los commits de Git como una pila de cajas 📦📦📦. Cada caja es un commit.
 
-\`git reset --soft\` removes boxes from the top of the stack, BUT keeps all the items (your changes) on a staging table, ready to be packed into a new box!
+\`git reset --soft\` quita cajas de la parte superior de la pila, PERO mantiene todos los elementos (tus cambios) en una mesa de preparación, ¡listos para empaquetarse en una nueva caja!
 
-**Three Ways to Use git reset --soft:**
+**Tres formas de usar git reset --soft:**
 
-**1. Reset to the previous commit (most common):**
+**1. Resetear al commit anterior (lo más común):**
 \`git reset --soft HEAD~1\`
-- HEAD = "where you are now" (the top box)
-- ~1 = "go back 1 box"
-- Result: Last commit removed, but changes stay staged!
+- HEAD = "dónde estás ahora" (la caja de arriba)
+- ~1 = "retrocede 1 caja"
+- Resultado: ¡se elimina el último commit, pero los cambios siguen en staging!
 
-**2. Reset to HEAD (educational - does nothing):**
+**2. Resetear a HEAD (educativo - no hace nada):**
 \`git reset --soft HEAD\`
-- This means "reset to where I already am"
-- Nothing happens! Good for understanding the concept.
+- Esto significa "resetear a donde ya estoy"
+- ¡No pasa nada! Bueno para entender el concepto.
 
-**3. Reset to an older commit:**
+**3. Resetear a un commit más antiguo:**
 \`git reset --soft HEAD~3\`
-- Goes back 3 commits
-- All changes from those 3 commits stay staged
-- Perfect for combining multiple commits into one!
+- Retrocede 3 commits
+- Todos los cambios de esos 3 commits quedan en staging
+- ¡Perfecto para combinar varios commits en uno!
 
-**Your Mission:**
+**Tu misión:**
 
-**Step 1:** Remove the last commit (the one with credentials)
+**Paso 1:** Elimina el último commit (el que tiene las credenciales)
 \`git reset --soft HEAD~1\`
-Check with \`git status\` - your files are still staged! ✨
+Compruébalo con \`git status\`: ¡tus archivos siguen en staging! ✨
 
-**Step 2:** Try resetting to HEAD (educational)
+**Paso 2:** Prueba a resetear a HEAD (educativo)
 \`git reset --soft HEAD\`
-Notice: Nothing changed! You're already at HEAD.
+Fíjate: ¡nada cambia! Ya estás en HEAD.
 
-**Step 3:** Go back further to practice
+**Paso 3:** Retrocede más para practicar
 \`git reset --soft HEAD~2\`
-Now you've removed 2 commits, but files are still staged!
+¡Ahora has eliminado 2 commits, pero los archivos siguen en staging!
 
-**Remember:**
-- 📦 Commits are removed from history
-- ✅ Files stay in staging area
-- 🎯 Perfect for fixing commit messages or combining commits
-- ⚠️  Only use on commits you haven't pushed yet!
+**Recuerda:**
+- 📦 Los commits se eliminan del historial
+- ✅ Los archivos permanecen en el área de staging
+- 🎯 Perfecto para corregir mensajes de commit o combinar commits
+- ⚠️  ¡Úsalo solo en commits que todavía no hayas subido (push)!
 
-Let's practice these three techniques! 🚀`,
+¡Practiquemos estas tres técnicas! 🚀`,
     "reset.level1.story.realWorldContext":
         "git reset --soft es muy útil cuando quieres corregir tu último commit sin perder el trabajo. Puedes editar los cambios y luego volver a confirmar.",
     "reset.level1.story.taskIntroduction":
@@ -506,88 +511,89 @@ Let's practice these three techniques! 🚀`,
     "reset.level2.requirement2.description": "Restablecer a HEAD (educativo - no hace nada)",
     "reset.level2.requirement2.success": "✅ ¡Nada cambió: ya estás en HEAD!",
     "reset.level2.requirement3.description": "Descartar múltiples commits usando --hard",
-    "reset.level2.requirement3.success": "💥 ¡Múltiples commits destruidos! ¡El espacio de trabajo está limpio de nuevo!",
+    "reset.level2.requirement3.success":
+        "💥 ¡Múltiples commits destruidos! ¡El espacio de trabajo está limpio de nuevo!",
     "reset.level2.story.title": "Entendiendo git reset --hard - LA OPCIÓN NUCLEAR",
-    "reset.level2.story.narrative": `⚠️  **Understanding git reset --hard - THE NUCLEAR OPTION**
+    "reset.level2.story.narrative": `⚠️  **Entendiendo git reset --hard - LA OPCIÓN NUCLEAR**
 
-**The Situation:**
-It's Friday evening. You've been experimenting with a new feature all day:
-- Commit 6: "Try experimental algorithm v3" - Completely broken! 💀
-- Commit 5: "Try experimental algorithm v2" - Still broken! 🐛
-- Commit 4: "Try experimental algorithm v1" - Nope! ❌
-- Commit 3: "Add user dashboard" - This was working! ✅
-- Commit 2: "Add user authentication" - Good ✅
-- Commit 1: "Initial project" - Good ✅
+**La situación:**
+Es viernes por la tarde. Llevas todo el día experimentando con una nueva función:
+- Commit 6: "Try experimental algorithm v3" - ¡Completamente roto! 💀
+- Commit 5: "Try experimental algorithm v2" - ¡Sigue roto! 🐛
+- Commit 4: "Try experimental algorithm v1" - ¡Tampoco! ❌
+- Commit 3: "Add user dashboard" - ¡Esto sí funcionaba! ✅
+- Commit 2: "Add user authentication" - Bien ✅
+- Commit 1: "Initial project" - Bien ✅
 
-You realize: These experiments are garbage. You want them GONE. Forever. 💣
+Te das cuenta: estos experimentos son basura. Quieres que desaparezcan. Para siempre. 💣
 
-**What is git reset --hard?**
-Remember the boxes metaphor? 📦📦📦
+**¿Qué es git reset --hard?**
+¿Recuerdas la metáfora de las cajas? 📦📦📦
 
-\`git reset --soft\` removed boxes but kept the items on the staging table.
+\`git reset --soft\` quitaba cajas pero mantenía los elementos en la mesa de staging.
 
-\`git reset --hard\` removes boxes AND throws all items in the trash! 🗑️
+\`git reset --hard\` ¡quita las cajas Y tira todos los elementos a la basura! 🗑️
 
-**⚠️  CRITICAL: This is DESTRUCTIVE and PERMANENT!**
-- Commits are deleted from history
-- ALL file changes are deleted
-- Working directory is cleaned
-- Staging area is cleared
-- **THERE IS NO UNDO!**
+**⚠️  CRÍTICO: ¡Esto es DESTRUCTIVO y PERMANENTE!**
+- Los commits se eliminan del historial
+- TODOS los cambios de archivos se eliminan
+- El directorio de trabajo se limpia
+- El área de staging se vacía
+- **¡NO HAY DESHACER!**
 
-**Three Ways to Use git reset --hard:**
+**Tres formas de usar git reset --hard:**
 
-**1. Destroy the last commit (most common):**
+**1. Destruir el último commit (lo más común):**
 \`git reset --hard HEAD~1\`
-- Removes the last commit
-- Deletes all changes in that commit
-- Working directory looks like the previous commit
-- ⚠️  Changes are GONE FOREVER!
+- Elimina el último commit
+- Borra todos los cambios de ese commit
+- El directorio de trabajo queda como en el commit anterior
+- ⚠️  ¡Los cambios desaparecen PARA SIEMPRE!
 
-**2. Reset to HEAD (educational - does nothing):**
+**2. Resetear a HEAD (educativo - no hace nada):**
 \`git reset --hard HEAD\`
-- Means "make my workspace look like HEAD"
-- Since you're already at HEAD, nothing changes
-- Good for understanding: HEAD = current position
+- Significa "haz que mi espacio de trabajo se vea como HEAD"
+- Como ya estás en HEAD, no cambia nada
+- Bueno para entender: HEAD = posición actual
 
-**3. Destroy multiple commits:**
+**3. Destruir varios commits:**
 \`git reset --hard HEAD~4\`
-- Goes back 4 commits
-- All 4 commits are DELETED from history
-- All changes in those commits are DELETED
-- It's like they never existed! 👻
+- Retrocede 4 commits
+- Los 4 commits se ELIMINAN del historial
+- Todos los cambios de esos commits se ELIMINAN
+- ¡Es como si nunca hubieran existido! 👻
 
-**When to Use --hard:**
-- ✅ Experiment failed, throw it away
-- ✅ Broke everything, need to start over
-- ✅ Committed secrets/passwords by accident
-- ❌ NOT on commits you've already pushed!
-- ❌ NOT if you might need the changes later!
+**Cuándo usar --hard:**
+- ✅ El experimento falló, tíralo a la basura
+- ✅ Rompiste todo, necesitas empezar de nuevo
+- ✅ Confirmaste secretos/contraseñas por accidente
+- ❌ ¡NO en commits que ya hayas subido (push)!
+- ❌ ¡NO si es posible que necesites esos cambios más tarde!
 
-**Your Mission:**
+**Tu misión:**
 
-**Step 1:** Destroy the last broken commit
+**Paso 1:** Destruye el último commit roto
 \`git reset --hard HEAD~1\`
-Check with \`git status\` - workspace is clean! 🧹
+Compruébalo con \`git status\`: ¡el espacio de trabajo está limpio! 🧹
 
-**Step 2:** Try resetting to HEAD (safe practice)
+**Paso 2:** Prueba a resetear a HEAD (práctica segura)
 \`git reset --hard HEAD\`
-Nothing happens - you're already there!
+No pasa nada, ¡ya estás ahí!
 
-**Step 3:** Destroy multiple failed experiments
+**Paso 3:** Destruye varios experimentos fallidos
 \`git reset --hard HEAD~3\`
-All 3 bad commits are gone! It's like Friday never happened! 😅
+¡Los 3 commits malos han desaparecido! ¡Es como si el viernes nunca hubiera pasado! 😅
 
-**Remember:**
-- 💥 This is the NUCLEAR OPTION
-- 🗑️  Everything is deleted - commits AND changes
-- ⏪ Can't be undone (unless you have the commit hash)
-- 🎯 Only use when you're 100% sure
-- ⚠️  NEVER use on pushed commits!
+**Recuerda:**
+- 💥 Esta es la OPCIÓN NUCLEAR
+- 🗑️  Se elimina todo: commits Y cambios
+- ⏪ No se puede deshacer (a menos que tengas el hash del commit)
+- 🎯 Úsala solo cuando estés 100% seguro
+- ⚠️  ¡NUNCA la uses en commits ya subidos (pushed)!
 
-**Fun Fact:** Professional developers say "I'm going hard reset on this" when they want to start over completely! 🔥
+**Dato curioso:** ¡Los desarrolladores profesionales dicen "voy a hacer un hard reset de esto" cuando quieren empezar de cero por completo! 🔥
 
-Ready to practice safe destruction? Let's go! 💪`,
+¿Listo para practicar destrucción segura? ¡Vamos! 💪`,
     "reset.level2.story.realWorldContext":
         "--hard reset es una herramienta poderosa pero peligrosa. Se usa cuando realmente necesitas empezar de cero. En equipos, ten cuidado con reset en commits ya subidos: puede confundir a los demás.",
     "reset.level2.story.taskIntroduction":
@@ -607,87 +613,88 @@ Ready to practice safe destruction? Let's go! 💪`,
     "reset.level3.requirement1.description": "Ver el historial de commits para identificar el commit bueno",
     "reset.level3.requirement1.success": "✅ ¡Bien! ¡Ahora puedes ver todos los commits y sus hashes!",
     "reset.level3.requirement2.description": "Restablecer a un commit específico usando su hash",
-    "reset.level3.requirement2.success": "🎯 ¡Perfecto! ¡Has dominado el restablecimiento a hashes de commits específicos!",
+    "reset.level3.requirement2.success":
+        "🎯 ¡Perfecto! ¡Has dominado el restablecimiento a hashes de commits específicos!",
     "reset.level3.story.title": "Reset Avanzado: Usando Hashes de Commit",
-    "reset.level3.story.narrative": `🎯 **Advanced Reset: Using Commit Hashes**
+    "reset.level3.story.narrative": `🎯 **Reset avanzado: usando hashes de commit**
 
-**The Situation:**
-Your project has grown. You're now at commit 8, but you need to go back to commit 3.
+**La situación:**
+Tu proyecto ha crecido. Ahora estás en el commit 8, pero necesitas volver al commit 3.
 
-Using \`HEAD~5\` to count back 5 commits is annoying and error-prone. What if someone adds a commit while you're working? The count changes!
+Usar \`HEAD~5\` para contar 5 commits hacia atrás es molesto y propenso a errores. ¿Qué pasa si alguien añade un commit mientras trabajas? ¡La cuenta cambia!
 
-**The Professional Solution: Commit Hashes**
+**La solución profesional: hashes de commit**
 
-Every commit has a unique ID (hash), like a fingerprint:
+Cada commit tiene un ID único (hash), como una huella dactilar:
 \`a1b2c3d - "Version 2 - Good version"\`
 
-This hash NEVER changes! It's permanent and unique.
+¡Este hash NUNCA cambia! Es permanente y único.
 
-**Current Situation:**
-- Commit 8: "Attempted fix v3" - Still broken! 💔
-- Commit 7: "Attempted fix v2" - Nope! 🐛
-- Commit 6: "Attempted fix v1" - Failed! ❌
-- Commit 5: "Add broken feature" - Started the mess 🔥
-- Commit 4: "Update styling" - Cosmetic ✨
-- Commit 3: "Version 2 - GOOD VERSION" - Last known good state! ✅
-- Commit 2: "Version 1" - Initial version ✅
-- Commit 1: "Initial commit" - Foundation ✅
+**Situación actual:**
+- Commit 8: "Attempted fix v3" - ¡Sigue roto! 💔
+- Commit 7: "Attempted fix v2" - ¡Tampoco! 🐛
+- Commit 6: "Attempted fix v1" - ¡Falló! ❌
+- Commit 5: "Add broken feature" - Empezó el desastre 🔥
+- Commit 4: "Update styling" - Cosmético ✨
+- Commit 3: "Version 2 - GOOD VERSION" - ¡Último estado bueno conocido! ✅
+- Commit 2: "Version 1" - Versión inicial ✅
+- Commit 1: "Initial commit" - Base ✅
 
-**Your Mission:**
+**Tu misión:**
 
-**Step 1: Find the Good Commit**
-Run: \`git log --oneline\`
+**Paso 1: Encuentra el commit bueno**
+Ejecuta: \`git log --oneline\`
 
-You'll see something like:
+Verás algo como esto:
 \`\`\`
 f7e8a9b Attempted fix v3
 d6c7b8a Attempted fix v2
 c5b6a7f Attempted fix v1
 b4a5c6e Add broken feature
 a3b4c5d Update styling
-9a2b3c4 Version 2 - Good version  ← THIS ONE!
+9a2b3c4 Version 2 - Good version  ← ¡ESTE!
 8a1b2c3 Version 1
 7a0b1c2 Initial commit
 \`\`\`
 
-**Step 2: Reset to That Commit**
+**Paso 2: Resetea a ese commit**
 \`git reset --soft 9a2b3c4\`
-(Use the actual hash you see!)
+(¡Usa el hash real que veas!)
 
-OR (more destructive):
+O (más destructivo):
 \`git reset --hard 9a2b3c4\`
 
-**HEAD~n vs Commit Hash:**
+**HEAD~n frente a hash de commit:**
 
-**Relative (HEAD~n):**
-- \`HEAD~1\` = "previous commit"
-- \`HEAD~5\` = "5 commits ago"
-- ❌ Changes if new commits are added
-- ✅ Quick for recent commits
+**Relativo (HEAD~n):**
+- \`HEAD~1\` = "commit anterior"
+- \`HEAD~5\` = "hace 5 commits"
+- ❌ Cambia si se añaden nuevos commits
+- ✅ Rápido para commits recientes
 
-**Absolute (Commit Hash):**
+**Absoluto (hash de commit):**
 - \`git reset --soft a1b2c3d\`
-- ✅ Permanent reference
-- ✅ Never changes
-- ✅ Professional approach
-- 🎯 Best for going back to specific known-good states
+- ✅ Referencia permanente
+- ✅ Nunca cambia
+- ✅ Enfoque profesional
+- 🎯 Ideal para volver a estados específicos conocidos como buenos
 
-**Pro Tips:**
-- Only need first 7 characters: \`9a2b3c4\` instead of full hash
-- You can copy hashes from \`git log\`
-- Hashes work with ANY git command: \`git show a1b2c3d\`
-- Save important commit hashes in notes for easy rollback!
+**Consejos profesionales:**
+- Solo necesitas los primeros 7 caracteres: \`9a2b3c4\` en lugar del hash completo
+- Puedes copiar los hashes desde \`git log\`
+- Los hashes funcionan con CUALQUIER comando de git: \`git show a1b2c3d\`
+- ¡Guarda los hashes de commits importantes en notas para poder revertir fácilmente!
 
-**Real-World Scenario:**
-"Hey team, if the deploy breaks, rollback to commit 9a2b3c4 - that's our last stable version!"
+**Escenario del mundo real:**
+"Oye equipo, si el despliegue falla, haced rollback al commit 9a2b3c4: ¡esa es nuestra última versión estable!"
 
-**In CI/CD Systems:**
-Production deploys often use commit hashes for precise version control:
+**En sistemas de CI/CD:**
+Los despliegues a producción suelen usar hashes de commit para un control de versiones preciso:
 \`\`\`
 deploy.sh --commit=9a2b3c4
 \`\`\`
 
-Let's practice professional-grade Git! 🚀`,
+¡Practiquemos Git de nivel profesional! 🚀`,
     "reset.level3.story.realWorldContext":
         "Usar hashes de commit es la forma profesional de referenciar puntos específicos en el historial. Son permanentes, inequívocos y funcionan en todos los repositorios de los miembros del equipo.",
     "reset.level3.story.taskIntroduction":
@@ -741,16 +748,20 @@ Let's practice professional-grade Git! 🚀`,
         '"Tu funcionalidad se ve bien," dice Alex, revisando tu código. "Pero noto que tienes varios commits pequeños con correcciones de errores tipográficos y cambios menores. Antes de fusionar esto con main, limpiemos el historial de commits."\n\nExplica: "Git ofrece una poderosa herramienta llamada rebase interactivo que te permite modificar tu historial de commits. Puedes combinar commits pequeños, reformular mensajes de commit o incluso eliminar commits completamente."',
     "rebase.level3.story.realWorldContext":
         "El rebase interactivo se usa comúnmente para crear un historial de commits limpio y coherente antes de fusionar ramas de funcionalidades. Esto hace que el historial del código sea más legible y significativo.",
-    "rebase.level3.story.taskIntroduction": "Inicia una sesión de rebase interactivo para modificar tu historial de commits.",
+    "rebase.level3.story.taskIntroduction":
+        "Inicia una sesión de rebase interactivo para modificar tu historial de commits.",
 
     // Rebase Level 4
     "rebase.level4.name": "Rebase sobre Main",
-    "rebase.level4.description": "Aprender el flujo de trabajo de hacer rebase de ramas de funcionalidad sobre ramas main actualizadas",
+    "rebase.level4.description":
+        "Aprender el flujo de trabajo de hacer rebase de ramas de funcionalidad sobre ramas main actualizadas",
     "rebase.level4.objective1": "Hacer rebase de tu rama de funcionalidad sobre la rama main actualizada",
     "rebase.level4.hint1": "Usa `git rebase main` mientras estás en tu rama de funcionalidad",
-    "rebase.level4.hint2": "Esto aplicará los cambios de tu funcionalidad encima de los últimos cambios de la rama main",
+    "rebase.level4.hint2":
+        "Esto aplicará los cambios de tu funcionalidad encima de los últimos cambios de la rama main",
     "rebase.level4.requirement1.description": "Hacer rebase de feature sobre main",
-    "rebase.level4.requirement1.success": "¡Excelente! Has hecho rebase de tu rama de funcionalidad sobre la última rama main.",
+    "rebase.level4.requirement1.success":
+        "¡Excelente! Has hecho rebase de tu rama de funcionalidad sobre la última rama main.",
     "rebase.level4.story.title": "Mantenerse al Día",
     "rebase.level4.story.narrative":
         '"Veo que mientras trabajabas en tu funcionalidad, alguien más ha subido cambios a la rama main," señala Sarah. "Antes de fusionar tu trabajo, deberías incorporar estos últimos cambios."\n\nContinúa: "En lugar de fusionar main en tu rama, lo que crea un commit de fusión, te recomiendo hacer rebase de tu rama sobre main. Esto mantiene el historial más limpio."',
@@ -769,7 +780,8 @@ Let's practice professional-grade Git! 🚀`,
     "advanced.level1.objective1": "Crear una etiqueta anotada para un lanzamiento",
     "advanced.level1.objective2": "Listar todas las etiquetas en el repositorio",
     "advanced.level1.objective3": "Subir las etiquetas al repositorio remoto",
-    "advanced.level1.hint1": "Crea una etiqueta anotada con: git tag -a v1.0.1 -m 'Lanzamiento de corrección de errores'",
+    "advanced.level1.hint1":
+        "Crea una etiqueta anotada con: git tag -a v1.0.1 -m 'Lanzamiento de corrección de errores'",
     "advanced.level1.hint2": "Lista todas las etiquetas con: git tag",
     "advanced.level1.hint3": "Las etiquetas anotadas incluyen información del autor y un mensaje",
     "advanced.level1.hint4": "Las etiquetas se usan para marcar puntos de lanzamiento (v1.0, v2.0, etc.)",
@@ -816,9 +828,11 @@ Let's practice professional-grade Git! 🚀`,
     "advanced.level3.objective1": "Inspeccionar un commit específico usando su hash",
     "advanced.level3.hint1": "Primero usa 'git log --oneline' para encontrar un hash de commit",
     "advanced.level3.hint2": "Mostrar un commit específico: git show <hash-commit>",
-    "advanced.level3.hint3": "git show muestra el mensaje del commit, autor, fecha y diferencias con los cambios del archivo",
+    "advanced.level3.hint3":
+        "git show muestra el mensaje del commit, autor, fecha y diferencias con los cambios del archivo",
     "advanced.level3.requirement1.description": "Inspeccionar un commit usando su hash",
-    "advanced.level3.requirement1.success": "¡Genial! Has inspeccionado los detalles del commit y los cambios de archivo.",
+    "advanced.level3.requirement1.success":
+        "¡Genial! Has inspeccionado los detalles del commit y los cambios de archivo.",
     "advanced.level3.story.title": "Forense de Commits",
     "advanced.level3.story.narrative":
         '"Este commit rompió algo, pero no puedo decir qué cambió," dice tu compañero de equipo.\n\n"¡Usa git show!" respondes con confianza. "Te muestra todo sobre un commit: el mensaje, quién lo hizo, cuándo y, lo más importante, los cambios reales de código."\n\n"Es como una lupa para los commits. Esencial para revisiones de código, depuración y para entender qué cambiaron los colegas."',
@@ -831,7 +845,8 @@ Let's practice professional-grade Git! 🚀`,
     "workflow.description": "Dominar los flujos de trabajo profesionales de Git y los patrones de colaboración",
 
     "workflow.level1.name": "Flujo de Trabajo con Ramas de Funcionalidad",
-    "workflow.level1.description": "Aprender el flujo de trabajo estándar de la industria usado por equipos de todo el mundo",
+    "workflow.level1.description":
+        "Aprender el flujo de trabajo estándar de la industria usado por equipos de todo el mundo",
     "workflow.level1.objective1": "Crear una rama de funcionalidad desde main",
     "workflow.level1.objective2": "Hacer commits con mensajes descriptivos",
     "workflow.level1.objective3": "Subir tu rama de funcionalidad al remoto",
@@ -938,7 +953,8 @@ Cada minuto le cuesta miles a la empresa. Esto es lo que separa a los desarrolla
 El tiempo es dinero. ¡Vamos a arreglarlo!`,
     "workflow.level2.story.realWorldContext":
         "Los hotfixes de producción son críticos para mantener la estabilidad del sistema y requieren una ejecución inmediata y enfocada del flujo de trabajo.",
-    "workflow.level2.story.taskIntroduction": "Domina el flujo de trabajo de hotfix para correcciones urgentes de producción.",
+    "workflow.level2.story.taskIntroduction":
+        "Domina el flujo de trabajo de hotfix para correcciones urgentes de producción.",
 
     "workflow.level3.name": "Dominio de Git Flow",
     "workflow.level3.description": "Dominar el flujo de trabajo completo de Git Flow con ramas de lanzamiento",
@@ -1057,7 +1073,8 @@ Esto es desarrollo en equipo real. ¡Hagamos tu primera contribución!`,
         "Aprende los fundamentos del flujo de trabajo de Git basado en equipo y haz tu primera contribución colaborativa.",
 
     "teamwork.level2.name": "Gestionar Conflictos de Fusión en Equipos",
-    "teamwork.level2.description": "Resolver conflictos de fusión que ocurren cuando múltiples desarrolladores trabajan en los mismos archivos",
+    "teamwork.level2.description":
+        "Resolver conflictos de fusión que ocurren cuando múltiples desarrolladores trabajan en los mismos archivos",
     "teamwork.level2.objective1": "Preparar y confirmar tus cambios locales",
     "teamwork.level2.objective2": "Descargar los cambios remotos (genera conflicto)",
     "teamwork.level2.objective3": "Resolver los marcadores de conflicto de fusión",
@@ -1068,14 +1085,16 @@ Esto es desarrollo en equipo real. ¡Hagamos tu primera contribución!`,
     "teamwork.level2.hint4": "Descarga con 'git pull origin main': ¡esto generará el conflicto!",
     "teamwork.level2.hint5": "Busca los marcadores de conflicto: <<<<<<<, =======, >>>>>>>",
     "teamwork.level2.hint6": "Edita login.js para combinar tanto tus mejoras como las de Sarah",
-    "teamwork.level2.hint7": "La mejor solución conserva AMBAS: la verificación de email de Sarah Y tus longitudes más estrictas",
+    "teamwork.level2.hint7":
+        "La mejor solución conserva AMBAS: la verificación de email de Sarah Y tus longitudes más estrictas",
     "teamwork.level2.hint8": "Después de resolver: 'git add .' luego 'git commit -m \"Resolver conflicto de fusión\"'",
     "teamwork.level2.requirement1.description": "Preparar tus cambios locales en login.js",
     "teamwork.level2.requirement1.success": "¡Cambios locales preparados!",
     "teamwork.level2.requirement2.description": "Confirmar primero tus cambios locales",
     "teamwork.level2.requirement2.success": "¡Cambios locales confirmados!",
     "teamwork.level2.requirement3.description": "Descargar los cambios de Sarah para generar el conflicto",
-    "teamwork.level2.requirement3.success": "¡Cambios conflictivos descargados! Comprueba login.js para ver los marcadores de conflicto.",
+    "teamwork.level2.requirement3.success":
+        "¡Cambios conflictivos descargados! Comprueba login.js para ver los marcadores de conflicto.",
     "teamwork.level2.requirement4.description": "Preparar la resolución del conflicto",
     "teamwork.level2.requirement4.success": "¡Resolución del conflicto preparada!",
     "teamwork.level2.requirement5.description": "Confirmar la resolución de la fusión",
@@ -1127,7 +1146,8 @@ git commit -m "Fusionar la validación de email de Sarah con mis mejoras de cont
         "Domina la resolución de conflictos de fusión para convertirte en un colaborador seguro en el equipo.",
 
     "teamwork.level3.name": "Flujo de Trabajo de Revisión de Código",
-    "teamwork.level3.description": "Aprender a participar en revisiones de código y colaborar a través de pull requests",
+    "teamwork.level3.description":
+        "Aprender a participar en revisiones de código y colaborar a través de pull requests",
     "teamwork.level3.objective1": "Crear una nueva rama de funcionalidad",
     "teamwork.level3.objective2": "Preparar tu trabajo completado",
     "teamwork.level3.objective3": "Confirmar con un mensaje claro",
@@ -1135,7 +1155,8 @@ git commit -m "Fusionar la validación de email de Sarah con mis mejoras de cont
     "teamwork.level3.hint1": "Crea una rama de funcionalidad: git switch -c feature/password-reset",
     "teamwork.level3.hint2": "Alternativa (clásica): git checkout -b feature/password-reset",
     "teamwork.level3.hint3": "Prepara todos los cambios: git add .",
-    "teamwork.level3.hint4": 'Confirma con un mensaje descriptivo: git commit -m "Añadir funcionalidad de restablecimiento de contraseña"',
+    "teamwork.level3.hint4":
+        'Confirma con un mensaje descriptivo: git commit -m "Añadir funcionalidad de restablecimiento de contraseña"',
     "teamwork.level3.hint5": "Sube al remoto: git push origin feature/password-reset",
     "teamwork.level3.hint6": "Alternativa abreviada: git push -u origin feature/password-reset",
     "teamwork.level3.hint7":
@@ -1209,7 +1230,8 @@ Sube tu rama de funcionalidad para que el equipo pueda revisarla. En equipos rea
     "mastery.level1.requirement2.description": "Preparar todos los archivos resueltos",
     "mastery.level1.requirement2.success": "¡Conflictos resueltos y preparados!",
     "mastery.level1.requirement3.description": "Completar la fusión con un commit",
-    "mastery.level1.requirement3.success": "¡Fusión de nivel maestro completada! ¡Has conquistado las fusiones múltiples!",
+    "mastery.level1.requirement3.success":
+        "¡Fusión de nivel maestro completada! ¡Has conquistado las fusiones múltiples!",
     "mastery.level1.story.title": "El Desafío de Integración",
     "mastery.level1.story.narrative":
         "Tres equipos han estado trabajando en paralelo para el lanzamiento trimestral. Cada equipo desarrolló funcionalidades críticas en ramas separadas. Ahora es el día de integración y eres el desarrollador principal responsable de fusionarlo todo. El desafío: las tres ramas modificaron archivos de utilidades compartidos. Debes fusionar todas las ramas y resolver los conflictos para crear un sistema coherente y funcional.",
@@ -1219,7 +1241,8 @@ Sube tu rama de funcionalidad para que el equipo pueda revisarla. En equipos rea
         "Fusiona tres ramas de funcionalidad con cambios superpuestos y resuelve todos los conflictos para crear una base de código unificada.",
 
     "mastery.level2.name": "Git Hooks y Automatización",
-    "mastery.level2.description": "Implementar Git hooks para automatizar flujos de trabajo y aplicar estándares de calidad",
+    "mastery.level2.description":
+        "Implementar Git hooks para automatizar flujos de trabajo y aplicar estándares de calidad",
     "mastery.level2.objective1": "Crear hooks pre-commit para la calidad del código",
     "mastery.level2.objective2": "Configurar hooks post-commit para notificaciones",
     "mastery.level2.objective3": "Implementar hooks del lado del servidor",
@@ -1272,7 +1295,8 @@ Este es trabajo de infraestructura que beneficiará a cada desarrollador de tu e
         "Domina los Git hooks para construir sistemas de calidad automatizados que apliquen estándares y mejoren la productividad del equipo.",
 
     "mastery.level3.name": "Maestría en Git: El Desafío Final",
-    "mastery.level3.description": "Combinar todas las técnicas avanzadas de Git para resolver un escenario complejo del mundo real",
+    "mastery.level3.description":
+        "Combinar todas las técnicas avanzadas de Git para resolver un escenario complejo del mundo real",
     "mastery.level3.objective1": "Orquestar un lanzamiento complejo con múltiples hotfixes",
     "mastery.level3.objective2": "Gestionar reversiones de emergencia y recuperación",
     "mastery.level3.objective3": "Coordinar con múltiples equipos simultáneamente",
@@ -1355,44 +1379,55 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
 
     // Archaeology Stage Levels
     "archaeology.level1.name": "Git Blame - Arqueología de Código",
-    "archaeology.level1.description": "Investigar el historial de código para entender los cambios y encontrar el origen de los errores",
-    "archaeology.level1.objective1": "Encontrar quién escribió líneas específicas",
-    "archaeology.level1.objective2": "Rastrear el historial de un error",
-    "archaeology.level1.objective3": "Entender el contexto de los cambios en el código",
-    "archaeology.level1.objective4": "Encontrar commits y cambios relacionados",
-    "archaeology.level1.hint1": "git blame muestra quién modificó por última vez cada línea",
-    "archaeology.level1.hint2": "Usa la opción -L para culpar a rangos de líneas específicos",
-    "archaeology.level1.hint3": "Combina blame con log para entender el contexto",
-    "archaeology.level1.hint4": "Busca patrones en los mensajes de commit",
-    "archaeology.level1.requirement1.description": "Investigar quién escribió la lógica de validación",
+    "archaeology.level1.description":
+        "Investigar el historial de código para entender los cambios y encontrar el origen de los errores",
+    "archaeology.level1.objective1":
+        "Usa git blame para ver qué commit modificó por última vez cada línea de src/utils/validator.js",
+    "archaeology.level1.objective2": "Usa git log --oneline para obtener una vista compacta del historial de commits",
+    "archaeology.level1.objective3": "Usa git show para inspeccionar los detalles completos de un commit específico",
+    "archaeology.level1.hint1":
+        "Ejecuta `git blame src/utils/validator.js` para ver qué commit modificó por última vez cada línea",
+    "archaeology.level1.hint2":
+        "Añade un rango de líneas como `git blame -L 10,20 src/utils/validator.js` para centrarte en una parte del archivo",
+    "archaeology.level1.hint3":
+        "Ejecuta `git log --oneline` para ver un historial compacto de todos los commits, cada uno con un hash corto",
+    "archaeology.level1.hint4":
+        "Copia un hash de commit del log y ejecuta `git show <hash>` (o `git show HEAD`) para ver exactamente qué cambió",
+    "archaeology.level1.requirement1.description":
+        "Ejecuta git blame sobre src/utils/validator.js para ver qué commit modificó por última vez cada línea",
     "archaeology.level1.requirement1.success": "¡Autoría del código revelada!",
-    "archaeology.level1.requirement2.description": "Comprobar el historial reciente de commits para contexto",
+    "archaeology.level1.requirement2.description":
+        "Ejecuta git log --oneline para ver un historial de commits compacto",
     "archaeology.level1.requirement2.success": "¡Historial reciente examinado!",
-    "archaeology.level1.requirement3.description": "Examinar los detalles de un commit específico",
+    "archaeology.level1.requirement3.description":
+        "Ejecuta git show sobre un commit, por ejemplo git show HEAD, para ver sus detalles completos",
     "archaeology.level1.requirement3.success": "¡Detalles del commit analizados!",
     "archaeology.level1.story.title": "El Caso del Error Misterioso",
     "archaeology.level1.story.narrative":
-        "Un error crítico en el código de validación está afectando al 23% de los clientes europeos. El código fue escrito por 4 desarrolladores diferentes durante 18 meses. Tu desarrollador senior explica: 'Bienvenido a la arqueología de código. Git no es solo control de versiones: es tu máquina del tiempo. Cada línea tiene una historia.' Usa git blame, git log y git show para investigar el error y entender por qué se escribió el código de esta manera.",
+        "Un error crítico en el código de validación está afectando al 23% de los clientes europeos. El código fue escrito por 4 desarrolladores diferentes durante 18 meses. Tu desarrollador senior explica: 'Bienvenido a la arqueología de código. Git no es solo control de versiones: es tu máquina del tiempo. Cada línea tiene una historia.' Empieza con `git blame src/utils/validator.js` para ver qué commit modificó por última vez cada línea, y luego usa `git log --oneline` y `git show` para entender por qué se escribió el código de esta manera.",
     "archaeology.level1.story.realWorldContext":
         "Las habilidades de arqueología de código son esenciales para mantener bases de código grandes y de larga vida con múltiples contribuidores a lo largo del tiempo.",
     "archaeology.level1.story.taskIntroduction":
-        "Aprende a investigar el historial de código y rastrear el origen de los errores usando las herramientas forenses de Git.",
+        "Aprende a investigar el historial de código y rastrear el origen de los errores usando las herramientas forenses de Git: git blame, git log y git show.",
 
     "archaeology.level2.name": "Forense de Commits con Git Log",
     "archaeology.level2.description": "Dominar técnicas avanzadas para investigar historiales de código complejos",
-    "archaeology.level2.objective1": "Usar filtrado avanzado de logs para encontrar cambios específicos",
-    "archaeology.level2.objective2": "Rastrear cambios de nombre y movimientos de archivos",
-    "archaeology.level2.objective3": "Encontrar commits por cambios de contenido",
-    "archaeology.level2.objective4": "Analizar patrones y tendencias de commits",
-    "archaeology.level2.hint1": "Usa --grep para buscar en los mensajes de commit",
-    "archaeology.level2.hint2": "Usa -S para encontrar cuándo se añadió/eliminó texto específico",
-    "archaeology.level2.hint3": "Usa --follow para rastrear archivos a través de renombres",
-    "archaeology.level2.hint4": "Combina filtros para búsquedas más potentes",
-    "archaeology.level2.requirement1.description": "Encontrar todos los commits relacionados con seguridad",
+    "archaeology.level2.objective1": "Usa git log --grep para buscar una palabra clave en los mensajes de commit",
+    "archaeology.level2.objective2":
+        "Usa git log -S para encontrar commits que añadieron o eliminaron un texto concreto",
+    "archaeology.level2.objective3": "Usa git log --author para filtrar commits de una persona concreta",
+    "archaeology.level2.hint1": "Ejecuta `git log --grep=security` para buscar 'security' en los mensajes de commit",
+    "archaeology.level2.hint2":
+        "Ejecuta `git log -S password` para encontrar commits que añadieron o eliminaron la palabra 'password' en el código",
+    "archaeology.level2.hint3": "Ejecuta `git log --author=Sarah` para ver solo los commits de Sarah",
+    "archaeology.level2.hint4": "Puedes combinarlos con `--oneline` para una salida más compacta",
+    "archaeology.level2.requirement1.description":
+        "Busca 'security' en los mensajes de commit con git log --grep=security",
     "archaeology.level2.requirement1.success": "¡Commits relacionados con seguridad encontrados!",
-    "archaeology.level2.requirement2.description": "Encontrar commits que añadieron o eliminaron el texto 'password'",
+    "archaeology.level2.requirement2.description":
+        "Encuentra los commits que añadieron o eliminaron la palabra 'password' con git log -S password",
     "archaeology.level2.requirement2.success": "¡Cambios relacionados con contraseñas rastreados!",
-    "archaeology.level2.requirement3.description": "Encontrar todos los commits de Sarah para entender sus contribuciones",
+    "archaeology.level2.requirement3.description": "Encuentra todos los commits de Sarah con git log --author=Sarah",
     "archaeology.level2.requirement3.success": "¡Historial de contribuciones de Sarah analizado!",
     "archaeology.level2.story.title": "El Rastro de Auditoría de Seguridad",
     "archaeology.level2.story.narrative":
@@ -1403,24 +1438,32 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
         "Domina las técnicas avanzadas de git log para la investigación exhaustiva del historial de código y el análisis forense.",
 
     "archaeology.level3.name": "Git Reflog - La Máquina del Tiempo",
-    "archaeology.level3.description": "Usar Git reflog para recuperar commits perdidos y entender los cambios de estado del repositorio",
-    "archaeology.level3.objective1": "Entender qué rastrea el reflog",
-    "archaeology.level3.objective2": "Recuperar commits eliminados accidentalmente",
-    "archaeology.level3.objective3": "Encontrar referencias de ramas perdidas",
-    "archaeology.level3.objective4": "Restaurar estados anteriores del repositorio",
-    "archaeology.level3.hint1": "El reflog rastrea todos los movimientos de HEAD",
-    "archaeology.level3.hint2": "Usa git reflog para ver las acciones recientes",
-    "archaeology.level3.hint3": "git reset --hard puede usar referencias del reflog",
-    "archaeology.level3.hint4": "Las entradas del reflog caducan después de 90 días por defecto",
-    "archaeology.level3.requirement1.description": "Comprobar el reflog para ver los movimientos recientes de HEAD",
+    "archaeology.level3.description":
+        "Usar Git reflog para recuperar commits perdidos y entender los cambios de estado del repositorio",
+    "archaeology.level3.objective1":
+        "Usa git reflog para ver cada movimiento de HEAD, incluidos los commits 'perdidos'",
+    "archaeology.level3.objective2":
+        "Usa git reset --hard con una referencia del reflog (p. ej. HEAD@{0}) para restaurar el trabajo perdido",
+    "archaeology.level3.objective3":
+        "Crea una rama que apunte a una entrada del reflog para guardar los commits recuperados",
+    "archaeology.level3.hint1":
+        "`git reflog` lista cada commit al que ha apuntado HEAD, incluso los que parecen 'eliminados'",
+    "archaeology.level3.hint2":
+        "Cada entrada del reflog tiene una referencia como `HEAD@{0}`, `HEAD@{1}` - la acción más reciente es `HEAD@{0}`",
+    "archaeology.level3.hint3": "Usa `git reset --hard <referencia-reflog>` para devolver la rama a ese commit",
+    "archaeology.level3.hint4":
+        "También puedes hacer que una rama nueva apunte a una entrada del reflog: `git branch <nombre> <referencia-reflog>`",
+    "archaeology.level3.requirement1.description": "Ejecuta git reflog para ver los movimientos recientes de HEAD",
     "archaeology.level3.requirement1.success": "¡Historial del reflog examinado!",
-    "archaeology.level3.requirement2.description": "Restablecer a un estado anterior usando la referencia del reflog",
+    "archaeology.level3.requirement2.description":
+        "Restaura el commit perdido con git reset --hard y una referencia del reflog, p. ej. git reset --hard HEAD@{0}",
     "archaeology.level3.requirement2.success": "¡Estado del repositorio restaurado!",
-    "archaeology.level3.requirement3.description": "Crear una rama de recuperación a partir de una entrada del reflog",
+    "archaeology.level3.requirement3.description":
+        "Crea una rama de recuperación que apunte a una entrada del reflog, p. ej. git branch recovery HEAD@{1}",
     "archaeology.level3.requirement3.success": "¡Rama de recuperación creada!",
     "archaeology.level3.story.title": "La Gran Recuperación del Desastre de Git",
     "archaeology.level3.story.narrative":
-        "Son las 16:30 del viernes. Tu compañero Jake entra en pánico: '¡Ejecuté git reset --hard accidentalmente y perdí dos semanas de trabajo! ¡El sistema de autenticación, los componentes de interfaz, las pruebas: todo se fue!' Pero recuerdas: Git nunca olvida. Git reflog rastrea cada commit, cambio de rama, fusión y reset. Incluso los commits 'eliminados' existen en el reflog durante 90 días. Tu misión: examina el reflog, encuentra los commits perdidos y recupera el trabajo de Jake. ¡Es el momento de ser el héroe!",
+        "Son las 16:30 del viernes. Tu compañero Jake entra en pánico: '¡Ejecuté git reset --hard accidentalmente y perdí dos semanas de trabajo! ¡El sistema de autenticación, los componentes de interfaz, las pruebas: todo se fue!' Pero recuerdas: Git nunca olvida. Git reflog rastrea cada commit, cambio de rama, fusión y reset. Incluso los commits 'eliminados' existen en el reflog durante 90 días. Tu misión: ejecuta `git reflog`, encuentra los commits perdidos y recupera el trabajo de Jake con `git reset --hard` y una rama de recuperación. ¡Es el momento de ser el héroe!",
     "archaeology.level3.story.realWorldContext":
         "Git reflog es una potente herramienta de recuperación que puede salvar a los desarrolladores de escenarios catastróficos de pérdida de datos.",
     "archaeology.level3.story.taskIntroduction":
@@ -1477,7 +1520,8 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
         "Usa `git branch -d feature/search-filters`: la -d minúscula solo elimina ramas que están completamente fusionadas",
     "branches.level6.hint3":
         "Git rechaza eliminar ramas sin fusionar con -d. Usa `git branch -D experiment/new-ui` para forzar la eliminación",
-    "branches.level6.requirement1.description": "Eliminar la rama fusionada feature/search-filters usando git branch -d",
+    "branches.level6.requirement1.description":
+        "Eliminar la rama fusionada feature/search-filters usando git branch -d",
     "branches.level6.requirement1.success":
         "¡Bien hecho! Git permitió la eliminación porque todo lo de feature/search-filters ya está en main.",
     "branches.level6.requirement2.description":
@@ -1507,7 +1551,8 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
     "merge.level4.requirement2.description": "Preparar el archivo resuelto",
     "merge.level4.requirement2.success": "¡Genial! El archivo resuelto está preparado, sin marcadores de conflicto.",
     "merge.level4.requirement3.description": "Confirmar para completar la fusión",
-    "merge.level4.requirement3.success": "¡Sobresaliente! Has resuelto tu primer conflicto de fusión como un profesional.",
+    "merge.level4.requirement3.success":
+        "¡Sobresaliente! Has resuelto tu primer conflicto de fusión como un profesional.",
     "merge.level4.story.title": "Sin Más Huidas",
     "merge.level4.story.narrative":
         '"¿Recuerdas la fusión que abortamos?", pregunta Sarah con una sonrisa. "El limitador de tasa tiene que entrar en producción hoy: esta vez resolvemos el conflicto en lugar de retroceder."\n\nSeñala tu pantalla: "Git marcó el conflicto justo dentro del archivo. Todo lo que está entre <<<<<<< HEAD y ======= es nuestra versión de main, todo lo que está debajo hasta >>>>>>> viene de feature/rate-limit. Tu trabajo: edita el archivo, conserva lo que necesitamos, elimina los marcadores. Luego `git add` y `git commit`: así es como terminas una fusión."',
@@ -1525,7 +1570,8 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
     "rebase.level5.hint1":
         "Puedes pasar dos argumentos: `git rebase <upstream> <rama>`: Git hace checkout de `<rama>` y le hace rebase sobre `<upstream>` en un solo paso",
     "rebase.level5.hint2": "Prueba `git rebase main feature/payment-api`: no es necesario cambiar de rama primero",
-    "rebase.level5.requirement1.description": "Hacer rebase de feature/payment-api sobre main con la forma de dos argumentos",
+    "rebase.level5.requirement1.description":
+        "Hacer rebase de feature/payment-api sobre main con la forma de dos argumentos",
     "rebase.level5.requirement1.success":
         "¡Brillante! Has hecho rebase de feature/payment-api sobre main con un solo comando: sin cambios de rama necesarios.",
     "rebase.level5.story.title": "Un Comando, Dos Argumentos",
@@ -1546,7 +1592,8 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
         "Publica la rama primero: `git push -u origin login-form`. El indicador `-u` vincula tu rama local con la rama remota.",
     "remote.level4.hint2":
         "Luego prepara y confirma el pulido: `git add .` seguido de `git commit -m 'Mejorar mensajes de error del login'`",
-    "remote.level4.hint3": "Como el upstream está configurado, un simple `git push` es suficiente ahora: sin remoto, sin nombre de rama.",
+    "remote.level4.hint3":
+        "Como el upstream está configurado, un simple `git push` es suficiente ahora: sin remoto, sin nombre de rama.",
     "remote.level4.requirement1.description": "Publicar la rama login-form con `git push -u origin login-form`",
     "remote.level4.requirement1.success":
         "¡Rama publicada! Git ahora recuerda que login-form rastrea origin/login-form.",
@@ -1599,11 +1646,13 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
     "reset.level4.objective2": "Deshacer el último commit de forma segura con revert",
     "reset.level4.hint1": "Usa `git log --oneline` para ver un historial compacto",
     "reset.level4.hint2": "`git revert HEAD` crea un nuevo commit que deshace el último",
-    "reset.level4.hint3": "A diferencia de `git reset`, revert nunca reescribe el historial que los compañeros ya han descargado",
+    "reset.level4.hint3":
+        "A diferencia de `git reset`, revert nunca reescribe el historial que los compañeros ya han descargado",
     "reset.level4.requirement1.description": "Mostrar el historial de commits compacto",
     "reset.level4.requirement1.success": "Ahí está: 'Corrección rápida sin revisión' es el commit malo en la cima.",
     "reset.level4.requirement2.description": "Revertir el último commit",
-    "reset.level4.requirement2.success": "¡Perfecto! Un nuevo commit de reversión deshace el cambio: el historial queda intacto.",
+    "reset.level4.requirement2.success":
+        "¡Perfecto! Un nuevo commit de reversión deshace el cambio: el historial queda intacto.",
     "reset.level4.story.title": "La Corrección que Rompió los Reembolsos",
     "reset.level4.story.narrative":
         "¡Alerta roja! Alguien subió una 'corrección rápida' directamente a main sin revisión, y rompe el flujo de reembolsos.\n\nAlex se acerca corriendo: \"No podemos usar `git reset` aquí. El commit ya es público y todo el equipo lo ha descargado. Si reescribimos el historial ahora, el repositorio de todos se rompe.\n\nEsto es exactamente para lo que sirve `git revert`: crea un NUEVO commit que deshace el malo. El historial permanece intacto y todos siguen sincronizados.\"",
@@ -1627,10 +1676,11 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
     "stash.level4.requirement2.description": "Aplicar el stash sin eliminarlo",
     "stash.level4.requirement2.success": "¡Trabajo restaurado, y el stash todavía tiene tu copia de seguridad!",
     "stash.level4.requirement3.description": "Confirmar el experimento",
-    "stash.level4.requirement3.success": "¡Confirmado! La copia de seguridad del stash te salvó de perder el trabajo arriesgado.",
+    "stash.level4.requirement3.success":
+        "¡Confirmado! La copia de seguridad del stash te salvó de perder el trabajo arriesgado.",
     "stash.level4.story.title": "El Experimento Arriesgado",
     "stash.level4.story.narrative":
-        "Has estado experimentando con búsqueda difusa: prometedora, pero arriesgada.\n\nAlex sugiere: \"Antes de ir más lejos, guárdalo en stash. Pero aquí hay un movimiento pro: usa `git stash apply` en lugar de `pop` cuando lo recuperes. Apply restaura tus cambios pero CONSERVA la copia en el stash. Si tu siguiente paso sale mal, tu copia de seguridad todavía estará ahí.\"",
+        'Has estado experimentando con búsqueda difusa: prometedora, pero arriesgada.\n\nAlex sugiere: "Antes de ir más lejos, guárdalo en stash. Pero aquí hay un movimiento pro: usa `git stash apply` en lugar de `pop` cuando lo recuperes. Apply restaura tus cambios pero CONSERVA la copia en el stash. Si tu siguiente paso sale mal, tu copia de seguridad todavía estará ahí."',
     "stash.level4.story.realWorldContext":
         "Los desarrolladores usan `apply` en lugar de `pop` cuando quieren una red de seguridad: la entrada del stash sobrevive como copia de seguridad hasta que la eliminan explícitamente.",
     "stash.level4.story.taskIntroduction":
@@ -1643,7 +1693,8 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
     "teamwork.level4.objective2": "Preparar los cambios revisados",
     "teamwork.level4.objective3": "Verificar doble qué está a punto de confirmarse",
     "teamwork.level4.objective4": "Confirmar los cambios revisados",
-    "teamwork.level4.hint1": "`git diff` muestra los cambios en tu directorio de trabajo que todavía no están preparados",
+    "teamwork.level4.hint1":
+        "`git diff` muestra los cambios en tu directorio de trabajo que todavía no están preparados",
     "teamwork.level4.hint2": "`git diff --staged` muestra exactamente qué irá al próximo commit",
     "teamwork.level4.hint3": "Revisa primero, luego `git add`, revisa de nuevo con `--staged`, luego confirma",
     "teamwork.level4.requirement1.description": "Mostrar tus cambios sin preparar",
@@ -1677,7 +1728,8 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
     "advanced.level4.requirement2.description": "Marcar el commit actual como malo",
     "advanced.level4.requirement2.success": "Versión actual marcada como rota.",
     "advanced.level4.requirement3.description": "Marcar un commit funcional como bueno",
-    "advanced.level4.requirement3.success": "¡Git ahora conoce el rango bueno/malo y puede hacer búsqueda binaria entre ellos!",
+    "advanced.level4.requirement3.success":
+        "¡Git ahora conoce el rango bueno/malo y puede hacer búsqueda binaria entre ellos!",
     "advanced.level4.requirement4.description": "Terminar la sesión de bisect",
     "advanced.level4.requirement4.success": "¡Sesión cerrada: encontraste al culpable en tiempo logarítmico!",
     "advanced.level4.story.title": "La Aguja en el Pajar",
@@ -1697,7 +1749,8 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
         "`git restore --staged config.js` mueve un archivo fuera del área de preparación sin perder sus cambios",
     "archaeology.level4.hint2":
         "`git restore notes.md` descarta los cambios del directorio de trabajo y devuelve la versión confirmada",
-    "archaeology.level4.hint3": "Comprueba `git status` en cualquier momento para ver qué está preparado y qué está modificado",
+    "archaeology.level4.hint3":
+        "Comprueba `git status` en cualquier momento para ver qué está preparado y qué está modificado",
     "archaeology.level4.requirement1.description": "Desprepara el archivo de configuración",
     "archaeology.level4.requirement1.success": "La URL local está fuera del área de preparación: crisis evitada.",
     "archaeology.level4.requirement2.description": "Restaurar el archivo de notas a su estado confirmado",
@@ -1721,9 +1774,11 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
     "mastery.level4.hint2": '`git commit --amend -m "mensaje"` incorpora los cambios preparados al commit anterior',
     "mastery.level4.hint3": 'Crea una etiqueta anotada con `git tag -a v3.0.0 -m "Lanzamiento 3.0.0"`',
     "mastery.level4.requirement1.description": "Preparar las notas de lanzamiento",
-    "mastery.level4.requirement1.success": "Notas de lanzamiento preparadas: listas para unirse al commit de lanzamiento.",
+    "mastery.level4.requirement1.success":
+        "Notas de lanzamiento preparadas: listas para unirse al commit de lanzamiento.",
     "mastery.level4.requirement2.description": "Modificar el commit anterior",
-    "mastery.level4.requirement2.success": "El commit de lanzamiento ahora incluye las notas, como si nunca las hubieras olvidado.",
+    "mastery.level4.requirement2.success":
+        "El commit de lanzamiento ahora incluye las notas, como si nunca las hubieras olvidado.",
     "mastery.level4.requirement3.description": "Crear una etiqueta de lanzamiento anotada",
     "mastery.level4.requirement3.success": "¡v3.0.0 etiquetado: un lanzamiento impecable. ¡Realmente has dominado Git!",
     "mastery.level4.story.title": "Un Commit para Gobernar el Lanzamiento",

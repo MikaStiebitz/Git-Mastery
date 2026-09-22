@@ -11,12 +11,7 @@ const archaeologyLevel1 = createLevel({
     id: 1,
     name: "archaeology.level1.name",
     description: "archaeology.level1.description",
-    objectives: [
-        "archaeology.level1.objective1",
-        "archaeology.level1.objective2",
-        "archaeology.level1.objective3",
-        "archaeology.level1.objective4",
-    ],
+    objectives: ["archaeology.level1.objective1", "archaeology.level1.objective2", "archaeology.level1.objective3"],
     hints: [
         "archaeology.level1.hint1",
         "archaeology.level1.hint2",
@@ -130,12 +125,7 @@ const archaeologyLevel2 = createLevel({
     id: 2,
     name: "archaeology.level2.name",
     description: "archaeology.level2.description",
-    objectives: [
-        "archaeology.level2.objective1",
-        "archaeology.level2.objective2",
-        "archaeology.level2.objective3",
-        "archaeology.level2.objective4",
-    ],
+    objectives: ["archaeology.level2.objective1", "archaeology.level2.objective2", "archaeology.level2.objective3"],
     hints: [
         "archaeology.level2.hint1",
         "archaeology.level2.hint2",
@@ -246,12 +236,7 @@ const archaeologyLevel3 = createLevel({
     id: 3,
     name: "archaeology.level3.name",
     description: "archaeology.level3.description",
-    objectives: [
-        "archaeology.level3.objective1",
-        "archaeology.level3.objective2",
-        "archaeology.level3.objective3",
-        "archaeology.level3.objective4",
-    ],
+    objectives: ["archaeology.level3.objective1", "archaeology.level3.objective2", "archaeology.level3.objective3"],
     hints: [
         "archaeology.level3.hint1",
         "archaeology.level3.hint2",

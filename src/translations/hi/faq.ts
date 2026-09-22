@@ -1,83 +1,83 @@
 const faq = {
-    "faq.title": "Frequently Asked Questions about Git",
-    "faq.subtitle": "Everything You Need to Know About Git",
+    "faq.title": "Git के बारे में अक्सर पूछे जाने वाले प्रश्न",
+    "faq.subtitle": "Git के बारे में वह सब कुछ जो आपको जानना चाहिए",
     "faq.intro":
-        "Git is a powerful and widely used version control system. Here are answers to common questions about Git, its purpose, and how it's used in software development.",
+        "Git एक शक्तिशाली और व्यापक रूप से उपयोग किया जाने वाला वर्जन कंट्रोल सिस्टम है। यहां Git, इसके उद्देश्य, और सॉफ़्टवेयर डेवलपमेंट में इसके उपयोग के बारे में आम सवालों के जवाब दिए गए हैं।",
 
     // Categories
-    "faq.categories.basics": "Git Basics",
-    "faq.categories.concepts": "Key Concepts",
-    "faq.categories.usage": "Practical Usage",
+    "faq.categories.basics": "Git की मूल बातें",
+    "faq.categories.concepts": "मुख्य अवधारणाएं",
+    "faq.categories.usage": "व्यावहारिक उपयोग",
 
     // Basics Section
-    "faq.whatIsGit.question": "What is Git?",
+    "faq.whatIsGit.question": "Git क्या है?",
     "faq.whatIsGit.answer":
-        "Git is a distributed version control system that tracks changes to files over time. It allows multiple people to collaborate on projects, maintain a history of changes, and revert to previous versions if needed. Unlike centralized version control systems, Git provides each developer with a complete copy of the repository, allowing for offline work and providing redundancy.",
+        "Git एक डिस्ट्रिब्यूटेड वर्जन कंट्रोल सिस्टम है जो समय के साथ फ़ाइलों में हुए बदलावों को ट्रैक करता है। यह कई लोगों को प्रोजेक्ट्स पर सहयोग करने, बदलावों का इतिहास बनाए रखने, और ज़रूरत पड़ने पर पिछले वर्ज़न पर वापस जाने की सुविधा देता है। सेंट्रलाइज़्ड वर्जन कंट्रोल सिस्टम के उलट, Git हर डेवलपर को रिपॉजिटरी की एक पूरी कॉपी देता है, जिससे ऑफ़लाइन काम करना और डेटा की रिडंडेंसी संभव होती है।",
 
-    "faq.whyCreated.question": "Why was Git created?",
+    "faq.whyCreated.question": "Git क्यों बनाया गया?",
     "faq.whyCreated.answer":
-        "Git was created by Linus Torvalds in 2005 for the development of the Linux kernel. Torvalds needed a distributed version control system that was fast, supported non-linear development with thousands of parallel branches, and could handle large projects like the Linux kernel efficiently. Existing tools at the time couldn't meet these requirements, so he developed Git. The name 'git' is British slang for 'unpleasant person', which Torvalds jokingly applied to the software (and himself).",
+        "Git को Linus Torvalds ने 2005 में Linux kernel के डेवलपमेंट के लिए बनाया था। Torvalds को एक ऐसा डिस्ट्रिब्यूटेड वर्जन कंट्रोल सिस्टम चाहिए था जो तेज़ हो, हज़ारों समानांतर ब्रांचों के साथ नॉन-लीनियर डेवलपमेंट को सपोर्ट करे, और Linux kernel जैसे बड़े प्रोजेक्ट्स को असरदार तरीके से संभाल सके। उस समय मौजूद टूल्स इन ज़रूरतों को पूरा नहीं कर पाते थे, इसलिए उन्होंने Git बनाया। 'git' नाम ब्रिटिश स्लैंग है जिसका मतलब है 'अप्रिय व्यक्ति', जिसे Torvalds ने मज़ाक में इस सॉफ़्टवेयर (और ख़ुद) पर लागू किया।",
 
-    "faq.vsOtherVcs.question": "How does Git differ from other version control systems?",
+    "faq.vsOtherVcs.question": "Git अन्य वर्जन कंट्रोल सिस्टम से कैसे अलग है?",
     "faq.vsOtherVcs.answer":
-        "Git differs from older systems like SVN (Subversion) or CVS in several key ways:\n\n• It's distributed rather than centralized, giving each developer a full copy of the repository\n• It's designed for non-linear development with robust branching and merging capabilities\n• It's much faster, especially for operations like branching and merging\n• It uses a different approach to storing data, focusing on snapshots rather than file differences\n• It has better data integrity through its use of SHA-1 hashes\n• It provides strong support for offline operations",
+        "Git कई अहम तरीकों से SVN (Subversion) या CVS जैसे पुराने सिस्टम से अलग है:\n\n• यह सेंट्रलाइज़्ड की बजाय डिस्ट्रिब्यूटेड है, जिससे हर डेवलपर को रिपॉजिटरी की पूरी कॉपी मिलती है\n• यह मज़बूत ब्रांचिंग और मर्जिंग क्षमताओं के साथ नॉन-लीनियर डेवलपमेंट के लिए बनाया गया है\n• यह कहीं ज़्यादा तेज़ है, ख़ासकर ब्रांचिंग और मर्जिंग जैसे ऑपरेशंस के लिए\n• यह डेटा सहेजने का एक अलग तरीका अपनाता है, फ़ाइल अंतरों की बजाय स्नैपशॉट पर ध्यान देते हुए\n• SHA-1 हैश के उपयोग से इसकी डेटा इंटीग्रिटी बेहतर है\n• यह ऑफ़लाइन ऑपरेशंस के लिए मज़बूत सपोर्ट देता है",
 
-    "faq.benefits.question": "What are the main benefits of using Git?",
+    "faq.benefits.question": "Git उपयोग करने के मुख्य फ़ायदे क्या हैं?",
     "faq.benefits.answer":
-        "Git offers numerous advantages for software development:\n\n• Speed and efficiency, especially for large projects\n• Powerful branching and merging capabilities that support non-linear development\n• Distributed nature that provides redundancy and enables offline work\n• Strong support for parallel development workflows\n• Excellent data integrity and change tracking\n• Robust ecosystem with tools and hosting services like GitHub, GitLab, and Bitbucket\n• Extensive adoption in the industry, making it a valuable skill for developers\n• Free and open-source software",
+        "Git सॉफ़्टवेयर डेवलपमेंट के लिए कई फ़ायदे देता है:\n\n• गति और दक्षता, ख़ासकर बड़े प्रोजेक्ट्स के लिए\n• शक्तिशाली ब्रांचिंग और मर्जिंग क्षमताएं जो नॉन-लीनियर डेवलपमेंट को सपोर्ट करती हैं\n• डिस्ट्रिब्यूटेड प्रकृति जो रिडंडेंसी देती है और ऑफ़लाइन काम संभव बनाती है\n• समानांतर डेवलपमेंट वर्कफ़्लो के लिए मज़बूत सपोर्ट\n• उत्कृष्ट डेटा इंटीग्रिटी और बदलावों की ट्रैकिंग\n• GitHub, GitLab, और Bitbucket जैसे टूल्स और होस्टिंग सेवाओं वाला मज़बूत इकोसिस्टम\n• इंडस्ट्री में व्यापक उपयोग, जो इसे डेवलपरों के लिए एक क़ीमती हुनर बनाता है\n• मुफ़्त और ओपन-सोर्स सॉफ़्टवेयर",
 
-    "faq.gitVsGithub.question": "What's the difference between Git and GitHub?",
+    "faq.gitVsGithub.question": "Git और GitHub में क्या अंतर है?",
     "faq.gitVsGithub.answer":
-        "Git is the version control system itself—the software tool you install on your computer to track changes to your files. GitHub, on the other hand, is a web-based hosting service for Git repositories. GitHub adds additional features like pull requests, issue tracking, code reviews, and other collaboration tools. Similar services include GitLab and Bitbucket. Think of Git as the tool and GitHub as a service built around that tool to make it more user-friendly and to add collaborative features.",
+        "Git ख़ुद वर्जन कंट्रोल सिस्टम है—वह सॉफ़्टवेयर टूल जिसे आप अपने कंप्यूटर पर अपनी फ़ाइलों में बदलाव ट्रैक करने के लिए इंस्टॉल करते हैं। दूसरी ओर, GitHub, Git रिपॉजिटरी के लिए एक वेब-आधारित होस्टिंग सेवा है। GitHub पुल रिक्वेस्ट, इशू ट्रैकिंग, कोड रिव्यू, और अन्य सहयोग टूल्स जैसे अतिरिक्त फ़ीचर जोड़ता है। GitLab और Bitbucket जैसी सेवाएं भी इसी तरह की हैं। Git को टूल समझें और GitHub को उस टूल के आस-पास बनी एक सेवा जो उसे ज़्यादा उपयोगकर्ता-अनुकूल बनाती है और सहयोगी फ़ीचर जोड़ती है।",
 
     // Concepts Section
-    "faq.repositories.question": "What are repositories in Git?",
+    "faq.repositories.question": "Git में रिपॉजिटरी क्या होती हैं?",
     "faq.repositories.answer":
-        "A repository (or 'repo') is the fundamental unit in Git. It contains all of your project's files and the entire history of changes made to those files. Technically, a Git repository is the .git directory in your project that stores all the metadata and object database for your project. When you clone a repository, you get a copy of this entire history. Repositories can be local (on your machine) or remote (on a server like GitHub).",
+        "एक रिपॉजिटरी (या 'रिपो') Git की बुनियादी इकाई है। इसमें आपके प्रोजेक्ट की सभी फ़ाइलें और उन फ़ाइलों में हुए सभी बदलावों का पूरा इतिहास होता है। तकनीकी रूप से, एक Git रिपॉजिटरी आपके प्रोजेक्ट में .git डायरेक्टरी होती है जो आपके प्रोजेक्ट के लिए सारा मेटाडेटा और ऑब्जेक्ट डेटाबेस सहेजती है। जब आप किसी रिपॉजिटरी को क्लोन करते हैं, तो आपको इस पूरे इतिहास की एक कॉपी मिलती है। रिपॉजिटरी लोकल (आपकी मशीन पर) या रिमोट (GitHub जैसे किसी सर्वर पर) हो सकती हैं।",
 
-    "faq.commits.question": "What are commits and why are they important?",
+    "faq.commits.question": "कमिट क्या हैं और वे क्यों ज़रूरी हैं?",
     "faq.commits.answer":
-        "Commits are snapshots of your entire repository at specific points in time. Each commit has a unique identifier (hash) and includes information about what changed, who made the change, when, and a message describing the change. Commits are important because they:\n\n• Create a history of your project's development\n• Allow you to go back to previous states of your project\n• Help identify when and by whom specific changes were introduced\n• Enable collaboration by providing clear points of reference\n\nGood commit messages are vital for understanding the 'why' behind changes when revisiting code later.",
+        "कमिट किसी ख़ास समय पर आपकी पूरी रिपॉजिटरी के स्नैपशॉट होते हैं। हर कमिट का एक यूनिक पहचानकर्ता (हैश) होता है और इसमें यह जानकारी शामिल होती है कि क्या बदला, किसने बदला, कब, और बदलाव का वर्णन करने वाला एक संदेश। कमिट इसलिए ज़रूरी हैं क्योंकि वे:\n\n• आपके प्रोजेक्ट के डेवलपमेंट का इतिहास बनाते हैं\n• आपको अपने प्रोजेक्ट की पिछली स्थितियों में वापस जाने देते हैं\n• यह पहचानने में मदद करते हैं कि विशेष बदलाव कब और किसने किए\n• संदर्भ के स्पष्ट बिंदु देकर सहयोग को संभव बनाते हैं\n\nबाद में कोड देखते समय बदलावों के पीछे का 'क्यों' समझने के लिए अच्छे कमिट संदेश बेहद ज़रूरी हैं।",
 
-    "faq.branches.question": "What are branches and how do they work?",
+    "faq.branches.question": "ब्रांच क्या हैं और वे कैसे काम करती हैं?",
     "faq.branches.answer":
-        "Branches in Git are simply movable pointers to commits. They allow parallel lines of development, so different features or fixes can be worked on simultaneously without interfering with each other. The default branch is usually called 'main' (previously 'master').\n\nWhen you create a branch, you're essentially creating a new pointer to the current commit. As you make new commits on that branch, the pointer moves forward automatically. This allows you to switch between different states of your project easily and to merge changes from one branch into another when ready.",
+        "Git में ब्रांच बस कमिट की ओर इशारा करने वाले चलायमान पॉइंटर होते हैं। ये डेवलपमेंट की समानांतर लाइनों की सुविधा देते हैं, जिससे अलग-अलग फ़ीचर या फ़िक्स एक-दूसरे को प्रभावित किए बिना एक साथ किए जा सकते हैं। डिफ़ॉल्ट ब्रांच को आमतौर पर 'main' (पहले 'master') कहा जाता है।\n\nजब आप कोई ब्रांच बनाते हैं, तो आप असल में मौजूदा कमिट की ओर इशारा करने वाला एक नया पॉइंटर बना रहे होते हैं। जैसे-जैसे आप उस ब्रांच पर नए कमिट बनाते हैं, पॉइंटर अपने-आप आगे बढ़ता जाता है। इससे आप अपने प्रोजेक्ट की अलग-अलग स्थितियों के बीच आसानी से स्विच कर सकते हैं और तैयार होने पर एक ब्रांच के बदलाव दूसरी ब्रांच में मर्ज कर सकते हैं।",
 
-    "faq.merge.question": "What is merging and how do merge conflicts occur?",
+    "faq.merge.question": "मर्जिंग क्या है और मर्ज कॉन्फ्लिक्ट कैसे होते हैं?",
     "faq.merge.answer":
-        "Merging is the process of combining changes from one branch into another. For example, when a feature is complete in a feature branch, you would merge it into the main branch. Git automatically handles the merging when the changes don't overlap.\n\nMerge conflicts occur when the same part of a file has been changed differently in the two branches being merged. Git can't automatically determine which version to use, so it marks the file as having a conflict that must be resolved manually. The conflict markers in the file show both versions of the code, and you need to edit the file to create the final version before completing the merge.",
+        "मर्जिंग एक ब्रांच के बदलावों को दूसरी ब्रांच में मिलाने की प्रक्रिया है। उदाहरण के लिए, जब किसी फ़ीचर ब्रांच में कोई फ़ीचर पूरा हो जाता है, तो आप उसे main ब्रांच में मर्ज करेंगे। जब बदलाव एक-दूसरे को ओवरलैप नहीं करते, तो Git मर्जिंग अपने-आप संभाल लेता है।\n\nमर्ज कॉन्फ्लिक्ट तब होता है जब किसी फ़ाइल के एक ही हिस्से को मर्ज हो रही दोनों ब्रांचों में अलग-अलग तरीके से बदला गया हो। Git अपने-आप यह तय नहीं कर सकता कि कौन-सा वर्ज़न उपयोग करना है, इसलिए यह फ़ाइल को कॉन्फ्लिक्ट के रूप में चिह्नित करता है जिसे मैन्युअली सुलझाना ज़रूरी होता है। फ़ाइल में कॉन्फ्लिक्ट मार्कर कोड के दोनों वर्ज़न दिखाते हैं, और मर्ज पूरा करने से पहले आपको अंतिम वर्ज़न बनाने के लिए फ़ाइल एडिट करनी होती है।",
 
-    "faq.workflow.question": "What is a typical Git workflow?",
+    "faq.workflow.question": "एक सामान्य Git वर्कफ़्लो क्या होता है?",
     "faq.workflow.answer":
-        "A common Git workflow might look like this:\n\n1. Create a branch for a new feature or bug fix\n2. Make changes and commit them to your branch\n3. Push your branch to the remote repository\n4. Create a pull request (on GitHub/GitLab) or request a code review\n5. Make additional changes if requested\n6. Merge the branch into the main branch when approved\n7. Delete the feature branch once it's merged\n\nThere are several established workflow models like GitHub Flow, GitFlow, and Trunk-Based Development, each with their own approach to branches, releases, and deployments.",
+        "एक सामान्य Git वर्कफ़्लो कुछ इस तरह दिख सकता है:\n\n1. एक नए फ़ीचर या बग फ़िक्स के लिए एक ब्रांच बनाएं\n2. बदलाव करें और उन्हें अपनी ब्रांच में कमिट करें\n3. अपनी ब्रांच को रिमोट रिपॉजिटरी पर पुश करें\n4. (GitHub/GitLab पर) एक पुल रिक्वेस्ट बनाएं या कोड रिव्यू का अनुरोध करें\n5. अनुरोध किए जाने पर अतिरिक्त बदलाव करें\n6. अप्रूव होने पर ब्रांच को main ब्रांच में मर्ज करें\n7. मर्ज होने के बाद फ़ीचर ब्रांच को डिलीट कर दें\n\nGitHub Flow, GitFlow, और Trunk-Based Development जैसे कई स्थापित वर्कफ़्लो मॉडल हैं, जिनमें से हर एक का ब्रांचों, रिलीज़ों, और डिप्लॉयमेंट के प्रति अपना तरीका है।",
 
     // Usage Section
-    "faq.whenUse.question": "When should I use Git?",
+    "faq.whenUse.question": "मुझे Git कब उपयोग करना चाहिए?",
     "faq.whenUse.answer":
-        "You should use Git for virtually any project where you need to track changes over time, especially if it involves code. This includes:\n\n• Software development projects of any size\n• Documentation projects\n• Configuration files\n• Writing projects like books or articles\n• Any collaborative project where multiple people need to work on the same files\n\nEven for solo projects, Git provides valuable features like history tracking, the ability to experiment with changes safely, and backup capabilities.",
+        "आपको लगभग किसी भी प्रोजेक्ट के लिए Git का उपयोग करना चाहिए जहां आपको समय के साथ बदलावों को ट्रैक करना है, ख़ासकर अगर इसमें कोड शामिल हो। इसमें शामिल हैं:\n\n• किसी भी आकार के सॉफ़्टवेयर डेवलपमेंट प्रोजेक्ट\n• डॉक्यूमेंटेशन प्रोजेक्ट\n• कॉन्फ़िगरेशन फ़ाइलें\n• किताबों या लेखों जैसे लेखन प्रोजेक्ट\n• कोई भी सहयोगी प्रोजेक्ट जहां कई लोगों को एक ही फ़ाइलों पर काम करना हो\n\nअकेले किए जा रहे प्रोजेक्ट्स के लिए भी, Git इतिहास ट्रैकिंग, सुरक्षित रूप से बदलावों के साथ प्रयोग करने की क्षमता, और बैकअप जैसे क़ीमती फ़ीचर देता है।",
 
-    "faq.smallProjects.question": "Is Git overkill for small projects?",
+    "faq.smallProjects.question": "क्या छोटे प्रोजेक्ट्स के लिए Git ज़रूरत से ज़्यादा है?",
     "faq.smallProjects.answer":
-        "While Git has powerful features designed to handle large, complex projects, it's still valuable for small projects. Even for small or personal projects, Git provides:\n\n• A safety net that lets you revert changes if something breaks\n• A complete history of your work\n• The ability to work on multiple features simultaneously using branches\n• Easy backup of your project's entire history to remote repositories\n• Potential for collaboration in the future\n\nThe initial investment in learning Git pays off even for small projects with these benefits.",
+        "हालांकि Git में बड़े, जटिल प्रोजेक्ट्स को संभालने के लिए बनाई गई शक्तिशाली सुविधाएं हैं, फिर भी यह छोटे प्रोजेक्ट्स के लिए भी क़ीमती है। छोटे या व्यक्तिगत प्रोजेक्ट्स के लिए भी, Git देता है:\n\n• एक सेफ़्टी नेट जो कुछ ख़राब होने पर बदलाव वापस लेने देता है\n• आपके काम का एक पूरा इतिहास\n• ब्रांच का उपयोग करके एक साथ कई फ़ीचर पर काम करने की क्षमता\n• रिमोट रिपॉजिटरी पर अपने प्रोजेक्ट के पूरे इतिहास का आसान बैकअप\n• भविष्य में सहयोग की संभावना\n\nइन फ़ायदों के साथ Git सीखने में शुरुआती निवेश छोटे प्रोजेक्ट्स के लिए भी फ़ायदेमंद साबित होता है।",
 
-    "faq.teamCollaboration.question": "How does Git help team collaboration?",
+    "faq.teamCollaboration.question": "Git टीम सहयोग में कैसे मदद करता है?",
     "faq.teamCollaboration.answer":
-        "Git enhances team collaboration in many ways:\n\n• Multiple developers can work on the same project simultaneously without overwriting each other's work\n• Changes are clearly tracked with author information and timestamps\n• Branching allows separate work on different features without interference\n• Pull requests (on platforms like GitHub) facilitate code reviews\n• Conflicts are identified automatically when they occur\n• Project history provides accountability and transparency\n• Remote repositories ensure everyone has access to the latest code\n• Issue tracking and project management tools integrate well with Git workflows",
+        "Git कई तरीकों से टीम सहयोग को बेहतर बनाता है:\n\n• कई डेवलपर एक-दूसरे के काम को ओवरराइट किए बिना एक साथ एक ही प्रोजेक्ट पर काम कर सकते हैं\n• बदलाव लेखक की जानकारी और टाइमस्टैंप के साथ स्पष्ट रूप से ट्रैक होते हैं\n• ब्रांचिंग अलग-अलग फ़ीचर पर बिना किसी हस्तक्षेप के अलग काम करने देती है\n• (GitHub जैसे प्लेटफ़ॉर्म पर) पुल रिक्वेस्ट कोड रिव्यू को आसान बनाते हैं\n• कॉन्फ्लिक्ट होते ही अपने-आप पहचान लिए जाते हैं\n• प्रोजेक्ट का इतिहास जवाबदेही और पारदर्शिता देता है\n• रिमोट रिपॉजिटरी यह सुनिश्चित करती हैं कि सबके पास सबसे नया कोड मौजूद हो\n• इशू ट्रैकिंग और प्रोजेक्ट मैनेजमेंट टूल्स Git वर्कफ़्लो के साथ अच्छी तरह इंटीग्रेट होते हैं",
 
-    "faq.commandLine.question": "Do I have to use the command line for Git?",
+    "faq.commandLine.question": "क्या मुझे Git के लिए कमांड लाइन का उपयोग करना ही होगा?",
     "faq.commandLine.answer":
-        "No, you don't have to use the command line, although understanding Git commands can be helpful. There are many graphical user interfaces (GUIs) available for Git, including:\n\n• GitHub Desktop: A simple, user-friendly interface\n• GitKraken: A powerful cross-platform Git client\n• Sourcetree: Feature-rich Git client for Windows and Mac\n• Git Extensions: Open-source UI for Windows\n• TortoiseGit: Windows shell interface for Git\n\nAdditionally, most modern IDEs like Visual Studio Code, IntelliJ IDEA, and others have built-in Git integration, allowing you to perform common Git operations directly from the editor.",
+        "नहीं, आपको कमांड लाइन का उपयोग करना ज़रूरी नहीं है, हालांकि Git कमांड समझना मददगार हो सकता है। Git के लिए कई ग्राफ़िकल यूज़र इंटरफ़ेस (GUI) उपलब्ध हैं, जिनमें शामिल हैं:\n\n• GitHub Desktop: एक सरल, उपयोगकर्ता-अनुकूल इंटरफ़ेस\n• GitKraken: एक शक्तिशाली क्रॉस-प्लेटफ़ॉर्म Git क्लाइंट\n• Sourcetree: Windows और Mac के लिए फ़ीचर से भरपूर Git क्लाइंट\n• Git Extensions: Windows के लिए ओपन-सोर्स UI\n• TortoiseGit: Git के लिए Windows शेल इंटरफ़ेस\n\nइसके अलावा, Visual Studio Code, IntelliJ IDEA जैसे ज़्यादातर आधुनिक IDE में built-in Git इंटीग्रेशन होता है, जिससे आप एडिटर से सीधे सामान्य Git ऑपरेशन कर सकते हैं।",
 
-    "faq.hosting.question": "Where can I host my Git repositories?",
+    "faq.hosting.question": "मैं अपनी Git रिपॉजिटरी कहां होस्ट कर सकता हूं?",
     "faq.hosting.answer":
-        "There are several popular services for hosting Git repositories:\n\n• GitHub: The most popular platform, with many collaboration features\n• GitLab: Features a complete DevOps platform with CI/CD capabilities\n• Bitbucket: Integrates well with other Atlassian products like Jira\n• Azure DevOps: Microsoft's solution with extensive integration into their ecosystem\n• Self-hosted options: GitLab Community Edition or Gitea for hosting on your own servers\n\nMost of these services offer free tiers for public repositories and individual developers, with paid plans for private repositories and teams.",
+        "Git रिपॉजिटरी होस्ट करने के लिए कई लोकप्रिय सेवाएं हैं:\n\n• GitHub: सबसे लोकप्रिय प्लेटफ़ॉर्म, जिसमें कई सहयोग फ़ीचर हैं\n• GitLab: CI/CD क्षमताओं के साथ एक पूरा DevOps प्लेटफ़ॉर्म देता है\n• Bitbucket: Jira जैसे अन्य Atlassian प्रोडक्ट्स के साथ अच्छी तरह इंटीग्रेट होता है\n• Azure DevOps: Microsoft का समाधान, जो उनके इकोसिस्टम के साथ व्यापक इंटीग्रेशन देता है\n• सेल्फ़-होस्टेड विकल्प: अपने ख़ुद के सर्वर पर होस्टिंग के लिए GitLab Community Edition या Gitea\n\nइनमें से ज़्यादातर सेवाएं पब्लिक रिपॉजिटरी और व्यक्तिगत डेवलपरों के लिए मुफ़्त टियर देती हैं, और प्राइवेट रिपॉजिटरी व टीमों के लिए पेड प्लान।",
 
     // Call to action
-    "faq.readyToStart.title": "Ready to Get Started with Git?",
+    "faq.readyToStart.title": "Git के साथ शुरुआत करने के लिए तैयार हैं?",
     "faq.readyToStart.text":
-        "Now that you understand the basics of Git, you're ready to start using it in your projects!",
-    "faq.readyToStart.installButton": "Install Git",
-    "faq.readyToStart.practiceButton": "Practice Git Commands",
+        "अब जब आप Git की मूल बातें समझ गए हैं, तो आप इसे अपने प्रोजेक्ट्स में उपयोग करना शुरू करने के लिए तैयार हैं!",
+    "faq.readyToStart.installButton": "Git इंस्टॉल करें",
+    "faq.readyToStart.practiceButton": "Git कमांड का अभ्यास करें",
 };
 
 export default faq;

@@ -1356,43 +1356,49 @@ Ready to prove your mastery? The clock is ticking...`,
     // Archaeology Stage Levels
     "archaeology.level1.name": "Git Blame - Code Archaeology",
     "archaeology.level1.description": "Investigate code history to understand changes and find the origin of bugs",
-    "archaeology.level1.objective1": "Find who wrote specific lines",
-    "archaeology.level1.objective2": "Track down the history of a bug",
-    "archaeology.level1.objective3": "Understand the context of code changes",
-    "archaeology.level1.objective4": "Find related commits and changes",
-    "archaeology.level1.hint1": "git blame shows who last modified each line",
-    "archaeology.level1.hint2": "Use -L option to blame specific line ranges",
-    "archaeology.level1.hint3": "Combine blame with log to understand context",
-    "archaeology.level1.hint4": "Look for patterns in commit messages",
-    "archaeology.level1.requirement1.description": "Investigate who wrote the validation logic",
+    "archaeology.level1.objective1":
+        "Use git blame to see which commit last touched each line of src/utils/validator.js",
+    "archaeology.level1.objective2": "Use git log --oneline to get a compact overview of the commit history",
+    "archaeology.level1.objective3": "Use git show to inspect the full details of a specific commit",
+    "archaeology.level1.hint1": "Run `git blame src/utils/validator.js` to see which commit last changed each line",
+    "archaeology.level1.hint2":
+        "Add a line range like `git blame -L 10,20 src/utils/validator.js` to focus on one part of the file",
+    "archaeology.level1.hint3":
+        "Run `git log --oneline` to see a compact history of all commits, each with a short hash",
+    "archaeology.level1.hint4":
+        "Copy a commit hash from the log and run `git show <hash>` (or `git show HEAD`) to see exactly what changed",
+    "archaeology.level1.requirement1.description":
+        "Run git blame on src/utils/validator.js to see which commit last changed each line",
     "archaeology.level1.requirement1.success": "Code authorship revealed!",
-    "archaeology.level1.requirement2.description": "Check recent commit history for context",
+    "archaeology.level1.requirement2.description": "Run git log --oneline to see a compact commit history",
     "archaeology.level1.requirement2.success": "Recent history examined!",
-    "archaeology.level1.requirement3.description": "Examine the details of a specific commit",
+    "archaeology.level1.requirement3.description":
+        "Run git show on a commit, e.g. git show HEAD, to see its full details",
     "archaeology.level1.requirement3.success": "Commit details analyzed!",
     "archaeology.level1.story.title": "The Case of the Mysterious Bug",
     "archaeology.level1.story.narrative":
-        "A critical bug in the validation code is affecting 23% of European customers. The code was written by 4 different developers over 18 months. Your senior developer explains: 'Welcome to code archaeology! Git isn't just version control - it's your time machine. Every line has a story.' Use git blame, git log, and git show to investigate the bug and understand why the code was written this way.",
+        "A critical bug in the validation code is affecting 23% of European customers. The code was written by 4 different developers over 18 months. Your senior developer explains: 'Welcome to code archaeology! Git isn't just version control - it's your time machine. Every line has a story.' Start with `git blame src/utils/validator.js` to see which commit last touched each line, then use `git log --oneline` and `git show` to understand why the code was written this way.",
     "archaeology.level1.story.realWorldContext":
         "Code archaeology skills are essential for maintaining large, long-lived codebases with multiple contributors over time.",
     "archaeology.level1.story.taskIntroduction":
-        "Learn to investigate code history and track down the source of bugs using Git forensic tools.",
+        "Learn to investigate code history and track down the source of bugs using Git's forensic tools: git blame, git log, and git show.",
 
     "archaeology.level2.name": "Commit Forensics with Git Log",
     "archaeology.level2.description": "Master advanced techniques to investigate complex code history",
-    "archaeology.level2.objective1": "Use advanced log filtering to find specific changes",
-    "archaeology.level2.objective2": "Track file renames and moves",
-    "archaeology.level2.objective3": "Find commits by content changes",
-    "archaeology.level2.objective4": "Analyze commit patterns and trends",
-    "archaeology.level2.hint1": "Use --grep to search commit messages",
-    "archaeology.level2.hint2": "Use -S to find when specific text was added/removed",
-    "archaeology.level2.hint3": "Use --follow to track files through renames",
-    "archaeology.level2.hint4": "Combine filters for powerful searches",
-    "archaeology.level2.requirement1.description": "Find all commits related to security",
+    "archaeology.level2.objective1": "Use git log --grep to search commit messages for a keyword",
+    "archaeology.level2.objective2": "Use git log -S to find commits that added or removed a piece of text",
+    "archaeology.level2.objective3": "Use git log --author to filter commits by a specific person",
+    "archaeology.level2.hint1": "Run `git log --grep=security` to search commit messages for 'security'",
+    "archaeology.level2.hint2":
+        "Run `git log -S password` to find commits that added or removed the word 'password' in the code",
+    "archaeology.level2.hint3": "Run `git log --author=Sarah` to see only commits made by Sarah",
+    "archaeology.level2.hint4": "You can combine these with `--oneline` for more compact output",
+    "archaeology.level2.requirement1.description": "Search commit messages for 'security' with git log --grep=security",
     "archaeology.level2.requirement1.success": "Security-related commits found!",
-    "archaeology.level2.requirement2.description": "Find commits that added or removed 'password' text",
+    "archaeology.level2.requirement2.description":
+        "Find commits that added or removed the word 'password' with git log -S password",
     "archaeology.level2.requirement2.success": "Password-related changes tracked!",
-    "archaeology.level2.requirement3.description": "Find all commits by Sarah to understand her contributions",
+    "archaeology.level2.requirement3.description": "Find all commits by Sarah with git log --author=Sarah",
     "archaeology.level2.requirement3.success": "Sarah's contribution history analyzed!",
     "archaeology.level2.story.title": "The Security Audit Trail",
     "archaeology.level2.story.narrative":
@@ -1404,23 +1410,27 @@ Ready to prove your mastery? The clock is ticking...`,
 
     "archaeology.level3.name": "Git Reflog - The Time Machine",
     "archaeology.level3.description": "Use Git reflog to recover lost commits and understand repository state changes",
-    "archaeology.level3.objective1": "Understand what reflog tracks",
-    "archaeology.level3.objective2": "Recover accidentally deleted commits",
-    "archaeology.level3.objective3": "Find lost branch references",
-    "archaeology.level3.objective4": "Restore previous repository states",
-    "archaeology.level3.hint1": "Reflog tracks all HEAD movements",
-    "archaeology.level3.hint2": "Use git reflog to see recent actions",
-    "archaeology.level3.hint3": "git reset --hard can use reflog references",
-    "archaeology.level3.hint4": "Reflog entries expire after 90 days by default",
-    "archaeology.level3.requirement1.description": "Check the reflog to see recent HEAD movements",
+    "archaeology.level3.objective1": "Use git reflog to see every HEAD movement, including 'lost' commits",
+    "archaeology.level3.objective2":
+        "Use git reset --hard with a reflog reference (e.g. HEAD@{0}) to restore the lost work",
+    "archaeology.level3.objective3": "Create a branch pointing at a reflog entry to save the recovered commits",
+    "archaeology.level3.hint1": "`git reflog` lists every commit HEAD has pointed to, even ones that look 'deleted'",
+    "archaeology.level3.hint2":
+        "Each reflog entry has a reference like `HEAD@{0}`, `HEAD@{1}` - the most recent action is `HEAD@{0}`",
+    "archaeology.level3.hint3": "Use `git reset --hard <reflog-reference>` to move the branch back to that commit",
+    "archaeology.level3.hint4":
+        "You can also point a new branch at a reflog entry: `git branch <name> <reflog-reference>`",
+    "archaeology.level3.requirement1.description": "Run git reflog to see recent HEAD movements",
     "archaeology.level3.requirement1.success": "Reflog history examined!",
-    "archaeology.level3.requirement2.description": "Reset to a previous state using reflog reference",
+    "archaeology.level3.requirement2.description":
+        "Restore the lost commit with git reset --hard and a reflog reference, e.g. git reset --hard HEAD@{0}",
     "archaeology.level3.requirement2.success": "Repository state restored!",
-    "archaeology.level3.requirement3.description": "Create a recovery branch from a reflog entry",
+    "archaeology.level3.requirement3.description":
+        "Create a recovery branch pointing at a reflog entry, e.g. git branch recovery HEAD@{1}",
     "archaeology.level3.requirement3.success": "Recovery branch created!",
     "archaeology.level3.story.title": "The Great Git Disaster Recovery",
     "archaeology.level3.story.narrative":
-        "It's Friday 4:30 PM. Your teammate Jake panics: 'I accidentally ran git reset --hard and lost two weeks of work! The authentication system, UI components, tests - all gone!' But you remember: Git never forgets. Git reflog tracks every commit, branch switch, merge, and reset. Even 'deleted' commits exist in reflog for 90 days. Your mission: examine the reflog, find the lost commits, and recover Jake's work. Time to be the hero!",
+        "It's Friday 4:30 PM. Your teammate Jake panics: 'I accidentally ran git reset --hard and lost two weeks of work! The authentication system, UI components, tests - all gone!' But you remember: Git never forgets. Git reflog tracks every commit, branch switch, merge, and reset. Even 'deleted' commits exist in reflog for 90 days. Your mission: run `git reflog`, find the lost commits, and recover Jake's work with `git reset --hard` and a recovery branch. Time to be the hero!",
     "archaeology.level3.story.realWorldContext":
         "Git reflog is a powerful recovery tool that can save developers from catastrophic data loss scenarios.",
     "archaeology.level3.story.taskIntroduction":

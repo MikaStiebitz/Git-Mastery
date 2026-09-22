@@ -119,7 +119,7 @@ const levels = {
     "files.level1.requirement1.success": "Harika! Tüm dosyaları staging alanına ekledin.",
     "files.level1.story.title": "Kod Değişikliklerini Hazırlamak",
     "files.level1.story.narrative":
-        '"Hey!" diye sesleniyor iş arkadaşın Sarah, "Bakıyorum Git\'e çoktan başlamışsın. Sırada değişiklikleri staging\'e almayı öğrenmek var."\n\nAçıklıyor: "Dosyaları değiştirdiğinde, hangi değişikliklerin bir sonraki commit\'e dahil edileceğini Git\'e açıkça söylemen gerekir. Buna \'staging\' denir ve `git add` ile yapılır."',
+        "\"Hey!\" diye sesleniyor iş arkadaşın Sarah, \"Bakıyorum Git'e çoktan başlamışsın. Sırada değişiklikleri staging'e almayı öğrenmek var.\"\n\nAçıklıyor: \"Dosyaları değiştirdiğinde, hangi değişikliklerin bir sonraki commit'e dahil edileceğini Git'e açıkça söylemen gerekir. Buna 'staging' denir ve `git add` ile yapılır.\"",
     "files.level1.story.realWorldContext":
         "Staging kavramı Git'in güçlü özelliklerinden biridir. Yalnızca seçtiğin değişiklikleri commit'lemene imkân verir; diğerleri üzerinde çalışmaya devam edebilirsin.",
     "files.level1.story.taskIntroduction": "`git add .` ile tüm dosyaları staging alanına ekle.",
@@ -301,7 +301,7 @@ const levels = {
     "stash.level1.requirement4.success": "✅ Harika! Değişikliklerin geri yüklendi!",
     "stash.level1.story.title": "Acil Kesinti",
     "stash.level1.story.narrative":
-        "Yeni bir özellik üzerinde çalışıyorsun, tam akışa girmişsin. Kodun yarım, testler bozuk ve birden... Slack patlıyor! 💥\n\n\"ACİL: Üretim çöktü! HEMEN hotfix lazım!\" 🚨\n\nBu dağınıklığı commit'leyemezsin ama öylece de bırakamazsın. Ne yaparsın?\n\n**İşte git stash devreye giriyor** - acil durum kaydetme düğmen! 🎯\n\nBunu bir video oyununda duraklat tuşuna basmak gibi düşün. Çalışman özel bir yere kaydedilir, çalışma alanın tertemiz olur ve başka bir işe geçebilirsin. Geri döndüğünde devam tuşuna basman (git stash pop) yeterli; tam kaldığın yerden sürdürürsün!",
+        'Yeni bir özellik üzerinde çalışıyorsun, tam akışa girmişsin. Kodun yarım, testler bozuk ve birden... Slack patlıyor! 💥\n\n"ACİL: Üretim çöktü! HEMEN hotfix lazım!" 🚨\n\nBu dağınıklığı commit\'leyemezsin ama öylece de bırakamazsın. Ne yaparsın?\n\n**İşte git stash devreye giriyor** - acil durum kaydetme düğmen! 🎯\n\nBunu bir video oyununda duraklat tuşuna basmak gibi düşün. Çalışman özel bir yere kaydedilir, çalışma alanın tertemiz olur ve başka bir işe geçebilirsin. Geri döndüğünde devam tuşuna basman (git stash pop) yeterli; tam kaldığın yerden sürdürürsün!',
     "stash.level1.story.realWorldContext":
         "Gerçek geliştirme hayatında kesintiler sürekli olur. Ürün yöneticileri 'ufak bir değişiklik' ister, üretimde hatalar çıkar, takım arkadaşların acil kod incelemesine ihtiyaç duyar. Git stash, akışını kaybetmeden bağlam değiştirmeni sağlayan hayatta kalma aracındır.",
     "stash.level1.story.taskIntroduction":
@@ -352,7 +352,7 @@ const levels = {
     "stash.level3.story.narrative":
         '"Dur bakalım, o değişiklikleri nereye stash\'lemiştim?" diye düşünüyorsun.\n\n"`git stash list` kullan," diyor Lisa. "Kaydedilmiş tüm stash\'leri gösterir. `git stash pop` ile en sonuncusunu geri alır ve stash\'ten çıkarırsın."\n\nDevam ediyor: "Bir de `git stash apply` var - stash\'i uygular ama silmez. Aynı değişikliklere birden fazla kez ihtiyacın olduğunda işine yarar!"',
     "stash.level3.story.realWorldContext":
-        '**Stash Yönetim Komutları**\n\n`git stash list` - Tüm stash\'leri gösterir\n\n`git stash pop` - Stash\'i uygular ve siler\n\n`git stash apply` - Stash\'i uygular, silmeden saklar\n\n`git stash drop` - Bir stash\'i siler\n\n`git stash clear` - Tüm stash\'leri siler\n\n**Pro İpucu**: Stash\'lerine `git stash push -m "WIP: Feature X"` ile isim ver - liste çok daha düzenli olur!',
+        "**Stash Yönetim Komutları**\n\n`git stash list` - Tüm stash'leri gösterir\n\n`git stash pop` - Stash'i uygular ve siler\n\n`git stash apply` - Stash'i uygular, silmeden saklar\n\n`git stash drop` - Bir stash'i siler\n\n`git stash clear` - Tüm stash'leri siler\n\n**Pro İpucu**: Stash'lerine `git stash push -m \"WIP: Feature X\"` ile isim ver - liste çok daha düzenli olur!",
     "stash.level3.story.taskIntroduction": "Stash'lerini listele ve en sonuncusunu geri al.",
 
     // Remote Stage
@@ -387,7 +387,7 @@ const levels = {
     "remote.level2.requirement1.success": "Mükemmel! Commit'lerin artık remote repository'de.",
     "remote.level2.story.title": "Yerelden Remote Repository'ye",
     "remote.level2.story.narrative":
-        '"Git iş akışının nasıl işlediğini göstereyim," diyor Alex, bir şema çizerek:\n\n1️⃣ Dosyaları değiştirirsin (Çalışma Dizini)\n2️⃣ `git add` ile staging\'e alırsın (Staging Alanı)\n3️⃣ `git commit` ile commit\'lersin (Yerel Repository)\n4️⃣ `git push` ile push\'larsın (Remote Repository)\n\n"Şunu iyi anla: git push tek tek dosyaları değil, COMMIT\'lerini yükler! Push edebilmek için önce bir commit oluşturmalısın. Yerel commit\'lerin, sen onları push\'layana kadar yalnızca kendi bilgisayarında durur."',
+        "\"Git iş akışının nasıl işlediğini göstereyim,\" diyor Alex, bir şema çizerek:\n\n1️⃣ Dosyaları değiştirirsin (Çalışma Dizini)\n2️⃣ `git add` ile staging'e alırsın (Staging Alanı)\n3️⃣ `git commit` ile commit'lersin (Yerel Repository)\n4️⃣ `git push` ile push'larsın (Remote Repository)\n\n\"Şunu iyi anla: git push tek tek dosyaları değil, COMMIT'lerini yükler! Push edebilmek için önce bir commit oluşturmalısın. Yerel commit'lerin, sen onları push'layana kadar yalnızca kendi bilgisayarında durur.\"",
     "remote.level2.story.realWorldContext":
         "Yerel ve remote repository arasındaki fark temel bir farktır: Yerel commit'ler yalnızca senin makinende bulunur. Takımının onları görebilmesi ancak git push ile mümkün olur. Yani istediğin kadar yerel commit oluşturup hepsini tek seferde push'layabilirsin!",
     "remote.level2.story.taskIntroduction":
@@ -402,7 +402,7 @@ const levels = {
     "remote.level3.requirement1.success": "Harika! Feature branch'in artık remote repository'de.",
     "remote.level3.story.title": "Özellikleri Paylaşmak",
     "remote.level3.story.narrative":
-        '"Ayrı bir branch üzerinde harika bir yeni özellik geliştiriyorsun," diyor Sarah. "Şimdi bu branch\'i remote repository\'ye push\'lama zamanı; böylece diğer takım üyeleri çalışmanı görüp inceleyebilir."\n\nAçıklıyor: "Bir branch\'i ilk kez push\'larken -u (ya da --set-upstream) seçeneğini kullanmalısın. Bu, yerel branch\'ini remote branch ile ilişkilendirir ve sonraki push ile pull işlemlerini kolaylaştırır."',
+        "\"Ayrı bir branch üzerinde harika bir yeni özellik geliştiriyorsun,\" diyor Sarah. \"Şimdi bu branch'i remote repository'ye push'lama zamanı; böylece diğer takım üyeleri çalışmanı görüp inceleyebilir.\"\n\nAçıklıyor: \"Bir branch'i ilk kez push'larken -u (ya da --set-upstream) seçeneğini kullanmalısın. Bu, yerel branch'ini remote branch ile ilişkilendirir ve sonraki push ile pull işlemlerini kolaylaştırır.\"",
     "remote.level3.story.realWorldContext":
         "Profesyonel takımlarda yeni özellikler genellikle ayrı branch'lerde geliştirilir ve ana kod tabanına merge edilmeden önce incelenmek üzere push'lanır. Bu, pull request iş akışının merkezindeki adımdır.",
     "remote.level3.story.taskIntroduction":
@@ -760,7 +760,7 @@ Hadi profesyonel seviyede Git pratiği yapalım! 🚀`,
     "rebase.level4.requirement1.success": "Harika! Feature branch'ini en güncel main branch'i üzerine rebase ettin.",
     "rebase.level4.story.title": "Güncel Kalmak",
     "rebase.level4.story.narrative":
-        '"Görüyorum ki sen özelliğin üzerinde çalışırken bir başkası main branch\'ine değişiklikler push\'lamış," diye belirtiyor Sarah. "Çalışmanı merge etmeden önce bu son değişiklikleri de almalısın."\n\nDevam ediyor: "main\'i kendi branch\'ine merge edip bir merge commit\'i oluşturmak yerine, branch\'ini main üzerine rebase etmeni öneririm. Böylece geçmiş daha temiz kalır."',
+        "\"Görüyorum ki sen özelliğin üzerinde çalışırken bir başkası main branch'ine değişiklikler push'lamış,\" diye belirtiyor Sarah. \"Çalışmanı merge etmeden önce bu son değişiklikleri de almalısın.\"\n\nDevam ediyor: \"main'i kendi branch'ine merge edip bir merge commit'i oluşturmak yerine, branch'ini main üzerine rebase etmeni öneririm. Böylece geçmiş daha temiz kalır.\"",
     "rebase.level4.story.realWorldContext":
         "Birlikte çalışılan ortamlarda main branch'i sık sık güncellenir. Feature branch'lerini main üzerine rebase etmek; merge çakışmalarından kaçınmaya yardımcı olan ve feature branch'lerini güncel tutan yaygın bir iş akışıdır.",
     "rebase.level4.story.taskIntroduction":
@@ -788,7 +788,7 @@ Hadi profesyonel seviyede Git pratiği yapalım! 🚀`,
     "advanced.level1.requirement3.success": "Harika! Tag'lerin artık takımın erişimine açık.",
     "advanced.level1.story.title": "Kilometre Taşlarını İşaretlemek",
     "advanced.level1.story.narrative":
-        '"Sürüm 1.0\'ı üretime almak üzereyiz," diye duyuruyor takım liderin. "Bunu yapmadan önce bu commit\'i tag\'lememiz gerek. Tag\'ler Git geçmişindeki yer imleri gibidir - sürümler gibi önemli noktaları işaretler."\n\nDevam ediyor: "Yeni commit\'lerle birlikte ilerleyen branch\'lerin aksine tag\'ler sabit kalır. Yani yıllar sonra bile v1.0\'da tam olarak neyi yayınladığımıza geri dönebiliriz."\n\n"Profesyonel takımlarda her üretim sürümü tag\'lenir. Hata ayıklama, geri dönüşler ve değişiklik kayıtları için vazgeçilmezdir."',
+        "\"Sürüm 1.0'ı üretime almak üzereyiz,\" diye duyuruyor takım liderin. \"Bunu yapmadan önce bu commit'i tag'lememiz gerek. Tag'ler Git geçmişindeki yer imleri gibidir - sürümler gibi önemli noktaları işaretler.\"\n\nDevam ediyor: \"Yeni commit'lerle birlikte ilerleyen branch'lerin aksine tag'ler sabit kalır. Yani yıllar sonra bile v1.0'da tam olarak neyi yayınladığımıza geri dönebiliriz.\"\n\n\"Profesyonel takımlarda her üretim sürümü tag'lenir. Hata ayıklama, geri dönüşler ve değişiklik kayıtları için vazgeçilmezdir.\"",
     "advanced.level1.story.realWorldContext":
         "Tag'ler, sürümleri işaretlemede sektör standardıdır. Anlamsal sürümlemeyi (v1.0.0) mümkün kılar, geri dönüşleri güvenli hâle getirir ve takımların belirli sürümler hakkında konuşmasını kolaylaştırır.",
     "advanced.level1.story.taskIntroduction":
@@ -1371,43 +1371,50 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     // Archaeology Stage Levels
     "archaeology.level1.name": "Git Blame - Kod Arkeolojisi",
     "archaeology.level1.description": "Değişiklikleri anlamak ve hataların kaynağını bulmak için kod geçmişini araştır",
-    "archaeology.level1.objective1": "Belirli satırları kimin yazdığını bul",
-    "archaeology.level1.objective2": "Bir hatanın geçmişini takip et",
-    "archaeology.level1.objective3": "Kod değişikliklerinin bağlamını kavra",
-    "archaeology.level1.objective4": "İlgili commit'leri ve değişiklikleri bul",
-    "archaeology.level1.hint1": "git blame, her satırı en son kimin değiştirdiğini gösterir",
-    "archaeology.level1.hint2": "Belirli satır aralıklarını incelemek için -L seçeneğini kullan",
-    "archaeology.level1.hint3": "Bağlamı anlamak için blame'i log ile birlikte kullan",
-    "archaeology.level1.hint4": "Commit mesajlarındaki örüntüleri ara",
-    "archaeology.level1.requirement1.description": "Doğrulama mantığını kimin yazdığını araştır",
+    "archaeology.level1.objective1":
+        "src/utils/validator.js dosyasındaki her satırı hangi commit'in en son değiştirdiğini görmek için git blame kullan",
+    "archaeology.level1.objective2": "Commit geçmişine kısa ve öz bir bakış için git log --oneline kullan",
+    "archaeology.level1.objective3": "Belirli bir commit'in tüm ayrıntılarını incelemek için git show kullan",
+    "archaeology.level1.hint1":
+        "Her satırı hangi commit'in en son değiştirdiğini görmek için `git blame src/utils/validator.js` çalıştır",
+    "archaeology.level1.hint2":
+        "Dosyanın belirli bir bölümüne odaklanmak için `git blame -L 10,20 src/utils/validator.js` gibi bir satır aralığı ekle",
+    "archaeology.level1.hint3":
+        "Tüm commit'lerin kısa hash'leriyle birlikte özet bir geçmişini görmek için `git log --oneline` çalıştır",
+    "archaeology.level1.hint4":
+        "Log'dan bir commit hash'i kopyala ve tam olarak neyin değiştiğini görmek için `git show <hash>` (veya `git show HEAD`) çalıştır",
+    "archaeology.level1.requirement1.description":
+        "Her satırı hangi commit'in en son değiştirdiğini görmek için src/utils/validator.js üzerinde git blame çalıştır",
     "archaeology.level1.requirement1.success": "Kodun yazarı ortaya çıktı!",
-    "archaeology.level1.requirement2.description": "Bağlam için son commit geçmişine bak",
+    "archaeology.level1.requirement2.description": "Özet bir commit geçmişi görmek için git log --oneline çalıştır",
     "archaeology.level1.requirement2.success": "Son geçmiş incelendi!",
-    "archaeology.level1.requirement3.description": "Belirli bir commit'in ayrıntılarını incele",
+    "archaeology.level1.requirement3.description":
+        "Tam ayrıntılarını görmek için bir commit üzerinde git show çalıştır, örn. git show HEAD",
     "archaeology.level1.requirement3.success": "Commit ayrıntıları analiz edildi!",
     "archaeology.level1.story.title": "Gizemli Hata Vakası",
     "archaeology.level1.story.narrative":
-        "Doğrulama kodundaki kritik bir hata, Avrupalı müşterilerin %23'ünü etkiliyor. Bu kod 18 ay boyunca 4 farklı geliştirici tarafından yazılmış. Kıdemli geliştiricin açıklıyor: 'Kod arkeolojisine hoş geldin! Git yalnızca bir sürüm kontrol sistemi değil - aynı zamanda senin zaman makinen. Her satırın bir hikâyesi var.' Hatayı araştırmak ve kodun neden böyle yazıldığını anlamak için git blame, git log ve git show kullan.",
+        "Doğrulama kodundaki kritik bir hata, Avrupalı müşterilerin %23'ünü etkiliyor. Bu kod 18 ay boyunca 4 farklı geliştirici tarafından yazılmış. Kıdemli geliştiricin açıklıyor: 'Kod arkeolojisine hoş geldin! Git yalnızca bir sürüm kontrol sistemi değil - aynı zamanda senin zaman makinen. Her satırın bir hikâyesi var.' Her satırı hangi commit'in en son değiştirdiğini görmek için `git blame src/utils/validator.js` ile başla, ardından kodun neden böyle yazıldığını anlamak için `git log --oneline` ve `git show` kullan.",
     "archaeology.level1.story.realWorldContext":
         "Kod arkeolojisi becerileri; zaman içinde birçok katkıcının çalıştığı büyük ve uzun ömürlü kod tabanlarını sürdürebilmek için şarttır.",
     "archaeology.level1.story.taskIntroduction":
-        "Git'in inceleme araçlarıyla kod geçmişini araştırmayı ve hataların kaynağını bulmayı öğren.",
+        "Git'in inceleme araçlarıyla kod geçmişini araştırmayı ve hataların kaynağını bulmayı öğren: git blame, git log ve git show.",
 
     "archaeology.level2.name": "Git Log ile Commit Soruşturması",
     "archaeology.level2.description": "Karmaşık kod geçmişini araştırmanın ileri seviye tekniklerinde ustalaş",
-    "archaeology.level2.objective1": "Belirli değişiklikleri bulmak için ileri seviye log filtrelemesi kullan",
-    "archaeology.level2.objective2": "Dosya yeniden adlandırma ve taşımalarını takip et",
-    "archaeology.level2.objective3": "Commit'leri içerik değişikliklerine göre bul",
-    "archaeology.level2.objective4": "Commit örüntülerini ve eğilimlerini analiz et",
-    "archaeology.level2.hint1": "Commit mesajlarında arama yapmak için --grep kullan",
-    "archaeology.level2.hint2": "Belirli bir metnin ne zaman eklendiğini/silindiğini bulmak için -S kullan",
-    "archaeology.level2.hint3": "Ad değişikliklerine rağmen dosyaları izlemek için --follow kullan",
-    "archaeology.level2.hint4": "Güçlü aramalar için filtreleri birleştir",
-    "archaeology.level2.requirement1.description": "Güvenlikle ilgili tüm commit'leri bul",
+    "archaeology.level2.objective1": "Commit mesajlarında bir anahtar kelime aramak için git log --grep kullan",
+    "archaeology.level2.objective2": "Eklenen veya kaldırılan belirli bir metni bulmak için git log -S kullan",
+    "archaeology.level2.objective3": "Commit'leri belirli bir kişiye göre filtrelemek için git log --author kullan",
+    "archaeology.level2.hint1": "Commit mesajlarında 'security' aramak için `git log --grep=security` çalıştır",
+    "archaeology.level2.hint2":
+        "Kodda 'password' kelimesini ekleyen veya kaldıran commit'leri bulmak için `git log -S password` çalıştır",
+    "archaeology.level2.hint3": "Yalnızca Sarah'nın commit'lerini görmek için `git log --author=Sarah` çalıştır",
+    "archaeology.level2.hint4": "Daha kısa bir çıktı için bunları `--oneline` ile birleştirebilirsin",
+    "archaeology.level2.requirement1.description": "git log --grep=security ile commit mesajlarında 'security' ara",
     "archaeology.level2.requirement1.success": "Güvenlikle ilgili commit'ler bulundu!",
-    "archaeology.level2.requirement2.description": "'password' metnini ekleyen veya kaldıran commit'leri bul",
+    "archaeology.level2.requirement2.description":
+        "git log -S password ile 'password' kelimesini ekleyen veya kaldıran commit'leri bul",
     "archaeology.level2.requirement2.success": "Parolayla ilgili değişiklikler izlendi!",
-    "archaeology.level2.requirement3.description": "Sarah'nın katkılarını anlamak için tüm commit'lerini bul",
+    "archaeology.level2.requirement3.description": "git log --author=Sarah ile Sarah'nın tüm commit'lerini bul",
     "archaeology.level2.requirement3.success": "Sarah'nın katkı geçmişi analiz edildi!",
     "archaeology.level2.story.title": "Güvenlik Denetim İzi",
     "archaeology.level2.story.narrative":
@@ -1420,23 +1427,30 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     "archaeology.level3.name": "Git Reflog - Zaman Makinesi",
     "archaeology.level3.description":
         "Kaybolan commit'leri kurtarmak ve repository durum değişikliklerini anlamak için Git reflog kullan",
-    "archaeology.level3.objective1": "Reflog'un neyi takip ettiğini kavra",
-    "archaeology.level3.objective2": "Yanlışlıkla silinen commit'leri kurtar",
-    "archaeology.level3.objective3": "Kaybolan branch referanslarını bul",
-    "archaeology.level3.objective4": "Repository'nin önceki durumlarını geri getir",
-    "archaeology.level3.hint1": "Reflog, HEAD'in tüm hareketlerini takip eder",
-    "archaeology.level3.hint2": "Son işlemleri görmek için git reflog kullan",
-    "archaeology.level3.hint3": "git reset --hard, reflog referanslarını kullanabilir",
-    "archaeology.level3.hint4": "Reflog kayıtları varsayılan olarak 90 gün sonra silinir",
-    "archaeology.level3.requirement1.description": "HEAD'in son hareketlerini görmek için reflog'a bak",
+    "archaeology.level3.objective1":
+        "'Kaybolan' commit'ler dahil HEAD'in tüm hareketlerini görmek için git reflog kullan",
+    "archaeology.level3.objective2":
+        "Kaybolan çalışmayı geri getirmek için bir reflog referansıyla (örn. HEAD@{0}) git reset --hard kullan",
+    "archaeology.level3.objective3":
+        "Kurtarılan commit'leri saklamak için bir reflog kaydına işaret eden bir branch oluştur",
+    "archaeology.level3.hint1":
+        "`git reflog`, HEAD'in işaret ettiği - 'silinmiş' görünenler dahil - her commit'i listeler",
+    "archaeology.level3.hint2":
+        "Her reflog kaydının `HEAD@{0}`, `HEAD@{1}` gibi bir referansı vardır - en son işlem `HEAD@{0}`'dır",
+    "archaeology.level3.hint3": "Branch'i o commit'e geri döndürmek için `git reset --hard <reflog-referansı>` kullan",
+    "archaeology.level3.hint4":
+        "Ayrıca yeni bir branch'i doğrudan bir reflog kaydına işaret ettirebilirsin: `git branch <isim> <reflog-referansı>`",
+    "archaeology.level3.requirement1.description": "Son HEAD hareketlerini görmek için git reflog çalıştır",
     "archaeology.level3.requirement1.success": "Reflog geçmişi incelendi!",
-    "archaeology.level3.requirement2.description": "Reflog referansı kullanarak önceki bir duruma reset at",
+    "archaeology.level3.requirement2.description":
+        "Kaybolan commit'i git reset --hard ve bir reflog referansıyla geri getir, örn. git reset --hard HEAD@{0}",
     "archaeology.level3.requirement2.success": "Repository durumu geri getirildi!",
-    "archaeology.level3.requirement3.description": "Bir reflog kaydından kurtarma branch'i oluştur",
+    "archaeology.level3.requirement3.description":
+        "Bir reflog kaydına işaret eden bir kurtarma branch'i oluştur, örn. git branch recovery HEAD@{1}",
     "archaeology.level3.requirement3.success": "Kurtarma branch'i oluşturuldu!",
     "archaeology.level3.story.title": "Büyük Git Felaket Kurtarma Operasyonu",
     "archaeology.level3.story.narrative":
-        "Saat cuma 16:30. Takım arkadaşın Jake panik hâlinde: 'Yanlışlıkla git reset --hard çalıştırdım ve iki haftalık emeğimi kaybettim! Kimlik doğrulama sistemi, arayüz bileşenleri, testler - hepsi gitti!' Ama sen biliyorsun: Git asla unutmaz. Git reflog her commit'i, branch geçişini, merge'ü ve reset'i kaydeder. 'Silinmiş' commit'ler bile reflog'da 90 gün durur. Görevin: reflog'u incele, kaybolan commit'leri bul ve Jake'in çalışmasını kurtar. Kahraman olma vakti!",
+        "Saat cuma 16:30. Takım arkadaşın Jake panik hâlinde: 'Yanlışlıkla git reset --hard çalıştırdım ve iki haftalık emeğimi kaybettim! Kimlik doğrulama sistemi, arayüz bileşenleri, testler - hepsi gitti!' Ama sen biliyorsun: Git asla unutmaz. Git reflog her commit'i, branch geçişini, merge'ü ve reset'i kaydeder. 'Silinmiş' commit'ler bile reflog'da 90 gün durur. Görevin: `git reflog` çalıştır, kaybolan commit'leri bul ve Jake'in çalışmasını `git reset --hard` ile ve bir kurtarma branch'i oluşturarak geri getir. Kahraman olma vakti!",
     "archaeology.level3.story.realWorldContext":
         "Git reflog, geliştiricileri felaket boyutundaki veri kayıplarından kurtarabilen güçlü bir kurtarma aracıdır.",
     "archaeology.level3.story.taskIntroduction":
@@ -1505,7 +1519,7 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
         "Mükemmel! -D ile merge edilmemiş denemeyi çöpe attın - branch listen yine tertemiz.",
     "branches.level6.story.title": "Repository'de Bahar Temizliği",
     "branches.level6.story.narrative":
-        '"Branch listemiz iyice kalabalıklaştı," diyor Alex, repository\'de gezinirken. "feature/search-filters\'taki arama filtreleri haftalar önce main\'e merge edildi, experiment/new-ui ise vazgeçtiğimiz bir prototipti."\n\nAçıklıyor: "Merge edilmiş branch için `git branch -d` kullan - küçük harfli -d güvenlidir; çünkü Git hiçbir şeyin kaybolmadığını kontrol eder. Deneme branch\'inde ise Git reddedecek, zira commit\'leri hiç merge edilmedi. Büyük harfli -D tam da bunun için var: merge edilmemiş çalışma olsa bile branch\'i siler, o yüzden yalnızca emin olduğunda kullan."',
+        "\"Branch listemiz iyice kalabalıklaştı,\" diyor Alex, repository'de gezinirken. \"feature/search-filters'taki arama filtreleri haftalar önce main'e merge edildi, experiment/new-ui ise vazgeçtiğimiz bir prototipti.\"\n\nAçıklıyor: \"Merge edilmiş branch için `git branch -d` kullan - küçük harfli -d güvenlidir; çünkü Git hiçbir şeyin kaybolmadığını kontrol eder. Deneme branch'inde ise Git reddedecek, zira commit'leri hiç merge edilmedi. Büyük harfli -D tam da bunun için var: merge edilmemiş çalışma olsa bile branch'i siler, o yüzden yalnızca emin olduğunda kullan.\"",
     "branches.level6.story.realWorldContext":
         "Gerçek projelerde zamanla onlarca eskimiş branch birikir. Merge edilmiş branch'leri düzenli olarak silmek, repository'de gezinmeyi kolaylaştırır. Küçük harfli -d güvenli varsayılandır; çünkü Git merge edilmemiş commit'leri korur. -D ise çalışmayı bilinçli olarak çöpe atar - commit'ler çoğu zaman reflog üzerinden hâlâ kurtarılabilir, ama buna asla güvenmemelisin.",
     "branches.level6.story.taskIntroduction":
@@ -1578,7 +1592,7 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     "remote.level4.requirement3.success": "Mükemmel! Düz bir `git push` yetti — upstream takibinin gücü işte bu.",
     "remote.level4.story.title": "Bir Kez Ayarla, Hep Push'la",
     "remote.level4.story.narrative":
-        '"Giriş formu harika görünüyor!" diyor Alex, TechStart\'ta sandalyesini masana doğru kaydırarak. "`login-form` branch\'ini yayınla ki takım incelemeye başlasın. Ve kendine bir iyilik yap: `-u` ile push\'la. Bu bayrak upstream\'i ayarlar — Git, yerel branch\'inin hangi remote branch\'e ait olduğunu hatırlar."\n\nSırıtıyor: "`src/login.js` içinde hâlâ commit\'lenmemiş bir iyileştirme görüyorum — daha dostane hata mesajları. Önce branch\'i yayınla, sonra rötuşları commit\'leyip tekrar push\'la. İyi izle: ikinci seferde düz bir `git push` yeterli olacak. Ne remote adı ne branch adı — Git nereye gideceğini zaten biliyor."',
+        "\"Giriş formu harika görünüyor!\" diyor Alex, TechStart'ta sandalyesini masana doğru kaydırarak. \"`login-form` branch'ini yayınla ki takım incelemeye başlasın. Ve kendine bir iyilik yap: `-u` ile push'la. Bu bayrak upstream'i ayarlar — Git, yerel branch'inin hangi remote branch'e ait olduğunu hatırlar.\"\n\nSırıtıyor: \"`src/login.js` içinde hâlâ commit'lenmemiş bir iyileştirme görüyorum — daha dostane hata mesajları. Önce branch'i yayınla, sonra rötuşları commit'leyip tekrar push'la. İyi izle: ikinci seferde düz bir `git push` yeterli olacak. Ne remote adı ne branch adı — Git nereye gideceğini zaten biliyor.\"",
     "remote.level4.story.realWorldContext":
         "Yeni bir branch'in ilk push'u neredeyse her zaman `git push -u origin <branch>` şeklindedir. Upstream ayarlandıktan sonra `git push` ve `git pull` argümansız çalışır, `git status` da remote'un kaç commit önünde ya da gerisinde olduğunu söyleyebilir. Upstream olmadan Git seni o meşhur hatayla durdurur: 'The current branch has no upstream branch.'",
     "remote.level4.story.taskIntroduction":
@@ -1607,7 +1621,7 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
         "Push'landı! Yazım hatasından kimsenin haberi olmayacak — geçmişin, ilk seferde doğru yapmışsın gibi görünüyor.",
     "workflow.level4.story.title": "Neredeyse Kusursuz Commit",
     "workflow.level4.story.narrative":
-        'TechStart\'ta cuma günü saat 16:55. Login-timeout hatasının düzeltmesini az önce commit\'ledin ve ceketine uzanıyorsun ki takım lideri Alex sandalyesini masana doğru kaydırıyor.\n\n"Bir dakika — şu son commit\'ine bak," diyor Alex, ekranı göstererek.\n\n`git log` commit mesajını gösteriyor: **"Fix login timout"**. Ah, yazım hatası. `git status` ise daha kötü bir şeyi ortaya çıkarıyor: oturum zaman aşımını gerçekten 30 dakikaya çıkaran dosya olan `src/config.js` hiç staging\'e alınmamış. "Düzeltme" commit\'in, düzeltmenin yalnızca yarısını içeriyor.\n\n"Panik yapma," diye sırıtıyor Alex. "Henüz push\'lamadın. Yani son commit\'i, o hata hiç olmamış gibi yeniden yazabiliriz."\n\n**`git commit --amend` ne yapar?**\nSon commit\'ini düzeltilmiş bir sürümle DEĞİŞTİRİR:\n- Staging\'de ne varsa commit\'e eklenir\n- `-m` ile bambaşka bir commit mesajı yazabilirsin\n- Eski commit çöpe gider — geçmiş temiz kalır\n\n**Kurtarma planı:**\n1. Unutulan dosyayı staging\'e al: `git add src/config.js`\n2. Commit\'i yeniden yaz: `git commit --amend -m "Fix login timeout"`\n3. Gönder: `git push origin main`\n\n**Altın kural:** Yalnızca HENÜZ push\'lanmamış commit\'lere amend uygula. Amend geçmişi yeniden yazar — takım arkadaşların eski commit\'i çoktan çektiyse her klonda kaosa yol açarsın. Yerelde ve push\'lanmamış mı? Gönül rahatlığıyla amend et.',
+        "TechStart'ta cuma günü saat 16:55. Login-timeout hatasının düzeltmesini az önce commit'ledin ve ceketine uzanıyorsun ki takım lideri Alex sandalyesini masana doğru kaydırıyor.\n\n\"Bir dakika — şu son commit'ine bak,\" diyor Alex, ekranı göstererek.\n\n`git log` commit mesajını gösteriyor: **\"Fix login timout\"**. Ah, yazım hatası. `git status` ise daha kötü bir şeyi ortaya çıkarıyor: oturum zaman aşımını gerçekten 30 dakikaya çıkaran dosya olan `src/config.js` hiç staging'e alınmamış. \"Düzeltme\" commit'in, düzeltmenin yalnızca yarısını içeriyor.\n\n\"Panik yapma,\" diye sırıtıyor Alex. \"Henüz push'lamadın. Yani son commit'i, o hata hiç olmamış gibi yeniden yazabiliriz.\"\n\n**`git commit --amend` ne yapar?**\nSon commit'ini düzeltilmiş bir sürümle DEĞİŞTİRİR:\n- Staging'de ne varsa commit'e eklenir\n- `-m` ile bambaşka bir commit mesajı yazabilirsin\n- Eski commit çöpe gider — geçmiş temiz kalır\n\n**Kurtarma planı:**\n1. Unutulan dosyayı staging'e al: `git add src/config.js`\n2. Commit'i yeniden yaz: `git commit --amend -m \"Fix login timeout\"`\n3. Gönder: `git push origin main`\n\n**Altın kural:** Yalnızca HENÜZ push'lanmamış commit'lere amend uygula. Amend geçmişi yeniden yazar — takım arkadaşların eski commit'i çoktan çektiyse her klonda kaosa yol açarsın. Yerelde ve push'lanmamış mı? Gönül rahatlığıyla amend et.",
     "workflow.level4.story.realWorldContext":
         "Bir dosyayı unutmak ya da commit mesajında yazım hatası yapmak her geliştiricinin her hafta başına gelir. `git commit --amend`, geçmişi temiz tutan günlük araçtır: tek mantıksal değişiklik, tek derli toplu commit. Profesyonel takımlar tek bir demir kurala uyar — zaten push'lanmış bir commit'e asla amend uygulama, çünkü paylaşılan geçmişi yeniden yazmak takım arkadaşlarının repository'lerini bozar.",
     "workflow.level4.story.taskIntroduction":
@@ -1644,7 +1658,7 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     "stash.level4.hint1": "`git stash` değişikliklerini kaydeder ve sana tertemiz bir çalışma dizini bırakır",
     "stash.level4.hint2":
         "`git stash apply` değişiklikleri geri yükler ama bir kopyayı stash'te tutar — `git stash pop`un aksine",
-    "stash.level4.hint3": 'Staging\'e `git add` ile aldıktan sonra `git commit -m "message"` ile commit\'le',
+    "stash.level4.hint3": "Staging'e `git add` ile aldıktan sonra `git commit -m \"message\"` ile commit'le",
     "stash.level4.requirement1.description": "Mevcut değişikliklerini stash'le",
     "stash.level4.requirement1.success": "Deneme güvenle kenara kaldırıldı — çalışma dizinin tertemiz.",
     "stash.level4.requirement2.description": "Stash'i silmeden uygula",
@@ -1679,7 +1693,7 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     "teamwork.level4.requirement4.success": "Gönül rahatlığıyla gönderildi — iki kez bakıldı, bir kez commit'lendi!",
     "teamwork.level4.story.title": "Kendi Kodunu Gözden Geçirme Alışkanlığı",
     "teamwork.level4.story.narrative":
-        'Takım arkadaşın Sarah az önce yandı: yanlışlıkla bir hata ayıklama satırı commit\'ledi ve inceleyen kişi bunu pull request\'te yakaladı. Utanç verici.\n\nAlex takımın altın kuralını paylaşıyor: "Başkası görmeden önce KENDİ diff\'ini gözden geçir. `git diff` neyi değiştirdiğini gösterir; staging\'e aldıktan sonra da `git diff --staged` commit\'e tam olarak neyin gireceğini gösterir. Unutulmuş hata ayıklama satırlarını, yazım hatalarını ve atlanan dosyaları yakalayan iki hızlı kontrol."',
+        "Takım arkadaşın Sarah az önce yandı: yanlışlıkla bir hata ayıklama satırı commit'ledi ve inceleyen kişi bunu pull request'te yakaladı. Utanç verici.\n\nAlex takımın altın kuralını paylaşıyor: \"Başkası görmeden önce KENDİ diff'ini gözden geçir. `git diff` neyi değiştirdiğini gösterir; staging'e aldıktan sonra da `git diff --staged` commit'e tam olarak neyin gireceğini gösterir. Unutulmuş hata ayıklama satırlarını, yazım hatalarını ve atlanan dosyaları yakalayan iki hızlı kontrol.\"",
     "teamwork.level4.story.realWorldContext":
         "Commit'lemeden önce diff'leri kendi kendine gözden geçirmek, profesyonel takımlarda en çok fark yaratan alışkanlıklardan biridir — hatalar kod incelemesine ulaşmadan yakalanır.",
     "teamwork.level4.story.taskIntroduction":
@@ -1706,7 +1720,7 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     "advanced.level4.requirement4.success": "Oturum kapandı — suçluyu logaritmik sürede buldun!",
     "advanced.level4.story.title": "Samanlıkta İğne",
     "advanced.level4.story.narrative":
-        'Arama üretimde bozuk — ama geçen hafta gayet iyi çalışıyordu ve arada onlarca commit var.\n\nAlex sırıtıyor: "Her commit\'i elle kontrol etmek saatler sürer. `git bisect` ikili arama yapar: ona bir bozuk, bir de çalışan commit söyle; işleri bozan commit\'i tam olarak bulana kadar aradaki ortayı tekrar tekrar checkout eder. Yirmi commit mi? Yaklaşık beş kontrol yeter."',
+        "Arama üretimde bozuk — ama geçen hafta gayet iyi çalışıyordu ve arada onlarca commit var.\n\nAlex sırıtıyor: \"Her commit'i elle kontrol etmek saatler sürer. `git bisect` ikili arama yapar: ona bir bozuk, bir de çalışan commit söyle; işleri bozan commit'i tam olarak bulana kadar aradaki ortayı tekrar tekrar checkout eder. Yirmi commit mi? Yaklaşık beş kontrol yeter.\"",
     "advanced.level4.story.realWorldContext":
         "git bisect, büyük geçmişlerde regresyonları bulmanın en hızlı yoludur. 1000 commit varsa ikili aramanın suçluyu bulması için yalnızca ~10 adım yeter.",
     "advanced.level4.story.taskIntroduction":
@@ -1729,7 +1743,7 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     "archaeology.level4.requirement2.success": "Kedinin şaheseri gitti — notların commit'lenmiş sürüme geri döndü.",
     "archaeology.level4.story.title": "Klavyedeki Kedi Vakası",
     "archaeology.level4.story.narrative":
-        'Felaket iki kez vuruyor: önce uygulamayı localhost\'a yönlendiren bir yapılandırma değişikliğini yanlışlıkla staging\'e aldın — bunun commit\'lenMEMESİ gerek. Sonra kedin klavyenin üzerinde yürüyüp sprint notlarını karman çorman etti.\n\nAlex gülüyor: "Herkesin başına gelir. `git restore --staged` bir dosyayı staging alanından geri çıkarır; düz `git restore` ise çalışma dizinindeki değişiklikleri atıp son commit\'lenmiş sürümü geri getirir. İki farklı kurtarma, tek komut."',
+        "Felaket iki kez vuruyor: önce uygulamayı localhost'a yönlendiren bir yapılandırma değişikliğini yanlışlıkla staging'e aldın — bunun commit'lenMEMESİ gerek. Sonra kedin klavyenin üzerinde yürüyüp sprint notlarını karman çorman etti.\n\nAlex gülüyor: \"Herkesin başına gelir. `git restore --staged` bir dosyayı staging alanından geri çıkarır; düz `git restore` ise çalışma dizinindeki değişiklikleri atıp son commit'lenmiş sürümü geri getirir. İki farklı kurtarma, tek komut.\"",
     "archaeology.level4.story.realWorldContext":
         "git restore; staging'den çıkarma ve değişiklikleri atma işleri için eski 'git checkout -- file' ve 'git reset HEAD file' reçetelerinin modern ve daha güvenli karşılığıdır.",
     "archaeology.level4.story.taskIntroduction":
@@ -1742,7 +1756,7 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     "mastery.level4.objective2": "Sürüm commit'ine amend uygulayıp notları dahil et",
     "mastery.level4.objective3": "Cilalanmış sürümü tag'le",
     "mastery.level4.hint1": "Unutulan dosyayı `git add .` ile staging'e al",
-    "mastery.level4.hint2": '`git commit --amend -m "message"`, staging\'deki değişiklikleri önceki commit\'e katar',
+    "mastery.level4.hint2": "`git commit --amend -m \"message\"`, staging'deki değişiklikleri önceki commit'e katar",
     "mastery.level4.hint3": 'Açıklamalı bir tag oluştur: `git tag -a v3.0.0 -m "Release 3.0.0"`',
     "mastery.level4.requirement1.description": "Sürüm notlarını staging'e al",
     "mastery.level4.requirement1.success": "Sürüm notları staging'e alındı — sürüm commit'ine katılmaya hazır.",
