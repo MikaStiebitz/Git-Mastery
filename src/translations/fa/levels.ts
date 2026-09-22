@@ -827,180 +827,180 @@ deploy.sh --commit=9a2b3c4
     "advanced.level3.story.taskIntroduction": "آخرین کامیت را با استفاده از git show بررسی کنید",
 
     // Workflow Stage
-    "workflow.name": "Git Workflows",
-    "workflow.description": "Master professional Git workflows and collaboration patterns",
+    "workflow.name": "گردش‌کارهای Git",
+    "workflow.description": "بر گردش‌کارهای حرفه‌ای Git و الگوهای همکاری مسلط شوید",
 
-    "workflow.level1.name": "Feature Branch Workflow",
-    "workflow.level1.description": "Learn the industry-standard feature branch workflow used by teams worldwide",
-    "workflow.level1.objective1": "Create a feature branch from main",
-    "workflow.level1.objective2": "Make commits with descriptive messages",
-    "workflow.level1.objective3": "Push your feature branch to remote",
-    "workflow.level1.objective4": "Switch back to main branch",
-    "workflow.level1.objective5": "Merge your feature branch back to main",
-    "workflow.level1.objective6": "Complete the feature branch workflow",
-    "workflow.level1.hint1": "Start by creating a feature branch: 'git switch -c feature/user-auth'",
-    "workflow.level1.hint2": "Modify the auth.js file, then use 'git add' to stage your changes",
-    "workflow.level1.hint3": "Commit with: 'git commit'",
-    "workflow.level1.hint4": "Push to remote: 'git push origin feature/user-auth'",
-    "workflow.level1.hint5": "Switch back to main: 'git switch main'",
-    "workflow.level1.hint6": "Finally merge: 'git merge feature/user-auth'",
-    "workflow.level1.requirement1.description": "Create a new feature branch with 'git switch -c <branch>'",
-    "workflow.level1.requirement1.success": "Feature branch created successfully!",
-    "workflow.level1.requirement2.description": "Stage your changes (modify a file first!)",
-    "workflow.level1.requirement2.success": "Changes staged!",
-    "workflow.level1.requirement3.description": "Commit your changes with a descriptive message",
-    "workflow.level1.requirement3.success": "Changes committed!",
-    "workflow.level1.requirement4.description": "Push your feature branch to remote (git push origin <your-branch>)",
-    "workflow.level1.requirement4.success": "Feature branch pushed to remote!",
-    "workflow.level1.requirement5.description": "Switch back to main branch with 'git switch main'",
-    "workflow.level1.requirement5.success": "Switched to main branch!",
-    "workflow.level1.requirement6.description": "Merge your feature branch into main",
+    "workflow.level1.name": "گردش‌کار شاخه ویژگی",
+    "workflow.level1.description": "گردش‌کار استاندارد صنعتی شاخه ویژگی که در سراسر جهان توسط تیم‌ها استفاده می‌شود را بیاموزید",
+    "workflow.level1.objective1": "یک شاخه ویژگی از main ایجاد کنید",
+    "workflow.level1.objective2": "کامیت‌هایی با پیام‌های توصیفی بسازید",
+    "workflow.level1.objective3": "شاخه ویژگی خود را به remote پوش کنید",
+    "workflow.level1.objective4": "به شاخه main بازگردید",
+    "workflow.level1.objective5": "شاخه ویژگی خود را دوباره در main ادغام کنید",
+    "workflow.level1.objective6": "گردش‌کار شاخه ویژگی را کامل کنید",
+    "workflow.level1.hint1": "با ایجاد یک شاخه ویژگی شروع کنید: 'git switch -c feature/user-auth'",
+    "workflow.level1.hint2": "فایل auth.js را تغییر دهید، سپس از 'git add' برای استیج کردن تغییرات خود استفاده کنید",
+    "workflow.level1.hint3": "کامیت کنید با: 'git commit'",
+    "workflow.level1.hint4": "به remote پوش کنید: 'git push origin feature/user-auth'",
+    "workflow.level1.hint5": "به main بازگردید: 'git switch main'",
+    "workflow.level1.hint6": "در نهایت ادغام کنید: 'git merge feature/user-auth'",
+    "workflow.level1.requirement1.description": "یک شاخه ویژگی جدید با 'git switch -c <branch>' ایجاد کنید",
+    "workflow.level1.requirement1.success": "شاخه ویژگی با موفقیت ایجاد شد!",
+    "workflow.level1.requirement2.description": "تغییرات خود را استیج کنید (ابتدا یک فایل را تغییر دهید!)",
+    "workflow.level1.requirement2.success": "تغییرات استیج شدند!",
+    "workflow.level1.requirement3.description": "تغییرات خود را با یک پیام توصیفی کامیت کنید",
+    "workflow.level1.requirement3.success": "تغییرات کامیت شدند!",
+    "workflow.level1.requirement4.description": "شاخه ویژگی خود را به remote پوش کنید (git push origin <your-branch>)",
+    "workflow.level1.requirement4.success": "شاخه ویژگی به remote پوش شد!",
+    "workflow.level1.requirement5.description": "با 'git switch main' به شاخه main بازگردید",
+    "workflow.level1.requirement5.success": "به شاخه main جابجا شدید!",
+    "workflow.level1.requirement6.description": "شاخه ویژگی خود را در main ادغام کنید",
     "workflow.level1.requirement6.success":
-        "Feature successfully merged! This is how real teams integrate new features.",
-    "workflow.level1.story.title": "The Feature Factory",
-    "workflow.level1.story.narrative": `You're a developer at TechCorp, and the team follows strict Git workflows. Your manager Sarah just assigned you a new feature: implementing user authentication.
+        "ویژگی با موفقیت ادغام شد! این‌گونه است که تیم‌های واقعی ویژگی‌های جدید را یکپارچه می‌کنند.",
+    "workflow.level1.story.title": "کارخانه ویژگی",
+    "workflow.level1.story.narrative": `شما یک توسعه‌دهنده در TechCorp هستید، و تیم از گردش‌کارهای سخت‌گیرانه Git پیروی می‌کند. مدیر شما Sarah به‌تازگی یک ویژگی جدید به شما محول کرده: پیاده‌سازی احراز هویت کاربر.
 
-"Remember," Sarah says, "we never commit directly to main. Always use feature branches, and make sure your commits tell a story."
+"یادت باشد،" Sarah می‌گوید، "ما هرگز مستقیماً در main کامیت نمی‌کنیم. همیشه از شاخه‌های ویژگی استفاده کن، و مطمئن شو کامیت‌هایت یک داستان را روایت می‌کنند."
 
-**What's a Feature Branch?**
-A feature branch is a separate branch where you develop a new feature in isolation. This allows you to:
-- Work without affecting the stable main branch
-- Get code reviewed before merging
-- Easily abandon or modify work without impacting others
+**شاخه ویژگی چیست؟**
+شاخه ویژگی یک شاخه جداگانه است که در آن یک ویژگی جدید را به‌صورت مجزا توسعه می‌دهید. این کار به شما اجازه می‌دهد:
+- بدون تأثیر بر شاخه پایدار main کار کنید
+- کد خود را پیش از ادغام بازبینی کنید
+- به‌راحتی کار را رها یا تغییر دهید بدون تأثیر بر دیگران
 
-**The Complete Workflow:**
-1. Create a feature branch from main: \`git switch -c feature/user-auth\`
-2. Make changes to files and stage them with \`git add\`
-3. Commit changes with descriptive messages
-4. Push your branch to remote: \`git push origin feature/user-auth\`
-5. Switch back to main: \`git switch main\`
-6. Merge the feature: \`git merge feature/user-auth\`
+**گردش‌کار کامل:**
+1. یک شاخه ویژگی از main ایجاد کنید: \`git switch -c feature/user-auth\`
+2. فایل‌ها را تغییر دهید و با \`git add\` استیج کنید
+3. تغییرات را با پیام‌های توصیفی کامیت کنید
+4. شاخه خود را به remote پوش کنید: \`git push origin feature/user-auth\`
+5. به main بازگردید: \`git switch main\`
+6. ویژگی را ادغام کنید: \`git merge feature/user-auth\`
 
-**What are Pull Requests (PRs)?**
-In real teams, after step 4 (pushing your branch), you'd create a **Pull Request** on GitHub/GitLab instead of merging directly:
+**Pull Requestها (PR) چه هستند؟**
+در تیم‌های واقعی، بعد از مرحله 4 (پوش کردن شاخه)، به‌جای ادغام مستقیم یک **Pull Request** روی GitHub/GitLab ایجاد می‌کنید:
 
-**Pull Request Workflow:**
-1. You push your feature branch to the remote repository
-2. On GitHub/GitLab, you open a Pull Request from \`feature/user-auth\` to \`main\`
-3. Your teammates receive a notification
-4. They review your code, leave comments, and suggest improvements
-5. You make changes based on feedback and push again
-6. Once approved, someone merges the PR into main
-7. Your feature is now part of the main codebase!
+**گردش‌کار Pull Request:**
+1. شاخه ویژگی خود را به مخزن راه‌دور پوش می‌کنید
+2. روی GitHub/GitLab، یک Pull Request از \`feature/user-auth\` به \`main\` باز می‌کنید
+3. هم‌تیمی‌های شما یک اعلان دریافت می‌کنند
+4. آن‌ها کد شما را بازبینی می‌کنند، نظر می‌گذارند و پیشنهاد بهبود می‌دهند
+5. بر اساس بازخورد تغییراتی اعمال کرده و دوباره پوش می‌کنید
+6. پس از تأیید، کسی PR را در main ادغام می‌کند
+7. ویژگی شما اکنون بخشی از کدبیس اصلی است!
 
-**Why Pull Requests Matter:**
-- **Code Quality**: Multiple eyes catch bugs and suggest improvements
-- **Knowledge Sharing**: Team learns about changes before they go live
-- **Documentation**: PR descriptions explain WHY changes were made
-- **Discussion**: Complex decisions are discussed and recorded
-- **Safety**: Prevents broken code from reaching production
+**چرا Pull Requestها اهمیت دارند:**
+- **کیفیت کد**: چند نگاه مختلف باگ‌ها را پیدا کرده و پیشنهاد بهبود می‌دهند
+- **اشتراک دانش**: تیم پیش از انتشار تغییرات، از آن‌ها مطلع می‌شود
+- **مستندسازی**: توضیحات PR دلیل تغییرات را شرح می‌دهند
+- **بحث**: تصمیمات پیچیده بحث و ثبت می‌شوند
+- **ایمنی**: از رسیدن کد خراب به تولید جلوگیری می‌کند
 
-In this level, we're simulating the workflow by having you push and merge directly to learn the Git commands. In real projects, you'd always use Pull Requests for team collaboration!`,
+در این سطح، ما با پوش و ادغام مستقیم گردش‌کار را شبیه‌سازی می‌کنیم تا دستورات Git را یاد بگیرید. در پروژه‌های واقعی، همیشه از Pull Requestها برای همکاری تیمی استفاده می‌کنید!`,
     "workflow.level1.story.realWorldContext":
-        "Feature branch workflow is the industry standard. Developers create isolated branches, push them to remote repos (GitHub/GitLab), create Pull Requests for code review, and merge after approval. This collaborative approach prevents unstable code from reaching production and improves code quality through peer review.",
+        "گردش‌کار شاخه ویژگی استاندارد صنعتی است. توسعه‌دهندگان شاخه‌های مجزا ایجاد می‌کنند، آن‌ها را به مخازن راه‌دور (GitHub/GitLab) پوش می‌کنند، برای بازبینی کد Pull Request ایجاد می‌کنند و پس از تأیید ادغام می‌کنند. این رویکرد مشارکتی از رسیدن کد ناپایدار به تولید جلوگیری می‌کند و کیفیت کد را از طریق بازبینی همتا بهبود می‌بخشد.",
     "workflow.level1.story.taskIntroduction":
-        "Master the complete feature branch workflow: create, commit, push, and merge. This is how professional teams ship features every day.",
+        "بر گردش‌کار کامل شاخه ویژگی مسلط شوید: ایجاد، کامیت، پوش و ادغام. این‌گونه است که تیم‌های حرفه‌ای هر روز ویژگی‌ها را منتشر می‌کنند.",
 
-    "workflow.level2.name": "Hotfix Workflow",
-    "workflow.level2.description": "Handle urgent production fixes with the hotfix workflow",
-    "workflow.level2.objective1": "Create a hotfix branch from main",
-    "workflow.level2.objective2": "Stage and commit the fix",
-    "workflow.level2.objective3": "Switch back to main",
-    "workflow.level2.objective4": "Merge the hotfix branch",
-    "workflow.level2.hint1": "Hotfixes branch directly from main/master",
-    "workflow.level2.hint2": "Use descriptive hotfix names like 'hotfix/critical-security-patch'",
-    "workflow.level2.hint3": "Hotfixes should be merged back to both main and develop branches",
-    "workflow.level2.hint4": "Always tag hotfix releases for tracking",
-    "workflow.level2.requirement1.description": "Create a hotfix branch for the security issue",
-    "workflow.level2.requirement1.success": "Hotfix branch created!",
-    "workflow.level2.requirement2.description": "Stage your security fixes",
-    "workflow.level2.requirement2.success": "Security fixes staged!",
-    "workflow.level2.requirement3.description": "Commit the critical security patch",
-    "workflow.level2.requirement3.success": "Security patch committed!",
-    "workflow.level2.requirement4.description": "Switch back to main branch",
-    "workflow.level2.requirement4.success": "Switched to main branch!",
-    "workflow.level2.requirement5.description": "Merge the hotfix into main",
-    "workflow.level2.requirement5.success": "Hotfix merged successfully!",
-    "workflow.level2.story.title": "Code Red: Production Emergency",
-    "workflow.level2.story.narrative": `🚨 URGENT: Production is down! 🚨
+    "workflow.level2.name": "گردش‌کار Hotfix",
+    "workflow.level2.description": "رفع فوری مشکلات تولید را با گردش‌کار hotfix مدیریت کنید",
+    "workflow.level2.objective1": "یک شاخه hotfix از main ایجاد کنید",
+    "workflow.level2.objective2": "رفع مشکل را استیج و کامیت کنید",
+    "workflow.level2.objective3": "به main بازگردید",
+    "workflow.level2.objective4": "شاخه hotfix را ادغام کنید",
+    "workflow.level2.hint1": "Hotfixها مستقیماً از main/master شاخه می‌گیرند",
+    "workflow.level2.hint2": "از نام‌های توصیفی hotfix مانند 'hotfix/critical-security-patch' استفاده کنید",
+    "workflow.level2.hint3": "Hotfixها باید به هر دو شاخه main و develop ادغام شوند",
+    "workflow.level2.hint4": "همیشه انتشارهای hotfix را برای پیگیری تگ بزنید",
+    "workflow.level2.requirement1.description": "یک شاخه hotfix برای مشکل امنیتی ایجاد کنید",
+    "workflow.level2.requirement1.success": "شاخه hotfix ایجاد شد!",
+    "workflow.level2.requirement2.description": "رفع مشکلات امنیتی خود را استیج کنید",
+    "workflow.level2.requirement2.success": "رفع مشکلات امنیتی استیج شد!",
+    "workflow.level2.requirement3.description": "پچ امنیتی حیاتی را کامیت کنید",
+    "workflow.level2.requirement3.success": "پچ امنیتی کامیت شد!",
+    "workflow.level2.requirement4.description": "به شاخه main بازگردید",
+    "workflow.level2.requirement4.success": "به شاخه main جابجا شدید!",
+    "workflow.level2.requirement5.description": "hotfix را در main ادغام کنید",
+    "workflow.level2.requirement5.success": "Hotfix با موفقیت ادغام شد!",
+    "workflow.level2.story.title": "کد قرمز: وضعیت اضطراری تولید",
+    "workflow.level2.story.narrative": `🚨 فوری: تولید از کار افتاده! 🚨
 
-At 2:47 AM, your phone buzzes with alerts. The payment system is failing, and customers can't complete purchases. The bug tracker shows a critical security vulnerability was introduced in the latest release.
+ساعت 2:47 بامداد، گوشی شما با اعلان‌ها می‌لرزد. سیستم پرداخت خراب شده و مشتریان نمی‌توانند خریدشان را تکمیل کنند. سیستم پیگیری باگ نشان می‌دهد یک آسیب‌پذیری امنیتی حیاتی در آخرین انتشار وارد شده است.
 
-As the on-call developer, you need to:
-1. Immediately create a hotfix branch: \`git switch -c hotfix/security-patch\`
-2. Fix the critical security issue in the code
-3. Stage and commit your fixes
-4. Switch back to main: \`git switch main\`
-5. Merge the hotfix: \`git merge hotfix/security-patch\`
+به‌عنوان توسعه‌دهنده کشیک، باید:
+1. بلافاصله یک شاخه hotfix ایجاد کنید: \`git switch -c hotfix/security-patch\`
+2. مشکل امنیتی حیاتی را در کد رفع کنید
+3. رفع مشکلات خود را استیج و کامیت کنید
+4. به main بازگردید: \`git switch main\`
+5. hotfix را ادغام کنید: \`git merge hotfix/security-patch\`
 
-Every minute costs the company thousands. This is what separates junior developers from senior ones - grace under pressure and knowing the right Git workflows.
+هر دقیقه برای شرکت هزاران دلار هزینه دارد. همین چیزی است که توسعه‌دهندگان جونیور را از سینیورها متمایز می‌کند - آرامش تحت فشار و دانستن گردش‌کارهای صحیح Git.
 
-Time is money. Let's fix this!`,
+زمان همان پول است. بیایید این را رفع کنیم!`,
     "workflow.level2.story.realWorldContext":
-        "Production hotfixes are critical for maintaining system stability and require immediate, focused workflow execution.",
-    "workflow.level2.story.taskIntroduction": "Master the hotfix workflow for emergency production fixes.",
+        "Hotfixهای تولید برای حفظ پایداری سیستم حیاتی هستند و نیازمند اجرای فوری و متمرکز گردش‌کار هستند.",
+    "workflow.level2.story.taskIntroduction": "بر گردش‌کار hotfix برای رفع اضطراری مشکلات تولید مسلط شوید.",
 
-    "workflow.level3.name": "Git Flow Mastery",
-    "workflow.level3.description": "Master the complete Git Flow workflow with release branches",
-    "workflow.level3.objective1": "Create a release branch from develop",
-    "workflow.level3.objective2": "Prepare and commit release changes",
-    "workflow.level3.objective3": "Merge release to main",
-    "workflow.level3.objective4": "Tag the release version",
-    "workflow.level3.hint1": "Start on develop and create release branch: 'git switch -c release/2.0.0'",
-    "workflow.level3.hint2": "Make final adjustments and commit your release preparation",
-    "workflow.level3.hint3": "Switch to main: 'git switch main'",
-    "workflow.level3.hint4": "Merge the release: 'git merge release/2.0.0'",
-    "workflow.level3.hint5": "Tag the release: 'git tag v2.0.0'",
-    "workflow.level3.hint6": "In real projects, you'd also merge back to develop",
-    "workflow.level3.requirement1.description": "Create a release branch (e.g., 'release/2.0.0')",
-    "workflow.level3.requirement1.success": "Release branch created!",
-    "workflow.level3.requirement2.description": "Stage your release preparation changes",
-    "workflow.level3.requirement2.success": "Release changes staged!",
-    "workflow.level3.requirement3.description": "Commit release preparation with a clear message",
-    "workflow.level3.requirement3.success": "Release preparation committed!",
-    "workflow.level3.requirement4.description": "Switch to main branch to prepare for release merge",
-    "workflow.level3.requirement4.success": "Switched to main!",
-    "workflow.level3.requirement5.description": "Merge your release branch into main",
-    "workflow.level3.requirement5.success": "Release merged to main!",
-    "workflow.level3.requirement6.description": "Tag the release with version number (e.g., 'v2.0.0')",
-    "workflow.level3.requirement6.success": "Release tagged! Version 2.0.0 is now live in production!",
-    "workflow.level3.story.title": "The Release Manager",
-    "workflow.level3.story.narrative": `Congratulations! You've been promoted to Release Manager at GitFlow Inc., a company that ships software every two weeks like clockwork.
+    "workflow.level3.name": "تسلط بر Git Flow",
+    "workflow.level3.description": "بر گردش‌کار کامل Git Flow با شاخه‌های release مسلط شوید",
+    "workflow.level3.objective1": "یک شاخه release از develop ایجاد کنید",
+    "workflow.level3.objective2": "تغییرات انتشار را آماده و کامیت کنید",
+    "workflow.level3.objective3": "release را در main ادغام کنید",
+    "workflow.level3.objective4": "نسخه انتشار را تگ بزنید",
+    "workflow.level3.hint1": "از develop شروع کنید و یک شاخه release ایجاد کنید: 'git switch -c release/2.0.0'",
+    "workflow.level3.hint2": "تنظیمات نهایی را انجام داده و آماده‌سازی انتشار خود را کامیت کنید",
+    "workflow.level3.hint3": "به main جابجا شوید: 'git switch main'",
+    "workflow.level3.hint4": "release را ادغام کنید: 'git merge release/2.0.0'",
+    "workflow.level3.hint5": "release را تگ بزنید: 'git tag v2.0.0'",
+    "workflow.level3.hint6": "در پروژه‌های واقعی، همچنین به develop نیز ادغام می‌کنید",
+    "workflow.level3.requirement1.description": "یک شاخه release ایجاد کنید (مثلاً 'release/2.0.0')",
+    "workflow.level3.requirement1.success": "شاخه release ایجاد شد!",
+    "workflow.level3.requirement2.description": "تغییرات آماده‌سازی انتشار خود را استیج کنید",
+    "workflow.level3.requirement2.success": "تغییرات انتشار استیج شدند!",
+    "workflow.level3.requirement3.description": "آماده‌سازی انتشار را با یک پیام واضح کامیت کنید",
+    "workflow.level3.requirement3.success": "آماده‌سازی انتشار کامیت شد!",
+    "workflow.level3.requirement4.description": "برای آماده‌سازی ادغام انتشار، به شاخه main جابجا شوید",
+    "workflow.level3.requirement4.success": "به main جابجا شدید!",
+    "workflow.level3.requirement5.description": "شاخه release خود را در main ادغام کنید",
+    "workflow.level3.requirement5.success": "release در main ادغام شد!",
+    "workflow.level3.requirement6.description": "انتشار را با شماره نسخه تگ بزنید (مثلاً 'v2.0.0')",
+    "workflow.level3.requirement6.success": "انتشار تگ خورد! نسخه 2.0.0 اکنون در تولید فعال است!",
+    "workflow.level3.story.title": "مدیر انتشار",
+    "workflow.level3.story.narrative": `تبریک می‌گویم! شما به سمت مدیر انتشار در GitFlow Inc. ارتقا یافته‌اید، شرکتی که هر دو هفته یک‌بار مثل ساعت نرم‌افزار منتشر می‌کند.
 
-Your job is to orchestrate the release of version 2.0, which includes:
-- Three new features from different teams
-- Two critical bug fixes
-- Performance improvements
-- Updated documentation
+وظیفه شما هماهنگی انتشار نسخه 2.0 است که شامل موارد زیر است:
+- سه ویژگی جدید از تیم‌های مختلف
+- دو رفع باگ حیاتی
+- بهبود عملکرد
+- به‌روزرسانی مستندات
 
-**The Release Workflow:**
+**گردش‌کار انتشار:**
 
-1. **Create Release Branch**: Start from develop and create a release branch
+1. **ایجاد شاخه Release**: از develop شروع کرده و یک شاخه release ایجاد کنید
    \`git switch -c release/2.0.0\`
 
-2. **Final Preparations**: Update version numbers, CHANGELOG, etc.
-   - Edit files as needed
+2. **آماده‌سازی‌های نهایی**: به‌روزرسانی شماره نسخه‌ها، CHANGELOG و غیره
+   - فایل‌ها را در صورت نیاز ویرایش کنید
    - \`git add .\`
    - \`git commit -m "Prepare release 2.0.0"\`
 
-3. **Merge to Main**: Deploy to production
+3. **ادغام در Main**: استقرار در تولید
    - \`git switch main\`
    - \`git merge release/2.0.0\`
 
-4. **Tag the Release**: Mark this version in history
+4. **تگ زدن به انتشار**: این نسخه را در تاریخچه مشخص کنید
    \`git tag v2.0.0\`
 
-This creates a permanent marker for this release. In real projects, you'd also:
-- Merge back to develop to keep it in sync
-- Delete the release branch
-- Push everything to remote
-- Deploy to production
+این کار یک نشانگر دائمی برای این انتشار ایجاد می‌کند. در پروژه‌های واقعی، همچنین باید:
+- برای همگام ماندن، دوباره در develop ادغام کنید
+- شاخه release را حذف کنید
+- همه‌چیز را به remote پوش کنید
+- در تولید مستقر کنید
 
-This is enterprise-level Git management. Welcome to the big leagues!`,
+این مدیریت Git در سطح سازمانی است. به لیگ بزرگ‌ها خوش آمدید!`,
     "workflow.level3.story.realWorldContext":
-        "Release branches are used in Git Flow to prepare production releases. They allow final bug fixes and documentation updates without blocking ongoing development. The release is tagged for easy reference and rollback if needed.",
+        "شاخه‌های release در Git Flow برای آماده‌سازی انتشارهای تولید استفاده می‌شوند. آن‌ها امکان رفع باگ‌های نهایی و به‌روزرسانی مستندات را بدون مسدود کردن توسعه در حال انجام فراهم می‌کنند. انتشار برای مرجع‌دهی آسان و بازگشت به نسخه قبلی در صورت نیاز تگ می‌خورد.",
     "workflow.level3.story.taskIntroduction":
-        "Learn the professional release workflow: branch, prepare, merge, and tag. This is how teams ship stable software to production.",
+        "گردش‌کار حرفه‌ای انتشار را بیاموزید: شاخه‌سازی، آماده‌سازی، ادغام و تگ زدن. این‌گونه است که تیم‌ها نرم‌افزار پایدار را در تولید منتشر می‌کنند.",
 
     // Teamwork Stage
     "teamwork.name": "Team Collaboration",
