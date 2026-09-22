@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import type { GitRepository } from "~/models/GitRepository";
 
 export class BranchCommand implements Command {
@@ -17,6 +17,35 @@ export class BranchCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "d",
+            "D",
+            "m",
+            "M",
+            "c",
+            "C",
+            "r",
+            "a",
+            "v",
+            "f",
+            "q",
+            "delete",
+            "force",
+            "move",
+            "copy",
+            "remotes",
+            "all",
+            "list",
+            "verbose",
+            "quiet",
+            "merged",
+            "no-merged",
+            "show-current",
+        ],
+        value: ["u", "set-upstream-to", "contains", "sort"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, currentDirectory } = context;
 
@@ -82,12 +111,12 @@ export class BranchCommand implements Command {
         if (isDelete || isForceDelete) {
             // Branch name can be either as flag value or positional arg
             const branchName =
-                (typeof args.flags.d === 'string' ? args.flags.d : undefined) ||
-                (typeof args.flags.D === 'string' ? args.flags.D : undefined) ||
+                (typeof args.flags.d === "string" ? args.flags.d : undefined) ||
+                (typeof args.flags.D === "string" ? args.flags.D : undefined) ||
                 positionalArgs[0];
 
             if (!branchName) {
-                const flag = isForceDelete ? '-D' : '-d';
+                const flag = isForceDelete ? "-D" : "-d";
                 return {
                     action: "delete",
                     isForce,
@@ -147,7 +176,9 @@ export class BranchCommand implements Command {
     private createBranch(gitRepository: GitRepository, branchName: string, startPoint?: string): string[] {
         // Validate branch name before attempting to create
         if (!this.isValidBranchName(branchName)) {
-            return [`fatal: '${branchName}' is not a valid branch name. Branch names cannot contain spaces, or special characters: ~ ^ : [ \\ *`];
+            return [
+                `fatal: '${branchName}' is not a valid branch name. Branch names cannot contain spaces, or special characters: ~ ^ : [ \\ *`,
+            ];
         }
 
         const allBranches = gitRepository.getBranches();

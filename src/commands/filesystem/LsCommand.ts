@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
 
 export class LsCommand implements Command {
@@ -9,6 +9,27 @@ export class LsCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "a",
+            "all",
+            "l",
+            "long",
+            "h",
+            "human-readable",
+            "R",
+            "recursive",
+            "1",
+            "A",
+            "almost-all",
+            "t",
+            "r",
+            "reverse",
+            "S",
+        ],
+        value: [],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { fileSystem, currentDirectory } = context;
 
@@ -23,9 +44,8 @@ export class LsCommand implements Command {
         options.long = args.flags.l !== undefined;
 
         // Determine which directory to list
-        const targetPath = args.positionalArgs.length > 0
-            ? resolvePath(args.positionalArgs[0]!, currentDirectory)
-            : currentDirectory;
+        const targetPath =
+            args.positionalArgs.length > 0 ? resolvePath(args.positionalArgs[0]!, currentDirectory) : currentDirectory;
 
         const contents = fileSystem.getDirectoryContents(targetPath);
         if (!contents) {

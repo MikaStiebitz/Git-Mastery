@@ -1,16 +1,34 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class CloneCommand implements Command {
     name = "git clone";
     description = "Clone a repository into a new directory";
     usage = "git clone <repository> [directory]";
-    examples = [
-        "git clone https://github.com/user/repo.git",
-        "git clone https://github.com/user/repo.git my-project",
-    ];
+    examples = ["git clone https://github.com/user/repo.git", "git clone https://github.com/user/repo.git my-project"];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "bare",
+            "mirror",
+            "recursive",
+            "recurse-submodules",
+            "q",
+            "quiet",
+            "v",
+            "verbose",
+            "progress",
+            "single-branch",
+            "no-single-branch",
+            "no-checkout",
+            "n",
+            "shared",
+            "s",
+        ],
+        value: ["b", "branch", "depth", "o", "origin", "c", "config", "j", "jobs", "separate-git-dir"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { fileSystem, currentDirectory } = context;
 
@@ -59,7 +77,10 @@ export class CloneCommand implements Command {
         // Create mock repository structure
         fileSystem.writeFile(`${fullPath}/README.md`, `# ${repoName}\n\nCloned from ${repoUrl}\n`);
         fileSystem.mkdir(`${fullPath}/src`);
-        fileSystem.writeFile(`${fullPath}/src/main.js`, `// Main application file\nconsole.log('Hello from ${repoName}!');\n`);
+        fileSystem.writeFile(
+            `${fullPath}/src/main.js`,
+            `// Main application file\nconsole.log('Hello from ${repoName}!');\n`,
+        );
         fileSystem.writeFile(
             `${fullPath}/.gitignore`,
             `# Dependencies\nnode_modules/\n\n# Build output\ndist/\nbuild/\n\n# Environment variables\n.env\n.env.local\n`,

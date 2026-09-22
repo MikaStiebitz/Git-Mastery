@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
 
 export class RestoreCommand implements Command {
@@ -9,6 +9,25 @@ export class RestoreCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "staged",
+            "S",
+            "worktree",
+            "W",
+            "p",
+            "patch",
+            "q",
+            "quiet",
+            "ours",
+            "theirs",
+            "merge",
+            "overlay",
+            "no-overlay",
+        ],
+        value: ["s", "source"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, fileSystem } = context;
 

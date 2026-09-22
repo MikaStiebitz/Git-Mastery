@@ -1,18 +1,18 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class ReflogCommand implements Command {
     name = "git reflog";
     description = "Manage reflog information";
     usage = "git reflog [options]";
-    examples = [
-        "git reflog",
-        "git reflog --oneline",
-        "git reflog --date=relative",
-        "git reflog --all"
-    ];
+    examples = ["git reflog", "git reflog --oneline", "git reflog --date=relative", "git reflog --all"];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["all", "no-abbrev", "oneline"],
+        value: ["n", "max-count", "date"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, currentDirectory } = context;
 
@@ -45,7 +45,8 @@ export class ReflogCommand implements Command {
         const showHelp = args.positionalArgs.includes("-h") || args.positionalArgs.includes("--help");
 
         if (showHelp) {
-            return [`usage: git reflog [<options>] [<ref>]
+            return [
+                `usage: git reflog [<options>] [<ref>]
 
     --all                 show all refs
     --oneline            show in one line per entry
@@ -61,7 +62,8 @@ export class ReflogCommand implements Command {
     --stale-fix          fix stale reflog entries
     -v, --verbose        be verbose
     -q, --quiet          be quiet
-    -h, --help           show this help message`];
+    -h, --help           show this help message`,
+            ];
         }
 
         // Get reflog entries from git repository
@@ -101,11 +103,11 @@ export class ReflogCommand implements Command {
                     const days = Math.floor(diff / 86400000);
 
                     if (days > 0) {
-                        dateStr = `${days} day${days > 1 ? 's' : ''} ago`;
+                        dateStr = `${days} day${days > 1 ? "s" : ""} ago`;
                     } else if (hours > 0) {
-                        dateStr = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+                        dateStr = `${hours} hour${hours > 1 ? "s" : ""} ago`;
                     } else if (minutes > 0) {
-                        dateStr = `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+                        dateStr = `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
                     } else {
                         dateStr = "just now";
                     }

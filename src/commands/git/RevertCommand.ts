@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class RevertCommand implements Command {
     name = "git revert";
@@ -8,6 +8,11 @@ export class RevertCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["abort", "continue", "quit", "skip", "n", "no-commit", "e", "edit", "no-edit", "s", "signoff"],
+        value: ["m", "mainline"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 

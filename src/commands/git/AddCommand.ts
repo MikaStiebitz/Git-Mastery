@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { getAllFiles, resolvePath } from "~/lib/utils";
 
 export class AddCommand implements Command {
@@ -9,6 +9,30 @@ export class AddCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "A",
+            "all",
+            "no-all",
+            "p",
+            "patch",
+            "u",
+            "update",
+            "f",
+            "force",
+            "n",
+            "dry-run",
+            "i",
+            "interactive",
+            "v",
+            "verbose",
+            "ignore-errors",
+            "intent-to-add",
+            "N",
+        ],
+        value: [],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, fileSystem } = context;
 
@@ -70,7 +94,7 @@ export class AddCommand implements Command {
                     continue;
                 }
 
-                // Normalize path consistently - same as git add . 
+                // Normalize path consistently - same as git add .
                 const normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
 
                 // Stage the file (addFile normalizes the path internally)

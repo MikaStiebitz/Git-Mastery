@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
 import type { FileSystem } from "~/models/FileSystem";
 import type { GitRepository } from "~/models/GitRepository";
@@ -11,6 +11,11 @@ export class RmCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["r", "R", "recursive", "f", "force", "i", "interactive", "v", "verbose", "d", "dir"],
+        value: [],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { fileSystem, gitRepository } = context;
 

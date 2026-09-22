@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class CherryPickCommand implements Command {
     name = "git cherry-pick";
@@ -8,6 +8,25 @@ export class CherryPickCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "abort",
+            "continue",
+            "quit",
+            "skip",
+            "n",
+            "no-commit",
+            "e",
+            "edit",
+            "no-edit",
+            "x",
+            "ff",
+            "s",
+            "signoff",
+        ],
+        value: ["m", "mainline", "s", "strategy"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 

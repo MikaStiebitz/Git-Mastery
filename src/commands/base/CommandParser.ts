@@ -1,6 +1,16 @@
-import type { CommandArgs } from "./Command";
+import type { CommandArgs, FlagSpec } from "./Command";
 
-export function parseCommand(commandStr: string): {
+/**
+ * Split a raw input line into a command name and its parsed arguments.
+ *
+ * `spec` describes the flag semantics of the command being parsed. The registry resolves the command
+ * first and then re-parses with that command's own spec, because how a token should be read depends
+ * on which command is reading it: `git branch -m a b` renames, `git commit -m a` takes a message.
+ */
+export function parseCommand(
+    commandStr: string,
+    spec?: FlagSpec,
+): {
     command: string;
     args: CommandArgs;
 } {
@@ -11,13 +21,13 @@ export function parseCommand(commandStr: string): {
     if (command === "git" && parts.length > 1) {
         return {
             command: `git ${parts[1]?.toLowerCase()}`,
-            args: parseArgs(parts.slice(2)),
+            args: parseArgs(parts.slice(2), spec),
         };
     }
 
     return {
         command,
-        args: parseArgs(parts.slice(1)),
+        args: parseArgs(parts.slice(1), spec),
     };
 }
 
@@ -112,91 +122,152 @@ export function splitCommandRespectingQuotes(commandStr: string): string[] {
     return result;
 }
 
-export function parseArgs(args: string[]): CommandArgs {
+/**
+ * Fallback flag semantics for commands that declare no FlagSpec of their own.
+ *
+ * These mirror the behaviour the parser had before per-command specs existed, so a command without
+ * a spec keeps working exactly as it did. Commands that matter to the courses declare their own.
+ */
+const FALLBACK_SPEC: Required<FlagSpec> = {
+    boolean: [
+        "u",
+        "f",
+        "a",
+        "set-upstream",
+        "force",
+        "all",
+        "amend",
+        "no-edit",
+        "abort",
+        "continue",
+        "soft",
+        "hard",
+        "mixed",
+        "oneline",
+        "graph",
+    ],
+    value: ["m", "message", "author", "date", "format", "C", "D", "F", "p"],
+};
+
+/**
+ * Parse a command's arguments into flags and positional arguments.
+ *
+ * Follows the same rules as a real getopt-style CLI, which is what makes the simulator forgiving of
+ * the orders real people type:
+ *  - flags may appear anywhere, so `git branch Feature -D` deletes "Feature" just like `git branch
+ *    -D Feature` does;
+ *  - `--` ends flag parsing, so a file literally named "-f" can still be addressed;
+ *  - a value flag takes an attached value (`-mfix`, `--author=me`) or the next token (`-m fix`);
+ *  - clustered short flags work (`-am "msg"` is `-a -m "msg"`), and a value flag inside a cluster
+ *    consumes the rest of it.
+ *
+ * When `spec` is given, flags outside it are recorded in `unknownFlags` so the command can reject a
+ * typo instead of silently ignoring it.
+ */
+export function parseArgs(args: string[], spec?: FlagSpec): CommandArgs {
     const result: CommandArgs = {
-        args: [...args], // Original args array
+        args: [...args],
         flags: {},
         positionalArgs: [],
+        unknownFlags: [],
     };
 
-    // Flags that always require a value (never boolean)
-    const valueRequiredFlags = ["m", "message", "author", "date", "format", "C", "D", "F", "p", "u"];
+    const isStrict = spec !== undefined;
+    const booleanFlags = new Set(spec?.boolean ?? FALLBACK_SPEC.boolean);
+    const valueFlags = new Set(spec?.value ?? FALLBACK_SPEC.value);
+
+    let flagsEnded = false;
 
     for (let i = 0; i < args.length; i++) {
         const arg = args[i];
-
-        // Skip undefined arguments
         if (arg === undefined) continue;
 
-        if (arg.startsWith("--") && arg.includes("=")) {
-            const [flag, value] = arg.split("=", 2);
-            if (flag && value !== undefined) {
-                result.flags[flag.substring(2)] = value;
-            }
+        if (flagsEnded) {
+            result.positionalArgs.push(arg);
             continue;
         }
 
-        if (arg.startsWith("--")) {
-            const flag = arg.substring(2);
+        // "--" separates flags from paths; everything after it is positional.
+        if (arg === "--") {
+            flagsEnded = true;
+            continue;
+        }
 
-            // List of flags that are always boolean (never take a value)
-            const booleanFlags = ["set-upstream", "force", "all", "amend", "no-edit", "abort", "continue", "soft", "hard", "mixed", "oneline", "graph"];
+        // Long flag: --flag, --flag=value, --flag value
+        if (arg.startsWith("--") && arg.length > 2) {
+            const body = arg.substring(2);
+            const eq = body.indexOf("=");
 
-            if (booleanFlags.includes(flag)) {
-                result.flags[flag] = true;
+            if (eq !== -1) {
+                const name = body.substring(0, eq);
+                result.flags[name] = body.substring(eq + 1);
+                if (isStrict && !booleanFlags.has(name) && !valueFlags.has(name)) {
+                    result.unknownFlags!.push(`--${name}`);
+                }
                 continue;
             }
 
-            const nextArg = i + 1 < args.length ? args[i + 1] : undefined;
-            if (nextArg !== undefined && !nextArg.startsWith("-")) {
-                result.flags[flag] = nextArg;
-                i++;
-            } else {
-                result.flags[flag] = true;
+            if (booleanFlags.has(body)) {
+                result.flags[body] = true;
+                continue;
             }
+
+            if (valueFlags.has(body)) {
+                result.flags[body] = takeValue(args, i);
+                if (consumesNextToken(args, i)) i++;
+                continue;
+            }
+
+            // Unknown long flag. Strict commands report it; the fallback keeps the old guesswork.
+            if (isStrict) {
+                result.unknownFlags!.push(`--${body}`);
+                result.flags[body] = true;
+                continue;
+            }
+
+            result.flags[body] = takeValueOrTrue(args, i);
+            if (consumesNextToken(args, i)) i++;
             continue;
         }
 
+        // Short flag or cluster: -d, -am, -mfix
         if (arg.startsWith("-") && arg.length > 1) {
-            const flags = arg.substring(1).split("");
+            const chars = arg.substring(1);
 
-            // List of single-char flags that are always boolean
-            const booleanSingleFlags = ["u", "f", "a"];
+            for (let j = 0; j < chars.length; j++) {
+                const char = chars[j];
+                if (char === undefined) continue;
 
-            // Special handling for single flags that may take values
-            if (flags.length === 1) {
-                const flag = flags[0] ?? "";
-
-                // Check if this is a boolean flag
-                if (booleanSingleFlags.includes(flag)) {
-                    result.flags[flag] = true;
+                if (booleanFlags.has(char)) {
+                    result.flags[char] = true;
                     continue;
                 }
 
-                // Check if this flag requires a value
-                if (valueRequiredFlags.includes(flag)) {
-                    const nextArg = i + 1 < args.length ? args[i + 1] : undefined;
-                    if (nextArg !== undefined && !nextArg.startsWith("-")) {
-                        result.flags[flag] = nextArg;
-                        i++;
+                if (valueFlags.has(char)) {
+                    const attached = chars.substring(j + 1);
+                    if (attached.length > 0) {
+                        result.flags[char] = attached;
                     } else {
-                        // Flag requires value but didn't get one - set to empty string to signal incomplete command
-                        result.flags[flag] = "";
+                        result.flags[char] = takeValue(args, i);
+                        if (consumesNextToken(args, i)) i++;
                     }
+                    break; // The rest of the cluster was this flag's value.
+                }
+
+                if (isStrict) {
+                    result.unknownFlags!.push(`-${char}`);
+                    result.flags[char] = true;
                     continue;
                 }
 
-                const nextArg = i + 1 < args.length ? args[i + 1] : undefined;
-                if (nextArg !== undefined && !nextArg.startsWith("-")) {
-                    result.flags[flag] = nextArg;
-                    i++; // Skip the next part as it's being used as a value
+                // Fallback only: a lone unknown short flag swallows the next token, as before.
+                if (chars.length === 1) {
+                    result.flags[char] = takeValueOrTrue(args, i);
+                    if (consumesNextToken(args, i)) i++;
                     continue;
                 }
-            }
 
-            // Process as boolean flags if no value follows
-            for (const flag of flags) {
-                result.flags[flag] = true;
+                result.flags[char] = true;
             }
             continue;
         }
@@ -205,4 +276,20 @@ export function parseArgs(args: string[]): CommandArgs {
     }
 
     return result;
+}
+
+/** True when the token after `index` can serve as a flag value (exists and is not itself a flag). */
+function consumesNextToken(args: string[], index: number): boolean {
+    const next = args[index + 1];
+    return next !== undefined && (next === "-" || !next.startsWith("-"));
+}
+
+/** The next token as a flag value, or "" to signal "the flag needs a value but got none". */
+function takeValue(args: string[], index: number): string {
+    return consumesNextToken(args, index) ? args[index + 1]! : "";
+}
+
+/** Like takeValue, but yields boolean true when no value follows. */
+function takeValueOrTrue(args: string[], index: number): string | boolean {
+    return consumesNextToken(args, index) ? args[index + 1]! : true;
 }

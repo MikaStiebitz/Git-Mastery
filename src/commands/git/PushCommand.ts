@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class PushCommand implements Command {
     name = "git push";
@@ -10,11 +10,36 @@ export class PushCommand implements Command {
         "git push -u origin feature",
         "git push origin v1.0.0",
         "git push --tags",
-        "git push origin --tags"
+        "git push origin --tags",
     ];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "u",
+            "set-upstream",
+            "f",
+            "force",
+            "force-with-lease",
+            "all",
+            "tags",
+            "follow-tags",
+            "delete",
+            "d",
+            "n",
+            "dry-run",
+            "q",
+            "quiet",
+            "v",
+            "verbose",
+            "atomic",
+            "prune",
+            "mirror",
+        ],
+        value: ["repo", "o", "push-option"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
@@ -52,7 +77,7 @@ export class PushCommand implements Command {
                 `    git remote add ${remote} https://github.com/user/repo.git`,
                 ``,
                 `Then try pushing again:`,
-                `    git push ${remote} ${branch}`
+                `    git push ${remote} ${branch}`,
             ];
         }
 
@@ -85,7 +110,7 @@ export class PushCommand implements Command {
                 ``,
                 `Or simply:`,
                 ``,
-                `    git push origin ${branch}`
+                `    git push origin ${branch}`,
             ];
         }
 

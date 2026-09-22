@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class ShowCommand implements Command {
     name = "git show";
@@ -8,6 +8,11 @@ export class ShowCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["stat", "name-only", "name-status", "oneline", "p", "patch", "no-patch", "s", "q", "quiet"],
+        value: ["format", "pretty"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 

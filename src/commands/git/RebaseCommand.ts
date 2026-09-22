@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class RebaseCommand implements Command {
     name = "git rebase";
@@ -14,6 +14,30 @@ export class RebaseCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "i",
+            "interactive",
+            "abort",
+            "continue",
+            "skip",
+            "quit",
+            "autostash",
+            "no-autostash",
+            "f",
+            "force-rebase",
+            "r",
+            "rebase-merges",
+            "autosquash",
+            "no-autosquash",
+            "q",
+            "quiet",
+            "v",
+            "verbose",
+        ],
+        value: ["onto", "s", "strategy", "X", "strategy-option", "exec", "x"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 

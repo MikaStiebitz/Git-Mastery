@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
 
 export class NanoCommand implements Command {
@@ -9,6 +9,11 @@ export class NanoCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["l", "linenumbers", "m", "mouse", "v", "view"],
+        value: [],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { fileSystem, gitRepository } = context;
 

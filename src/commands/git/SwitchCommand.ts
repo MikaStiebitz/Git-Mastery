@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class SwitchCommand implements Command {
     name = "git switch";
@@ -8,6 +8,29 @@ export class SwitchCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "c",
+            "C",
+            "d",
+            "f",
+            "m",
+            "q",
+            "t",
+            "create",
+            "force-create",
+            "detach",
+            "force",
+            "discard-changes",
+            "merge",
+            "quiet",
+            "track",
+            "guess",
+            "no-guess",
+        ],
+        value: ["orphan"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 

@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class StashCommand implements Command {
     name = "git stash";
@@ -8,6 +8,23 @@ export class StashCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "u",
+            "include-untracked",
+            "a",
+            "all",
+            "q",
+            "quiet",
+            "p",
+            "patch",
+            "keep-index",
+            "no-keep-index",
+            "index",
+        ],
+        value: ["m", "message"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
@@ -23,72 +40,69 @@ export class StashCommand implements Command {
 
         switch (subcommand) {
             case "push":
-            case "save":
-                // Stash changes
-                {
-                    const success = gitRepository.stashSave();
-                    if (!success) {
-                        return ["No local changes to save"];
-                    }
-                    return [
-                        "Saved working directory and index state WIP on " +
-                            gitRepository.getCurrentBranch() +
-                            ": Changes stashed successfully.",
-                    ];
+            case "save": // Stash changes
+            {
+                const success = gitRepository.stashSave();
+                if (!success) {
+                    return ["No local changes to save"];
+                }
+                return [
+                    "Saved working directory and index state WIP on " +
+                        gitRepository.getCurrentBranch() +
+                        ": Changes stashed successfully.",
+                ];
+            }
+
+            case "pop": // Pop stashed changes
+            {
+                const result = gitRepository.stashApply(true);
+                if (!result.success) {
+                    return ["No stash entries found."];
                 }
 
-            case "pop":
-                // Pop stashed changes
-                {
-                    const result = gitRepository.stashApply(true);
-                    if (!result.success) {
-                        return ["No stash entries found."];
-                    }
+                const output = ["On branch " + gitRepository.getCurrentBranch()];
 
-                    const output = ["On branch " + gitRepository.getCurrentBranch()];
-
-                    if (result.files.length > 0) {
-                        output.push("Changes not staged for commit:");
-                        output.push('  (use "git add <file>..." to update what will be committed)');
-                        output.push('  (use "git restore <file>..." to discard changes in working directory)');
-                        output.push("");
-                        result.files.forEach(file => {
-                            output.push(`\tmodified:   ${file}`);
-                        });
-                        output.push("");
-                    }
-
-                    output.push("Dropped refs/stash@{0}");
-                    return output;
+                if (result.files.length > 0) {
+                    output.push("Changes not staged for commit:");
+                    output.push('  (use "git add <file>..." to update what will be committed)');
+                    output.push('  (use "git restore <file>..." to discard changes in working directory)');
+                    output.push("");
+                    result.files.forEach(file => {
+                        output.push(`\tmodified:   ${file}`);
+                    });
+                    output.push("");
                 }
+
+                output.push("Dropped refs/stash@{0}");
+                return output;
+            }
 
             case "list":
                 // List stashes (simplified)
                 return ["stash@{0}: WIP on " + gitRepository.getCurrentBranch() + ": Changes"];
 
-            case "apply":
-                // Apply stashed changes without removing them
-                {
-                    const result = gitRepository.stashApply(false);
-                    if (!result.success) {
-                        return ["No stash entries found."];
-                    }
-
-                    const output = ["On branch " + gitRepository.getCurrentBranch()];
-
-                    if (result.files.length > 0) {
-                        output.push("Changes not staged for commit:");
-                        output.push('  (use "git add <file>..." to update what will be committed)');
-                        output.push('  (use "git restore <file>..." to discard changes in working directory)');
-                        output.push("");
-                        result.files.forEach(file => {
-                            output.push(`\tmodified:   ${file}`);
-                        });
-                        output.push("");
-                    }
-
-                    return output;
+            case "apply": // Apply stashed changes without removing them
+            {
+                const result = gitRepository.stashApply(false);
+                if (!result.success) {
+                    return ["No stash entries found."];
                 }
+
+                const output = ["On branch " + gitRepository.getCurrentBranch()];
+
+                if (result.files.length > 0) {
+                    output.push("Changes not staged for commit:");
+                    output.push('  (use "git add <file>..." to update what will be committed)');
+                    output.push('  (use "git restore <file>..." to discard changes in working directory)');
+                    output.push("");
+                    result.files.forEach(file => {
+                        output.push(`\tmodified:   ${file}`);
+                    });
+                    output.push("");
+                }
+
+                return output;
+            }
 
             default:
                 return [

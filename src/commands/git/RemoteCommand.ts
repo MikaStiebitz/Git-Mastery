@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class RemoteCommand implements Command {
     name = "git remote";
@@ -8,6 +8,11 @@ export class RemoteCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["v", "verbose"],
+        value: [],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
@@ -27,7 +32,7 @@ export class RemoteCommand implements Command {
             if (args.flags.v || args.flags.verbose) {
                 return remoteNames.flatMap(name => [
                     `${name}\t${remotes[name]} (fetch)`,
-                    `${name}\t${remotes[name]} (push)`
+                    `${name}\t${remotes[name]} (push)`,
                 ]);
             }
 
@@ -77,6 +82,8 @@ export class RemoteCommand implements Command {
             return output;
         }
 
-        return ["error: Unknown subcommand. Supported: git remote, git remote add <name> <url>, git remote remove <name>, git remote -v"];
+        return [
+            "error: Unknown subcommand. Supported: git remote, git remote add <name> <url>, git remote remove <name>, git remote -v",
+        ];
     }
 }

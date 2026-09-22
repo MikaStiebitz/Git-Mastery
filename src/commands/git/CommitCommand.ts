@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import type { GitRepository } from "~/models/GitRepository";
 
 export class CommitCommand implements Command {
@@ -15,6 +15,27 @@ export class CommitCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "a",
+            "all",
+            "amend",
+            "no-edit",
+            "allow-empty",
+            "allow-empty-message",
+            "v",
+            "verbose",
+            "q",
+            "quiet",
+            "s",
+            "signoff",
+            "n",
+            "no-verify",
+            "no-post-rewrite",
+        ],
+        value: ["m", "message", "author", "date", "F", "file", "C", "reuse-message", "c", "reedit-message"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, currentDirectory } = context;
 
@@ -66,7 +87,7 @@ export class CommitCommand implements Command {
             // Generate accurate file statistics
             const fileCount = stagedFiles.length;
             const fileWord = fileCount === 1 ? "file" : "files";
-            const insertions = fileCount;  // Simplified: each file = 1 insertion
+            const insertions = fileCount; // Simplified: each file = 1 insertion
             const insertionWord = insertions === 1 ? "insertion" : "insertions";
 
             return [

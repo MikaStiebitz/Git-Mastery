@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
 
 export class DiffCommand implements Command {
@@ -9,6 +9,27 @@ export class DiffCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "cached",
+            "staged",
+            "stat",
+            "numstat",
+            "shortstat",
+            "name-only",
+            "name-status",
+            "color",
+            "no-color",
+            "w",
+            "ignore-all-space",
+            "b",
+            "patch",
+            "p",
+            "no-patch",
+        ],
+        value: ["U", "unified", "M", "find-renames"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, fileSystem } = context;
 
@@ -62,9 +83,7 @@ export class DiffCommand implements Command {
             }
         } else {
             // Show working tree changes (modified/untracked files)
-            const modifiedFiles = Object.entries(status).filter(
-                ([_, s]) => s === "modified" || s === "untracked"
-            );
+            const modifiedFiles = Object.entries(status).filter(([_, s]) => s === "modified" || s === "untracked");
 
             if (specificFile) {
                 const normalizedFile = specificFile.startsWith("/") ? specificFile.substring(1) : specificFile;

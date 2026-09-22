@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class InitCommand implements Command {
     name = "git init";
@@ -8,18 +8,23 @@ export class InitCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["bare", "q", "quiet"],
+        value: ["b", "initial-branch", "template", "separate-git-dir"],
+    };
     execute(_args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, fileSystem, currentDirectory } = context;
 
         // Check if .git directory already exists in THIS exact directory
-        const gitPath = currentDirectory === '/' ? '/.git' : `${currentDirectory}/.git`;
+        const gitPath = currentDirectory === "/" ? "/.git" : `${currentDirectory}/.git`;
         const hasGitDir = fileSystem.getDirectoryContents(gitPath) !== null;
 
         // If git repo exists in this exact directory and it's our repo, reinitialize
         if (hasGitDir && gitRepository.isInitialized() && gitRepository.getRepositoryRoot() === currentDirectory) {
             const success = gitRepository.init(currentDirectory);
             if (success) {
-                if (currentDirectory === '/') {
+                if (currentDirectory === "/") {
                     return [`Reinitialized existing Git repository in .git/`];
                 }
                 return [`Reinitialized existing Git repository in ${currentDirectory}/.git/`];
@@ -29,7 +34,7 @@ export class InitCommand implements Command {
         // Try to init new repository
         const success = gitRepository.init(currentDirectory);
         if (success) {
-            if (currentDirectory === '/') {
+            if (currentDirectory === "/") {
                 return [`Initialized empty Git repository in .git/`];
             }
             return [`Initialized empty Git repository in ${currentDirectory}/.git/`];

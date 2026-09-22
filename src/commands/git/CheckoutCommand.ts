@@ -1,5 +1,5 @@
 import type { GitRepository } from "~/models/GitRepository";
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import type { FileSystem } from "~/models/FileSystem";
 
 export class CheckoutCommand implements Command {
@@ -16,6 +16,26 @@ export class CheckoutCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "b",
+            "B",
+            "f",
+            "q",
+            "t",
+            "p",
+            "track",
+            "detach",
+            "force",
+            "quiet",
+            "patch",
+            "ours",
+            "theirs",
+            "merge",
+        ],
+        value: ["orphan"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, fileSystem, currentDirectory } = context;
 
@@ -86,11 +106,7 @@ export class CheckoutCommand implements Command {
         // Handle branch switching
         if (!branches.includes(branchName)) {
             // More helpful error message with case-sensitive suggestions
-            const similarBranches = branches.filter(
-                b =>
-                    b.includes(branchName) ||
-                    branchName.includes(b),
-            );
+            const similarBranches = branches.filter(b => b.includes(branchName) || branchName.includes(b));
 
             let errorMsg = `error: pathspec '${branchName}' did not match any file(s) known to git`;
 

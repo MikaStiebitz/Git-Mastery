@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { buildCommitGraph } from "~/lib/buildCommitGraph";
 
 export class LogCommand implements Command {
@@ -9,6 +9,44 @@ export class LogCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "oneline",
+            "graph",
+            "all",
+            "decorate",
+            "no-decorate",
+            "stat",
+            "p",
+            "patch",
+            "name-only",
+            "name-status",
+            "reverse",
+            "merges",
+            "no-merges",
+            "abbrev-commit",
+            "first-parent",
+            "follow",
+            "q",
+        ],
+        value: [
+            "n",
+            "max-count",
+            "author",
+            "committer",
+            "grep",
+            "since",
+            "after",
+            "until",
+            "before",
+            "format",
+            "pretty",
+            "skip",
+            "S",
+            "G",
+        ],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, currentDirectory } = context;
 
@@ -52,7 +90,7 @@ export class LogCommand implements Command {
             const getPseudoAuthor = (id: string) =>
                 pseudoAuthors[Math.abs(id.charCodeAt(0) || 0) % pseudoAuthors.length] ?? "Unknown";
             const enriched = Object.fromEntries(
-                Object.entries(allCommits).map(([id, c]) => [id, { ...c, author: getPseudoAuthor(id) }])
+                Object.entries(allCommits).map(([id, c]) => [id, { ...c, author: getPseudoAuthor(id) }]),
             );
             const branchHeads = gitRepository.getBranchHeads();
             const currentBranch = gitRepository.getCurrentBranch();
@@ -81,12 +119,8 @@ export class LogCommand implements Command {
 
         const filtered = commitEntries.filter(([id, commit]) => {
             const author = getPseudoAuthor(id) || "Unknown";
-            const authorOk = authorFilter
-                ? author.toLowerCase().includes((authorFilter ?? "").toLowerCase())
-                : true;
-            const grepOk = grepFilter
-                ? commit.message.toLowerCase().includes((grepFilter ?? "").toLowerCase())
-                : true;
+            const authorOk = authorFilter ? author.toLowerCase().includes((authorFilter ?? "").toLowerCase()) : true;
+            const grepOk = grepFilter ? commit.message.toLowerCase().includes((grepFilter ?? "").toLowerCase()) : true;
             return authorOk && grepOk;
         });
 

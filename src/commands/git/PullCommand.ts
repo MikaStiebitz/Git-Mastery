@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class PullCommand implements Command {
     name = "git pull";
@@ -8,6 +8,28 @@ export class PullCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "rebase",
+            "no-rebase",
+            "ff",
+            "no-ff",
+            "ff-only",
+            "f",
+            "force",
+            "all",
+            "q",
+            "quiet",
+            "v",
+            "verbose",
+            "autostash",
+            "no-autostash",
+            "prune",
+            "tags",
+        ],
+        value: ["s", "strategy", "X", "strategy-option", "depth"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
