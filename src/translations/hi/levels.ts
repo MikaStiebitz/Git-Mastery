@@ -510,188 +510,188 @@ Git कमिट को डिब्बों के ढेर 📦📦📦 ज�
     "reset.level2.story.title": "git reset --hard को समझना - THE NUCLEAR OPTION",
     "reset.level2.story.narrative": `⚠️  **git reset --hard को समझना - THE NUCLEAR OPTION**
 
-**The Situation:**
-It's Friday evening. You've been experimenting with a new feature all day:
-- Commit 6: "Try experimental algorithm v3" - Completely broken! 💀
-- Commit 5: "Try experimental algorithm v2" - Still broken! 🐛
-- Commit 4: "Try experimental algorithm v1" - Nope! ❌
-- Commit 3: "Add user dashboard" - This was working! ✅
-- Commit 2: "Add user authentication" - Good ✅
-- Commit 1: "Initial project" - Good ✅
+**स्थिति:**
+शुक्रवार की शाम है। आप पूरे दिन एक नए फ़ीचर के साथ प्रयोग कर रहे हैं:
+- कमिट 6: "Try experimental algorithm v3" - पूरी तरह टूटा हुआ! 💀
+- कमिट 5: "Try experimental algorithm v2" - फिर भी टूटा हुआ! 🐛
+- कमिट 4: "Try experimental algorithm v1" - नहीं चला! ❌
+- कमिट 3: "Add user dashboard" - यह काम कर रहा था! ✅
+- कमिट 2: "Add user authentication" - ठीक है ✅
+- कमिट 1: "Initial project" - ठीक है ✅
 
-You realize: These experiments are garbage. You want them GONE. Forever. 💣
+आपको एहसास होता है: ये प्रयोग बेकार हैं। आप इन्हें हमेशा के लिए ख़त्म करना चाहते हैं। 💣
 
-**What is git reset --hard?**
-Remember the boxes metaphor? 📦📦📦
+**git reset --hard क्या है?**
+वही डिब्बों वाली मिसाल याद है? 📦📦📦
 
-\`git reset --soft\` removed boxes but kept the items on the staging table.
+\`git reset --soft\` डिब्बे हटाता था लेकिन चीज़ों को स्टेजिंग टेबल पर रखता था।
 
-\`git reset --hard\` removes boxes AND throws all items in the trash! 🗑️
+\`git reset --hard\` डिब्बे हटाता है AND सारी चीज़ें कूड़ेदान में फेंक देता है! 🗑️
 
-**⚠️  CRITICAL: This is DESTRUCTIVE and PERMANENT!**
-- Commits are deleted from history
-- ALL file changes are deleted
-- Working directory is cleaned
-- Staging area is cleared
-- **THERE IS NO UNDO!**
+**⚠️  बेहद ज़रूरी: यह विनाशकारी और स्थायी है!**
+- कमिट इतिहास से डिलीट हो जाते हैं
+- फ़ाइलों के सारे बदलाव डिलीट हो जाते हैं
+- वर्किंग डायरेक्टरी साफ़ हो जाती है
+- स्टेजिंग एरिया खाली हो जाता है
+- **इसे वापस नहीं लिया जा सकता!**
 
-**Three Ways to Use git reset --hard:**
+**git reset --hard उपयोग करने के तीन तरीके:**
 
-**1. Destroy the last commit (most common):**
+**1. आख़िरी कमिट नष्ट करें (सबसे आम):**
 \`git reset --hard HEAD~1\`
-- Removes the last commit
-- Deletes all changes in that commit
-- Working directory looks like the previous commit
-- ⚠️  Changes are GONE FOREVER!
+- आख़िरी कमिट हटाता है
+- उस कमिट के सारे बदलाव डिलीट कर देता है
+- वर्किंग डायरेक्टरी पिछले कमिट जैसी दिखने लगती है
+- ⚠️  बदलाव हमेशा के लिए चले गए!
 
-**2. Reset to HEAD (educational - does nothing):**
+**2. HEAD पर रीसेट करें (शैक्षिक - कुछ नहीं होता):**
 \`git reset --hard HEAD\`
-- Means "make my workspace look like HEAD"
-- Since you're already at HEAD, nothing changes
-- Good for understanding: HEAD = current position
+- इसका मतलब है "मेरी वर्कस्पेस को HEAD जैसा बना दो"
+- चूंकि आप पहले से ही HEAD पर हैं, कुछ नहीं बदलता
+- समझने के लिए अच्छा: HEAD = मौजूदा स्थिति
 
-**3. Destroy multiple commits:**
+**3. कई कमिट नष्ट करें:**
 \`git reset --hard HEAD~4\`
-- Goes back 4 commits
-- All 4 commits are DELETED from history
-- All changes in those commits are DELETED
-- It's like they never existed! 👻
+- 4 कमिट पीछे जाता है
+- सारे 4 कमिट इतिहास से DELETE हो जाते हैं
+- उन कमिट के सारे बदलाव DELETE हो जाते हैं
+- मानो वे कभी थे ही नहीं! 👻
 
-**When to Use --hard:**
-- ✅ Experiment failed, throw it away
-- ✅ Broke everything, need to start over
-- ✅ Committed secrets/passwords by accident
-- ❌ NOT on commits you've already pushed!
-- ❌ NOT if you might need the changes later!
+**--hard कब उपयोग करें:**
+- ✅ प्रयोग असफल रहा, उसे फेंक दें
+- ✅ सब कुछ टूट गया, दोबारा शुरू करना है
+- ✅ गलती से सीक्रेट्स/पासवर्ड कमिट हो गए
+- ❌ उन कमिट पर नहीं जो आप पहले ही पुश कर चुके हैं!
+- ❌ अगर बाद में बदलावों की ज़रूरत पड़ सकती है तो नहीं!
 
-**Your Mission:**
+**आपका मिशन:**
 
-**Step 1:** Destroy the last broken commit
+**चरण 1:** आख़िरी टूटा हुआ कमिट नष्ट करें
 \`git reset --hard HEAD~1\`
-Check with \`git status\` - workspace is clean! 🧹
+\`git status\` से जांचें - वर्कस्पेस साफ़ है! 🧹
 
-**Step 2:** Try resetting to HEAD (safe practice)
+**चरण 2:** HEAD पर रीसेट करके देखें (सुरक्षित अभ्यास)
 \`git reset --hard HEAD\`
-Nothing happens - you're already there!
+कुछ नहीं होता - आप पहले से ही वहां हैं!
 
-**Step 3:** Destroy multiple failed experiments
+**चरण 3:** कई असफल प्रयोग नष्ट करें
 \`git reset --hard HEAD~3\`
-All 3 bad commits are gone! It's like Friday never happened! 😅
+सारे 3 ख़राब कमिट चले गए! मानो शुक्रवार कभी हुआ ही न हो! 😅
 
-**Remember:**
-- 💥 This is the NUCLEAR OPTION
-- 🗑️  Everything is deleted - commits AND changes
-- ⏪ Can't be undone (unless you have the commit hash)
-- 🎯 Only use when you're 100% sure
-- ⚠️  NEVER use on pushed commits!
+**याद रखें:**
+- 💥 यह NUCLEAR OPTION है
+- 🗑️  सब कुछ डिलीट हो जाता है - कमिट AND बदलाव
+- ⏪ वापस नहीं लिया जा सकता (जब तक आपके पास कमिट हैश न हो)
+- 🎯 सिर्फ़ तभी उपयोग करें जब आप 100% निश्चित हों
+- ⚠️  पुश किए गए कमिट पर कभी उपयोग न करें!
 
-**Fun Fact:** Professional developers say "I'm going hard reset on this" when they want to start over completely! 🔥
+**मज़ेदार तथ्य:** पेशेवर डेवलपर जब पूरी तरह दोबारा शुरू करना चाहते हैं तो कहते हैं "मैं इस पर hard reset करने जा रहा हूं"! 🔥
 
-Ready to practice safe destruction? Let's go! 💪`,
+सुरक्षित विनाश का अभ्यास करने के लिए तैयार हैं? चलिए शुरू करते हैं! 💪`,
     "reset.level2.story.realWorldContext":
-        "--hard reset is a powerful but dangerous tool. It's used when you really need a clean slate. In teams, be careful with reset on pushed commits - it can confuse others.",
+        "--hard reset एक शक्तिशाली लेकिन ख़तरनाक टूल है। इसका उपयोग तब होता है जब आपको वाकई एक साफ़ शुरुआत चाहिए। टीमों में, पुश किए गए कमिट पर reset करते समय सावधान रहें - यह दूसरों को भ्रमित कर सकता है।",
     "reset.level2.story.taskIntroduction":
-        "Practice the nuclear option: use git reset --hard to completely discard commits and changes.",
+        "Nuclear option का अभ्यास करें: कमिट और बदलावों को पूरी तरह मिटाने के लिए git reset --hard का उपयोग करें।",
 
-    "reset.level3.name": "Reset to Specific Commit",
-    "reset.level3.description": "Go back to a specific commit in history",
-    "reset.level3.objective1": "View commit history and identify the good commit",
-    "reset.level3.objective2": "Reset to a specific commit using its hash",
-    "reset.level3.hint1": "First, check your commit history: git log --oneline",
-    "reset.level3.hint2": "Each commit has a unique hash (like 'a1b2c3d')",
-    "reset.level3.hint3": "git reset --soft <commit-hash> keeps changes staged",
-    "reset.level3.hint4": "git reset --hard <commit-hash> destroys everything after that commit",
-    "reset.level3.hint5": "Commit hashes are permanent IDs - HEAD~n is relative",
-    "reset.level3.hint6": "Pro tip: You only need the first 7 characters of the hash!",
-    "reset.level3.hint7": "Find 'Version 2 - Good version' and use its hash",
-    "reset.level3.requirement1.description": "View commit history to identify the good commit",
-    "reset.level3.requirement1.success": "✅ Good! Now you can see all commits and their hashes!",
-    "reset.level3.requirement2.description": "Reset to a specific commit using its hash",
-    "reset.level3.requirement2.success": "🎯 Perfect! You've mastered resetting to specific commit hashes!",
-    "reset.level3.story.title": "Advanced Reset: Using Commit Hashes",
-    "reset.level3.story.narrative": `🎯 **Advanced Reset: Using Commit Hashes**
+    "reset.level3.name": "किसी विशेष कमिट पर रीसेट करना",
+    "reset.level3.description": "इतिहास में किसी विशेष कमिट पर वापस जाएं",
+    "reset.level3.objective1": "कमिट इतिहास देखें और अच्छे कमिट की पहचान करें",
+    "reset.level3.objective2": "किसी कमिट के हैश का उपयोग करके उस पर रीसेट करें",
+    "reset.level3.hint1": "पहले, अपना कमिट इतिहास जांचें: git log --oneline",
+    "reset.level3.hint2": "हर कमिट का एक यूनिक हैश होता है (जैसे 'a1b2c3d')",
+    "reset.level3.hint3": "git reset --soft <commit-hash> बदलावों को staged रखता है",
+    "reset.level3.hint4": "git reset --hard <commit-hash> उस कमिट के बाद सब कुछ नष्ट कर देता है",
+    "reset.level3.hint5": "कमिट हैश स्थायी ID होते हैं - HEAD~n सापेक्ष (relative) होता है",
+    "reset.level3.hint6": "प्रो टिप: आपको हैश के सिर्फ़ पहले 7 अक्षर चाहिए!",
+    "reset.level3.hint7": "'Version 2 - Good version' ढूंढें और उसका हैश उपयोग करें",
+    "reset.level3.requirement1.description": "अच्छे कमिट की पहचान करने के लिए कमिट इतिहास देखें",
+    "reset.level3.requirement1.success": "✅ बढ़िया! अब आप सारे कमिट और उनके हैश देख सकते हैं!",
+    "reset.level3.requirement2.description": "किसी कमिट के हैश का उपयोग करके उस पर रीसेट करें",
+    "reset.level3.requirement2.success": "🎯 बिल्कुल सही! आपने किसी विशेष कमिट हैश पर रीसेट करने में महारत हासिल कर ली!",
+    "reset.level3.story.title": "एडवांस्ड रीसेट: कमिट हैश का उपयोग",
+    "reset.level3.story.narrative": `🎯 **एडवांस्ड रीसेट: कमिट हैश का उपयोग**
 
-**The Situation:**
-Your project has grown. You're now at commit 8, but you need to go back to commit 3.
+**स्थिति:**
+आपका प्रोजेक्ट बढ़ गया है। अभी आप कमिट 8 पर हैं, लेकिन आपको कमिट 3 पर वापस जाना है।
 
-Using \`HEAD~5\` to count back 5 commits is annoying and error-prone. What if someone adds a commit while you're working? The count changes!
+5 कमिट पीछे गिनने के लिए \`HEAD~5\` का उपयोग करना परेशान करने वाला और गलती-प्रवण है। अगर आपके काम करते समय कोई और कमिट जोड़ दे तो? गिनती बदल जाती है!
 
-**The Professional Solution: Commit Hashes**
+**पेशेवर समाधान: कमिट हैश**
 
-Every commit has a unique ID (hash), like a fingerprint:
+हर कमिट का एक यूनिक ID (हैश) होता है, फ़िंगरप्रिंट की तरह:
 \`a1b2c3d - "Version 2 - Good version"\`
 
-This hash NEVER changes! It's permanent and unique.
+यह हैश कभी नहीं बदलता! यह स्थायी और यूनिक है।
 
-**Current Situation:**
-- Commit 8: "Attempted fix v3" - Still broken! 💔
-- Commit 7: "Attempted fix v2" - Nope! 🐛
-- Commit 6: "Attempted fix v1" - Failed! ❌
-- Commit 5: "Add broken feature" - Started the mess 🔥
-- Commit 4: "Update styling" - Cosmetic ✨
-- Commit 3: "Version 2 - GOOD VERSION" - Last known good state! ✅
-- Commit 2: "Version 1" - Initial version ✅
-- Commit 1: "Initial commit" - Foundation ✅
+**मौजूदा स्थिति:**
+- कमिट 8: "Attempted fix v3" - अब भी टूटा हुआ! 💔
+- कमिट 7: "Attempted fix v2" - नहीं चला! 🐛
+- कमिट 6: "Attempted fix v1" - असफल! ❌
+- कमिट 5: "Add broken feature" - गड़बड़ यहीं से शुरू हुई 🔥
+- कमिट 4: "Update styling" - कॉस्मेटिक ✨
+- कमिट 3: "Version 2 - GOOD VERSION" - आख़िरी ज्ञात अच्छी स्थिति! ✅
+- कमिट 2: "Version 1" - शुरुआती वर्ज़न ✅
+- कमिट 1: "Initial commit" - नींव ✅
 
-**Your Mission:**
+**आपका मिशन:**
 
-**Step 1: Find the Good Commit**
-Run: \`git log --oneline\`
+**चरण 1: अच्छा कमिट खोजें**
+चलाएं: \`git log --oneline\`
 
-You'll see something like:
+आपको कुछ ऐसा दिखेगा:
 \`\`\`
 f7e8a9b Attempted fix v3
 d6c7b8a Attempted fix v2
 c5b6a7f Attempted fix v1
 b4a5c6e Add broken feature
 a3b4c5d Update styling
-9a2b3c4 Version 2 - Good version  ← THIS ONE!
+9a2b3c4 Version 2 - Good version  ← यही है!
 8a1b2c3 Version 1
 7a0b1c2 Initial commit
 \`\`\`
 
-**Step 2: Reset to That Commit**
+**चरण 2: उस कमिट पर रीसेट करें**
 \`git reset --soft 9a2b3c4\`
-(Use the actual hash you see!)
+(आपको जो असली हैश दिखे उसका उपयोग करें!)
 
-OR (more destructive):
+या (ज़्यादा विनाशकारी):
 \`git reset --hard 9a2b3c4\`
 
-**HEAD~n vs Commit Hash:**
+**HEAD~n बनाम कमिट हैश:**
 
-**Relative (HEAD~n):**
-- \`HEAD~1\` = "previous commit"
-- \`HEAD~5\` = "5 commits ago"
-- ❌ Changes if new commits are added
-- ✅ Quick for recent commits
+**सापेक्ष (HEAD~n):**
+- \`HEAD~1\` = "पिछला कमिट"
+- \`HEAD~5\` = "5 कमिट पहले"
+- ❌ नए कमिट जुड़ने पर बदल जाता है
+- ✅ हाल के कमिट के लिए तेज़
 
-**Absolute (Commit Hash):**
+**पूर्ण (कमिट हैश):**
 - \`git reset --soft a1b2c3d\`
-- ✅ Permanent reference
-- ✅ Never changes
-- ✅ Professional approach
-- 🎯 Best for going back to specific known-good states
+- ✅ स्थायी संदर्भ
+- ✅ कभी नहीं बदलता
+- ✅ पेशेवर तरीका
+- 🎯 किसी विशेष ज्ञात-अच्छी स्थिति पर वापस जाने के लिए सबसे अच्छा
 
-**Pro Tips:**
-- Only need first 7 characters: \`9a2b3c4\` instead of full hash
-- You can copy hashes from \`git log\`
-- Hashes work with ANY git command: \`git show a1b2c3d\`
-- Save important commit hashes in notes for easy rollback!
+**प्रो टिप्स:**
+- पूरे हैश की बजाय सिर्फ़ पहले 7 अक्षर चाहिए: \`9a2b3c4\`
+- आप \`git log\` से हैश कॉपी कर सकते हैं
+- हैश किसी भी git कमांड के साथ काम करते हैं: \`git show a1b2c3d\`
+- आसान rollback के लिए ज़रूरी कमिट हैश नोट्स में सहेज कर रखें!
 
-**Real-World Scenario:**
-"Hey team, if the deploy breaks, rollback to commit 9a2b3c4 - that's our last stable version!"
+**असली दुनिया का परिदृश्य:**
+"अरे टीम, अगर डिप्लॉय टूट जाए, तो कमिट 9a2b3c4 पर rollback करो - वही हमारा आख़िरी स्थिर वर्ज़न है!"
 
-**In CI/CD Systems:**
-Production deploys often use commit hashes for precise version control:
+**CI/CD सिस्टम में:**
+प्रोडक्शन डिप्लॉय अक्सर सटीक वर्ज़न कंट्रोल के लिए कमिट हैश का उपयोग करते हैं:
 \`\`\`
 deploy.sh --commit=9a2b3c4
 \`\`\`
 
-Let's practice professional-grade Git! 🚀`,
+चलिए पेशेवर स्तर की Git का अभ्यास करते हैं! 🚀`,
     "reset.level3.story.realWorldContext":
-        "Using commit hashes is the professional way to reference specific points in history. They're permanent, unambiguous, and work across all team members' repositories.",
+        "कमिट हैश का उपयोग इतिहास में किसी विशेष बिंदु को संदर्भित करने का पेशेवर तरीका है। ये स्थायी, स्पष्ट होते हैं, और टीम के हर सदस्य की रिपॉजिटरी में एक जैसे काम करते हैं।",
     "reset.level3.story.taskIntroduction":
-        "Use git log to find commit hashes, then use git reset with a specific hash.",
+        "कमिट हैश खोजने के लिए git log का उपयोग करें, फिर किसी विशेष हैश के साथ git reset का उपयोग करें।",
 
     // Rebase Stage
     "rebase.name": "Rebasing",
