@@ -406,88 +406,88 @@ const levels = {
     "remote.level3.story.taskIntroduction": "अपनी फ़ीचर ब्रांच को रिमोट रिपॉजिटरी पर पुश करें ताकि बाकी लोग इसे देख सकें।",
 
     // Reset Stage
-    "reset.name": "Undoing Commits",
-    "reset.description": "Learn how to undo commits and go back in history",
+    "reset.name": "कमिट पूर्ववत करना",
+    "reset.description": "कमिट पूर्ववत करना और इतिहास में पीछे जाना सीखें",
 
-    "reset.level1.name": "Soft Reset - Keep Changes",
-    "reset.level1.description": "Go back to a previous commit but keep your changes",
-    "reset.level1.objective1": "Undo the last commit while keeping changes staged",
-    "reset.level1.objective2": "Reset to HEAD (current commit) to understand the concept",
-    "reset.level1.objective3": "Reset to a specific previous commit using HEAD~n notation",
-    "reset.level1.hint1": "Start simple: git reset --soft HEAD~1 (undo last commit)",
-    "reset.level1.hint2": "View commit history first: git log --oneline",
-    "reset.level1.hint3": "git reset --soft HEAD keeps everything as is (no change)",
-    "reset.level1.hint4": "git reset --soft HEAD~2 goes back 2 commits",
-    "reset.level1.hint5": "Files stay staged after --soft reset - perfect for fixing commit messages!",
-    "reset.level1.hint6": "Use git status to see what's staged after reset",
-    "reset.level1.requirement1.description": "Undo the last commit using --soft",
-    "reset.level1.requirement1.success": "✅ Good! The commit is gone but files are still staged!",
-    "reset.level1.requirement2.description": "Reset to HEAD to understand the concept",
-    "reset.level1.requirement2.success": "✅ Perfect! Reset to HEAD means 'stay where you are' - no changes!",
-    "reset.level1.requirement3.description": "Reset to an earlier commit using HEAD~n",
-    "reset.level1.requirement3.success": "✅ Excellent! You've mastered HEAD~n notation for soft resets!",
-    "reset.level1.story.title": "Understanding git reset --soft",
-    "reset.level1.story.narrative": `🔄 **Understanding git reset --soft**
+    "reset.level1.name": "Soft Reset - बदलाव बनाए रखें",
+    "reset.level1.description": "पिछले कमिट पर वापस जाएं लेकिन अपने बदलाव बनाए रखें",
+    "reset.level1.objective1": "बदलावों को staged रखते हुए आख़िरी कमिट पूर्ववत करें",
+    "reset.level1.objective2": "अवधारणा समझने के लिए HEAD (मौजूदा कमिट) पर रीसेट करें",
+    "reset.level1.objective3": "HEAD~n नोटेशन का उपयोग करके किसी विशेष पिछले कमिट पर रीसेट करें",
+    "reset.level1.hint1": "आसान शुरुआत करें: git reset --soft HEAD~1 (आख़िरी कमिट पूर्ववत करें)",
+    "reset.level1.hint2": "पहले कमिट इतिहास देखें: git log --oneline",
+    "reset.level1.hint3": "git reset --soft HEAD सब कुछ वैसे ही रखता है (कोई बदलाव नहीं)",
+    "reset.level1.hint4": "git reset --soft HEAD~2 दो कमिट पीछे जाता है",
+    "reset.level1.hint5": "--soft रीसेट के बाद फ़ाइलें staged रहती हैं - कमिट संदेश ठीक करने के लिए बिल्कुल सही!",
+    "reset.level1.hint6": "रीसेट के बाद क्या staged है, यह देखने के लिए git status का उपयोग करें",
+    "reset.level1.requirement1.description": "--soft का उपयोग करके आख़िरी कमिट पूर्ववत करें",
+    "reset.level1.requirement1.success": "✅ बढ़िया! कमिट चला गया लेकिन फ़ाइलें अब भी staged हैं!",
+    "reset.level1.requirement2.description": "अवधारणा समझने के लिए HEAD पर रीसेट करें",
+    "reset.level1.requirement2.success": "✅ बिल्कुल सही! HEAD पर रीसेट का मतलब है 'जहां हो वहीं रहो' - कोई बदलाव नहीं!",
+    "reset.level1.requirement3.description": "HEAD~n का उपयोग करके किसी पुराने कमिट पर रीसेट करें",
+    "reset.level1.requirement3.success": "✅ शानदार! आपने soft reset के लिए HEAD~n नोटेशन में महारत हासिल कर ली है!",
+    "reset.level1.story.title": "git reset --soft को समझना",
+    "reset.level1.story.narrative": `🔄 **git reset --soft को समझना**
 
-**The Situation:**
-You're working on a feature and made 5 commits. But looking back, you realize:
-- Commit 5: "Add database config" - Oops! This has sensitive credentials! 🔐
-- Commit 4: "Update API endpoints" - This is good ✅
-- Commit 3: "Add authentication" - Good ✅
-- Commit 2: "Setup routing" - Good ✅
-- Commit 1: "Initial project setup" - Good ✅
+**स्थिति:**
+आप एक फ़ीचर पर काम कर रहे हैं और आपने 5 कमिट बना दिए हैं। लेकिन पीछे मुड़कर देखने पर आपको पता चलता है:
+- कमिट 5: "Add database config" - ओह! इसमें संवेदनशील क्रेडेंशियल्स हैं! 🔐
+- कमिट 4: "Update API endpoints" - यह ठीक है ✅
+- कमिट 3: "Add authentication" - ठीक है ✅
+- कमिट 2: "Setup routing" - ठीक है ✅
+- कमिट 1: "Initial project setup" - ठीक है ✅
 
-You need to undo commit 5, fix it, and commit again properly!
+आपको कमिट 5 को पूर्ववत करना है, उसे ठीक करना है, और फिर से सही तरीके से कमिट करना है!
 
-**What is git reset --soft?**
-Think of Git commits like a stack of boxes 📦📦📦. Each box is a commit.
+**git reset --soft क्या है?**
+Git कमिट को डिब्बों के ढेर 📦📦📦 जैसा समझें। हर डिब्बा एक कमिट है।
 
-\`git reset --soft\` removes boxes from the top of the stack, BUT keeps all the items (your changes) on a staging table, ready to be packed into a new box!
+\`git reset --soft\` ढेर के सबसे ऊपर से डिब्बे हटाता है, लेकिन सारी चीज़ों (आपके बदलावों) को एक स्टेजिंग टेबल पर रखता है, नए डिब्बे में पैक होने के लिए तैयार!
 
-**Three Ways to Use git reset --soft:**
+**git reset --soft उपयोग करने के तीन तरीके:**
 
-**1. Reset to the previous commit (most common):**
+**1. पिछले कमिट पर रीसेट करें (सबसे आम):**
 \`git reset --soft HEAD~1\`
-- HEAD = "where you are now" (the top box)
-- ~1 = "go back 1 box"
-- Result: Last commit removed, but changes stay staged!
+- HEAD = "आप अभी कहां हैं" (सबसे ऊपर वाला डिब्बा)
+- ~1 = "1 डिब्बा पीछे जाओ"
+- नतीजा: आख़िरी कमिट हट गया, लेकिन बदलाव staged रहते हैं!
 
-**2. Reset to HEAD (educational - does nothing):**
+**2. HEAD पर रीसेट करें (शैक्षिक - कुछ नहीं होता):**
 \`git reset --soft HEAD\`
-- This means "reset to where I already am"
-- Nothing happens! Good for understanding the concept.
+- इसका मतलब है "जहां मैं पहले से हूं वहीं रीसेट करो"
+- कुछ नहीं होता! अवधारणा समझने के लिए अच्छा है।
 
-**3. Reset to an older commit:**
+**3. किसी पुराने कमिट पर रीसेट करें:**
 \`git reset --soft HEAD~3\`
-- Goes back 3 commits
-- All changes from those 3 commits stay staged
-- Perfect for combining multiple commits into one!
+- 3 कमिट पीछे जाता है
+- उन 3 कमिट के सारे बदलाव staged रहते हैं
+- कई कमिट को एक में मिलाने के लिए बिल्कुल सही!
 
-**Your Mission:**
+**आपका मिशन:**
 
-**Step 1:** Remove the last commit (the one with credentials)
+**चरण 1:** आख़िरी कमिट हटाएं (जिसमें क्रेडेंशियल्स हैं)
 \`git reset --soft HEAD~1\`
-Check with \`git status\` - your files are still staged! ✨
+\`git status\` से जांचें - आपकी फ़ाइलें अब भी staged हैं! ✨
 
-**Step 2:** Try resetting to HEAD (educational)
+**चरण 2:** HEAD पर रीसेट करके देखें (शैक्षिक)
 \`git reset --soft HEAD\`
-Notice: Nothing changed! You're already at HEAD.
+ध्यान दें: कुछ नहीं बदला! आप पहले से ही HEAD पर हैं।
 
-**Step 3:** Go back further to practice
+**चरण 3:** अभ्यास के लिए और पीछे जाएं
 \`git reset --soft HEAD~2\`
-Now you've removed 2 commits, but files are still staged!
+अब आपने 2 कमिट हटा दिए हैं, लेकिन फ़ाइलें अब भी staged हैं!
 
-**Remember:**
-- 📦 Commits are removed from history
-- ✅ Files stay in staging area
-- 🎯 Perfect for fixing commit messages or combining commits
-- ⚠️  Only use on commits you haven't pushed yet!
+**याद रखें:**
+- 📦 कमिट इतिहास से हट जाते हैं
+- ✅ फ़ाइलें staging area में रहती हैं
+- 🎯 कमिट संदेश ठीक करने या कमिट मिलाने के लिए बिल्कुल सही
+- ⚠️  सिर्फ़ उन्हीं कमिट पर उपयोग करें जो अभी पुश नहीं हुए हैं!
 
-Let's practice these three techniques! 🚀`,
+चलिए इन तीन तरीकों का अभ्यास करते हैं! 🚀`,
     "reset.level1.story.realWorldContext":
-        "git reset --soft is super useful when you want to fix your last commit without losing the work. You can edit the changes and then commit again.",
+        "जब आप अपने आख़िरी कमिट को बिना काम खोए ठीक करना चाहते हैं, तब git reset --soft बेहद उपयोगी है। आप बदलाव एडिट करके फिर से कमिट कर सकते हैं।",
     "reset.level1.story.taskIntroduction":
-        "Practice using git reset --soft with different targets: HEAD~1, HEAD, and HEAD~2.",
+        "git reset --soft को अलग-अलग टारगेट के साथ आज़माएं: HEAD~1, HEAD, और HEAD~2।",
 
     "reset.level2.name": "Hard Reset - Discard Everything",
     "reset.level2.description": "Go back to a previous commit and discard all changes",
