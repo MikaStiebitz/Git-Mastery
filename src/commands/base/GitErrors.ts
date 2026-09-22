@@ -138,6 +138,39 @@ export function firstUnknownFlag(unknownFlags: string[] | undefined): string | u
 }
 
 /**
+ * Suggest an existing path when the one the user named does not match anything.
+ *
+ * Compares the basename too, so `git add indx.js` finds `src/index.js` — a beginner rarely knows
+ * whether the file they want needs a directory in front of it.
+ */
+export function pathSuggestionHints(input: string, existingPaths: readonly string[]): string[] {
+    const wanted = input.replace(/^\.?\//, "");
+    const candidates = existingPaths
+        .map(path => path.replace(/^\//, ""))
+        .filter(path => !path.startsWith(".git/") && path !== ".git");
+
+    const byFullPath = didYouMean(wanted, candidates, 2);
+    if (byFullPath.length > 0) {
+        return [hint(`Did you mean ${byFullPath.map(p => `'${p}'`).join(" or ")}?`)];
+    }
+
+    const base = wanted.split("/").pop() ?? wanted;
+    const byBasename = candidates.filter(path => didYouMean(base, [path.split("/").pop() ?? path], 1).length > 0);
+    if (byBasename.length > 0) {
+        return [
+            hint(
+                `Did you mean ${byBasename
+                    .slice(0, 2)
+                    .map(p => `'${p}'`)
+                    .join(" or ")}?`,
+            ),
+        ];
+    }
+
+    return [hint("Run 'git status' to see which files Git can see right now.")];
+}
+
+/**
  * Suggest an existing ref when the one the user named does not exist.
  *
  * Branch names are case-sensitive in Git, which is the single most common surprise for beginners

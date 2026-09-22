@@ -171,6 +171,45 @@ describe("beginner mistakes", () => {
         });
     });
 
+    describe("git add with a path that does not exist", () => {
+        it("fails the way real Git fails and suggests the real file", () => {
+            const output = run("git add REDME.md");
+
+            expect(output).toContain("fatal: pathspec 'REDME.md' did not match any files");
+            expect(output).toContain("README.md");
+        });
+
+        it("finds a file even when the folder was left out", () => {
+            const output = run("git add index.js");
+
+            expect(output).toContain("fatal: pathspec 'index.js' did not match any files");
+            expect(output).toContain("src/index.js");
+        });
+
+        it("stages nothing at all when one of several paths is wrong", () => {
+            context.fileSystem.writeFile("/real.txt", "hi");
+
+            run("git add real.txt nope.txt");
+
+            expect(context.gitRepository.getStatus()["real.txt"]).toBeUndefined();
+        });
+
+        it("suggests 'git add .' when given no path", () => {
+            const output = run("git add");
+
+            expect(output).toContain("Nothing specified, nothing added.");
+            expect(output).toContain("git add .");
+        });
+
+        it("stages a whole directory", () => {
+            context.fileSystem.writeFile("/src/extra.js", "x");
+
+            run("git add src");
+
+            expect(context.gitRepository.getStatus()["src/extra.js"]).toBe("staged");
+        });
+    });
+
     describe("push without an upstream", () => {
         it("explains what an upstream is", () => {
             context.gitRepository.addRemote("origin", "https://github.com/user/repo.git");
