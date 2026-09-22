@@ -83,7 +83,7 @@ const levels = {
     "intro.level2.requirement1.success": "बिल्कुल सही! अब आप अपनी रिपॉजिटरी का स्टेटस देख सकते हैं।",
     "intro.level2.story.title": "आपकी रिपो में क्या हो रहा है?",
     "intro.level2.story.narrative":
-        "बढ़िया! आपने अपनी पहली Git रिपॉजिटरी बना ली है। छिपी हुई .git डायरेक्टरी में अब वह सारी जानकारी है जिसकी Git को ज़रूरत है।\n\nAlex रुककर कहते हैं: \"बहुत बढ़िया काम! अब आपको यह देखना चाहिए कि आपकी रिपॉजिटरी में क्या हो रहा है। `git status` से आप किसी भी समय मौजूदा स्थिति जांच सकते हैं।\"",
+        'बढ़िया! आपने अपनी पहली Git रिपॉजिटरी बना ली है। छिपी हुई .git डायरेक्टरी में अब वह सारी जानकारी है जिसकी Git को ज़रूरत है।\n\nAlex रुककर कहते हैं: "बहुत बढ़िया काम! अब आपको यह देखना चाहिए कि आपकी रिपॉजिटरी में क्या हो रहा है। `git status` से आप किसी भी समय मौजूदा स्थिति जांच सकते हैं।"',
     "intro.level2.story.realWorldContext":
         "डेवलपर दिन में कई बार `git status` चलाते हैं ताकि यह देख सकें कि कौन सी फ़ाइलें बदली गई हैं और कौन सी अगले कमिट के लिए तैयार हैं।",
     "intro.level2.story.taskIntroduction": "`git status` से अपनी रिपॉजिटरी का स्टेटस जांचें।",
@@ -144,7 +144,8 @@ const levels = {
     "files.level3.hint1": "`git rm <file>` कमांड का उपयोग करें",
     "files.level3.hint2": "यह फ़ाइल को Git से हटाता है और साथ ही आपकी वर्किंग डायरेक्टरी से भी डिलीट कर देता है",
     "files.level3.requirement1.description": "Git का उपयोग करके एक फ़ाइल हटाएं",
-    "files.level3.requirement1.success": "बहुत बढ़िया! आपने फ़ाइल को Git और अपनी वर्किंग डायरेक्टरी, दोनों से हटा दिया है।",
+    "files.level3.requirement1.success":
+        "बहुत बढ़िया! आपने फ़ाइल को Git और अपनी वर्किंग डायरेक्टरी, दोनों से हटा दिया है।",
     "files.level3.story.title": "सफ़ाई करना",
     "files.level3.story.narrative":
         '"मैं देख रहा हूं कि आप अच्छी प्रगति कर रहे हैं," आपका काम रिव्यू करते हुए Alex कहते हैं। "लेकिन मुझे कुछ टेम्पररी फ़ाइलें या ड्राफ़्ट दिख रहे हैं जिनकी अब हमें ज़रूरत नहीं है। हमें रिपॉजिटरी साफ़ करनी चाहिए।"\n\nवे समझाते हैं: "जब आप Git में ट्रैक की गई फ़ाइलों को हटाना चाहें, तो सिर्फ़ उन्हें मैन्युअली डिलीट करने के बजाय `git rm` का उपयोग करना चाहिए। इससे यह सुनिश्चित होता है कि Git हटाने को सही तरीके से ट्रैक करे।"',
@@ -192,13 +193,15 @@ const levels = {
     "branches.level3.hint1": "`git switch <branch>` कमांड का उपयोग करें",
     "branches.level3.hint2": "यह किसी मौजूदा ब्रांच पर स्विच करता है",
     "branches.level3.requirement1.description": "git switch का उपयोग करके किसी दूसरी ब्रांच पर स्विच करें",
-    "branches.level3.requirement1.success": "बहुत बढ़िया काम! आपने git switch का उपयोग करके ब्रांचों के बीच स्विच किया।",
+    "branches.level3.requirement1.success":
+        "बहुत बढ़िया काम! आपने git switch का उपयोग करके ब्रांचों के बीच स्विच किया।",
     "branches.level3.story.title": "ब्रांच नेविगेशन",
     "branches.level3.story.narrative":
         '"अब जब आप जानते हैं कि ब्रांच कैसे बनाई जाती है, चलिए उनके बीच आगे-पीछे जाने का अभ्यास करते हैं," Sarah कहती हैं। "असली डेवलपमेंट के काम में आप यह लगातार करते रहेंगे।"\n\nवे समझाती हैं: "आप `git switch <branch-name>` का उपयोग करके किसी भी मौजूदा ब्रांच पर स्विच कर सकते हैं। यह पुराने `git checkout` से कहीं ज़्यादा स्पष्ट है, जो कई अलग-अलग काम करने की वजह से भ्रमित कर सकता था।"',
     "branches.level3.story.realWorldContext":
         "ब्रांचों के बीच स्विच करना Git के सबसे आम ऑपरेशंस में से एक है। समर्पित `git switch` कमांड मक़सद को साफ़ बना देता है और बहुउद्देश्यीय checkout कमांड की तुलना में भ्रम कम करता है।",
-    "branches.level3.story.taskIntroduction": "`git switch` का उपयोग करके किसी दूसरी ब्रांच पर स्विच करने का अभ्यास करें।",
+    "branches.level3.story.taskIntroduction":
+        "`git switch` का उपयोग करके किसी दूसरी ब्रांच पर स्विच करने का अभ्यास करें।",
 
     "branches.level4.name": "Checkout से ब्रांच स्विच करना",
     "branches.level4.description": "ब्रांच स्विच करने की क्लासिक कमांड सीखें",
@@ -212,7 +215,8 @@ const levels = {
         '"git checkout जानना भी ज़रूरी है," Alex समझाते हैं। "भले ही git switch आधुनिक तरीका है, आप इसे पुराने प्रोजेक्ट्स, ट्यूटोरियल्स और डॉक्यूमेंटेशन में हर जगह देखेंगे।"\n\nवे जोड़ते हैं: "checkout कई काम कर सकता है - ब्रांच स्विच करना, फ़ाइलें रीस्टोर करना, और भी बहुत कुछ। इसीलिए Git ने switch और restore पेश किए - ताकि मक़सद ज़्यादा स्पष्ट हो सके।"',
     "branches.level4.story.realWorldContext":
         "git checkout सालों तक ब्रांच ऑपरेशंस के लिए THE कमांड रहा है। कई डेवलपर और टूल आज भी इसका उपयोग करते हैं। दोनों जानने से आप अलग-अलग प्रोजेक्ट्स और टीमों में ज़्यादा दक्ष बनते हैं।",
-    "branches.level4.story.taskIntroduction": "क्लासिक git checkout कमांड का उपयोग करके किसी दूसरी ब्रांच पर स्विच करें।",
+    "branches.level4.story.taskIntroduction":
+        "क्लासिक git checkout कमांड का उपयोग करके किसी दूसरी ब्रांच पर स्विच करें।",
 
     "branches.level5.name": "Switch से ब्रांच बनाना",
     "branches.level5.description": "एक ही चरण में एक नई ब्रांच बनाएं और उस पर स्विच करें",
@@ -220,13 +224,15 @@ const levels = {
     "branches.level5.hint1": "`git switch -c <new-branch-name>` कमांड का उपयोग करें",
     "branches.level5.hint2": "-c फ्लैग switch को नई ब्रांच बनाने के लिए कहता है",
     "branches.level5.requirement1.description": "git switch -c का उपयोग करके एक नई ब्रांच बनाएं और उस पर स्विच करें",
-    "branches.level5.requirement1.success": "बिल्कुल सही! अब आपने ब्रांच बनाने के दोनों तरीकों में महारत हासिल कर ली है।",
+    "branches.level5.requirement1.success":
+        "बिल्कुल सही! अब आपने ब्रांच बनाने के दोनों तरीकों में महारत हासिल कर ली है।",
     "branches.level5.story.title": "झटपट ब्रांच बनाना",
     "branches.level5.story.narrative":
         "\"एक और काम की तरकीब,\" Sarah कहती हैं। \"आप 'git switch -c' का उपयोग करके एक नई ब्रांच बना सकते हैं और उसी समय उस पर स्विच भी कर सकते हैं।\"\n\nवे समझाती हैं: \"यह Git में आधुनिक तरीका है। -c फ्लैग का मतलब 'create' है और यह पुराने 'git checkout -b' जैसा ही काम करता है, बस यह ज़्यादा स्पष्ट और सहज है।\"",
     "branches.level5.story.realWorldContext":
         "switch -c पैटर्न ब्रांच बनाने और उस पर स्विच करने का आधुनिक, अनुशंसित तरीका है। इसे Git 2.23 में ब्रांच ऑपरेशंस को checkout के दूसरे कामों से अलग करने और उन्हें ज़्यादा सहज बनाने के लिए पेश किया गया था।",
-    "branches.level5.story.taskIntroduction": "git switch -c का उपयोग करके एक नई ब्रांच बनाएं और अपने आप उस पर स्विच हो जाएं।",
+    "branches.level5.story.taskIntroduction":
+        "git switch -c का उपयोग करके एक नई ब्रांच बनाएं और अपने आप उस पर स्विच हो जाएं।",
 
     // Level Content - Merge Stage
     "merge.name": "ब्रांचों को मर्ज करना",
@@ -378,8 +384,7 @@ const levels = {
     "remote.level2.objective1": "अपने लोकल कमिट को रिमोट रिपॉजिटरी पर पुश करें",
     "remote.level2.objective2": "लोकल कमिट और रिमोट पुश के बीच अंतर समझें",
     "remote.level2.hint1": "main ब्रांच पर पुश करने के लिए `git push origin main` का उपयोग करें",
-    "remote.level2.hint2":
-        "ज़रूरी: कमिट करने के बाद ही पुश करें! पुश आपके कमिट अपलोड करता है, अलग-अलग फ़ाइलें नहीं।",
+    "remote.level2.hint2": "ज़रूरी: कमिट करने के बाद ही पुश करें! पुश आपके कमिट अपलोड करता है, अलग-अलग फ़ाइलें नहीं।",
     "remote.level2.hint3": "टिप: अपने पास मौजूद कमिट देखने के लिए `git log` का उपयोग करें",
     "remote.level2.requirement1.description": "अपने कमिट रिमोट पर पुश करें",
     "remote.level2.requirement1.success": "बिल्कुल सही! आपके कमिट अब रिमोट रिपॉजिटरी में उपलब्ध हैं।",
@@ -403,7 +408,8 @@ const levels = {
         '"आप एक अलग ब्रांच पर एक शानदार नए फ़ीचर पर काम कर रहे थे," Sarah कहती हैं। "अब समय है इस ब्रांच को रिमोट रिपॉजिटरी पर पुश करने का ताकि बाकी टीम के सदस्य आपका काम देख और रिव्यू कर सकें।"\n\nवे समझाती हैं: "किसी ब्रांच को पहली बार पुश करते समय, आपको -u (या --set-upstream) विकल्प का उपयोग करना चाहिए। इससे आपकी लोकल ब्रांच रिमोट ब्रांच से जुड़ जाती है, जिससे भविष्य में पुश और पुल करना आसान हो जाता है।"',
     "remote.level3.story.realWorldContext":
         "पेशेवर टीमों में, नए फ़ीचर आमतौर पर अलग-अलग ब्रांचों पर डेवलप किए जाते हैं और फिर मुख्य कोडबेस में मर्ज होने से पहले रिव्यू के लिए पुश किए जाते हैं। यह पुल रिक्वेस्ट वर्कफ़्लो का एक अहम हिस्सा है।",
-    "remote.level3.story.taskIntroduction": "अपनी फ़ीचर ब्रांच को रिमोट रिपॉजिटरी पर पुश करें ताकि बाकी लोग इसे देख सकें।",
+    "remote.level3.story.taskIntroduction":
+        "अपनी फ़ीचर ब्रांच को रिमोट रिपॉजिटरी पर पुश करें ताकि बाकी लोग इसे देख सकें।",
 
     // Reset Stage
     "reset.name": "कमिट पूर्ववत करना",
@@ -423,7 +429,8 @@ const levels = {
     "reset.level1.requirement1.description": "--soft का उपयोग करके आख़िरी कमिट पूर्ववत करें",
     "reset.level1.requirement1.success": "✅ बढ़िया! कमिट चला गया लेकिन फ़ाइलें अब भी staged हैं!",
     "reset.level1.requirement2.description": "अवधारणा समझने के लिए HEAD पर रीसेट करें",
-    "reset.level1.requirement2.success": "✅ बिल्कुल सही! HEAD पर रीसेट का मतलब है 'जहां हो वहीं रहो' - कोई बदलाव नहीं!",
+    "reset.level1.requirement2.success":
+        "✅ बिल्कुल सही! HEAD पर रीसेट का मतलब है 'जहां हो वहीं रहो' - कोई बदलाव नहीं!",
     "reset.level1.requirement3.description": "HEAD~n का उपयोग करके किसी पुराने कमिट पर रीसेट करें",
     "reset.level1.requirement3.success": "✅ शानदार! आपने soft reset के लिए HEAD~n नोटेशन में महारत हासिल कर ली है!",
     "reset.level1.story.title": "git reset --soft को समझना",
@@ -607,7 +614,8 @@ Git कमिट को डिब्बों के ढेर 📦📦📦 ज�
     "reset.level3.requirement1.description": "अच्छे कमिट की पहचान करने के लिए कमिट इतिहास देखें",
     "reset.level3.requirement1.success": "✅ बढ़िया! अब आप सारे कमिट और उनके हैश देख सकते हैं!",
     "reset.level3.requirement2.description": "किसी कमिट के हैश का उपयोग करके उस पर रीसेट करें",
-    "reset.level3.requirement2.success": "🎯 बिल्कुल सही! आपने किसी विशेष कमिट हैश पर रीसेट करने में महारत हासिल कर ली!",
+    "reset.level3.requirement2.success":
+        "🎯 बिल्कुल सही! आपने किसी विशेष कमिट हैश पर रीसेट करने में महारत हासिल कर ली!",
     "reset.level3.story.title": "एडवांस्ड रीसेट: कमिट हैश का उपयोग",
     "reset.level3.story.narrative": `🎯 **एडवांस्ड रीसेट: कमिट हैश का उपयोग**
 
@@ -733,7 +741,8 @@ deploy.sh --commit=9a2b3c4
     "rebase.level3.description": "कमिट इतिहास बदलने के लिए इंटरैक्टिव रीबेसिंग का उपयोग करना सीखें",
     "rebase.level3.objective1": "एक इंटरैक्टिव रीबेस सेशन शुरू करें",
     "rebase.level3.hint1": "`git rebase -i` कमांड का उपयोग करें",
-    "rebase.level3.hint2": "इंटरैक्टिव रीबेसिंग से आप कमिट को फिर से क्रम में लगा सकते हैं, एडिट कर सकते हैं, स्क्वैश कर सकते हैं या हटा सकते हैं",
+    "rebase.level3.hint2":
+        "इंटरैक्टिव रीबेसिंग से आप कमिट को फिर से क्रम में लगा सकते हैं, एडिट कर सकते हैं, स्क्वैश कर सकते हैं या हटा सकते हैं",
     "rebase.level3.requirement1.description": "एक इंटरैक्टिव रीबेस शुरू करें",
     "rebase.level3.requirement1.success": "बिल्कुल सही! आपने एक इंटरैक्टिव रीबेस सेशन शुरू कर दिया है।",
     "rebase.level3.story.title": "इतिहास की सफ़ाई",
@@ -831,7 +840,8 @@ deploy.sh --commit=9a2b3c4
     "workflow.description": "पेशेवर Git वर्कफ़्लो और सहयोग के पैटर्न में महारत हासिल करें",
 
     "workflow.level1.name": "फ़ीचर ब्रांच वर्कफ़्लो",
-    "workflow.level1.description": "दुनिया भर की टीमों द्वारा उपयोग किया जाने वाला इंडस्ट्री-स्टैंडर्ड फ़ीचर ब्रांच वर्कफ़्लो सीखें",
+    "workflow.level1.description":
+        "दुनिया भर की टीमों द्वारा उपयोग किया जाने वाला इंडस्ट्री-स्टैंडर्ड फ़ीचर ब्रांच वर्कफ़्लो सीखें",
     "workflow.level1.objective1": "main से एक फ़ीचर ब्रांच बनाएं",
     "workflow.level1.objective2": "विवरणात्मक संदेशों के साथ कमिट बनाएं",
     "workflow.level1.objective3": "अपनी फ़ीचर ब्रांच को रिमोट पर पुश करें",
@@ -850,7 +860,8 @@ deploy.sh --commit=9a2b3c4
     "workflow.level1.requirement2.success": "बदलाव स्टेज हो गए!",
     "workflow.level1.requirement3.description": "एक विवरणात्मक संदेश के साथ अपने बदलाव कमिट करें",
     "workflow.level1.requirement3.success": "बदलाव कमिट हो गए!",
-    "workflow.level1.requirement4.description": "अपनी फ़ीचर ब्रांच को रिमोट पर पुश करें (git push origin <your-branch>)",
+    "workflow.level1.requirement4.description":
+        "अपनी फ़ीचर ब्रांच को रिमोट पर पुश करें (git push origin <your-branch>)",
     "workflow.level1.requirement4.success": "फ़ीचर ब्रांच रिमोट पर पुश हो गई!",
     "workflow.level1.requirement5.description": "'git switch main' से वापस main ब्रांच पर स्विच करें",
     "workflow.level1.requirement5.success": "main ब्रांच पर स्विच हो गए!",
@@ -1354,18 +1365,25 @@ Git इतिहास बरकरार रखते हुए फ़ाइल
     // Archaeology Stage Levels
     "archaeology.level1.name": "Git Blame - कोड आर्कियोलॉजी",
     "archaeology.level1.description": "बदलावों को समझने और बग की जड़ खोजने के लिए कोड इतिहास की जांच करें",
-    "archaeology.level1.objective1": "यह देखने के लिए git blame का उपयोग करें कि src/utils/validator.js की हर लाइन को आख़िरी बार किस कमिट ने छुआ",
+    "archaeology.level1.objective1":
+        "यह देखने के लिए git blame का उपयोग करें कि src/utils/validator.js की हर लाइन को आख़िरी बार किस कमिट ने छुआ",
     "archaeology.level1.objective2": "कमिट इतिहास का संक्षिप्त विवरण पाने के लिए git log --oneline का उपयोग करें",
     "archaeology.level1.objective3": "किसी विशेष कमिट के पूरे विवरण देखने के लिए git show का उपयोग करें",
-    "archaeology.level1.hint1": "यह देखने के लिए कि हर लाइन को आख़िरी बार किस कमिट ने बदला, `git blame src/utils/validator.js` चलाएं",
-    "archaeology.level1.hint2": "फ़ाइल के किसी एक हिस्से पर ध्यान देने के लिए `git blame -L 10,20 src/utils/validator.js` जैसी लाइन रेंज जोड़ें",
-    "archaeology.level1.hint3": "सभी कमिट का संक्षिप्त इतिहास, हर एक के छोटे हैश के साथ देखने के लिए `git log --oneline` चलाएं",
-    "archaeology.level1.hint4": "लॉग से एक कमिट हैश कॉपी करें और ठीक-ठीक देखने के लिए कि क्या बदला, `git show <hash>` (या `git show HEAD`) चलाएं",
-    "archaeology.level1.requirement1.description": "यह देखने के लिए कि हर लाइन को आख़िरी बार किसने बदला, src/utils/validator.js पर git blame चलाएं",
+    "archaeology.level1.hint1":
+        "यह देखने के लिए कि हर लाइन को आख़िरी बार किस कमिट ने बदला, `git blame src/utils/validator.js` चलाएं",
+    "archaeology.level1.hint2":
+        "फ़ाइल के किसी एक हिस्से पर ध्यान देने के लिए `git blame -L 10,20 src/utils/validator.js` जैसी लाइन रेंज जोड़ें",
+    "archaeology.level1.hint3":
+        "सभी कमिट का संक्षिप्त इतिहास, हर एक के छोटे हैश के साथ देखने के लिए `git log --oneline` चलाएं",
+    "archaeology.level1.hint4":
+        "लॉग से एक कमिट हैश कॉपी करें और ठीक-ठीक देखने के लिए कि क्या बदला, `git show <hash>` (या `git show HEAD`) चलाएं",
+    "archaeology.level1.requirement1.description":
+        "यह देखने के लिए कि हर लाइन को आख़िरी बार किसने बदला, src/utils/validator.js पर git blame चलाएं",
     "archaeology.level1.requirement1.success": "कोड की लेखकता उजागर हुई!",
     "archaeology.level1.requirement2.description": "संक्षिप्त कमिट इतिहास देखने के लिए git log --oneline चलाएं",
     "archaeology.level1.requirement2.success": "हाल का इतिहास जांचा गया!",
-    "archaeology.level1.requirement3.description": "किसी कमिट पर git show चलाएं, जैसे git show HEAD, ताकि उसका पूरा विवरण देखा जा सके",
+    "archaeology.level1.requirement3.description":
+        "किसी कमिट पर git show चलाएं, जैसे git show HEAD, ताकि उसका पूरा विवरण देखा जा सके",
     "archaeology.level1.requirement3.success": "कमिट का विवरण विश्लेषित हुआ!",
     "archaeology.level1.story.title": "रहस्यमय बग का मामला",
     "archaeology.level1.story.narrative":
@@ -1381,12 +1399,15 @@ Git इतिहास बरकरार रखते हुए फ़ाइल
     "archaeology.level2.objective2": "किसी टेक्स्ट के जुड़ने या हटने वाले कमिट खोजने के लिए git log -S का उपयोग करें",
     "archaeology.level2.objective3": "किसी विशेष व्यक्ति के कमिट फ़िल्टर करने के लिए git log --author का उपयोग करें",
     "archaeology.level2.hint1": "'security' के लिए कमिट संदेशों में खोजने के लिए `git log --grep=security` चलाएं",
-    "archaeology.level2.hint2": "कोड में 'password' शब्द जोड़ने या हटाने वाले कमिट खोजने के लिए `git log -S password` चलाएं",
+    "archaeology.level2.hint2":
+        "कोड में 'password' शब्द जोड़ने या हटाने वाले कमिट खोजने के लिए `git log -S password` चलाएं",
     "archaeology.level2.hint3": "सिर्फ़ Sarah द्वारा किए गए कमिट देखने के लिए `git log --author=Sarah` चलाएं",
     "archaeology.level2.hint4": "इन्हें ज़्यादा संक्षिप्त आउटपुट के लिए `--oneline` के साथ भी जोड़ सकते हैं",
-    "archaeology.level2.requirement1.description": "git log --grep=security से 'security' के लिए कमिट संदेशों में खोजें",
+    "archaeology.level2.requirement1.description":
+        "git log --grep=security से 'security' के लिए कमिट संदेशों में खोजें",
     "archaeology.level2.requirement1.success": "सुरक्षा से जुड़े कमिट मिले!",
-    "archaeology.level2.requirement2.description": "git log -S password से 'password' शब्द जोड़ने या हटाने वाले कमिट खोजें",
+    "archaeology.level2.requirement2.description":
+        "git log -S password से 'password' शब्द जोड़ने या हटाने वाले कमिट खोजें",
     "archaeology.level2.requirement2.success": "पासवर्ड से जुड़े बदलाव ट्रैक हुए!",
     "archaeology.level2.requirement3.description": "git log --author=Sarah से Sarah के सभी कमिट खोजें",
     "archaeology.level2.requirement3.success": "Sarah के योगदान का इतिहास विश्लेषित हुआ!",
@@ -1399,19 +1420,28 @@ Git इतिहास बरकरार रखते हुए फ़ाइल
         "व्यापक कोड इतिहास जांच और फ़ॉरेंसिक विश्लेषण के लिए एडवांस्ड Git log तकनीकों में महारत हासिल करें।",
 
     "archaeology.level3.name": "Git Reflog - टाइम मशीन",
-    "archaeology.level3.description": "खोए हुए कमिट को वापस पाने और रिपॉजिटरी स्टेट के बदलावों को समझने के लिए Git reflog का उपयोग करें",
-    "archaeology.level3.objective1": "HEAD की हर हलचल, यहां तक कि 'खोए हुए' कमिट भी, देखने के लिए git reflog का उपयोग करें",
-    "archaeology.level3.objective2": "खोया हुआ काम वापस पाने के लिए reflog संदर्भ (जैसे HEAD@{0}) के साथ git reset --hard का उपयोग करें",
+    "archaeology.level3.description":
+        "खोए हुए कमिट को वापस पाने और रिपॉजिटरी स्टेट के बदलावों को समझने के लिए Git reflog का उपयोग करें",
+    "archaeology.level3.objective1":
+        "HEAD की हर हलचल, यहां तक कि 'खोए हुए' कमिट भी, देखने के लिए git reflog का उपयोग करें",
+    "archaeology.level3.objective2":
+        "खोया हुआ काम वापस पाने के लिए reflog संदर्भ (जैसे HEAD@{0}) के साथ git reset --hard का उपयोग करें",
     "archaeology.level3.objective3": "रिकवर किए गए कमिट सहेजने के लिए किसी reflog एंट्री पर एक ब्रांच बनाएं",
-    "archaeology.level3.hint1": "`git reflog` वे सभी कमिट लिस्ट करता है जिन पर कभी HEAD था, यहां तक कि वे भी जो 'डिलीट' दिखते हैं",
-    "archaeology.level3.hint2": "हर reflog एंट्री का एक संदर्भ होता है जैसे `HEAD@{0}`, `HEAD@{1}` - सबसे हाल की क्रिया `HEAD@{0}` होती है",
-    "archaeology.level3.hint3": "ब्रांच को उस कमिट पर वापस ले जाने के लिए `git reset --hard <reflog-reference>` का उपयोग करें",
-    "archaeology.level3.hint4": "आप एक नई ब्रांच को भी किसी reflog एंट्री पर बना सकते हैं: `git branch <name> <reflog-reference>`",
+    "archaeology.level3.hint1":
+        "`git reflog` वे सभी कमिट लिस्ट करता है जिन पर कभी HEAD था, यहां तक कि वे भी जो 'डिलीट' दिखते हैं",
+    "archaeology.level3.hint2":
+        "हर reflog एंट्री का एक संदर्भ होता है जैसे `HEAD@{0}`, `HEAD@{1}` - सबसे हाल की क्रिया `HEAD@{0}` होती है",
+    "archaeology.level3.hint3":
+        "ब्रांच को उस कमिट पर वापस ले जाने के लिए `git reset --hard <reflog-reference>` का उपयोग करें",
+    "archaeology.level3.hint4":
+        "आप एक नई ब्रांच को भी किसी reflog एंट्री पर बना सकते हैं: `git branch <name> <reflog-reference>`",
     "archaeology.level3.requirement1.description": "हाल की HEAD हलचलें देखने के लिए git reflog चलाएं",
     "archaeology.level3.requirement1.success": "Reflog इतिहास जांचा गया!",
-    "archaeology.level3.requirement2.description": "git reset --hard और एक reflog संदर्भ, जैसे git reset --hard HEAD@{0}, से खोया हुआ कमिट वापस पाएं",
+    "archaeology.level3.requirement2.description":
+        "git reset --hard और एक reflog संदर्भ, जैसे git reset --hard HEAD@{0}, से खोया हुआ कमिट वापस पाएं",
     "archaeology.level3.requirement2.success": "रिपॉजिटरी की स्थिति बहाल हुई!",
-    "archaeology.level3.requirement3.description": "किसी reflog एंट्री पर एक रिकवरी ब्रांच बनाएं, जैसे git branch recovery HEAD@{1}",
+    "archaeology.level3.requirement3.description":
+        "किसी reflog एंट्री पर एक रिकवरी ब्रांच बनाएं, जैसे git branch recovery HEAD@{1}",
     "archaeology.level3.requirement3.success": "रिकवरी ब्रांच बन गई!",
     "archaeology.level3.story.title": "बड़ा Git डिज़ास्टर रिकवरी",
     "archaeology.level3.story.narrative":

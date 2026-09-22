@@ -80,6 +80,13 @@ const files: Record<string, Record<string, TranslationMap>> = {
 // fine (e.g. "Terminal", "FAQ", distro names, brand names like "GitHub Desktop").
 const UNTRANSLATED_LENGTH_THRESHOLD = 150;
 
+// Keys whose value is legitimately identical across every language regardless of length: literal
+// shell scripts (comments and command syntax aren't prose to translate).
+const UNTRANSLATABLE_KEYS = new Set([
+    "installation.linux.enhanced.sourceSteps",
+    "installation.mac.enhanced.homebrewSteps",
+]);
+
 describe("translation completeness", () => {
     for (const [fileName, langs] of Object.entries(files)) {
         const enKeys = Object.keys(langs.en ?? {});
@@ -95,6 +102,7 @@ describe("translation completeness", () => {
 
             it(`${lang}/${fileName}.ts has no long strings left untranslated (identical to English)`, () => {
                 const stillEnglish = enKeys.filter(key => {
+                    if (UNTRANSLATABLE_KEYS.has(key)) return false;
                     const enValue = langs.en![key];
                     const value = obj[key];
                     return (

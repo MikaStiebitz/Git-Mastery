@@ -175,7 +175,8 @@ const levels = {
     "branches.level2.objective1": "یک شاخه جدید به نام 'feature' ایجاد کنید و به آن جابجا شوید",
     "branches.level2.hint1": "از دستور `git switch -c feature` استفاده کنید",
     "branches.level2.hint2": "پرچم -c یک شاخه جدید ایجاد کرده و در یک مرحله به آن جابجا می‌شود",
-    "branches.level2.requirement1.description": "با استفاده از git switch -c یک شاخه جدید ایجاد کرده و به آن جابجا شوید",
+    "branches.level2.requirement1.description":
+        "با استفاده از git switch -c یک شاخه جدید ایجاد کرده و به آن جابجا شوید",
     "branches.level2.requirement1.success":
         "عالی! شما با استفاده از دستور مدرن git switch یک شاخه جدید ایجاد کرده و به آن جابجا شدید.",
     "branches.level2.story.title": "ایجاد شاخه به روش مدرن",
@@ -219,14 +220,16 @@ const levels = {
     "branches.level5.objective1": "یک شاخه جدید ایجاد کنید",
     "branches.level5.hint1": "از دستور `git switch -c <new-branch-name>` استفاده کنید",
     "branches.level5.hint2": "پرچم -c به switch می‌گوید یک شاخه جدید ایجاد کند",
-    "branches.level5.requirement1.description": "با استفاده از git switch -c یک شاخه جدید ایجاد کرده و به آن جابجا شوید",
+    "branches.level5.requirement1.description":
+        "با استفاده از git switch -c یک شاخه جدید ایجاد کرده و به آن جابجا شوید",
     "branches.level5.requirement1.success": "عالی! حالا بر هر دو روش ایجاد شاخه مسلط هستید.",
     "branches.level5.story.title": "ایجاد سریع شاخه",
     "branches.level5.story.narrative":
         "\"یک ترفند کاربردی دیگر،\" Sarah می‌گوید. \"می‌توانید از 'git switch -c' برای ایجاد یک شاخه جدید و جابجایی همزمان به آن استفاده کنید.\"\n\nاو توضیح می‌دهد: \"این روش مدرن در Git است. پرچم -c مخفف 'create' است و دقیقاً همان کاری را انجام می‌دهد که 'git checkout -b' قدیمی‌تر انجام می‌داد، اما واضح‌تر و شهودی‌تر است.\"",
     "branches.level5.story.realWorldContext":
         "الگوی switch -c روش مدرن و توصیه‌شده برای ایجاد و جابجایی بین شاخه‌هاست. این روش در Git 2.23 معرفی شد تا عملیات مربوط به شاخه را از سایر عملکردهای checkout جدا کرده و شهودی‌تر کند.",
-    "branches.level5.story.taskIntroduction": "با استفاده از git switch -c یک شاخه جدید ایجاد کنید و به‌طور خودکار به آن جابجا شوید.",
+    "branches.level5.story.taskIntroduction":
+        "با استفاده از git switch -c یک شاخه جدید ایجاد کنید و به‌طور خودکار به آن جابجا شوید.",
 
     // Level Content - Merge Stage
     "merge.name": "ادغام شاخه‌ها",
@@ -403,7 +406,8 @@ const levels = {
         '"شما روی یک شاخه جداگانه در حال کار روی یک ویژگی عالی جدید بوده‌اید،" Sarah می‌گوید. "حالا وقت آن است که این شاخه را به مخزن راه‌دور پوش کنید تا سایر اعضای تیم بتوانند کار شما را ببینند و بازبینی کنند."\n\nاو توضیح می‌دهد: "وقتی برای اولین بار یک شاخه را پوش می‌کنید، باید از گزینه -u (یا --set-upstream) استفاده کنید. این کار شاخه محلی شما را به شاخه راه‌دور متصل می‌کند و پوش‌ها و پول‌های بعدی را آسان‌تر می‌کند."',
     "remote.level3.story.realWorldContext":
         "در تیم‌های حرفه‌ای، ویژگی‌های جدید معمولاً روی شاخه‌های جداگانه توسعه داده می‌شوند و سپس برای بازبینی پوش می‌شوند پیش از اینکه در کدبیس اصلی ادغام شوند. این بخش اصلی گردش‌کار pull request است.",
-    "remote.level3.story.taskIntroduction": "شاخه ویژگی خود را به مخزن راه‌دور پوش کنید تا دیگران بتوانند آن را ببینند.",
+    "remote.level3.story.taskIntroduction":
+        "شاخه ویژگی خود را به مخزن راه‌دور پوش کنید تا دیگران بتوانند آن را ببینند.",
 
     // Reset Stage
     "reset.name": "لغو کامیت‌ها",
@@ -702,7 +706,8 @@ deploy.sh --commit=9a2b3c4
     "rebase.level1.description": "کامیت‌های یک شاخه را روی شاخه دیگر اعمال کنید",
     "rebase.level1.objective1": "شاخه فعلی را روی شاخه دیگری ریبیس کنید",
     "rebase.level1.hint1": "شما روی شاخه feature هستید - آن را با git rebase main روی main ریبیس کنید",
-    "rebase.level1.hint2": "این کار تاریخچه را بازنویسی می‌کند و کامیت‌های شما را روی آخرین کامیت‌های main اعمال می‌کند",
+    "rebase.level1.hint2":
+        "این کار تاریخچه را بازنویسی می‌کند و کامیت‌های شما را روی آخرین کامیت‌های main اعمال می‌کند",
     "rebase.level1.hint3": "از 'git log --oneline' برای دیدن تاریخچه کامیت‌ها بعد از ریبیس استفاده کنید",
     "rebase.level1.requirement1.description": "روی شاخه دیگری ریبیس کنید",
     "rebase.level1.requirement1.success": "کار خوبی بود! شما با موفقیت شاخه را ریبیس کردید.",
@@ -711,7 +716,8 @@ deploy.sh --commit=9a2b3c4
         '"می‌بینم دارید با ادغام راحت می‌شوید،" Sarah می‌گوید. "حالا بیایید یک رویکرد متفاوت برای یکپارچه‌سازی تغییرات را بررسی کنیم: ریبیس کردن."\n\nاو توضیح می‌دهد: "در حالی که ادغام تاریخچه‌ها را ترکیب می‌کند، ریبیس آن را بازنویسی می‌کند و کامیت‌های شما را طوری جابجا می‌کند که بعد از کامیت‌های شاخه دیگر ظاهر شوند. این کار یک تاریخچه خطی‌تر و تمیزتر ایجاد می‌کند."',
     "rebase.level1.story.realWorldContext":
         "ریبیس کردن معمولاً زمانی ترجیح داده می‌شود که بخواهید تاریخچه پروژه‌ای تمیز و خطی داشته باشید. بسیاری از تیم‌ها از آن برای یکپارچه‌سازی شاخه‌های ویژگی پیش از ادغام آن‌ها در شاخه main استفاده می‌کنند.",
-    "rebase.level1.story.taskIntroduction": "شما روی شاخه feature هستید. آن را با استفاده از git rebase main روی main ریبیس کنید",
+    "rebase.level1.story.taskIntroduction":
+        "شما روی شاخه feature هستید. آن را با استفاده از git rebase main روی main ریبیس کنید",
 
     // Rebase Level 2
     "rebase.level2.name": "مدیریت تعارض‌های ریبیس",
@@ -726,14 +732,16 @@ deploy.sh --commit=9a2b3c4
         '"درست مثل ادغام، ریبیس هم می‌تواند منجر به تعارض شود،" Alex اشاره می‌کند. "اما حل تعارض‌ها در طول ریبیس می‌تواند پیچیده‌تر باشد چون Git هر کدام از کامیت‌های شما را یکی‌یکی اعمال می‌کند."\n\nاو ادامه می‌دهد: "اگر در وسط یک ریبیس هستید و تصمیم می‌گیرید که خیلی پیچیده است یا باید رویکرد خود را دوباره فکر کنید، همیشه می‌توانید فرآیند را لغو کنید."',
     "rebase.level2.story.realWorldContext":
         "دانستن اینکه چه زمانی و چگونه یک ریبیس را لغو کنید در توسعه واقعی مهم است. گاهی تعارض‌ها برای حل فوری خیلی پیچیده‌اند، یا متوجه می‌شوید استراتژی متفاوتی بهتر خواهد بود.",
-    "rebase.level2.story.taskIntroduction": "تمرین کنید که یک عملیات ریبیس را با استفاده از git rebase --abort لغو کنید.",
+    "rebase.level2.story.taskIntroduction":
+        "تمرین کنید که یک عملیات ریبیس را با استفاده از git rebase --abort لغو کنید.",
 
     // Rebase Level 3
     "rebase.level3.name": "ریبیس تعاملی",
     "rebase.level3.description": "یاد بگیرید چگونه از ریبیس تعاملی برای تغییر تاریخچه کامیت‌ها استفاده کنید",
     "rebase.level3.objective1": "یک نشست ریبیس تعاملی را شروع کنید",
     "rebase.level3.hint1": "از دستور `git rebase -i` استفاده کنید",
-    "rebase.level3.hint2": "ریبیس تعاملی به شما اجازه می‌دهد کامیت‌ها را دوباره مرتب کنید، ویرایش کنید، ادغام (squash) کنید یا حذف کنید",
+    "rebase.level3.hint2":
+        "ریبیس تعاملی به شما اجازه می‌دهد کامیت‌ها را دوباره مرتب کنید، ویرایش کنید، ادغام (squash) کنید یا حذف کنید",
     "rebase.level3.requirement1.description": "یک ریبیس تعاملی را شروع کنید",
     "rebase.level3.requirement1.success": "عالی! شما یک نشست ریبیس تعاملی را شروع کردید.",
     "rebase.level3.story.title": "پاکسازی تاریخچه",
@@ -831,7 +839,8 @@ deploy.sh --commit=9a2b3c4
     "workflow.description": "بر گردش‌کارهای حرفه‌ای Git و الگوهای همکاری مسلط شوید",
 
     "workflow.level1.name": "گردش‌کار شاخه ویژگی",
-    "workflow.level1.description": "گردش‌کار استاندارد صنعتی شاخه ویژگی که در سراسر جهان توسط تیم‌ها استفاده می‌شود را بیاموزید",
+    "workflow.level1.description":
+        "گردش‌کار استاندارد صنعتی شاخه ویژگی که در سراسر جهان توسط تیم‌ها استفاده می‌شود را بیاموزید",
     "workflow.level1.objective1": "یک شاخه ویژگی از main ایجاد کنید",
     "workflow.level1.objective2": "کامیت‌هایی با پیام‌های توصیفی بسازید",
     "workflow.level1.objective3": "شاخه ویژگی خود را به remote پوش کنید",
@@ -1055,7 +1064,8 @@ deploy.sh --commit=9a2b3c4
         "مبانی گردش‌کار تیمی Git را بیاموزید و اولین مشارکت گروهی خود را انجام دهید.",
 
     "teamwork.level2.name": "مدیریت تعارض‌های ادغام در تیم‌ها",
-    "teamwork.level2.description": "تعارض‌های ادغامی را که هنگام کار چند توسعه‌دهنده روی فایل‌های یکسان رخ می‌دهند حل کنید",
+    "teamwork.level2.description":
+        "تعارض‌های ادغامی را که هنگام کار چند توسعه‌دهنده روی فایل‌های یکسان رخ می‌دهند حل کنید",
     "teamwork.level2.objective1": "تغییرات محلی خود را استیج و کامیت کنید",
     "teamwork.level2.objective2": "تغییرات remote را پول کنید (باعث بروز تعارض می‌شود)",
     "teamwork.level2.objective3": "نشانگرهای تعارض ادغام را حل کنید",
@@ -1073,7 +1083,8 @@ deploy.sh --commit=9a2b3c4
     "teamwork.level2.requirement2.description": "ابتدا تغییرات محلی خود را کامیت کنید",
     "teamwork.level2.requirement2.success": "تغییرات محلی کامیت شدند!",
     "teamwork.level2.requirement3.description": "تغییرات Sarah را پول کنید تا تعارض ایجاد شود",
-    "teamwork.level2.requirement3.success": "تغییرات دارای تعارض پول شدند! login.js را برای نشانگرهای تعارض بررسی کنید.",
+    "teamwork.level2.requirement3.success":
+        "تغییرات دارای تعارض پول شدند! login.js را برای نشانگرهای تعارض بررسی کنید.",
     "teamwork.level2.requirement4.description": "تعارض حل‌شده را استیج کنید",
     "teamwork.level2.requirement4.success": "راه‌حل تعارض استیج شد!",
     "teamwork.level2.requirement5.description": "راه‌حل ادغام را کامیت کنید",
@@ -1121,8 +1132,7 @@ git commit -m "Merge Sarah's email validation with my password improvements"\`
 این کاملاً در توسعه تیمی طبیعی است! تعارض‌های ادغام زمانی رخ می‌دهند که چند توسعه‌دهنده روی کد یکسانی کار می‌کنند. نکته کلیدی حل کردن آن‌ها با دقت و تفکر است.`,
     "teamwork.level2.story.realWorldContext":
         "تعارض‌های ادغام در توسعه تیمی اجتناب‌ناپذیرند. یادگیری حل سریع و صحیح آن‌ها یک مهارت حیاتی است.",
-    "teamwork.level2.story.taskIntroduction":
-        "بر حل تعارض‌های ادغام مسلط شوید تا یک همکار تیمی با اعتماد به‌نفس شوید.",
+    "teamwork.level2.story.taskIntroduction": "بر حل تعارض‌های ادغام مسلط شوید تا یک همکار تیمی با اعتماد به‌نفس شوید.",
 
     "teamwork.level3.name": "گردش‌کار بازبینی کد",
     "teamwork.level3.description": "یاد بگیرید چگونه در بازبینی‌های کد شرکت کنید و از طریق pull request همکاری کنید",
@@ -1217,7 +1227,8 @@ git commit -m "Merge Sarah's email validation with my password improvements"\`
         "سه شاخه ویژگی با تغییرات همپوشان را ادغام کرده و تمام تعارض‌ها را حل کنید تا یک کدبیس یکپارچه بسازید.",
 
     "mastery.level2.name": "هوک‌های Git و خودکارسازی",
-    "mastery.level2.description": "هوک‌های Git را پیاده‌سازی کنید تا گردش‌کارها را خودکار کرده و استانداردهای کیفیت را اعمال کنید",
+    "mastery.level2.description":
+        "هوک‌های Git را پیاده‌سازی کنید تا گردش‌کارها را خودکار کرده و استانداردهای کیفیت را اعمال کنید",
     "mastery.level2.objective1": "هوک‌های pre-commit برای کیفیت کد ایجاد کنید",
     "mastery.level2.objective2": "هوک‌های post-commit را برای اعلان‌ها تنظیم کنید",
     "mastery.level2.objective3": "هوک‌های سمت سرور را پیاده‌سازی کنید",
@@ -1270,7 +1281,8 @@ git commit -m "Merge Sarah's email validation with my password improvements"\`
         "بر هوک‌های Git مسلط شوید تا سیستم‌های کیفیت خودکاری بسازید که استانداردها را اعمال کرده و بهره‌وری تیم را بهبود می‌بخشند.",
 
     "mastery.level3.name": "تسلط بر Git: چالش نهایی",
-    "mastery.level3.description": "تمام تکنیک‌های پیشرفته Git را ترکیب کنید تا یک سناریوی پیچیده دنیای واقعی را حل کنید",
+    "mastery.level3.description":
+        "تمام تکنیک‌های پیشرفته Git را ترکیب کنید تا یک سناریوی پیچیده دنیای واقعی را حل کنید",
     "mastery.level3.objective1": "یک انتشار پیچیده همراه با چند hotfix را هماهنگ کنید",
     "mastery.level3.objective2": "بازگشت‌های اضطراری و بازیابی را مدیریت کنید",
     "mastery.level3.objective3": "به‌طور هم‌زمان با چند تیم هماهنگ شوید",
@@ -1354,18 +1366,25 @@ Bisect به شما کمک می‌کند با استفاده از جستجوی د
     // Archaeology Stage Levels
     "archaeology.level1.name": "Git Blame - باستان‌شناسی کد",
     "archaeology.level1.description": "تاریخچه کد را بررسی کنید تا تغییرات را درک کرده و منشأ باگ‌ها را پیدا کنید",
-    "archaeology.level1.objective1": "از git blame استفاده کنید تا ببینید کدام کامیت آخرین بار هر خط از src/utils/validator.js را تغییر داده است",
+    "archaeology.level1.objective1":
+        "از git blame استفاده کنید تا ببینید کدام کامیت آخرین بار هر خط از src/utils/validator.js را تغییر داده است",
     "archaeology.level1.objective2": "از git log --oneline برای دریافت مروری فشرده از تاریخچه کامیت‌ها استفاده کنید",
     "archaeology.level1.objective3": "از git show برای بررسی جزئیات کامل یک کامیت مشخص استفاده کنید",
-    "archaeology.level1.hint1": "`git blame src/utils/validator.js` را اجرا کنید تا ببینید کدام کامیت آخرین بار هر خط را تغییر داده است",
-    "archaeology.level1.hint2": "یک بازه خط مانند `git blame -L 10,20 src/utils/validator.js` اضافه کنید تا روی یک بخش از فایل تمرکز کنید",
-    "archaeology.level1.hint3": "`git log --oneline` را اجرا کنید تا تاریخچه فشرده تمام کامیت‌ها را با هش کوتاه هر کدام ببینید",
-    "archaeology.level1.hint4": "یک هش کامیت را از لاگ کپی کنید و `git show <hash>` (یا `git show HEAD`) را اجرا کنید تا دقیقاً ببینید چه چیزی تغییر کرده است",
-    "archaeology.level1.requirement1.description": "git blame را روی src/utils/validator.js اجرا کنید تا ببینید کدام کامیت آخرین بار هر خط را تغییر داده است",
+    "archaeology.level1.hint1":
+        "`git blame src/utils/validator.js` را اجرا کنید تا ببینید کدام کامیت آخرین بار هر خط را تغییر داده است",
+    "archaeology.level1.hint2":
+        "یک بازه خط مانند `git blame -L 10,20 src/utils/validator.js` اضافه کنید تا روی یک بخش از فایل تمرکز کنید",
+    "archaeology.level1.hint3":
+        "`git log --oneline` را اجرا کنید تا تاریخچه فشرده تمام کامیت‌ها را با هش کوتاه هر کدام ببینید",
+    "archaeology.level1.hint4":
+        "یک هش کامیت را از لاگ کپی کنید و `git show <hash>` (یا `git show HEAD`) را اجرا کنید تا دقیقاً ببینید چه چیزی تغییر کرده است",
+    "archaeology.level1.requirement1.description":
+        "git blame را روی src/utils/validator.js اجرا کنید تا ببینید کدام کامیت آخرین بار هر خط را تغییر داده است",
     "archaeology.level1.requirement1.success": "نویسندگی کد آشکار شد!",
     "archaeology.level1.requirement2.description": "git log --oneline را اجرا کنید تا تاریخچه فشرده کامیت‌ها را ببینید",
     "archaeology.level1.requirement2.success": "تاریخچه اخیر بررسی شد!",
-    "archaeology.level1.requirement3.description": "git show را روی یک کامیت اجرا کنید، مثلاً git show HEAD، تا جزئیات کامل آن را ببینید",
+    "archaeology.level1.requirement3.description":
+        "git show را روی یک کامیت اجرا کنید، مثلاً git show HEAD، تا جزئیات کامل آن را ببینید",
     "archaeology.level1.requirement3.success": "جزئیات کامیت تحلیل شد!",
     "archaeology.level1.story.title": "پرونده باگ مرموز",
     "archaeology.level1.story.narrative":
@@ -1378,15 +1397,20 @@ Bisect به شما کمک می‌کند با استفاده از جستجوی د
     "archaeology.level2.name": "پزشکی قانونی کامیت با Git Log",
     "archaeology.level2.description": "بر تکنیک‌های پیشرفته بررسی تاریخچه پیچیده کد مسلط شوید",
     "archaeology.level2.objective1": "از git log --grep برای جستجوی یک کلیدواژه در پیام‌های کامیت استفاده کنید",
-    "archaeology.level2.objective2": "از git log -S برای پیدا کردن کامیت‌هایی که یک متن را اضافه یا حذف کرده‌اند استفاده کنید",
+    "archaeology.level2.objective2":
+        "از git log -S برای پیدا کردن کامیت‌هایی که یک متن را اضافه یا حذف کرده‌اند استفاده کنید",
     "archaeology.level2.objective3": "از git log --author برای فیلتر کردن کامیت‌ها بر اساس یک فرد مشخص استفاده کنید",
-    "archaeology.level2.hint1": "`git log --grep=security` را اجرا کنید تا در پیام‌های کامیت به دنبال 'security' بگردید",
-    "archaeology.level2.hint2": "`git log -S password` را اجرا کنید تا کامیت‌هایی که کلمه 'password' را در کد اضافه یا حذف کرده‌اند پیدا کنید",
+    "archaeology.level2.hint1":
+        "`git log --grep=security` را اجرا کنید تا در پیام‌های کامیت به دنبال 'security' بگردید",
+    "archaeology.level2.hint2":
+        "`git log -S password` را اجرا کنید تا کامیت‌هایی که کلمه 'password' را در کد اضافه یا حذف کرده‌اند پیدا کنید",
     "archaeology.level2.hint3": "`git log --author=Sarah` را اجرا کنید تا فقط کامیت‌های ساخته‌شده توسط Sarah را ببینید",
     "archaeology.level2.hint4": "می‌توانید این‌ها را با `--oneline` ترکیب کنید تا خروجی فشرده‌تری داشته باشید",
-    "archaeology.level2.requirement1.description": "با git log --grep=security در پیام‌های کامیت به دنبال 'security' بگردید",
+    "archaeology.level2.requirement1.description":
+        "با git log --grep=security در پیام‌های کامیت به دنبال 'security' بگردید",
     "archaeology.level2.requirement1.success": "کامیت‌های مرتبط با امنیت پیدا شدند!",
-    "archaeology.level2.requirement2.description": "با git log -S password کامیت‌هایی که کلمه 'password' را اضافه یا حذف کرده‌اند پیدا کنید",
+    "archaeology.level2.requirement2.description":
+        "با git log -S password کامیت‌هایی که کلمه 'password' را اضافه یا حذف کرده‌اند پیدا کنید",
     "archaeology.level2.requirement2.success": "تغییرات مرتبط با password ردیابی شدند!",
     "archaeology.level2.requirement3.description": "با git log --author=Sarah تمام کامیت‌های Sarah را پیدا کنید",
     "archaeology.level2.requirement3.success": "تاریخچه مشارکت Sarah تحلیل شد!",
@@ -1399,19 +1423,29 @@ Bisect به شما کمک می‌کند با استفاده از جستجوی د
         "بر تکنیک‌های پیشرفته git log برای بررسی جامع تاریخچه کد و تحلیل پزشکی قانونی مسلط شوید.",
 
     "archaeology.level3.name": "Git Reflog - ماشین زمان",
-    "archaeology.level3.description": "از Git reflog برای بازیابی کامیت‌های ازدست‌رفته و درک تغییرات وضعیت مخزن استفاده کنید",
-    "archaeology.level3.objective1": "از git reflog برای دیدن هر حرکت HEAD، از جمله کامیت‌های 'ازدست‌رفته'، استفاده کنید",
-    "archaeology.level3.objective2": "از git reset --hard همراه با یک مرجع reflog (مثلاً HEAD@{0}) برای بازیابی کار ازدست‌رفته استفاده کنید",
-    "archaeology.level3.objective3": "یک شاخه ایجاد کنید که به یک ورودی reflog اشاره کند تا کامیت‌های بازیابی‌شده را ذخیره کنید",
-    "archaeology.level3.hint1": "`git reflog` تمام کامیت‌هایی را که HEAD به آن‌ها اشاره کرده فهرست می‌کند، حتی آن‌هایی که 'حذف‌شده' به نظر می‌رسند",
-    "archaeology.level3.hint2": "هر ورودی reflog یک مرجع مانند `HEAD@{0}`، `HEAD@{1}` دارد - اخیرترین عملیات `HEAD@{0}` است",
-    "archaeology.level3.hint3": "از `git reset --hard <reflog-reference>` استفاده کنید تا شاخه را به آن کامیت بازگردانید",
-    "archaeology.level3.hint4": "همچنین می‌توانید یک شاخه جدید را به یک ورودی reflog اشاره دهید: `git branch <name> <reflog-reference>`",
+    "archaeology.level3.description":
+        "از Git reflog برای بازیابی کامیت‌های ازدست‌رفته و درک تغییرات وضعیت مخزن استفاده کنید",
+    "archaeology.level3.objective1":
+        "از git reflog برای دیدن هر حرکت HEAD، از جمله کامیت‌های 'ازدست‌رفته'، استفاده کنید",
+    "archaeology.level3.objective2":
+        "از git reset --hard همراه با یک مرجع reflog (مثلاً HEAD@{0}) برای بازیابی کار ازدست‌رفته استفاده کنید",
+    "archaeology.level3.objective3":
+        "یک شاخه ایجاد کنید که به یک ورودی reflog اشاره کند تا کامیت‌های بازیابی‌شده را ذخیره کنید",
+    "archaeology.level3.hint1":
+        "`git reflog` تمام کامیت‌هایی را که HEAD به آن‌ها اشاره کرده فهرست می‌کند، حتی آن‌هایی که 'حذف‌شده' به نظر می‌رسند",
+    "archaeology.level3.hint2":
+        "هر ورودی reflog یک مرجع مانند `HEAD@{0}`، `HEAD@{1}` دارد - اخیرترین عملیات `HEAD@{0}` است",
+    "archaeology.level3.hint3":
+        "از `git reset --hard <reflog-reference>` استفاده کنید تا شاخه را به آن کامیت بازگردانید",
+    "archaeology.level3.hint4":
+        "همچنین می‌توانید یک شاخه جدید را به یک ورودی reflog اشاره دهید: `git branch <name> <reflog-reference>`",
     "archaeology.level3.requirement1.description": "git reflog را اجرا کنید تا حرکت‌های اخیر HEAD را ببینید",
     "archaeology.level3.requirement1.success": "تاریخچه reflog بررسی شد!",
-    "archaeology.level3.requirement2.description": "کامیت ازدست‌رفته را با git reset --hard و یک مرجع reflog بازیابی کنید، مثلاً git reset --hard HEAD@{0}",
+    "archaeology.level3.requirement2.description":
+        "کامیت ازدست‌رفته را با git reset --hard و یک مرجع reflog بازیابی کنید، مثلاً git reset --hard HEAD@{0}",
     "archaeology.level3.requirement2.success": "وضعیت مخزن بازیابی شد!",
-    "archaeology.level3.requirement3.description": "یک شاخه بازیابی ایجاد کنید که به یک ورودی reflog اشاره کند، مثلاً git branch recovery HEAD@{1}",
+    "archaeology.level3.requirement3.description":
+        "یک شاخه بازیابی ایجاد کنید که به یک ورودی reflog اشاره کند، مثلاً git branch recovery HEAD@{1}",
     "archaeology.level3.requirement3.success": "شاخه بازیابی ایجاد شد!",
     "archaeology.level3.story.title": "بازیابی بزرگ فاجعه Git",
     "archaeology.level3.story.narrative":

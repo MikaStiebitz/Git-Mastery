@@ -1,7 +1,8 @@
 const installation = {
     "installation.title": "راهنمای نصب Git",
     "installation.subtitle": "شروع با Git",
-    "installation.intro": "این راهنما به شما در نصب و پیکربندی Git در سیستم عامل شما کمک می‌کند. پلتفرم خود را در زیر انتخاب کنید تا شروع کنید.",
+    "installation.intro":
+        "این راهنما به شما در نصب و پیکربندی Git در سیستم عامل شما کمک می‌کند. پلتفرم خود را در زیر انتخاب کنید تا شروع کنید.",
     "installation.download": "دانلود Git",
     "installation.moreDistros": "توزیع‌های بیشتر لینوکس",
     "installation.windows.title": "نصب Git در ویندوز",
@@ -11,8 +12,10 @@ const installation = {
     "installation.windows.step3": "دانلود باید به طور خودکار شروع شود.",
     "installation.windows.install": "نصب Git در ویندوز",
     "installation.windows.step4": "فایل اجرایی دانلود شده را اجرا کنید.",
-    "installation.windows.step5": "از دستورالعمل نصب پیروی کنید. گزینه‌های پیش‌فرض معمولاً برای اکثر کاربران مناسب است.",
-    "installation.windows.step6": "در طول نصب، 'استفاده از Git از Windows Command Prompt' را انتخاب کنید تا Git به PATH شما اضافه شود.",
+    "installation.windows.step5":
+        "از دستورالعمل نصب پیروی کنید. گزینه‌های پیش‌فرض معمولاً برای اکثر کاربران مناسب است.",
+    "installation.windows.step6":
+        "در طول نصب، 'استفاده از Git از Windows Command Prompt' را انتخاب کنید تا Git به PATH شما اضافه شود.",
     "installation.windows.step7": "فرآیند نصب را تکمیل کنید و روی 'پایان' کلیک کنید.",
     "installation.linux.title": "نصب Git در لینوکس",
     "installation.linux.debian": "Debian/Ubuntu و مشتقات",
@@ -20,7 +23,8 @@ const installation = {
     "installation.linux.arch": "Arch Linux",
     "installation.mac.title": "نصب Git در macOS",
     "installation.mac.option1": "گزینه 1: Command Line Tools",
-    "installation.mac.option1Desc": "ساده‌ترین راه برای نصب Git در Mac باز کردن Terminal و تایپ 'git --version' است. اگر Git نصب نشده باشد، از شما خواسته می‌شود Command Line Tools را نصب کنید.",
+    "installation.mac.option1Desc":
+        "ساده‌ترین راه برای نصب Git در Mac باز کردن Terminal و تایپ 'git --version' است. اگر Git نصب نشده باشد، از شما خواسته می‌شود Command Line Tools را نصب کنید.",
     "installation.mac.option2": "گزینه 2: دانلود نصب‌کننده Git",
     "installation.mac.step1": "به وب‌سایت رسمی Git در git-scm.com/downloads مراجعه کنید.",
     "installation.mac.step2": "روی لینک دانلود macOS کلیک کنید.",
@@ -28,17 +32,23 @@ const installation = {
     "installation.mac.brew": "گزینه 3: استفاده از Homebrew",
     "installation.mac.brewDesc": "اگر Homebrew نصب دارید، می‌توانید Git را با دستورات زیر نصب کنید:",
     "installation.config": "پیکربندی Git",
-    "installation.configDesc": "پس از نصب، باید نام کاربری و آدرس ایمیل خود را تنظیم کنید. این اطلاعات با هر کامیت Git استفاده می‌شود.",
+    "installation.configDesc":
+        "پس از نصب، باید نام کاربری و آدرس ایمیل خود را تنظیم کنید. این اطلاعات با هر کامیت Git استفاده می‌شود.",
     "installation.verification": "تایید نصب",
-    "installation.verificationDesc": "برای تایید اینکه Git به درستی نصب شده است، یک ترمینال یا command prompt باز کنید و اجرا کنید:",
+    "installation.verificationDesc":
+        "برای تایید اینکه Git به درستی نصب شده است، یک ترمینال یا command prompt باز کنید و اجرا کنید:",
     "installation.ssh.title": "تولید کلیدهای SSH",
-    "installation.ssh.intro": "کلیدهای SSH امکان اتصال امن به سرویس‌های میزبانی Git مانند GitHub، GitLab یا Bitbucket را بدون وارد کردن رمز عبور برای هر push/pull فراهم می‌کنند.",
+    "installation.ssh.intro":
+        "کلیدهای SSH امکان اتصال امن به سرویس‌های میزبانی Git مانند GitHub، GitLab یا Bitbucket را بدون وارد کردن رمز عبور برای هر push/pull فراهم می‌کنند.",
     "installation.ssh.generate": "ایجاد کلید SSH",
-    "installation.ssh.generateDesc": "دستور زیر را برای ایجاد یک کلید SSH جدید اجرا کنید. آدرس ایمیل را با آدرس خود جایگزین کنید:",
+    "installation.ssh.generateDesc":
+        "دستور زیر را برای ایجاد یک کلید SSH جدید اجرا کنید. آدرس ایمیل را با آدرس خود جایگزین کنید:",
     "installation.ssh.saveLocation": "تایید مکان ذخیره",
-    "installation.ssh.saveLocationDesc": "وقتی از شما خواسته شد که کلید کجا ذخیره شود، Enter را برای مکان پیش‌فرض فشار دهید:",
+    "installation.ssh.saveLocationDesc":
+        "وقتی از شما خواسته شد که کلید کجا ذخیره شود، Enter را برای مکان پیش‌فرض فشار دهید:",
     "installation.ssh.passphrase": "عبارت عبور (اختیاری)",
-    "installation.ssh.passphraseDesc": "می‌توانید یک عبارت عبور برای امنیت اضافی وارد کنید یا Enter را برای ادامه فشار دهید:",
+    "installation.ssh.passphraseDesc":
+        "می‌توانید یک عبارت عبور برای امنیت اضافی وارد کنید یا Enter را برای ادامه فشار دهید:",
     "installation.ssh.copyKey": "کپی کلید عمومی",
     "installation.ssh.copyKeyDesc": "محتوای کلید SSH عمومی خود را به کلیپ‌بورد کپی کنید:",
     "installation.ssh.windows.copyKey": "برای ویندوز (Git Bash/PowerShell):",
@@ -57,7 +67,8 @@ const installation = {
     "installation.github.testDesc": "اتصال SSH به GitHub را با این دستور تست کنید:",
     "installation.github.testSuccess": "در صورت اتصال موفق، یک پیام خوش‌آمدگویی از GitHub خواهید دید.",
     "installation.gitlab.title": "اتصال به GitLab",
-    "installation.gitlab.intro": "GitLab یک پلتفرم محبوب دیگر میزبانی Git است. در اینجا نحوه افزودن کلید SSH شما آمده است:",
+    "installation.gitlab.intro":
+        "GitLab یک پلتفرم محبوب دیگر میزبانی Git است. در اینجا نحوه افزودن کلید SSH شما آمده است:",
     "installation.gitlab.step1": "به GitLab.com بروید و به حساب خود وارد شوید",
     "installation.gitlab.step2": "روی تصویر پروفایل خود (بالا راست) → Edit profile کلیک کنید",
     "installation.gitlab.step3": "روی 'SSH Keys' در نوار کناری چپ کلیک کنید",
@@ -78,52 +89,69 @@ const installation = {
     "installation.troubleshooting.title": "عیب‌یابی",
     "installation.troubleshooting.intro": "در اینجا راه‌حل‌هایی برای مشکلات رایج در نصب و پیکربندی Git آمده است:",
     "installation.troubleshooting.commandNotFound": "خطا: دستور 'git' یافت نشد",
-    "installation.troubleshooting.commandNotFoundSolution": "• بررسی کنید که Git به درستی نصب شده باشد\n• مطمئن شوید که Git به PATH شما اضافه شده است\n• ترمینال/command prompt را راه‌اندازی مجدد کنید\n• در ویندوز: از Git Bash استفاده کنید یا Git را به صورت دستی به PATH اضافه کنید",
+    "installation.troubleshooting.commandNotFoundSolution":
+        "• بررسی کنید که Git به درستی نصب شده باشد\n• مطمئن شوید که Git به PATH شما اضافه شده است\n• ترمینال/command prompt را راه‌اندازی مجدد کنید\n• در ویندوز: از Git Bash استفاده کنید یا Git را به صورت دستی به PATH اضافه کنید",
     "installation.troubleshooting.permissionDenied": "خطا: Permission denied (publickey)",
-    "installation.troubleshooting.permissionDeniedSolution": "• بررسی کنید که کلید SSH شما به درستی به GitHub/GitLab اضافه شده باشد\n• مطمئن شوید که از SSH clone URL استفاده می‌کنید (نه HTTPS)\n• اتصال SSH را با 'ssh -T git@github.com' تست کنید\n• بررسی کنید که SSH agent در حال اجرا باشد: 'ssh-add -l'",
+    "installation.troubleshooting.permissionDeniedSolution":
+        "• بررسی کنید که کلید SSH شما به درستی به GitHub/GitLab اضافه شده باشد\n• مطمئن شوید که از SSH clone URL استفاده می‌کنید (نه HTTPS)\n• اتصال SSH را با 'ssh -T git@github.com' تست کنید\n• بررسی کنید که SSH agent در حال اجرا باشد: 'ssh-add -l'",
     "installation.troubleshooting.httpsToSsh": "تغییر از HTTPS به SSH",
-    "installation.troubleshooting.httpsToSshSolution": "اگر قبلاً یک Repository را با HTTPS کلون کرده‌اید، می‌توانید به احراز هویت SSH تغییر دهید:",
+    "installation.troubleshooting.httpsToSshSolution":
+        "اگر قبلاً یک Repository را با HTTPS کلون کرده‌اید، می‌توانید به احراز هویت SSH تغییر دهید:",
     "installation.troubleshooting.sslError": "خطای گواهینامه SSL",
-    "installation.troubleshooting.sslErrorSolution": "در شبکه‌های شرکتی یا سرورهای پروکسی، ممکن است مشکلات SSL رخ دهد:\n• موقت: 'git config --global http.sslVerify false' (توصیه نمی‌شود)\n• بهتر: Git را برای پروکسی خود پیکربندی کنید یا از گواهینامه شرکتی استفاده کنید",
+    "installation.troubleshooting.sslErrorSolution":
+        "در شبکه‌های شرکتی یا سرورهای پروکسی، ممکن است مشکلات SSL رخ دهد:\n• موقت: 'git config --global http.sslVerify false' (توصیه نمی‌شود)\n• بهتر: Git را برای پروکسی خود پیکربندی کنید یا از گواهینامه شرکتی استفاده کنید",
     "installation.troubleshooting.lineEndingIssues": "مشکلات پایان خط",
-    "installation.troubleshooting.lineEndingIssuesSolution": "در تیم‌های با سیستم عامل‌های مختلط:\n• ویندوز: 'git config --global core.autocrlf true'\n• macOS/Linux: 'git config --global core.autocrlf input'\n• جایگزین: از فایل .gitattributes برای کنترل دقیق استفاده کنید",
+    "installation.troubleshooting.lineEndingIssuesSolution":
+        "در تیم‌های با سیستم عامل‌های مختلط:\n• ویندوز: 'git config --global core.autocrlf true'\n• macOS/Linux: 'git config --global core.autocrlf input'\n• جایگزین: از فایل .gitattributes برای کنترل دقیق استفاده کنید",
     "installation.troubleshooting.mergeConflicts": "کمک اولیه برای تعارض‌های ادغام",
-    "installation.troubleshooting.mergeConflictsSolution": "• از 'git status' برای دیدن فایل‌های تحت تاثیر استفاده کنید\n• فایل‌ها را به صورت دستی ویرایش کنید یا از یک ابزار ادغام استفاده کنید\n• پس از ویرایش: 'git add .' و 'git commit'\n• در صورت عدم اطمینان: 'git merge --abort' برای لغو ادغام",
+    "installation.troubleshooting.mergeConflictsSolution":
+        "• از 'git status' برای دیدن فایل‌های تحت تاثیر استفاده کنید\n• فایل‌ها را به صورت دستی ویرایش کنید یا از یک ابزار ادغام استفاده کنید\n• پس از ویرایش: 'git add .' و 'git commit'\n• در صورت عدم اطمینان: 'git merge --abort' برای لغو ادغام",
 
     // Enhanced Platform Details
     "installation.windows.enhanced.title": "نصب دقیق Git در ویندوز",
     "installation.windows.enhanced.prereq": "پیش‌نیازها",
-    "installation.windows.enhanced.prereqDesc": "• ویندوز 7 یا جدیدتر\n• دسترسی مدیر (Administrator) برای نصب\n• دسترسی به اینترنت برای دانلود",
+    "installation.windows.enhanced.prereqDesc":
+        "• ویندوز 7 یا جدیدتر\n• دسترسی مدیر (Administrator) برای نصب\n• دسترسی به اینترنت برای دانلود",
     "installation.windows.enhanced.installerOptions": "گزینه‌های مهم نصب‌کننده",
-    "installation.windows.enhanced.installerOptionsDesc": "در طول نصب، این گزینه‌ها را انتخاب کنید:\n• 'Git from the command line and also from 3rd-party software'\n• 'Use bundled OpenSSH'\n• 'Use the OpenSSL library'\n• 'Checkout Windows-style, commit Unix-style line endings'\n• 'Use Windows' default console window'",
+    "installation.windows.enhanced.installerOptionsDesc":
+        "در طول نصب، این گزینه‌ها را انتخاب کنید:\n• 'Git from the command line and also from 3rd-party software'\n• 'Use bundled OpenSSH'\n• 'Use the OpenSSL library'\n• 'Checkout Windows-style, commit Unix-style line endings'\n• 'Use Windows' default console window'",
     "installation.windows.enhanced.postInstall": "پس از نصب",
-    "installation.windows.enhanced.postInstallDesc": "• Git Bash در منوی راست‌کلیک (کلیک راست در پوشه‌ها) در دسترس است\n• Git GUI یک رابط گرافیکی فراهم می‌کند\n• همچنین می‌توان از Windows Terminal یا PowerShell استفاده کرد",
+    "installation.windows.enhanced.postInstallDesc":
+        "• Git Bash در منوی راست‌کلیک (کلیک راست در پوشه‌ها) در دسترس است\n• Git GUI یک رابط گرافیکی فراهم می‌کند\n• همچنین می‌توان از Windows Terminal یا PowerShell استفاده کرد",
 
     "installation.linux.enhanced.title": "نصب دقیق Git در لینوکس",
     "installation.linux.enhanced.package": "استفاده از مدیر بسته (Package Manager)",
     "installation.linux.enhanced.packageDesc": "نصب از طریق مدیر بسته، روش توصیه‌شده برای لینوکس است:",
     "installation.linux.enhanced.source": "کامپایل از سورس (پیشرفته)",
     "installation.linux.enhanced.sourceDesc": "برای آخرین نسخه یا پیکربندی‌های خاص:",
-    "installation.linux.enhanced.sourceSteps": "# Install dependencies (Ubuntu/Debian)\nsudo apt-get install make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libncurses5-dev autoconf build-essential\n\n# Download Git source\nwget https://github.com/git/git/archive/v2.43.0.tar.gz\ntar -zxf v2.43.0.tar.gz\ncd git-2.43.0\n\n# Compile and install\nmake configure\n./configure --prefix=/usr/local\nmake all\nsudo make install",
+    "installation.linux.enhanced.sourceSteps":
+        "# Install dependencies (Ubuntu/Debian)\nsudo apt-get install make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libncurses5-dev autoconf build-essential\n\n# Download Git source\nwget https://github.com/git/git/archive/v2.43.0.tar.gz\ntar -zxf v2.43.0.tar.gz\ncd git-2.43.0\n\n# Compile and install\nmake configure\n./configure --prefix=/usr/local\nmake all\nsudo make install",
 
     "installation.mac.enhanced.title": "نصب دقیق Git در macOS",
     "installation.mac.enhanced.xcode": "Xcode Command Line Tools",
-    "installation.mac.enhanced.xcodeDesc": "ساده‌ترین روش برای کاربران macOS:\n• Terminal را باز کنید (Applications → Utilities → Terminal)\n• 'git --version' را تایپ کنید\n• اگر Git نصب نباشد، از شما خواسته می‌شود آن را نصب کنید\n• برای نصب Command Line Tools روی 'Install' کلیک کنید",
+    "installation.mac.enhanced.xcodeDesc":
+        "ساده‌ترین روش برای کاربران macOS:\n• Terminal را باز کنید (Applications → Utilities → Terminal)\n• 'git --version' را تایپ کنید\n• اگر Git نصب نباشد، از شما خواسته می‌شود آن را نصب کنید\n• برای نصب Command Line Tools روی 'Install' کلیک کنید",
     "installation.mac.enhanced.homebrew": "Homebrew (توصیه‌شده)",
-    "installation.mac.enhanced.homebrewDesc": "Homebrew یک مدیر بسته برای macOS است که مدیریت ابزارهای توسعه‌دهنده را ساده می‌کند:",
-    "installation.mac.enhanced.homebrewSteps": "# Install Homebrew (if not already present)\n/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n\n# Install Git\nbrew install git\n\n# Update Git (later)\nbrew upgrade git",
+    "installation.mac.enhanced.homebrewDesc":
+        "Homebrew یک مدیر بسته برای macOS است که مدیریت ابزارهای توسعه‌دهنده را ساده می‌کند:",
+    "installation.mac.enhanced.homebrewSteps":
+        '# Install Homebrew (if not already present)\n/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"\n\n# Install Git\nbrew install git\n\n# Update Git (later)\nbrew upgrade git',
     "installation.mac.enhanced.macports": "MacPorts (جایگزین)",
-    "installation.mac.enhanced.macportsDesc": "اگر از MacPorts استفاده می‌کنید:\n• sudo port install git +universal\n• sudo port install git-flow (اختیاری)",
+    "installation.mac.enhanced.macportsDesc":
+        "اگر از MacPorts استفاده می‌کنید:\n• sudo port install git +universal\n• sudo port install git-flow (اختیاری)",
 
     // Additional Settings
     "installation.additionalSettings.title": "پیکربندی‌های اضافی",
     "installation.additionalSettings.intro": "در اینجا برخی تنظیمات اضافی توصیه‌شده برای پیکربندی بهینه Git آمده است:",
     "installation.additionalSettings.lineEndings": "پیکربندی پایان خط‌ها (Line Endings)",
-    "installation.additionalSettings.lineEndingsDesc": "سیستم‌عامل‌های مختلف پایان خط‌ها را متفاوت مدیریت می‌کنند. Git را برای مدیریت صحیح آن‌ها پیکربندی کنید:",
+    "installation.additionalSettings.lineEndingsDesc":
+        "سیستم‌عامل‌های مختلف پایان خط‌ها را متفاوت مدیریت می‌کنند. Git را برای مدیریت صحیح آن‌ها پیکربندی کنید:",
     "installation.additionalSettings.defaultBranch": "تنظیم نام شاخه پیش‌فرض",
-    "installation.additionalSettings.defaultBranchDesc": "گردش‌کارهای مدرن Git معمولاً به‌جای 'master' از 'main' به‌عنوان نام شاخه پیش‌فرض استفاده می‌کنند:",
+    "installation.additionalSettings.defaultBranchDesc":
+        "گردش‌کارهای مدرن Git معمولاً به‌جای 'master' از 'main' به‌عنوان نام شاخه پیش‌فرض استفاده می‌کنند:",
     "installation.additionalSettings.editor": "پیکربندی ویرایشگر پیش‌فرض",
-    "installation.additionalSettings.editorDesc": "ویرایشگر متن مورد نظر خود را برای پیام‌های کامیت Git و سایر عملیات تنظیم کنید:",
+    "installation.additionalSettings.editorDesc":
+        "ویرایشگر متن مورد نظر خود را برای پیام‌های کامیت Git و سایر عملیات تنظیم کنید:",
 
     // Resources
     "installation.resources.title": "منابع اضافی",
