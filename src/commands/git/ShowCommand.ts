@@ -1,4 +1,5 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { notARepository } from "../base/GitErrors";
 
 export class ShowCommand implements Command {
     name = "git show";
@@ -17,7 +18,7 @@ export class ShowCommand implements Command {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         let target = "HEAD";

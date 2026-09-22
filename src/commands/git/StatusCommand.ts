@@ -1,5 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { getAllFiles } from "~/lib/utils";
+import { notARepository } from "../base/GitErrors";
 
 export class StatusCommand implements Command {
     name = "git status";
@@ -18,7 +19,7 @@ export class StatusCommand implements Command {
         const { gitRepository, fileSystem, currentDirectory } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         // Check if current directory is within the repository

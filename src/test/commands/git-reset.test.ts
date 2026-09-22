@@ -28,15 +28,24 @@ describe("Git Reset Commands", () => {
             // Setup: Create 3 commits
             context.fileSystem.writeFile("/file1.txt", "content1");
             addCmd.execute({ args: ["file1.txt"], flags: {}, positionalArgs: ["file1.txt"] }, context);
-            commitCmd.execute({ args: ["-m", "First commit"], flags: { m: "First commit" }, positionalArgs: [] }, context);
+            commitCmd.execute(
+                { args: ["-m", "First commit"], flags: { m: "First commit" }, positionalArgs: [] },
+                context,
+            );
 
             context.fileSystem.writeFile("/file2.txt", "content2");
             addCmd.execute({ args: ["file2.txt"], flags: {}, positionalArgs: ["file2.txt"] }, context);
-            commitCmd.execute({ args: ["-m", "Second commit"], flags: { m: "Second commit" }, positionalArgs: [] }, context);
+            commitCmd.execute(
+                { args: ["-m", "Second commit"], flags: { m: "Second commit" }, positionalArgs: [] },
+                context,
+            );
 
             context.fileSystem.writeFile("/file3.txt", "content3");
             addCmd.execute({ args: ["file3.txt"], flags: {}, positionalArgs: ["file3.txt"] }, context);
-            commitCmd.execute({ args: ["-m", "Third commit"], flags: { m: "Third commit" }, positionalArgs: [] }, context);
+            commitCmd.execute(
+                { args: ["-m", "Third commit"], flags: { m: "Third commit" }, positionalArgs: [] },
+                context,
+            );
 
             // Verify we have 3 commits
             const commitsBefore = context.gitRepository.getCommitHistory();
@@ -44,7 +53,10 @@ describe("Git Reset Commands", () => {
             expect(commitsBefore.length).toBe(3);
 
             // Execute: git reset --soft HEAD~1 (undo last commit)
-            const result = resetCmd.execute({ args: ["--soft", "HEAD~1"], flags: { soft: true }, positionalArgs: ["HEAD~1"] }, context);
+            const result = resetCmd.execute(
+                { args: ["--soft", "HEAD~1"], flags: { soft: true }, positionalArgs: ["HEAD~1"] },
+                context,
+            );
             console.log("Reset result:", result);
 
             // Verify: Should have 2 commits now
@@ -63,7 +75,10 @@ describe("Git Reset Commands", () => {
             for (let i = 1; i <= 5; i++) {
                 context.fileSystem.writeFile(`/file${i}.txt`, `content${i}`);
                 addCmd.execute({ args: [`file${i}.txt`], flags: {}, positionalArgs: [`file${i}.txt`] }, context);
-                commitCmd.execute({ args: ["-m", `Commit ${i}`], flags: { m: `Commit ${i}` }, positionalArgs: [] }, context);
+                commitCmd.execute(
+                    { args: ["-m", `Commit ${i}`], flags: { m: `Commit ${i}` }, positionalArgs: [] },
+                    context,
+                );
             }
 
             const commitsBefore = context.gitRepository.getCommitHistory();
@@ -71,7 +86,10 @@ describe("Git Reset Commands", () => {
             expect(commitsBefore.length).toBe(5);
 
             // Execute: git reset --soft HEAD~2
-            const result = resetCmd.execute({ args: ["--soft", "HEAD~2"], flags: { soft: true }, positionalArgs: ["HEAD~2"] }, context);
+            const result = resetCmd.execute(
+                { args: ["--soft", "HEAD~2"], flags: { soft: true }, positionalArgs: ["HEAD~2"] },
+                context,
+            );
             console.log("Reset result:", result);
 
             // Verify: Should have 3 commits now
@@ -84,7 +102,10 @@ describe("Git Reset Commands", () => {
             // Setup
             context.fileSystem.writeFile("/file1.txt", "content1");
             addCmd.execute({ args: ["file1.txt"], flags: {}, positionalArgs: ["file1.txt"] }, context);
-            commitCmd.execute({ args: ["-m", "First commit"], flags: { m: "First commit" }, positionalArgs: [] }, context);
+            commitCmd.execute(
+                { args: ["-m", "First commit"], flags: { m: "First commit" }, positionalArgs: [] },
+                context,
+            );
 
             const commitsBefore = context.gitRepository.getCommitHistory();
             expect(commitsBefore.length).toBe(1);
@@ -103,22 +124,34 @@ describe("Git Reset Commands", () => {
             // Setup: Create 3 commits
             context.fileSystem.writeFile("/file1.txt", "content1");
             addCmd.execute({ args: ["file1.txt"], flags: {}, positionalArgs: ["file1.txt"] }, context);
-            commitCmd.execute({ args: ["-m", "First commit"], flags: { m: "First commit" }, positionalArgs: [] }, context);
+            commitCmd.execute(
+                { args: ["-m", "First commit"], flags: { m: "First commit" }, positionalArgs: [] },
+                context,
+            );
 
             context.fileSystem.writeFile("/file2.txt", "content2");
             addCmd.execute({ args: ["file2.txt"], flags: {}, positionalArgs: ["file2.txt"] }, context);
-            commitCmd.execute({ args: ["-m", "Second commit"], flags: { m: "Second commit" }, positionalArgs: [] }, context);
+            commitCmd.execute(
+                { args: ["-m", "Second commit"], flags: { m: "Second commit" }, positionalArgs: [] },
+                context,
+            );
 
             context.fileSystem.writeFile("/file3.txt", "content3");
             addCmd.execute({ args: ["file3.txt"], flags: {}, positionalArgs: ["file3.txt"] }, context);
-            commitCmd.execute({ args: ["-m", "Third commit"], flags: { m: "Third commit" }, positionalArgs: [] }, context);
+            commitCmd.execute(
+                { args: ["-m", "Third commit"], flags: { m: "Third commit" }, positionalArgs: [] },
+                context,
+            );
 
             const commitsBefore = context.gitRepository.getCommitHistory();
             console.log("Commits before reset:", commitsBefore);
             expect(commitsBefore.length).toBe(3);
 
             // Execute: git reset --hard HEAD~1
-            const result = resetCmd.execute({ args: ["--hard", "HEAD~1"], flags: { hard: true }, positionalArgs: ["HEAD~1"] }, context);
+            const result = resetCmd.execute(
+                { args: ["--hard", "HEAD~1"], flags: { hard: true }, positionalArgs: ["HEAD~1"] },
+                context,
+            );
             console.log("Reset result:", result);
 
             // Verify: Should have 2 commits now
@@ -137,7 +170,10 @@ describe("Git Reset Commands", () => {
             for (let i = 1; i <= 6; i++) {
                 context.fileSystem.writeFile(`/file${i}.txt`, `content${i}`);
                 addCmd.execute({ args: [`file${i}.txt`], flags: {}, positionalArgs: [`file${i}.txt`] }, context);
-                commitCmd.execute({ args: ["-m", `Commit ${i}`], flags: { m: `Commit ${i}` }, positionalArgs: [] }, context);
+                commitCmd.execute(
+                    { args: ["-m", `Commit ${i}`], flags: { m: `Commit ${i}` }, positionalArgs: [] },
+                    context,
+                );
             }
 
             const commitsBefore = context.gitRepository.getCommitHistory();
@@ -145,7 +181,10 @@ describe("Git Reset Commands", () => {
             expect(commitsBefore.length).toBe(6);
 
             // Execute: git reset --hard HEAD~2
-            const result = resetCmd.execute({ args: ["--hard", "HEAD~2"], flags: { hard: true }, positionalArgs: ["HEAD~2"] }, context);
+            const result = resetCmd.execute(
+                { args: ["--hard", "HEAD~2"], flags: { hard: true }, positionalArgs: ["HEAD~2"] },
+                context,
+            );
             console.log("Reset result:", result);
 
             // Verify: Should have 4 commits now
@@ -158,7 +197,10 @@ describe("Git Reset Commands", () => {
             // Setup
             context.fileSystem.writeFile("/file1.txt", "content1");
             addCmd.execute({ args: ["file1.txt"], flags: {}, positionalArgs: ["file1.txt"] }, context);
-            commitCmd.execute({ args: ["-m", "First commit"], flags: { m: "First commit" }, positionalArgs: [] }, context);
+            commitCmd.execute(
+                { args: ["-m", "First commit"], flags: { m: "First commit" }, positionalArgs: [] },
+                context,
+            );
 
             const commitsBefore = context.gitRepository.getCommitHistory();
             expect(commitsBefore.length).toBe(1);
@@ -177,11 +219,17 @@ describe("Git Reset Commands", () => {
             // Setup
             context.fileSystem.writeFile("/file1.txt", "content1");
             addCmd.execute({ args: ["file1.txt"], flags: {}, positionalArgs: ["file1.txt"] }, context);
-            commitCmd.execute({ args: ["-m", "First commit"], flags: { m: "First commit" }, positionalArgs: [] }, context);
+            commitCmd.execute(
+                { args: ["-m", "First commit"], flags: { m: "First commit" }, positionalArgs: [] },
+                context,
+            );
 
             context.fileSystem.writeFile("/file2.txt", "content2");
             addCmd.execute({ args: ["file2.txt"], flags: {}, positionalArgs: ["file2.txt"] }, context);
-            commitCmd.execute({ args: ["-m", "Second commit"], flags: { m: "Second commit" }, positionalArgs: [] }, context);
+            commitCmd.execute(
+                { args: ["-m", "Second commit"], flags: { m: "Second commit" }, positionalArgs: [] },
+                context,
+            );
 
             const commitsBefore = context.gitRepository.getCommitHistory();
             expect(commitsBefore.length).toBe(2);
@@ -205,7 +253,10 @@ describe("Git Reset Commands", () => {
             for (let i = 1; i <= 4; i++) {
                 context.fileSystem.writeFile(`/file${i}.txt`, `content${i}`);
                 addCmd.execute({ args: [`file${i}.txt`], flags: {}, positionalArgs: [`file${i}.txt`] }, context);
-                commitCmd.execute({ args: ["-m", `Commit ${i}`], flags: { m: `Commit ${i}` }, positionalArgs: [] }, context);
+                commitCmd.execute(
+                    { args: ["-m", `Commit ${i}`], flags: { m: `Commit ${i}` }, positionalArgs: [] },
+                    context,
+                );
             }
 
             const commitsBefore = context.gitRepository.getCommitHistory();
@@ -216,11 +267,14 @@ describe("Git Reset Commands", () => {
             console.log("Resetting to commit:", secondCommitHash);
 
             // Execute: git reset --hard <commit-hash>
-            resetCmd.execute({
-                args: ["--hard", secondCommitHash?.substring(0, 7) ?? ""],
-                flags: { hard: true },
-                positionalArgs: [secondCommitHash?.substring(0, 7) ?? ""]
-            }, context);
+            resetCmd.execute(
+                {
+                    args: ["--hard", secondCommitHash?.substring(0, 7) ?? ""],
+                    flags: { hard: true },
+                    positionalArgs: [secondCommitHash?.substring(0, 7) ?? ""],
+                },
+                context,
+            );
 
             // Verify: Should have 2 commits now
             const commitsAfter = context.gitRepository.getCommitHistory();

@@ -27,7 +27,10 @@ describe("Git Stash", () => {
         // Create and commit a file
         context.fileSystem.writeFile("/file1.txt", "original content");
         addCmd.execute({ args: ["file1.txt"], flags: {}, positionalArgs: ["file1.txt"] }, context);
-        commitCmd.execute({ args: ["-m", "Initial commit"], flags: { m: "Initial commit" }, positionalArgs: [] }, context);
+        commitCmd.execute(
+            { args: ["-m", "Initial commit"], flags: { m: "Initial commit" }, positionalArgs: [] },
+            context,
+        );
 
         // Modify the file
         context.fileSystem.writeFile("/file1.txt", "modified content");
@@ -39,10 +42,7 @@ describe("Git Stash", () => {
         expect(statusBefore["file1.txt"]).toBe("modified");
 
         // Stash changes
-        const result = stashCommand.execute(
-            { args: [], flags: {}, positionalArgs: [] },
-            context
-        );
+        const result = stashCommand.execute({ args: [], flags: {}, positionalArgs: [] }, context);
 
         console.log("Stash result:", result);
         expect(result[0]).toContain("Saved working directory");
@@ -62,7 +62,10 @@ describe("Git Stash", () => {
         // Create and commit a file
         context.fileSystem.writeFile("/file1.txt", "original content");
         addCmd.execute({ args: ["file1.txt"], flags: {}, positionalArgs: ["file1.txt"] }, context);
-        commitCmd.execute({ args: ["-m", "Initial commit"], flags: { m: "Initial commit" }, positionalArgs: [] }, context);
+        commitCmd.execute(
+            { args: ["-m", "Initial commit"], flags: { m: "Initial commit" }, positionalArgs: [] },
+            context,
+        );
 
         // Modify the file
         context.fileSystem.writeFile("/file1.txt", "modified content");
@@ -73,10 +76,7 @@ describe("Git Stash", () => {
         expect(context.fileSystem.getFileContents("/file1.txt")).toBe("original content");
 
         // Pop stashed changes
-        const result = stashCommand.execute(
-            { args: ["pop"], flags: {}, positionalArgs: ["pop"] },
-            context
-        );
+        const result = stashCommand.execute({ args: ["pop"], flags: {}, positionalArgs: ["pop"] }, context);
 
         console.log("Pop output:", result);
 
@@ -101,7 +101,10 @@ describe("Git Stash", () => {
         context.fileSystem.writeFile("/file2.txt", "content 2");
         addCmd.execute({ args: ["file1.txt"], flags: {}, positionalArgs: ["file1.txt"] }, context);
         addCmd.execute({ args: ["file2.txt"], flags: {}, positionalArgs: ["file2.txt"] }, context);
-        commitCmd.execute({ args: ["-m", "Initial commit"], flags: { m: "Initial commit" }, positionalArgs: [] }, context);
+        commitCmd.execute(
+            { args: ["-m", "Initial commit"], flags: { m: "Initial commit" }, positionalArgs: [] },
+            context,
+        );
 
         // Modify both files
         context.fileSystem.writeFile("/file1.txt", "modified 1");
@@ -129,19 +132,13 @@ describe("Git Stash", () => {
 
     it("should return error when no changes to stash", () => {
         // Initialize repo but don't make any changes
-        const result = stashCommand.execute(
-            { args: [], flags: {}, positionalArgs: [] },
-            context
-        );
+        const result = stashCommand.execute({ args: [], flags: {}, positionalArgs: [] }, context);
 
         expect(result[0]).toBe("No local changes to save");
     });
 
     it("should return error when popping empty stash", () => {
-        const result = stashCommand.execute(
-            { args: ["pop"], flags: {}, positionalArgs: ["pop"] },
-            context
-        );
+        const result = stashCommand.execute({ args: ["pop"], flags: {}, positionalArgs: ["pop"] }, context);
 
         expect(result[0]).toBe("No stash entries found.");
     });
@@ -150,7 +147,10 @@ describe("Git Stash", () => {
         // Create and commit a file
         context.fileSystem.writeFile("/file1.txt", "original content");
         addCmd.execute({ args: ["file1.txt"], flags: {}, positionalArgs: ["file1.txt"] }, context);
-        commitCmd.execute({ args: ["-m", "Initial commit"], flags: { m: "Initial commit" }, positionalArgs: [] }, context);
+        commitCmd.execute(
+            { args: ["-m", "Initial commit"], flags: { m: "Initial commit" }, positionalArgs: [] },
+            context,
+        );
 
         // Modify and stash
         context.fileSystem.writeFile("/file1.txt", "modified content");
@@ -158,10 +158,7 @@ describe("Git Stash", () => {
         context.gitRepository.stashSave();
 
         // Apply (not pop)
-        const result = stashCommand.execute(
-            { args: ["apply"], flags: {}, positionalArgs: ["apply"] },
-            context
-        );
+        const result = stashCommand.execute({ args: ["apply"], flags: {}, positionalArgs: ["apply"] }, context);
 
         const output = result.join("\n");
         expect(output).toContain("modified:   file1.txt");

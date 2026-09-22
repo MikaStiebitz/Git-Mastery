@@ -1,5 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import type { GitRepository } from "~/models/GitRepository";
+import { notARepository } from "../base/GitErrors";
 
 export class ResetCommand implements Command {
     name = "git reset";
@@ -25,7 +26,7 @@ export class ResetCommand implements Command {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         // Parse options: --soft, --mixed (default), --hard

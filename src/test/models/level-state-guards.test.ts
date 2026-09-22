@@ -59,12 +59,12 @@ describe("LevelManager repository-state guards", () => {
 
     describe("checkCommitMessageContains", () => {
         it("finds a substring in the branch history (case-insensitive)", () => {
-            expect(
-                levelManager.passesStateGuards(req({ checkCommitMessageContains: "initial" }), gitRepository),
-            ).toBe(true);
-            expect(
-                levelManager.passesStateGuards(req({ checkCommitMessageContains: "release" }), gitRepository),
-            ).toBe(false);
+            expect(levelManager.passesStateGuards(req({ checkCommitMessageContains: "initial" }), gitRepository)).toBe(
+                true,
+            );
+            expect(levelManager.passesStateGuards(req({ checkCommitMessageContains: "release" }), gitRepository)).toBe(
+                false,
+            );
         });
     });
 
@@ -83,9 +83,7 @@ describe("LevelManager repository-state guards", () => {
                 objectives: ["o"],
                 hints: [],
                 requirementLogic: "all",
-                requirements: [
-                    req({ id: "tag-it", command: "git tag", requiresArgs: ["any"], checkTagExists: "*" }),
-                ],
+                requirements: [req({ id: "tag-it", command: "git tag", requiresArgs: ["any"], checkTagExists: "*" })],
             });
 
             // Command matches textually, but no tag exists yet -> not complete

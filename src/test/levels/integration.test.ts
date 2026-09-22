@@ -31,7 +31,7 @@ describe("Level Setup Integration Tests", () => {
                             stage: stageKey,
                             level: levelId,
                             success: false,
-                            error: error instanceof Error ? error.message : String(error)
+                            error: error instanceof Error ? error.message : String(error),
                         });
                         console.error(`❌ Error setting up ${stageKey} Level ${levelId}:`, error);
                     }
@@ -51,7 +51,7 @@ describe("Level Setup Integration Tests", () => {
             if (failedSetups.length > 0) {
                 console.log(`\n❌ Failed Levels:`);
                 failedSetups.forEach(f => {
-                    console.log(`  - ${f.stage} Level ${f.level}${f.error ? `: ${f.error}` : ''}`);
+                    console.log(`  - ${f.stage} Level ${f.level}${f.error ? `: ${f.error}` : ""}`);
                 });
             }
 
@@ -98,7 +98,7 @@ describe("Level Setup Integration Tests", () => {
                         if (gitState.commits && Array.isArray(gitState.commits)) {
                             gitState.commits.forEach((commit, idx) => {
                                 // Allow empty message for dynamic commits
-                                if (!commit.message && commit.message !== '') {
+                                if (!commit.message && commit.message !== "") {
                                     issues.push(`${stageKey} Level ${levelId}: Commit ${idx} has invalid message`);
                                 }
                             });
@@ -108,10 +108,10 @@ describe("Level Setup Integration Tests", () => {
                     // Check file structure
                     if (initialState.files && Array.isArray(initialState.files)) {
                         initialState.files.forEach((file, idx) => {
-                            if (!file.path || typeof file.path !== 'string') {
+                            if (!file.path || typeof file.path !== "string") {
                                 issues.push(`${stageKey} Level ${levelId}: File ${idx} has invalid path`);
                             }
-                            if (!file.hasOwnProperty('content')) {
+                            if (!file.hasOwnProperty("content")) {
                                 issues.push(`${stageKey} Level ${levelId}: File ${idx} missing content property`);
                             }
                         });
@@ -120,7 +120,7 @@ describe("Level Setup Integration Tests", () => {
             });
 
             if (issues.length > 0) {
-                console.log('\n⚠️  Initial State Issues:');
+                console.log("\n⚠️  Initial State Issues:");
                 issues.forEach(issue => console.log(`  - ${issue}`));
             }
 
@@ -149,15 +149,15 @@ describe("Level Setup Integration Tests", () => {
                     level.requirements.forEach((req, reqIdx) => {
                         // Allow empty command for state-based requirements (checkFileChanged, checkFileExists, checkBranchExists)
                         const isStateBased = req.checkFileChanged || req.checkFileExists || req.checkBranchExists;
-                        if (!isStateBased && (!req.command || req.command.trim() === '')) {
+                        if (!isStateBased && (!req.command || req.command.trim() === "")) {
                             issues.push(`${stageKey} Level ${levelId} Req ${reqIdx}: Empty command`);
                         }
 
-                        if (!req.description || req.description.trim() === '') {
+                        if (!req.description || req.description.trim() === "") {
                             issues.push(`${stageKey} Level ${levelId} Req ${reqIdx}: Empty description`);
                         }
 
-                        if (!req.successMessage || req.successMessage.trim() === '') {
+                        if (!req.successMessage || req.successMessage.trim() === "") {
                             issues.push(`${stageKey} Level ${levelId} Req ${reqIdx}: Empty success message`);
                         }
                     });
@@ -165,7 +165,7 @@ describe("Level Setup Integration Tests", () => {
             });
 
             if (issues.length > 0) {
-                console.log('\n⚠️  Requirement Issues:');
+                console.log("\n⚠️  Requirement Issues:");
                 issues.forEach(issue => console.log(`  - ${issue}`));
             }
 
@@ -193,7 +193,11 @@ describe("Level Setup Integration Tests", () => {
                     levelManager.setupLevel(stage.id, levelId, fileSystem, gitRepository);
 
                     // If initial state specifies files array, verify they exist
-                    if (level.initialState?.files && Array.isArray(level.initialState.files) && level.initialState.files.length > 0) {
+                    if (
+                        level.initialState?.files &&
+                        Array.isArray(level.initialState.files) &&
+                        level.initialState.files.length > 0
+                    ) {
                         level.initialState.files.forEach(file => {
                             const content = fileSystem.getFileContents(file.path);
                             if (content === null) {
@@ -223,7 +227,7 @@ describe("Level Setup Integration Tests", () => {
             });
 
             if (issues.length > 0) {
-                console.log('\n⚠️  File System Issues:');
+                console.log("\n⚠️  File System Issues:");
                 issues.forEach(issue => console.log(`  - ${issue}`));
             }
 

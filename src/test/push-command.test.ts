@@ -41,7 +41,7 @@ describe("PushCommand with --set-upstream", () => {
             gitRepository,
             currentDirectory: "/",
             setCurrentDirectory: () => {},
-            progressManager
+            progressManager,
         });
 
         console.log("Push result:", result);
@@ -62,7 +62,7 @@ describe("PushCommand with --set-upstream", () => {
             gitRepository,
             currentDirectory: "/",
             setCurrentDirectory: () => {},
-            progressManager
+            progressManager,
         });
 
         console.log("Push result:", result);
@@ -82,7 +82,7 @@ describe("PushCommand with --set-upstream", () => {
             gitRepository,
             currentDirectory: "/",
             setCurrentDirectory: () => {},
-            progressManager
+            progressManager,
         });
 
         console.log("Push result:", result);

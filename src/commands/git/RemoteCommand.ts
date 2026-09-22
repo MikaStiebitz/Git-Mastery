@@ -1,4 +1,5 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { notARepository, unknownFlagError } from "../base/GitErrors";
 
 export class RemoteCommand implements Command {
     name = "git remote";
@@ -17,7 +18,13 @@ export class RemoteCommand implements Command {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
+        }
+
+        // A mistyped flag is an error, not something to ignore.
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) {
+            return unknownFlagError(unknownFlag, this.usage);
         }
 
         // Handle different subcommands

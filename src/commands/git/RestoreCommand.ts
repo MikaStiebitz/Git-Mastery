@@ -1,5 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
+import { notARepository } from "../base/GitErrors";
 
 export class RestoreCommand implements Command {
     name = "git restore";
@@ -32,7 +33,7 @@ export class RestoreCommand implements Command {
         const { gitRepository, fileSystem } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         if (args.positionalArgs.length === 0) {

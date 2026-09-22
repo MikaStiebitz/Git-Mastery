@@ -1,5 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { buildCommitGraph } from "~/lib/buildCommitGraph";
+import { notARepository } from "../base/GitErrors";
 
 export class LogCommand implements Command {
     name = "git log";
@@ -51,7 +52,7 @@ export class LogCommand implements Command {
         const { gitRepository, currentDirectory } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
         if (!gitRepository.isInRepository(currentDirectory)) {
             return ["fatal: not a git repository (or any of the parent directories): .git"];

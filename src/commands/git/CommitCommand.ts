@@ -1,5 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import type { GitRepository } from "~/models/GitRepository";
+import { hint, notARepository, unknownFlagError } from "../base/GitErrors";
 
 export class CommitCommand implements Command {
     name = "git commit";
@@ -40,10 +41,15 @@ export class CommitCommand implements Command {
         const { gitRepository, currentDirectory } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
         if (!gitRepository.isInRepository(currentDirectory)) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
+            return notARepository();
+        }
+
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) {
+            return unknownFlagError(unknownFlag, this.usage);
         }
 
         // Check for --amend flag
@@ -51,15 +57,6 @@ export class CommitCommand implements Command {
 
         if (isAmend) {
             return this.handleAmend(args, gitRepository);
-        }
-
-        // Check if there's anything to commit
-        const stagedFiles = Object.entries(gitRepository.getStatus())
-            .filter(([_, status]) => status === "staged")
-            .map(([file]) => file);
-
-        if (stagedFiles.length === 0) {
-            return ["Nothing to commit. Use git add to stage files first."];
         }
 
         // Get the message
@@ -70,8 +67,46 @@ export class CommitCommand implements Command {
                   ? args.flags.message.trim()
                   : "";
 
-        // A -m/--message flag with an empty or whitespace-only value must not create a commit
         const messageFlagProvided = args.flags.m !== undefined || args.flags.message !== undefined;
+
+        // `git commit "my message"` — the single most common beginner mistake. Git reads a bare
+        // argument as a path to commit, not as the message, so it fails on a pathspec that does not
+        // exist. Reproduce that error, then say what was actually meant.
+        if (!messageFlagProvided && args.positionalArgs.length > 0) {
+            const pathspec = args.positionalArgs[0]!;
+            const allFiles = Object.keys(gitRepository.getStatus());
+
+            if (!allFiles.includes(pathspec) && !allFiles.includes(pathspec.replace(/^\//, ""))) {
+                return [
+                    `fatal: pathspec '${pathspec}' did not match any files`,
+                    hint(`A bare word after 'git commit' means "commit this file", not the message.`),
+                    hint(`To set the message, use -m: git commit -m "${pathspec}"`),
+                ];
+            }
+        }
+
+        // -a/--all stages every already-tracked file that changed, then commits. It deliberately does
+        // not pick up untracked files, which is why `git commit -am` on a brand-new file still fails.
+        if (args.flags.a !== undefined || args.flags.all !== undefined) {
+            const trackedChanges = Object.entries(gitRepository.getStatus())
+                .filter(([, state]) => state === "modified" || state === "deleted")
+                .map(([file]) => file);
+
+            if (trackedChanges.length > 0) {
+                gitRepository.addAll(trackedChanges);
+            }
+        }
+
+        // Check if there's anything to commit
+        const stagedFiles = Object.entries(gitRepository.getStatus())
+            .filter(([_, status]) => status === "staged")
+            .map(([file]) => file);
+
+        if (stagedFiles.length === 0) {
+            return this.nothingToCommit(gitRepository);
+        }
+
+        // A -m/--message flag with an empty or whitespace-only value must not create a commit
         if (messageFlagProvided && !message) {
             return ["Aborting commit due to empty commit message."];
         }
@@ -81,7 +116,7 @@ export class CommitCommand implements Command {
             const commitId = gitRepository.commit(message);
 
             if (!commitId) {
-                return ["Nothing to commit. Use git add to stage files first."];
+                return this.nothingToCommit(gitRepository);
             }
 
             // Generate accurate file statistics
@@ -99,6 +134,63 @@ export class CommitCommand implements Command {
         // If no message is provided, let the dialog be opened by returning without a message
         // The dialog should only open if we get here (meaning there are staged changes)
         return [];
+    }
+
+    /**
+     * What Git prints when nothing is staged — the answer to "why can't I just commit?".
+     *
+     * Git commits the staging area, not the working directory, so a file you edited but never added
+     * is invisible to `git commit`. Real Git shows the unstaged changes and the commands that would
+     * fix it; the hint names the rule behind it, since the wording alone assumes you already know
+     * that staging exists.
+     */
+    private nothingToCommit(gitRepository: GitRepository): string[] {
+        const status = gitRepository.getStatus();
+        const branch = gitRepository.getCurrentBranch();
+
+        const modified = Object.entries(status)
+            .filter(([, state]) => state === "modified" || state === "deleted")
+            .map(([file, state]) => ({ file, state }));
+        const untracked = Object.entries(status)
+            .filter(([, state]) => state === "untracked")
+            .map(([file]) => file);
+
+        const lines = [`On branch ${branch}`];
+
+        if (modified.length > 0) {
+            lines.push("Changes not staged for commit:");
+            lines.push('  (use "git add <file>..." to update what will be committed)');
+            lines.push('  (use "git restore <file>..." to discard changes in working directory)');
+            modified.forEach(({ file, state }) => {
+                const label = state === "deleted" ? "deleted:" : "modified:";
+                lines.push(`\t${label}   ${file}`);
+            });
+            lines.push("");
+        }
+
+        if (untracked.length > 0) {
+            lines.push("Untracked files:");
+            lines.push('  (use "git add <file>..." to include in what will be committed)');
+            untracked.forEach(file => lines.push(`\t${file}`));
+            lines.push("");
+        }
+
+        if (modified.length === 0 && untracked.length === 0) {
+            lines.push("nothing to commit, working tree clean");
+            return lines;
+        }
+
+        if (modified.length > 0) {
+            lines.push('no changes added to commit (use "git add" and/or "git commit -a")');
+        } else {
+            lines.push('nothing added to commit but untracked files present (use "git add" to track)');
+        }
+
+        lines.push(hint("A commit records the staging area, not your folder."));
+        lines.push(hint("Editing a file changes your folder; 'git add <file>' puts that change into the"));
+        lines.push(hint("staging area; 'git commit' then saves everything staged as one snapshot."));
+
+        return lines;
     }
 
     private handleAmend(args: CommandArgs, gitRepository: GitRepository): string[] {

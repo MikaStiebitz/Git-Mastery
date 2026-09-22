@@ -8,6 +8,20 @@
  *     this stays authentic while telling a beginner what to do next instead of only what went wrong.
  */
 
+/**
+ * What every Git command prints outside a repository.
+ *
+ * Real Git names the missing `.git` directory and says nothing about how to fix it; the hint adds
+ * that, because "not a git repository (or any of the parent directories)" tells a beginner what is
+ * wrong only if they already know what a repository is.
+ */
+export function notARepository(): string[] {
+    return [
+        "fatal: not a git repository (or any of the parent directories): .git",
+        hint("Run 'git init' here to start tracking this folder with Git."),
+    ];
+}
+
 /** Levenshtein distance, used to turn a typo into a suggestion. */
 export function levenshtein(a: string, b: string): number {
     if (a === b) return 0;

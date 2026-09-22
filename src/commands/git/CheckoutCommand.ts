@@ -1,6 +1,7 @@
 import type { GitRepository } from "~/models/GitRepository";
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import type { FileSystem } from "~/models/FileSystem";
+import { notARepository, unknownFlagError } from "../base/GitErrors";
 
 export class CheckoutCommand implements Command {
     name = "git checkout";
@@ -40,10 +41,16 @@ export class CheckoutCommand implements Command {
         const { gitRepository, fileSystem, currentDirectory } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
+            return notARepository();
         }
         if (!gitRepository.isInRepository(currentDirectory)) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
+            return notARepository();
+        }
+
+        // A mistyped flag is an error, not something to ignore.
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) {
+            return unknownFlagError(unknownFlag, this.usage);
         }
 
         const parseResult = this.parseCheckoutArgs(args, context);

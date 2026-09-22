@@ -1,5 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { getAllFiles, resolvePath } from "~/lib/utils";
+import { notARepository, unknownFlagError } from "../base/GitErrors";
 
 export class AddCommand implements Command {
     name = "git add";
@@ -36,9 +37,17 @@ export class AddCommand implements Command {
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, fileSystem } = context;
 
-        if (!gitRepository.isInitialized()) return ["Not a git repository. Run 'git init' first."];
+        if (!gitRepository.isInitialized()) {
+            return notARepository();
+        }
         if (!gitRepository.isInRepository(context.currentDirectory)) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
+            return notARepository();
+        }
+
+        // A mistyped flag is an error, not something to ignore.
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) {
+            return unknownFlagError(unknownFlag, this.usage);
         }
 
         if (args.positionalArgs.length === 0) {

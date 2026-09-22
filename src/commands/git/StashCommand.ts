@@ -1,4 +1,5 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { notARepository } from "../base/GitErrors";
 
 export class StashCommand implements Command {
     name = "git stash";
@@ -29,7 +30,7 @@ export class StashCommand implements Command {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         // Determine the subcommand (default is "push")
@@ -40,8 +41,7 @@ export class StashCommand implements Command {
 
         switch (subcommand) {
             case "push":
-            case "save": // Stash changes
-            {
+            case "save": { // Stash changes
                 const success = gitRepository.stashSave();
                 if (!success) {
                     return ["No local changes to save"];
@@ -53,8 +53,7 @@ export class StashCommand implements Command {
                 ];
             }
 
-            case "pop": // Pop stashed changes
-            {
+            case "pop": { // Pop stashed changes
                 const result = gitRepository.stashApply(true);
                 if (!result.success) {
                     return ["No stash entries found."];
@@ -81,8 +80,7 @@ export class StashCommand implements Command {
                 // List stashes (simplified)
                 return ["stash@{0}: WIP on " + gitRepository.getCurrentBranch() + ": Changes"];
 
-            case "apply": // Apply stashed changes without removing them
-            {
+            case "apply": { // Apply stashed changes without removing them
                 const result = gitRepository.stashApply(false);
                 if (!result.success) {
                     return ["No stash entries found."];

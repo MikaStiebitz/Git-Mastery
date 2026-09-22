@@ -1,4 +1,5 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { notARepository } from "../base/GitErrors";
 
 export class CherryPickCommand implements Command {
     name = "git cherry-pick";
@@ -31,7 +32,7 @@ export class CherryPickCommand implements Command {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         // Check for --abort flag

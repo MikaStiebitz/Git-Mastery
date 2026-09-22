@@ -1,4 +1,5 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { notARepository, unknownFlagError } from "../base/GitErrors";
 
 export class SwitchCommand implements Command {
     name = "git switch";
@@ -35,7 +36,13 @@ export class SwitchCommand implements Command {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
+            return notARepository();
+        }
+
+        // A mistyped flag is an error, not something to ignore.
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) {
+            return unknownFlagError(unknownFlag, this.usage);
         }
 
         const parseResult = this.parseSwitchArgs(args);

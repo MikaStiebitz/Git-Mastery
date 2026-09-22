@@ -1,4 +1,5 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { notARepository } from "../base/GitErrors";
 
 export class RevertCommand implements Command {
     name = "git revert";
@@ -17,7 +18,7 @@ export class RevertCommand implements Command {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         if (args.positionalArgs.length === 0) {

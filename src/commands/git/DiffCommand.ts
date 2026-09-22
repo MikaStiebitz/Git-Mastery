@@ -1,5 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
+import { notARepository } from "../base/GitErrors";
 
 export class DiffCommand implements Command {
     name = "git diff";
@@ -34,7 +35,7 @@ export class DiffCommand implements Command {
         const { gitRepository, fileSystem } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         const isStaged = args.flags.staged || args.flags.cached;

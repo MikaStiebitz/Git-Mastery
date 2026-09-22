@@ -7,7 +7,7 @@ import { FileSystem } from "~/models/FileSystem";
 import { LevelManager } from "~/models/LevelManager";
 import { ProgressManager } from "~/models/ProgressManager";
 import { GitRepository } from "~/models/GitRepository";
-import { splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
+import { parseCommand, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import { resolvePath } from "~/lib/utils";
 import type { GameContextProps, DifficultyLevel } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -143,11 +143,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const commitFailed = output.some(
             line => line.toLowerCase().includes("aborting commit") || line.toLowerCase().includes("nothing to commit"),
         );
-        if (
-            !commitFailed &&
-            typeof window !== "undefined" &&
-            !window.location.pathname.includes("/playground")
-        ) {
+        if (!commitFailed && typeof window !== "undefined" && !window.location.pathname.includes("/playground")) {
             const [cmd, ...args] = splitCommandRespectingQuotes(`git commit -m "${escapedMessage}"`.trim());
             if (cmd && levelManager.checkLevelCompletion(currentStage, currentLevel, cmd, args, gitRepository)) {
                 markLevelAsCompleted();
@@ -171,12 +167,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 const stage = levelManager.getStage(currentStage);
                 if (!stage) {
                     console.warn(`Invalid stage: ${currentStage}`);
-                    return;  // Don't update URL if stage is invalid
+                    return; // Don't update URL if stage is invalid
                 }
 
                 if (currentLevel < 1) {
                     console.warn(`Invalid level: ${currentLevel}`);
-                    return;  // Don't update URL if level is invalid
+                    return; // Don't update URL if level is invalid
                 }
 
                 const currentParams = new URLSearchParams(window.location.search);
@@ -290,23 +286,21 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         }
 
-        // Special case for git commit (with no -m flag)
-        if (command.trim() === "git commit") {
-            // Process the command first to check if there are staged changes
-            const output = commandProcessor.processCommand(command);
-            setTerminalOutput(prev => [...prev, ...output]);
-
-            // Only open commit dialog if there are staged changes (output is empty)
-            // Level completion check will happen in handleCommit() after user provides the message
-            if (output.length === 0 || !output[0]?.includes("Nothing to commit")) {
-                openCommitDialog();
-            }
-            return;
-        }
-
         // Process the command and get output
         const output = commandProcessor.processCommand(command);
         setTerminalOutput(prev => [...prev, ...output]);
+
+        // `git commit` with no message opens the message editor, the way real Git opens $EDITOR.
+        //
+        // CommitCommand signals "I need a message" by returning no output at all, which it does only
+        // when something is staged and no -m was given. Keying off that signal rather than matching
+        // the typed string means every spelling routes correctly — `git commit`, `git commit -a`,
+        // `git commit --amend` — and an error or a status report never opens an editor, because those
+        // return lines. Level completion is checked in handleCommit() once the message exists.
+        if (parseCommand(command).command === "git commit" && output.length === 0) {
+            openCommitDialog();
+            return;
+        }
 
         // Skip level completion checks if in playground mode
         if (isPlaygroundMode) {

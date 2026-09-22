@@ -43,7 +43,10 @@ describe("Debug git pull matching", () => {
         // Check the level state
         const level = levelManager.getLevel("teamwork", 2);
         console.log("Completed requirements:", level?.completedRequirements);
-        console.log("All requirements:", level?.requirements.map(r => r.id));
+        console.log(
+            "All requirements:",
+            level?.requirements.map(r => r.id),
+        );
 
         // The pull requirement should be completed
         expect(level?.completedRequirements).toContain("pull-remote-changes");
@@ -71,7 +74,10 @@ describe("Debug git pull matching", () => {
         // Check the level state
         const level = levelManager.getLevel("teamwork", 2);
         console.log("Completed requirements:", level?.completedRequirements);
-        console.log("All requirements:", level?.requirements.map(r => r.id));
+        console.log(
+            "All requirements:",
+            level?.requirements.map(r => r.id),
+        );
 
         // The pull requirement should be completed
         expect(level?.completedRequirements).toContain("pull-remote-changes");
