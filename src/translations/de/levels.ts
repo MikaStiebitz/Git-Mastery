@@ -67,14 +67,15 @@ const levels = {
     "intro.level1.description": "Erstelle ein neues Git-Repository",
     "intro.level1.objective1": "Initialisiere ein neues Repository",
     "intro.level1.hint1": "Verwende den Befehl `git init`",
-    "intro.level1.hint2": "Dies erstellt ein verstecktes .git-Verzeichnis",
+    "intro.level1.hint2":
+        "Das erzeugt einen versteckten .git-Ordner — dieser Ordner *ist* das Repository, dort liegt jede Version",
     "intro.level1.requirement1.description": "Initialisiere ein Git-Repository",
     "intro.level1.requirement1.success": "Gut gemacht! Du hast ein Git-Repository erstellt.",
     "intro.level1.story.title": "Willkommen im Team",
     "intro.level1.story.narrative":
-        "Herzlich willkommen in deinem neuen Job als Entwickler bei TechStart! Ich bin Alex, dein Team-Lead.\n\nEs ist dein erster Tag und wir wollen dir helfen, schnell produktiv zu werden. Wir nutzen Git für unsere Versionskontrolle - damit verfolgen wir Änderungen im Code und arbeiten im Team zusammen.\n\nAls erstes musst du ein neues Repository für dein Onboarding-Projekt anlegen. Dafür nutzen wir den Befehl `git init`.",
+        "Herzlich willkommen in deinem neuen Job als Entwickler bei TechStart! Ich bin Alex, dein Team-Lead.\n\nBevor wir den ersten Befehl tippen: Was ist Git eigentlich, und warum besteht jedes Team darauf?\n\nStell dir vor, wir bearbeiten heute beide dieselbe Datei. Du schickst mir `login-final.js`, ich schicke `login-final-v2.js` zurück — und am Freitag weiß niemand mehr, welche Version funktioniert. Oder wie die Datei am Montag aussah, als sie es noch tat.\n\nGit ist ein Versionskontrollsystem und löst genau das. Es speichert die vollständige Historie deines Projekts: jede Änderung, wer sie gemacht hat, und einen Weg zurück zu jedem früheren Stand. Außerdem können mehrere Leute am selben Code arbeiten, ohne sich gegenseitig zu überschreiben.\n\nDiese Historie liegt in einem Repository — deinem normalen Projektordner plus einem versteckten `.git`-Ordner, in dem jede Version aufbewahrt wird. Eines anzulegen kostet einen einzigen Befehl: `git init`.",
     "intro.level1.story.realWorldContext":
-        "In echten Entwicklerteams ist Git unverzichtbar. Es ist das erste Tool, das du bei einem neuen Projekt einrichtest.",
+        'Git ist der Standard für Versionskontrolle: praktisch jedes Software-Team nutzt es, und es ist das erste Tool, das bei einem neuen Projekt eingerichtet wird. Ohne Git bleibt die Frage "wer hat das wann und warum geändert?" unbeantwortet.',
     "intro.level1.story.taskIntroduction": "Lass uns ein neues Repository für dein Projekt erstellen.",
 
     "intro.level2.name": "Repository Status",
@@ -95,16 +96,18 @@ const levels = {
     "intro.level3.description": "Lerne, bestehende Repositories zu klonen",
     "intro.level3.objective1": "Klone ein Remote-Repository",
     "intro.level3.objective2": "Navigiere in das geklonte Repository",
-    "intro.level3.hint1": "Verwende den Befehl `git clone <url>`",
+    "intro.level3.hint1":
+        "Nutze `git clone` gefolgt von einer echten Adresse, z. B. `git clone https://github.com/octocat/Hello-World.git`",
     "intro.level3.hint2": "Nach dem Klonen verwende `cd`, um in den Repository-Ordner zu navigieren",
-    "intro.level3.hint3": "Die Repository-URL kann jede gültige Git-Repository-URL sein",
+    "intro.level3.hint3":
+        "Es muss eine echte Adresse sein wie https://github.com/user/repo.git — ein Platzhalter in spitzen Klammern wird abgelehnt",
     "intro.level3.requirement1.description": "Klone ein Remote-Repository",
     "intro.level3.requirement1.success": "Großartig! Du hast das Repository geklont.",
     "intro.level3.requirement2.description": "Navigiere mit cd in das geklonte Repository",
     "intro.level3.requirement2.success": "Perfekt! Du bist jetzt im geklonten Repository.",
     "intro.level3.story.title": "Einem existierenden Projekt beitreten",
     "intro.level3.story.narrative":
-        'Deine erste Woche bei TechStart läuft großartig! Alex ruft dich mit aufregenden Neuigkeiten.\n\n"Wir haben ein Team-Projekt, bei dem wir deine Hilfe brauchen", sagt er. "Die Codebasis ist bereits auf unserem Git-Server. Du musst sie auf deinen lokalen Rechner klonen, um damit arbeiten zu können."\n\nEr erklärt: "Wenn du einem existierenden Projekt beitrittst, fängst du nicht bei Null an. Stattdessen klonst du das Remote-Repository, was eine vollständige Kopie auf deinem Rechner erstellt - inklusive des gesamten Codes, der Historie und aller Branches."\n\n"Stell es dir vor wie ein Buch aus der Bibliothek auszuleihen, nur dass du auch noch alle Bibliotheksaufzeichnungen dazu bekommst! Verwende `git clone <repository-url>` um loszulegen."\n\n"Sobald geklont, kannst du mit `cd <ordner-name>` in den Projekt-Ordner wechseln und sofort mit der Arbeit beginnen. Die gesamte Projekthistorie und alle Änderungen stehen dir zur Verfügung."',
+        'Deine erste Woche bei TechStart läuft großartig! Alex ruft dich mit aufregenden Neuigkeiten.\n\n"Wir haben ein Team-Projekt, bei dem wir deine Hilfe brauchen", sagt er. "Die Codebasis ist bereits auf unserem Git-Server. Du musst sie auf deinen lokalen Rechner klonen, um damit arbeiten zu können."\n\nEr erklärt: "Wenn du einem existierenden Projekt beitrittst, fängst du nicht bei Null an. Stattdessen klonst du das Remote-Repository, was eine vollständige Kopie auf deinem Rechner erstellt - inklusive des gesamten Codes, der Historie und aller Branches."\n\n"Stell es dir vor wie ein Buch aus der Bibliothek auszuleihen, nur dass du auch noch alle Bibliotheksaufzeichnungen dazu bekommst! Nutze `git clone` gefolgt von der Repository-Adresse — zum Beispiel `git clone https://github.com/octocat/Hello-World.git`."\n\n"Noch etwas zu diesen Anleitungen: Alles in spitzen Klammern ist ein Platzhalter. Ersetze ihn samt Klammern — Git hat keine Ahnung, was `<repository-url>` bedeuten soll."\n\n"Sobald geklont, kannst du mit `cd <ordner-name>` in den Projekt-Ordner wechseln und sofort mit der Arbeit beginnen. Die gesamte Projekthistorie und alle Änderungen stehen dir zur Verfügung."',
     "intro.level3.story.realWorldContext":
         "Das Klonen ist die Art und Weise, wie Entwickler existierenden Projekten beitreten. Ob beim Beitragen zu Open Source oder beim Eintritt in ein neues Team, git clone ist typischerweise der erste Befehl, den du ausführst.",
     "intro.level3.story.taskIntroduction":
@@ -123,9 +126,9 @@ const levels = {
     "files.level1.requirement1.success": "Großartig! Du hast alle Dateien zur Staging-Area hinzugefügt.",
     "files.level1.story.title": "Code-Änderungen vorbereiten",
     "files.level1.story.narrative":
-        '"Hey!" ruft Sarah, deine Kollegin, "ich sehe, du hast schon mit Git angefangen. Als nächstes solltest du lernen, wie man Änderungen staged."\n\nSie erklärt: "Wenn du Dateien änderst, musst du Git explizit sagen, welche Änderungen in den nächsten Commit aufgenommen werden sollen. Das nennt man \'Staging\' und funktioniert mit `git add`."',
+        '"Hey!" ruft Sarah, deine Kollegin. "Zeit zu lernen, wie Git deine Arbeit wirklich speichert — denn eine Datei zu bearbeiten reicht nicht."\n\nSie malt drei Kästen aufs Whiteboard:\n\n1. **Dein Ordner** — hier bearbeitest du Dateien. Git schaut zu, speichert aber von sich aus nichts.\n2. **Die Staging-Area** — die Liste der Änderungen, die in deine nächste Speicherung sollen.\n3. **Das Repository** — die dauerhafte Historie aller Speicherungen.\n\n"Ein Commit speichert immer nur, was in der Staging-Area liegt", sagt sie. "Genau deshalb kannst du nicht einfach committen, nachdem du etwas geändert hast: Git nimmt nicht an, dass alle deine Änderungen zusammengehören. Das entscheidest du. `git add <datei>` legt eine Änderung ins Staging, `git add .` nimmt alles im aktuellen Ordner."',
     "files.level1.story.realWorldContext":
-        "Das Staging-Konzept ist ein mächtiges Feature von Git. Es erlaubt dir, nur ausgewählte Änderungen zu committen, während andere noch in Bearbeitung bleiben können.",
+        "Staging ist der Schritt, den Anfänger überspringen und erfahrene Entwickler bewusst nutzen. Zwei unabhängige Dinge behoben? Staged und committed sie getrennt — dann bleibt die Historie lesbar, und jede Änderung lässt sich später einzeln zurücknehmen.",
     "files.level1.story.taskIntroduction": "Füge alle Dateien zur Staging-Area hinzu mit `git add .`.",
 
     "files.level2.name": "Änderungen committen",
@@ -137,7 +140,7 @@ const levels = {
     "files.level2.requirement1.success": "Ausgezeichnet! Du hast erfolgreich einen Commit erstellt.",
     "files.level2.story.title": "Dein erster Commit",
     "files.level2.story.narrative":
-        '"Super gemacht!" sagt Alex, als er deine Fortschritte sieht. "Du hast Änderungen zur Staging-Area hinzugefügt. Jetzt ist es Zeit für deinen ersten Commit."\n\nEr erklärt: "Ein Commit ist wie ein Snapshot deines Projekts zu einem bestimmten Zeitpunkt. Jeder Commit braucht eine Nachricht, die beschreibt, was geändert wurde. Das ist wichtig für die Nachvollziehbarkeit."',
+        '"Super gemacht!" sagt Alex, als er deine Fortschritte sieht. "Deine Änderungen sind gestaged. Jetzt machen wir sie dauerhaft."\n\nEr erklärt: "`git commit` nimmt alles aus der Staging-Area und schreibt es als einen Snapshot in die Historie — mit deinem Namen, der Zeit und einer Nachricht. Danach ist die Staging-Area wieder leer, bereit für die nächste Runde."\n\n"Zwei Dinge solltest du wissen. Ein Commit ohne gestagete Änderungen tut gar nichts — Git sagt dir dann, dass es nichts zu committen gibt, und fast immer fehlt ein `git add`. Und die Nachricht ist keine Bürokratie: `-m \"...\"` ist der Weg, auf dem die nächste Person — meist du selbst in drei Monaten — erfährt, warum diese Änderung existiert."',
     "files.level2.story.realWorldContext":
         "Gute Commit-Nachrichten sind in Entwicklerteams extrem wichtig. Sie helfen allen zu verstehen, warum eine Änderung gemacht wurde, nicht nur was geändert wurde.",
     "files.level2.story.taskIntroduction": "Erstelle deinen ersten Commit mit einer aussagekräftigen Nachricht.",

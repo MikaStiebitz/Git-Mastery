@@ -1,6 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
-import { notARepository } from "../base/GitErrors";
+import { hint, notARepository } from "../base/GitErrors";
 
 export class DiffCommand implements Command {
     name = "git diff";
@@ -83,13 +83,25 @@ export class DiffCommand implements Command {
                 }
             }
         } else {
-            // Show working tree changes (modified/untracked files)
-            const modifiedFiles = Object.entries(status).filter(([_, s]) => s === "modified" || s === "untracked");
+            // Show working tree changes.
+            //
+            // Only tracked files that changed. Real `git diff` never shows an untracked file — it has
+            // no committed version to compare against — and including them here meant a stray new file
+            // could fill the output while the modified file the task was about went unmentioned.
+            const modifiedFiles = Object.entries(status).filter(([_, s]) => s === "modified" || s === "deleted");
 
             if (specificFile) {
                 const normalizedFile = specificFile.startsWith("/") ? specificFile.substring(1) : specificFile;
                 const fileStatus = status[normalizedFile];
-                if (fileStatus === "modified" || fileStatus === "untracked") {
+
+                if (fileStatus === "untracked") {
+                    return [
+                        hint(`'${specificFile}' is untracked, so there is nothing to compare it against.`),
+                        hint(`Run 'git add ${specificFile}' first, then 'git diff --staged' to see it.`),
+                    ];
+                }
+
+                if (fileStatus === "modified" || fileStatus === "deleted") {
                     output.push(`diff --git a/${specificFile} b/${specificFile}`);
                     output.push("index abcdef..012345 100644");
                     output.push(`--- a/${specificFile}`);

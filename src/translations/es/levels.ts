@@ -64,14 +64,15 @@ const levels = {
     "intro.level1.description": "Crear un nuevo repositorio Git",
     "intro.level1.objective1": "Inicializar un nuevo repositorio",
     "intro.level1.hint1": "Usa el comando `git init`",
-    "intro.level1.hint2": "Esto crea un directorio oculto .git",
+    "intro.level1.hint2":
+        "Esto crea una carpeta oculta .git — esa carpeta *es* el repositorio, donde Git guarda cada versión",
     "intro.level1.requirement1.description": "Inicializar un repositorio Git",
     "intro.level1.requirement1.success": "¡Bien hecho! Has creado un repositorio Git.",
     "intro.level1.story.title": "Bienvenido al Equipo",
     "intro.level1.story.narrative":
-        "¡Bienvenido a tu nuevo trabajo como desarrollador en TechStart! Soy Alex, tu líder de equipo.\n\nEs tu primer día y queremos ayudarte a ser productivo rápidamente. Usamos Git para el control de versiones: nos ayuda a rastrear cambios en el código y a trabajar juntos como equipo.\n\nLo primero que debes hacer es crear un nuevo repositorio para tu proyecto de incorporación. Usamos el comando `git init` para esto.",
+        "¡Bienvenido a tu nuevo trabajo como desarrollador en TechStart! Soy Alex, tu líder de equipo.\n\nAntes de escribir un solo comando: ¿qué es Git y por qué todos los equipos insisten en usarlo?\n\nImagina que hoy los dos editamos el mismo archivo. Tú me envías `login-final.js`, yo te devuelvo `login-final-v2.js`, y para el viernes nadie sabe qué versión funciona — ni cómo era el archivo el lunes, cuando todavía funcionaba.\n\nGit es un sistema de control de versiones y resuelve exactamente eso. Guarda el historial completo de tu proyecto: cada cambio, quién lo hizo y una forma de volver a cualquier estado anterior. También permite que varias personas trabajen en el mismo código sin sobrescribirse entre sí.\n\nGit almacena ese historial en un repositorio: tu carpeta de proyecto habitual más una carpeta oculta `.git` donde se conserva cada versión. Crear uno requiere un único comando: `git init`.",
     "intro.level1.story.realWorldContext":
-        "En los equipos de desarrollo reales, Git es esencial. Es la primera herramienta que configuras para un nuevo proyecto.",
+        'Git es el estándar del control de versiones: prácticamente todos los equipos de software lo usan, y es la primera herramienta que se configura en un nuevo proyecto. Sin él, "¿quién cambió esto, cuándo y por qué?" no tiene respuesta.',
     "intro.level1.story.taskIntroduction": "Vamos a crear un nuevo repositorio para tu proyecto.",
 
     "intro.level2.name": "Estado del Repositorio",
@@ -92,16 +93,18 @@ const levels = {
     "intro.level3.description": "Aprender a clonar repositorios existentes",
     "intro.level3.objective1": "Clonar un repositorio remoto",
     "intro.level3.objective2": "Navegar al repositorio clonado",
-    "intro.level3.hint1": "Usa el comando `git clone <url>`",
+    "intro.level3.hint1":
+        "Ejecuta `git clone` seguido de una dirección real, p. ej. `git clone https://github.com/octocat/Hello-World.git`",
     "intro.level3.hint2": "Después de clonar, usa `cd` para navegar a la carpeta del repositorio",
-    "intro.level3.hint3": "La URL del repositorio puede ser cualquier URL válida de Git",
+    "intro.level3.hint3":
+        "Tiene que ser una dirección real como https://github.com/user/repo.git — un marcador entre corchetes angulares será rechazado",
     "intro.level3.requirement1.description": "Clonar un repositorio remoto",
     "intro.level3.requirement1.success": "¡Genial! Has clonado el repositorio.",
     "intro.level3.requirement2.description": "Navegar al repositorio clonado usando cd",
     "intro.level3.requirement2.success": "¡Perfecto! Ahora estás dentro del repositorio clonado.",
     "intro.level3.story.title": "Unirse a un Proyecto Existente",
     "intro.level3.story.narrative":
-        '¡Tu primera semana en TechStart va genial! Alex te llama con noticias emocionantes.\n\n"Tenemos un proyecto de equipo que necesita tu ayuda," dice. "El código ya está en nuestro servidor Git. Necesitarás clonarlo en tu máquina local para empezar a trabajar en él."\n\nExplica: "Cuando te unes a un proyecto existente, no empiezas desde cero. En cambio, clonas el repositorio remoto, lo que crea una copia completa en tu máquina, incluido todo el código, el historial y las ramas."\n\n"¡Piensa en ello como sacar un libro de la biblioteca, excepto que también obtienes todos los registros de la biblioteca! Usa `git clone <url-del-repositorio>` para empezar."\n\n"Una vez clonado, puedes navegar a la carpeta del proyecto con `cd <nombre-de-carpeta>` y empezar a trabajar de inmediato. Todo el historial y los cambios del proyecto están disponibles para ti."',
+        '¡Tu primera semana en TechStart va genial! Alex te llama con noticias emocionantes.\n\n"Tenemos un proyecto de equipo que necesita tu ayuda," dice. "El código ya está en nuestro servidor Git. Necesitarás clonarlo en tu máquina local para empezar a trabajar en él."\n\nExplica: "Cuando te unes a un proyecto existente, no empiezas desde cero. En cambio, clonas el repositorio remoto, lo que crea una copia completa en tu máquina, incluido todo el código, el historial y las ramas."\n\n"¡Piensa en ello como sacar un libro de la biblioteca, excepto que también obtienes todos los registros de la biblioteca! Ejecuta `git clone` seguido de la dirección del repositorio, por ejemplo `git clone https://github.com/octocat/Hello-World.git`."\n\n"Una cosa sobre estas instrucciones: todo lo que va entre corchetes angulares es un marcador de posición. Reemplázalo, corchetes incluidos: Git no tiene ni idea de qué significa `<repository-url>`."\n\n"Una vez clonado, puedes navegar a la carpeta del proyecto con `cd <nombre-de-carpeta>` y empezar a trabajar de inmediato. Todo el historial y los cambios del proyecto están disponibles para ti."',
     "intro.level3.story.realWorldContext":
         "Clonar es cómo los desarrolladores se unen a proyectos existentes. Ya sea contribuyendo al código abierto o uniéndose a un nuevo equipo, git clone suele ser el primer comando que ejecutas.",
     "intro.level3.story.taskIntroduction": "Clona un repositorio y navega a él para empezar a trabajar en el proyecto.",
@@ -119,9 +122,9 @@ const levels = {
     "files.level1.requirement1.success": "¡Genial! Has añadido todos los archivos al área de preparación.",
     "files.level1.story.title": "Preparando Cambios en el Código",
     "files.level1.story.narrative":
-        '"¡Oye!" llama Sarah, tu colega, "veo que ya has empezado con Git. Ahora deberías aprender cómo preparar cambios."\n\nExplica: "Cuando modificas archivos, necesitas decirle explícitamente a Git qué cambios deben incluirse en el próximo commit. Esto se llama \'preparar\' y funciona con `git add`."',
+        '"¡Oye!" llama Sarah, tu colega. "Es hora de aprender cómo guarda Git tu trabajo de verdad, porque editar un archivo no es suficiente."\n\nDibuja tres cajas en la pizarra:\n\n1. **Tu carpeta** — donde editas los archivos. Git la observa, pero no guarda nada por su cuenta.\n2. **El área de preparación** — la lista de cambios que quieres incluir en tu próximo guardado.\n3. **El repositorio** — el historial permanente de todos los guardados.\n\n"Un commit solo registra lo que está en el área de preparación", dice. "Por eso no puedes hacer commit directamente después de editar algo: Git no da por hecho que todos los cambios que hiciste van juntos. Tú decides. `git add <file>` pone un cambio en preparación, y `git add .` toma todo lo que hay en la carpeta actual."',
     "files.level1.story.realWorldContext":
-        "El concepto de preparación es una característica poderosa de Git. Te permite hacer commit solo de los cambios seleccionados mientras otros pueden seguir en progreso.",
+        "La preparación es el paso que los principiantes se saltan y en el que los desarrolladores experimentados se apoyan. ¿Arreglaste dos cosas sin relación entre sí? Prepáralas y haz commit por separado: así el historial sigue siendo legible y cada cambio puede deshacerse por su cuenta más adelante.",
     "files.level1.story.taskIntroduction": "Añade todos los archivos al área de preparación con `git add .`.",
 
     "files.level2.name": "Confirmar Cambios",
@@ -133,7 +136,7 @@ const levels = {
     "files.level2.requirement1.success": "¡Excelente! Has creado un commit exitosamente.",
     "files.level2.story.title": "Tu Primer Commit",
     "files.level2.story.narrative":
-        '"¡Buen trabajo!" dice Alex cuando ve tu progreso. "Has añadido los cambios al área de preparación. Ahora es el momento de tu primer commit."\n\nExplica: "Un commit es como una instantánea de tu proyecto en un momento específico del tiempo. Cada commit necesita un mensaje que describa qué se cambió. Esto es importante para la trazabilidad."',
+        '"¡Buen trabajo!" dice Alex cuando ve tu progreso. "Tus cambios están preparados. Ahora hazlos permanentes."\n\nExplica: "`git commit` toma todo lo que está en el área de preparación y lo escribe en el historial como una única instantánea, junto con tu nombre, la hora y un mensaje. Después el área de preparación vuelve a estar vacía, lista para el siguiente lote."\n\n"Dos cosas que vale la pena saber. Un commit sin nada preparado no hace absolutamente nada: Git te dirá que no hay nada que confirmar, y eso casi siempre significa que falta un `git add`. Y el mensaje no es burocracia: `-m "..."` es la forma en que la siguiente persona, normalmente tú mismo dentro de tres meses, descubre por qué existe este cambio."',
     "files.level2.story.realWorldContext":
         "Los buenos mensajes de commit son extremadamente importantes en los equipos de desarrollo. Ayudan a todos a entender por qué se hizo un cambio, no solo qué cambió.",
     "files.level2.story.taskIntroduction": "Crea tu primer commit con un mensaje significativo.",
