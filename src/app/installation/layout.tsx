@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         siteName: "Git Mastery",
         images: [
             {
-                url: "/home-screen.png",
+                url: "/og-cover.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Git Mastery Installation Guide",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Installation Guide - Git Mastery",
         description: "Learn how to install and set up Git on your system",
-        images: ["/home-screen.png"],
+        images: ["/og-cover.jpg"],
     },
     alternates: {
         canonical: "/installation",

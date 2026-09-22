@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://gitmastery.me">
-    <img src="./public/hero-rails.webp" alt="GitMastery — Master Git through play" width="100%" />
+    <img src="./public/og-cover.jpg" alt="GitMastery — Master Git through play" width="100%" />
   </a>
 
 <br/><br/>

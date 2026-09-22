@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         siteName: "Git Mastery",
         images: [
             {
-                url: "/home-screen.png",
+                url: "/og-cover.jpg",
                 width: 1200,
                 height: 630,
                 alt: "Git Mastery Playground",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Git Playground - Git Mastery",
         description: "Practice Git commands in a safe sandbox environment",
-        images: ["/home-screen.png"],
+        images: ["/og-cover.jpg"],
     },
     alternates: {
         canonical: "/playground",

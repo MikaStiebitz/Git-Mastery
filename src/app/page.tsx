@@ -149,6 +149,9 @@ export default function Home() {
     // used to strand the secondary CTA row at opacity 0.
     useEffect(() => {
         if (!rootRef.current) return;
+        // The entrance fades the hero in from zero, so it must not start on a tab whose ticker
+        // is paused — the hero would stay invisible until the tab is focused.
+        if (document.visibilityState !== "visible") return;
         gsap.registerPlugin(ScrollTrigger);
 
         const heroTargets = ".hero-word > span, .hero-play, .hero-sub, .hero-cta > *, .hero-panel";
@@ -228,7 +231,6 @@ export default function Home() {
                 // HUD slides up like a game overlay
                 gsap.from(".hud", {
                     y: 40,
-                    autoAlpha: 0,
                     duration: 0.9,
                     ease: "expo.out",
                     scrollTrigger: { trigger: ".hud", start: "top 92%", once: true },
@@ -273,13 +275,9 @@ export default function Home() {
                         defaults: { ease: "expo.out" },
                         scrollTrigger: { trigger: row, start: "top 82%", once: true },
                     });
-                    tl.from(row.querySelector("[data-stage-node]"), { scale: 0.4, autoAlpha: 0, duration: 0.8 })
-                        .from(row.querySelector("[data-stage-body]"), { x: 40, autoAlpha: 0, duration: 0.9 }, "<0.05")
-                        .from(
-                            row.querySelectorAll("[data-level]"),
-                            { y: 18, autoAlpha: 0, duration: 0.6, stagger: 0.05 },
-                            "<0.2",
-                        );
+                    tl.from(row.querySelector("[data-stage-node]"), { scale: 0.7, duration: 0.8 })
+                        .from(row.querySelector("[data-stage-body]"), { x: 40, duration: 0.9 }, "<0.05")
+                        .from(row.querySelectorAll("[data-level]"), { y: 18, duration: 0.6, stagger: 0.05 }, "<0.2");
                 });
 
                 // Feature cartridges drop in with a little tilt, each from its own side
@@ -287,7 +285,6 @@ export default function Home() {
                     gsap.from(el, {
                         y: 70,
                         rotate: i % 2 === 0 ? -6 : 6,
-                        autoAlpha: 0,
                         duration: 1.1,
                         ease: "expo.out",
                         scrollTrigger: { trigger: el, start: "top 85%", once: true },
@@ -296,12 +293,15 @@ export default function Home() {
                 gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach(el => {
                     gsap.from(el, {
                         y: 30,
-                        autoAlpha: 0,
                         duration: 0.9,
                         ease: "expo.out",
                         scrollTrigger: { trigger: el, start: "top 88%", once: true },
                     });
                 });
+
+                // Coming back through history restores a scroll position that the triggers
+                // above were created before; without this they never fire.
+                requestAnimationFrame(() => ScrollTrigger.refresh());
             });
         }, rootRef);
 

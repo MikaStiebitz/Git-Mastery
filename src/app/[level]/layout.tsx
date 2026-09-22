@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             siteName: "Git Mastery",
             images: [
                 {
-                    url: "/home-screen.png",
+                    url: "/og-cover.jpg",
                     width: 1200,
                     height: 630,
                     alt: `Git Mastery - ${levelName}`,
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             card: "summary_large_image",
             title: `${levelName} - Git Mastery`,
             description: `Learn ${levelName.toLowerCase()} through interactive Git challenges`,
-            images: ["/home-screen.png"],
+            images: ["/og-cover.jpg"],
         },
         alternates: {
             canonical: `/${level}`,

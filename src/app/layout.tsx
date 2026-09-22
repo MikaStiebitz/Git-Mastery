@@ -46,9 +46,9 @@ export const metadata: Metadata = {
         siteName: "GitMastery",
         images: [
             {
-                url: "/home-screen.png",
-                width: 1849,
-                height: 960,
+                url: "/og-cover.jpg",
+                width: 1200,
+                height: 630,
                 alt: "GitMastery - Learn Git Through Play",
             },
         ],
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "GitMastery - Master Git Through Play",
         description: "Learn Git commands and concepts through fun, interactive challenges",
-        images: ["/home-screen.png"],
+        images: ["/og-cover.jpg"],
     },
     // Google renders favicons on a white search-results background, so every icon
     // below is an opaque tile rather than a bare transparent glyph. Only one SVG is
