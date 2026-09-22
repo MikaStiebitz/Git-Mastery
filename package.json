@@ -1,6 +1,6 @@
 {
   "name": "git-mastery",
-  "version": "1.9.8",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "scripts": {
