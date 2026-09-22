@@ -645,43 +645,55 @@ const levels = {
     "archaeology.level1.name": "Git Blame - Code-Archäologie",
     "archaeology.level1.description":
         "Untersuche Code-Historie um Änderungen zu verstehen und den Ursprung von Bugs zu finden",
-    "archaeology.level1.objective1": "Finde heraus wer bestimmte Zeilen geschrieben hat",
-    "archaeology.level1.objective2": "Verfolge die Historie eines Bugs",
-    "archaeology.level1.objective3": "Verstehe den Kontext von Code-Änderungen",
-    "archaeology.level1.objective4": "Finde verwandte Commits und Änderungen",
-    "archaeology.level1.hint1": "git blame zeigt wer jede Zeile zuletzt geändert hat",
-    "archaeology.level1.hint2": "Verwende die -L Option um spezifische Zeilenbereiche zu untersuchen",
-    "archaeology.level1.hint3": "Kombiniere blame mit log um den Kontext zu verstehen",
-    "archaeology.level1.hint4": "Suche nach Mustern in Commit-Nachrichten",
-    "archaeology.level1.requirement1.description": "Untersuche wer die Validierungslogik geschrieben hat",
+    "archaeology.level1.objective1":
+        "Nutze git blame, um zu sehen, welcher Commit jede Zeile von src/utils/validator.js zuletzt geändert hat",
+    "archaeology.level1.objective2": "Nutze git log --oneline für eine kompakte Übersicht der Commit-Historie",
+    "archaeology.level1.objective3":
+        "Nutze git show, um die vollständigen Details eines bestimmten Commits zu untersuchen",
+    "archaeology.level1.hint1":
+        "Führe `git blame src/utils/validator.js` aus, um zu sehen, welcher Commit jede Zeile zuletzt geändert hat",
+    "archaeology.level1.hint2":
+        "Grenze mit einem Zeilenbereich ein, z. B. `git blame -L 10,20 src/utils/validator.js`, um dich auf einen Teil der Datei zu konzentrieren",
+    "archaeology.level1.hint3":
+        "Führe `git log --oneline` aus, um eine kompakte Historie aller Commits mit kurzem Hash zu sehen",
+    "archaeology.level1.hint4":
+        "Kopiere einen Commit-Hash aus dem Log und führe `git show <hash>` (oder `git show HEAD`) aus, um genau zu sehen, was sich geändert hat",
+    "archaeology.level1.requirement1.description":
+        "Führe git blame auf src/utils/validator.js aus, um zu sehen, welcher Commit jede Zeile zuletzt geändert hat",
     "archaeology.level1.requirement1.success": "Code-Urheberschaft aufgedeckt!",
-    "archaeology.level1.requirement2.description": "Prüfe die aktuelle Commit-Historie für Kontext",
+    "archaeology.level1.requirement2.description":
+        "Führe git log --oneline aus, um eine kompakte Commit-Historie zu sehen",
     "archaeology.level1.requirement2.success": "Aktuelle Historie untersucht!",
-    "archaeology.level1.requirement3.description": "Untersuche die Details eines spezifischen Commits",
+    "archaeology.level1.requirement3.description":
+        "Führe git show auf einem Commit aus, z. B. git show HEAD, um dessen vollständige Details zu sehen",
     "archaeology.level1.requirement3.success": "Commit-Details analysiert!",
     "archaeology.level1.story.title": "Der Fall des mysteriösen Bugs",
     "archaeology.level1.story.narrative":
-        "Ein kritischer Bug im Validierungscode betrifft 23% der europäischen Kunden. Der Code wurde von 4 verschiedenen Entwicklern über 18 Monate geschrieben. Dein Senior-Entwickler erklärt: 'Willkommen bei der Code-Archäologie! Git ist nicht nur Versionskontrolle - es ist deine Zeitmaschine. Jede Zeile hat eine Geschichte.' Nutze git blame, git log und git show um den Bug zu untersuchen und zu verstehen warum der Code so geschrieben wurde.",
+        "Ein kritischer Bug im Validierungscode betrifft 23% der europäischen Kunden. Der Code wurde von 4 verschiedenen Entwicklern über 18 Monate geschrieben. Dein Senior-Entwickler erklärt: 'Willkommen bei der Code-Archäologie! Git ist nicht nur Versionskontrolle - es ist deine Zeitmaschine. Jede Zeile hat eine Geschichte.' Beginne mit `git blame src/utils/validator.js`, um zu sehen, welcher Commit jede Zeile zuletzt geändert hat, und nutze dann `git log --oneline` und `git show`, um zu verstehen, warum der Code so geschrieben wurde.",
     "archaeology.level1.story.realWorldContext":
         "Code-Archäologie-Fähigkeiten sind essenziell für die Wartung großer, langlebiger Codebasen mit mehreren Mitwirkenden.",
     "archaeology.level1.story.taskIntroduction":
-        "Lerne Code-Historie zu untersuchen und die Quelle von Bugs mithilfe von Git-Forensik-Tools aufzuspüren.",
+        "Lerne, Code-Historie zu untersuchen und die Quelle von Bugs mithilfe von Gits Forensik-Tools aufzuspüren: git blame, git log und git show.",
 
     "archaeology.level2.name": "Commit-Forensik mit Git Log",
     "archaeology.level2.description": "Beherrsche fortgeschrittene Techniken zur Untersuchung komplexer Code-Historie",
-    "archaeology.level2.objective1": "Verwende erweiterte Log-Filter um spezifische Änderungen zu finden",
-    "archaeology.level2.objective2": "Verfolge Datei-Umbenennungen und -Verschiebungen",
-    "archaeology.level2.objective3": "Finde Commits anhand von Inhaltsänderungen",
-    "archaeology.level2.objective4": "Analysiere Commit-Muster und Trends",
-    "archaeology.level2.hint1": "Verwende --grep um Commit-Nachrichten zu durchsuchen",
-    "archaeology.level2.hint2": "Verwende -S um zu finden wann spezifischer Text hinzugefügt/entfernt wurde",
-    "archaeology.level2.hint3": "Verwende --follow um Dateien durch Umbenennungen zu verfolgen",
-    "archaeology.level2.hint4": "Kombiniere Filter für mächtige Suchen",
-    "archaeology.level2.requirement1.description": "Finde alle Commits die mit Security zu tun haben",
+    "archaeology.level2.objective1": "Nutze git log --grep, um Commit-Nachrichten nach einem Stichwort zu durchsuchen",
+    "archaeology.level2.objective2":
+        "Nutze git log -S, um Commits zu finden, die einen bestimmten Text hinzugefügt oder entfernt haben",
+    "archaeology.level2.objective3": "Nutze git log --author, um Commits nach einer bestimmten Person zu filtern",
+    "archaeology.level2.hint1":
+        "Führe `git log --grep=security` aus, um Commit-Nachrichten nach 'security' zu durchsuchen",
+    "archaeology.level2.hint2":
+        "Führe `git log -S password` aus, um Commits zu finden, die das Wort 'password' im Code hinzugefügt oder entfernt haben",
+    "archaeology.level2.hint3": "Führe `git log --author=Sarah` aus, um nur Commits von Sarah zu sehen",
+    "archaeology.level2.hint4": "Du kannst diese mit `--oneline` für kompaktere Ausgabe kombinieren",
+    "archaeology.level2.requirement1.description":
+        "Durchsuche Commit-Nachrichten nach 'security' mit git log --grep=security",
     "archaeology.level2.requirement1.success": "Sicherheitsrelevante Commits gefunden!",
-    "archaeology.level2.requirement2.description": "Finde Commits die 'password' Text hinzugefügt oder entfernt haben",
+    "archaeology.level2.requirement2.description":
+        "Finde Commits, die das Wort 'password' hinzugefügt oder entfernt haben, mit git log -S password",
     "archaeology.level2.requirement2.success": "Passwort-bezogene Änderungen verfolgt!",
-    "archaeology.level2.requirement3.description": "Finde alle Commits von Sarah um ihre Beiträge zu verstehen",
+    "archaeology.level2.requirement3.description": "Finde alle Commits von Sarah mit git log --author=Sarah",
     "archaeology.level2.requirement3.success": "Sarahs Beitrags-Historie analysiert!",
     "archaeology.level2.story.title": "Der Security-Audit-Pfad",
     "archaeology.level2.story.narrative":
@@ -694,23 +706,31 @@ const levels = {
     "archaeology.level3.name": "Git Reflog - Die Zeitmaschine",
     "archaeology.level3.description":
         "Verwende Git reflog um verlorene Commits wiederherzustellen und Repository-Zustandsänderungen zu verstehen",
-    "archaeology.level3.objective1": "Verstehe was reflog verfolgt",
-    "archaeology.level3.objective2": "Stelle versehentlich gelöschte Commits wieder her",
-    "archaeology.level3.objective3": "Finde verlorene Branch-Referenzen",
-    "archaeology.level3.objective4": "Stelle frühere Repository-Zustände wieder her",
-    "archaeology.level3.hint1": "Reflog verfolgt alle HEAD-Bewegungen",
-    "archaeology.level3.hint2": "Verwende git reflog um kürzliche Aktionen zu sehen",
-    "archaeology.level3.hint3": "git reset --hard kann reflog-Referenzen verwenden",
-    "archaeology.level3.hint4": "Reflog-Einträge verfallen standardmäßig nach 90 Tagen",
-    "archaeology.level3.requirement1.description": "Prüfe das reflog um kürzliche HEAD-Bewegungen zu sehen",
+    "archaeology.level3.objective1":
+        "Nutze git reflog, um jede HEAD-Bewegung zu sehen, einschließlich 'verlorener' Commits",
+    "archaeology.level3.objective2":
+        "Nutze git reset --hard mit einer reflog-Referenz (z. B. HEAD@{0}), um die verlorene Arbeit wiederherzustellen",
+    "archaeology.level3.objective3":
+        "Erstelle einen Branch, der auf einen reflog-Eintrag zeigt, um die wiederhergestellten Commits zu sichern",
+    "archaeology.level3.hint1":
+        "`git reflog` listet jeden Commit auf, auf den HEAD gezeigt hat - auch scheinbar 'gelöschte'",
+    "archaeology.level3.hint2":
+        "Jeder reflog-Eintrag hat eine Referenz wie `HEAD@{0}`, `HEAD@{1}` - die letzte Aktion ist `HEAD@{0}`",
+    "archaeology.level3.hint3":
+        "Nutze `git reset --hard <reflog-referenz>`, um den Branch auf diesen Commit zurückzusetzen",
+    "archaeology.level3.hint4":
+        "Du kannst auch einen neuen Branch auf einen reflog-Eintrag zeigen lassen: `git branch <name> <reflog-referenz>`",
+    "archaeology.level3.requirement1.description": "Führe git reflog aus, um kürzliche HEAD-Bewegungen zu sehen",
     "archaeology.level3.requirement1.success": "Reflog-Historie untersucht!",
-    "archaeology.level3.requirement2.description": "Setze auf einen früheren Zustand mit reflog-Referenz zurück",
+    "archaeology.level3.requirement2.description":
+        "Stelle den verlorenen Commit mit git reset --hard und einer reflog-Referenz wieder her, z. B. git reset --hard HEAD@{0}",
     "archaeology.level3.requirement2.success": "Repository-Zustand wiederhergestellt!",
-    "archaeology.level3.requirement3.description": "Erstelle einen Recovery-Branch von einem reflog-Eintrag",
+    "archaeology.level3.requirement3.description":
+        "Erstelle einen Recovery-Branch, der auf einen reflog-Eintrag zeigt, z. B. git branch recovery HEAD@{1}",
     "archaeology.level3.requirement3.success": "Recovery-Branch erstellt!",
     "archaeology.level3.story.title": "Die große Git-Katastrophen-Wiederherstellung",
     "archaeology.level3.story.narrative":
-        "Es ist Freitag 16:30 Uhr. Dein Teamkollege Jake gerät in Panik: 'Ich habe versehentlich git reset --hard ausgeführt und zwei Wochen Arbeit verloren! Das Authentifizierungssystem, UI-Komponenten, Tests - alles weg!' Aber du erinnerst dich: Git vergisst nie. Git reflog verfolgt jeden Commit, Branch-Wechsel, Merge und Reset. Selbst 'gelöschte' Commits existieren im reflog für 90 Tage. Deine Mission: Untersuche das reflog, finde die verlorenen Commits und stelle Jakes Arbeit wieder her. Zeit der Held zu sein!",
+        "Es ist Freitag 16:30 Uhr. Dein Teamkollege Jake gerät in Panik: 'Ich habe versehentlich git reset --hard ausgeführt und zwei Wochen Arbeit verloren! Das Authentifizierungssystem, UI-Komponenten, Tests - alles weg!' Aber du erinnerst dich: Git vergisst nie. Git reflog verfolgt jeden Commit, Branch-Wechsel, Merge und Reset. Selbst 'gelöschte' Commits existieren im reflog für 90 Tage. Deine Mission: Führe `git reflog` aus, finde die verlorenen Commits und stelle Jakes Arbeit mit `git reset --hard` und einem Recovery-Branch wieder her. Zeit, der Held zu sein!",
     "archaeology.level3.story.realWorldContext":
         "Git reflog ist ein mächtiges Wiederherstellungs-Tool das Entwickler vor katastrophalen Datenverlusten retten kann.",
     "archaeology.level3.story.taskIntroduction":
@@ -1043,9 +1063,6 @@ Zeit das zu fixen und weiterzumachen!`,
     "teamwork.level3.requirement3.success": "Branch zum Remote gepusht - bereit für Review!",
     "teamwork.level3.requirement4.description": "Wechsle zu main Branch",
     "teamwork.level3.requirement4.success": "Zu main gewechselt!",
-    "teamwork.level3.requirement5.description": "Merge deinen Feature-Branch nach 'Review'",
-    "teamwork.level3.requirement5.success":
-        "Code gereviewed und gemergt! So liefern professionelle Teams qualitativ hochwertigen Code.",
     "teamwork.level3.story.title": "Der Code-Review",
     "teamwork.level3.story.narrative": `Du hast gerade ein wichtiges Feature fertiggestellt: ein neues Dashboard für deine App. Zeit es durch Code-Review zu bekommen!
 
@@ -1132,8 +1149,6 @@ Zeit zu mergen!`,
     "mastery.level2.hint2": "Pre-Commit-Hooks laufen bevor ein Commit erstellt wird",
     "mastery.level2.hint3": "Hooks befinden sich im .git/hooks/ Verzeichnis",
     "mastery.level2.hint4": "Häufige Hooks: pre-commit, pre-push, post-commit",
-    "mastery.level2.hint5": "Hooks können Tests ausführen, Code linten oder Nachrichten validieren",
-    "mastery.level2.hint6": "Wenn ein Pre-Commit-Hook fehlschlägt, wird der Commit abgebrochen",
     "mastery.level2.requirement1.description": "Committe Änderungen um Hook-Konzepte zu lernen",
     "mastery.level2.requirement1.success": "Hook-Automatisierung verstanden!",
     "mastery.level2.requirement2.description": "Implementiere Pre-Commit-Validierung",
@@ -1239,8 +1254,6 @@ Zeit zu automatisieren!`,
     "mastery.level3.hint2": "Erstelle Feature-Branches für verschiedene Aufgaben",
     "mastery.level3.hint3": "Verwende rebase um Historie sauber zu halten",
     "mastery.level3.hint4": "Behandle Merge-Konflikte sorgfältig",
-    "mastery.level3.hint5": "Halte dich mit Remote mit pull und push synchron",
-    "mastery.level3.hint6": "Verwende aussagekräftige Commit-Nachrichten",
     "mastery.level3.requirement1.description": "Erstelle und merge mehrere Feature-Branches",
     "mastery.level3.requirement1.success": "Multi-Branch-Workflow gemeistert!",
     "mastery.level3.requirement2.description": "Behandle Konflikte professionell",

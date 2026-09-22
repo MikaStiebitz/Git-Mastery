@@ -1,83 +1,83 @@
 const faq = {
-    "faq.title": "Frequently Asked Questions about Git",
-    "faq.subtitle": "Everything You Need to Know About Git",
+    "faq.title": "پرسش‌های متداول درباره Git",
+    "faq.subtitle": "هر آنچه باید درباره Git بدانید",
     "faq.intro":
-        "Git is a powerful and widely used version control system. Here are answers to common questions about Git, its purpose, and how it's used in software development.",
+        "Git یک سیستم کنترل نسخه قدرتمند و پرکاربرد است. در اینجا پاسخ سوالات رایج درباره Git، هدف آن و نحوه استفاده از آن در توسعه نرم‌افزار آمده است.",
 
     // Categories
-    "faq.categories.basics": "Git Basics",
-    "faq.categories.concepts": "Key Concepts",
-    "faq.categories.usage": "Practical Usage",
+    "faq.categories.basics": "مبانی Git",
+    "faq.categories.concepts": "مفاهیم کلیدی",
+    "faq.categories.usage": "کاربرد عملی",
 
     // Basics Section
-    "faq.whatIsGit.question": "What is Git?",
+    "faq.whatIsGit.question": "Git چیست؟",
     "faq.whatIsGit.answer":
-        "Git is a distributed version control system that tracks changes to files over time. It allows multiple people to collaborate on projects, maintain a history of changes, and revert to previous versions if needed. Unlike centralized version control systems, Git provides each developer with a complete copy of the repository, allowing for offline work and providing redundancy.",
+        "Git یک سیستم کنترل نسخه توزیع‌شده است که تغییرات فایل‌ها را در طول زمان پیگیری می‌کند. این سیستم به افراد متعدد اجازه می‌دهد روی پروژه‌ها همکاری کنند، تاریخچه‌ای از تغییرات را حفظ کنند و در صورت نیاز به نسخه‌های قبلی بازگردند. برخلاف سیستم‌های کنترل نسخه متمرکز، Git به هر توسعه‌دهنده یک نسخه کامل از مخزن می‌دهد که امکان کار آفلاین و ایجاد افزونگی را فراهم می‌کند.",
 
-    "faq.whyCreated.question": "Why was Git created?",
+    "faq.whyCreated.question": "چرا Git ایجاد شد؟",
     "faq.whyCreated.answer":
-        "Git was created by Linus Torvalds in 2005 for the development of the Linux kernel. Torvalds needed a distributed version control system that was fast, supported non-linear development with thousands of parallel branches, and could handle large projects like the Linux kernel efficiently. Existing tools at the time couldn't meet these requirements, so he developed Git. The name 'git' is British slang for 'unpleasant person', which Torvalds jokingly applied to the software (and himself).",
+        "Git توسط Linus Torvalds در سال 2005 برای توسعه هسته لینوکس ایجاد شد. Torvalds به یک سیستم کنترل نسخه توزیع‌شده نیاز داشت که سریع باشد، از توسعه غیرخطی با هزاران شاخه موازی پشتیبانی کند و بتواند پروژه‌های بزرگی مانند هسته لینوکس را به‌طور کارآمد مدیریت کند. ابزارهای موجود در آن زمان نمی‌توانستند این نیازها را برآورده کنند، بنابراین او Git را توسعه داد. نام «git» در انگلیسی عامیانه بریتانیایی به معنای «آدم ناخوشایند» است؛ اصطلاحی که Torvalds به شوخی آن را هم برای این نرم‌افزار و هم برای خودش به کار برد.",
 
-    "faq.vsOtherVcs.question": "How does Git differ from other version control systems?",
+    "faq.vsOtherVcs.question": "Git چه تفاوتی با سایر سیستم‌های کنترل نسخه دارد؟",
     "faq.vsOtherVcs.answer":
-        "Git differs from older systems like SVN (Subversion) or CVS in several key ways:\n\n• It's distributed rather than centralized, giving each developer a full copy of the repository\n• It's designed for non-linear development with robust branching and merging capabilities\n• It's much faster, especially for operations like branching and merging\n• It uses a different approach to storing data, focusing on snapshots rather than file differences\n• It has better data integrity through its use of SHA-1 hashes\n• It provides strong support for offline operations",
+        "Git از سیستم‌های قدیمی‌تری مانند SVN (Subversion) یا CVS از چند جهت کلیدی متفاوت است:\n\n• به جای متمرکز بودن، توزیع‌شده است و به هر توسعه‌دهنده یک نسخه کامل از مخزن می‌دهد\n• برای توسعه غیرخطی با قابلیت‌های قدرتمند شاخه‌زنی و ادغام طراحی شده است\n• به‌ویژه برای عملیاتی مانند شاخه‌زنی و ادغام بسیار سریع‌تر است\n• از رویکردی متفاوت برای ذخیره داده‌ها استفاده می‌کند و به‌جای تفاوت فایل‌ها، بر عکس‌های لحظه‌ای تمرکز دارد\n• به‌لطف استفاده از هش‌های SHA-1، یکپارچگی داده بهتری دارد\n• پشتیبانی قوی از عملیات آفلاین ارائه می‌دهد",
 
-    "faq.benefits.question": "What are the main benefits of using Git?",
+    "faq.benefits.question": "مزایای اصلی استفاده از Git چیست؟",
     "faq.benefits.answer":
-        "Git offers numerous advantages for software development:\n\n• Speed and efficiency, especially for large projects\n• Powerful branching and merging capabilities that support non-linear development\n• Distributed nature that provides redundancy and enables offline work\n• Strong support for parallel development workflows\n• Excellent data integrity and change tracking\n• Robust ecosystem with tools and hosting services like GitHub, GitLab, and Bitbucket\n• Extensive adoption in the industry, making it a valuable skill for developers\n• Free and open-source software",
+        "Git مزایای بی‌شماری برای توسعه نرم‌افزار ارائه می‌دهد:\n\n• سرعت و کارایی، به‌ویژه برای پروژه‌های بزرگ\n• قابلیت‌های قدرتمند شاخه‌زنی و ادغام که از توسعه غیرخطی پشتیبانی می‌کند\n• ماهیت توزیع‌شده که افزونگی ایجاد می‌کند و کار آفلاین را ممکن می‌سازد\n• پشتیبانی قوی از گردش‌کارهای توسعه موازی\n• یکپارچگی داده و پیگیری تغییرات عالی\n• اکوسیستم قدرتمند با ابزارها و سرویس‌های میزبانی مانند GitHub، GitLab و Bitbucket\n• پذیرش گسترده در صنعت که آن را به مهارتی ارزشمند برای توسعه‌دهندگان تبدیل می‌کند\n• نرم‌افزاری رایگان و متن‌باز",
 
-    "faq.gitVsGithub.question": "What's the difference between Git and GitHub?",
+    "faq.gitVsGithub.question": "تفاوت بین Git و GitHub چیست؟",
     "faq.gitVsGithub.answer":
-        "Git is the version control system itself—the software tool you install on your computer to track changes to your files. GitHub, on the other hand, is a web-based hosting service for Git repositories. GitHub adds additional features like pull requests, issue tracking, code reviews, and other collaboration tools. Similar services include GitLab and Bitbucket. Think of Git as the tool and GitHub as a service built around that tool to make it more user-friendly and to add collaborative features.",
+        "Git خودِ سیستم کنترل نسخه است—ابزار نرم‌افزاری که روی کامپیوتر خود نصب می‌کنید تا تغییرات فایل‌هایتان را پیگیری کنید. GitHub، از سوی دیگر، یک سرویس میزبانی وب‌محور برای مخازن Git است. GitHub ویژگی‌های اضافی مانند pull request، پیگیری issue، بازبینی کد و سایر ابزارهای همکاری را اضافه می‌کند. سرویس‌های مشابه شامل GitLab و Bitbucket هستند. Git را به‌عنوان ابزار و GitHub را به‌عنوان سرویسی که حول آن ابزار ساخته شده تا کاربرپسندتر باشد و ویژگی‌های همکاری اضافه کند، در نظر بگیرید.",
 
     // Concepts Section
-    "faq.repositories.question": "What are repositories in Git?",
+    "faq.repositories.question": "مخزن (repository) در Git چیست؟",
     "faq.repositories.answer":
-        "A repository (or 'repo') is the fundamental unit in Git. It contains all of your project's files and the entire history of changes made to those files. Technically, a Git repository is the .git directory in your project that stores all the metadata and object database for your project. When you clone a repository, you get a copy of this entire history. Repositories can be local (on your machine) or remote (on a server like GitHub).",
+        "مخزن (یا «repo») واحد بنیادین در Git است. این مخزن شامل تمام فایل‌های پروژه شما و کل تاریخچه تغییرات اعمال‌شده روی آن فایل‌هاست. از نظر فنی، یک مخزن Git همان دایرکتوری .git در پروژه شماست که تمام متادیتا و پایگاه‌داده اشیاء پروژه شما را ذخیره می‌کند. وقتی یک مخزن را کلون می‌کنید، نسخه‌ای از کل این تاریخچه را دریافت می‌کنید. مخازن می‌توانند محلی (روی دستگاه شما) یا راه‌دور (روی سروری مانند GitHub) باشند.",
 
-    "faq.commits.question": "What are commits and why are they important?",
+    "faq.commits.question": "کامیت‌ها چه هستند و چرا اهمیت دارند؟",
     "faq.commits.answer":
-        "Commits are snapshots of your entire repository at specific points in time. Each commit has a unique identifier (hash) and includes information about what changed, who made the change, when, and a message describing the change. Commits are important because they:\n\n• Create a history of your project's development\n• Allow you to go back to previous states of your project\n• Help identify when and by whom specific changes were introduced\n• Enable collaboration by providing clear points of reference\n\nGood commit messages are vital for understanding the 'why' behind changes when revisiting code later.",
+        "کامیت‌ها عکس‌های لحظه‌ای از کل مخزن شما در نقاط زمانی مشخص هستند. هر کامیت یک شناسه یکتا (هش) دارد و شامل اطلاعاتی درباره اینکه چه چیزی تغییر کرده، چه کسی تغییر را اعمال کرده، چه زمانی، و پیامی که تغییر را توصیف می‌کند، است. کامیت‌ها مهم هستند زیرا:\n\n• تاریخچه‌ای از توسعه پروژه شما ایجاد می‌کنند\n• به شما اجازه می‌دهند به حالت‌های قبلی پروژه خود بازگردید\n• کمک می‌کنند مشخص شود چه زمانی و توسط چه کسی تغییرات خاصی اعمال شده است\n• با فراهم کردن نقاط مرجع روشن، همکاری را ممکن می‌سازند\n\nپیام‌های کامیت خوب برای درک «چرایی» پشت تغییرات هنگام بازبینی کد در آینده حیاتی هستند.",
 
-    "faq.branches.question": "What are branches and how do they work?",
+    "faq.branches.question": "شاخه‌ها چه هستند و چگونه کار می‌کنند؟",
     "faq.branches.answer":
-        "Branches in Git are simply movable pointers to commits. They allow parallel lines of development, so different features or fixes can be worked on simultaneously without interfering with each other. The default branch is usually called 'main' (previously 'master').\n\nWhen you create a branch, you're essentially creating a new pointer to the current commit. As you make new commits on that branch, the pointer moves forward automatically. This allows you to switch between different states of your project easily and to merge changes from one branch into another when ready.",
+        "شاخه‌ها در Git صرفاً اشاره‌گرهای قابل جابجایی به کامیت‌ها هستند. آن‌ها خطوط موازی توسعه را ممکن می‌سازند، به‌طوری که ویژگی‌ها یا رفع‌اشکال‌های مختلف می‌توانند به‌طور همزمان و بدون تداخل با یکدیگر انجام شوند. شاخه پیش‌فرض معمولاً «main» نامیده می‌شود (که قبلاً «master» بود).\n\nوقتی یک شاخه ایجاد می‌کنید، اساساً یک اشاره‌گر جدید به کامیت فعلی می‌سازید. با ایجاد کامیت‌های جدید روی آن شاخه، اشاره‌گر به‌طور خودکار به جلو حرکت می‌کند. این امر به شما اجازه می‌دهد به‌راحتی بین حالت‌های مختلف پروژه خود جابجا شوید و در زمان مناسب تغییرات یک شاخه را در شاخه دیگر ادغام کنید.",
 
-    "faq.merge.question": "What is merging and how do merge conflicts occur?",
+    "faq.merge.question": "ادغام (merge) چیست و تعارض‌های ادغام چگونه رخ می‌دهند؟",
     "faq.merge.answer":
-        "Merging is the process of combining changes from one branch into another. For example, when a feature is complete in a feature branch, you would merge it into the main branch. Git automatically handles the merging when the changes don't overlap.\n\nMerge conflicts occur when the same part of a file has been changed differently in the two branches being merged. Git can't automatically determine which version to use, so it marks the file as having a conflict that must be resolved manually. The conflict markers in the file show both versions of the code, and you need to edit the file to create the final version before completing the merge.",
+        "ادغام فرآیند ترکیب تغییرات یک شاخه با شاخه دیگر است. برای مثال، وقتی یک ویژگی در یک شاخه feature تکمیل شد، آن را در شاخه main ادغام می‌کنید. وقتی تغییرات با هم همپوشانی نداشته باشند، Git ادغام را به‌طور خودکار انجام می‌دهد.\n\nتعارض‌های ادغام زمانی رخ می‌دهند که بخش یکسانی از یک فایل در دو شاخه‌ای که در حال ادغام هستند، به شکل‌های متفاوتی تغییر کرده باشد. Git نمی‌تواند به‌طور خودکار تشخیص دهد کدام نسخه باید استفاده شود، بنابراین فایل را به‌عنوان دارای تعارض علامت‌گذاری می‌کند که باید به‌صورت دستی حل شود. نشانگرهای تعارض در فایل هر دو نسخه کد را نشان می‌دهند و شما باید فایل را ویرایش کنید تا نسخه نهایی را پیش از تکمیل ادغام ایجاد کنید.",
 
-    "faq.workflow.question": "What is a typical Git workflow?",
+    "faq.workflow.question": "یک گردش‌کار (workflow) معمولی Git چگونه است؟",
     "faq.workflow.answer":
-        "A common Git workflow might look like this:\n\n1. Create a branch for a new feature or bug fix\n2. Make changes and commit them to your branch\n3. Push your branch to the remote repository\n4. Create a pull request (on GitHub/GitLab) or request a code review\n5. Make additional changes if requested\n6. Merge the branch into the main branch when approved\n7. Delete the feature branch once it's merged\n\nThere are several established workflow models like GitHub Flow, GitFlow, and Trunk-Based Development, each with their own approach to branches, releases, and deployments.",
+        "یک گردش‌کار رایج Git می‌تواند به این شکل باشد:\n\n1. یک شاخه برای ویژگی جدید یا رفع اشکال ایجاد کنید\n2. تغییرات را اعمال کرده و در شاخه خود کامیت کنید\n3. شاخه خود را به مخزن راه‌دور push کنید\n4. یک pull request (در GitHub/GitLab) ایجاد کنید یا درخواست بازبینی کد دهید\n5. در صورت درخواست، تغییرات بیشتری اعمال کنید\n6. پس از تأیید، شاخه را در شاخه main ادغام کنید\n7. پس از ادغام، شاخه feature را حذف کنید\n\nچندین مدل گردش‌کار تثبیت‌شده مانند GitHub Flow، GitFlow و Trunk-Based Development وجود دارد که هر کدام رویکرد خاص خود را نسبت به شاخه‌ها، انتشارها و استقرارها دارند.",
 
     // Usage Section
-    "faq.whenUse.question": "When should I use Git?",
+    "faq.whenUse.question": "چه زمانی باید از Git استفاده کنم؟",
     "faq.whenUse.answer":
-        "You should use Git for virtually any project where you need to track changes over time, especially if it involves code. This includes:\n\n• Software development projects of any size\n• Documentation projects\n• Configuration files\n• Writing projects like books or articles\n• Any collaborative project where multiple people need to work on the same files\n\nEven for solo projects, Git provides valuable features like history tracking, the ability to experiment with changes safely, and backup capabilities.",
+        "تقریباً برای هر پروژه‌ای که نیاز به پیگیری تغییرات در طول زمان دارید، به‌خصوص اگر شامل کد باشد، باید از Git استفاده کنید. این شامل موارد زیر است:\n\n• پروژه‌های توسعه نرم‌افزار در هر اندازه\n• پروژه‌های مستندسازی\n• فایل‌های پیکربندی\n• پروژه‌های نوشتاری مانند کتاب‌ها یا مقالات\n• هر پروژه گروهی که چند نفر باید روی فایل‌های یکسان کار کنند\n\nحتی برای پروژه‌های انفرادی نیز Git ویژگی‌های ارزشمندی مانند پیگیری تاریخچه، امکان آزمایش امن تغییرات و قابلیت پشتیبان‌گیری ارائه می‌دهد.",
 
-    "faq.smallProjects.question": "Is Git overkill for small projects?",
+    "faq.smallProjects.question": "آیا Git برای پروژه‌های کوچک بیش از حد پیچیده است؟",
     "faq.smallProjects.answer":
-        "While Git has powerful features designed to handle large, complex projects, it's still valuable for small projects. Even for small or personal projects, Git provides:\n\n• A safety net that lets you revert changes if something breaks\n• A complete history of your work\n• The ability to work on multiple features simultaneously using branches\n• Easy backup of your project's entire history to remote repositories\n• Potential for collaboration in the future\n\nThe initial investment in learning Git pays off even for small projects with these benefits.",
+        "اگرچه Git ویژگی‌های قدرتمندی دارد که برای مدیریت پروژه‌های بزرگ و پیچیده طراحی شده‌اند، همچنان برای پروژه‌های کوچک نیز ارزشمند است. حتی برای پروژه‌های کوچک یا شخصی، Git موارد زیر را فراهم می‌کند:\n\n• یک شبکه ایمنی که به شما اجازه می‌دهد در صورت خراب شدن چیزی، تغییرات را برگردانید\n• تاریخچه‌ای کامل از کار شما\n• امکان کار روی چند ویژگی به‌طور همزمان با استفاده از شاخه‌ها\n• پشتیبان‌گیری آسان از کل تاریخچه پروژه در مخازن راه‌دور\n• پتانسیل همکاری در آینده\n\nسرمایه‌گذاری اولیه در یادگیری Git حتی برای پروژه‌های کوچک نیز با این مزایا سودمند است.",
 
-    "faq.teamCollaboration.question": "How does Git help team collaboration?",
+    "faq.teamCollaboration.question": "Git چگونه به همکاری تیمی کمک می‌کند؟",
     "faq.teamCollaboration.answer":
-        "Git enhances team collaboration in many ways:\n\n• Multiple developers can work on the same project simultaneously without overwriting each other's work\n• Changes are clearly tracked with author information and timestamps\n• Branching allows separate work on different features without interference\n• Pull requests (on platforms like GitHub) facilitate code reviews\n• Conflicts are identified automatically when they occur\n• Project history provides accountability and transparency\n• Remote repositories ensure everyone has access to the latest code\n• Issue tracking and project management tools integrate well with Git workflows",
+        "Git همکاری تیمی را از جهات مختلفی تقویت می‌کند:\n\n• چند توسعه‌دهنده می‌توانند همزمان روی یک پروژه کار کنند بدون اینکه کار یکدیگر را بازنویسی کنند\n• تغییرات به‌وضوح با اطلاعات نویسنده و زمان ثبت پیگیری می‌شوند\n• شاخه‌زنی امکان کار جداگانه روی ویژگی‌های مختلف را بدون تداخل فراهم می‌کند\n• pull request‌ها (در پلتفرم‌هایی مانند GitHub) بازبینی کد را تسهیل می‌کنند\n• تعارض‌ها به‌طور خودکار در زمان وقوع شناسایی می‌شوند\n• تاریخچه پروژه پاسخگویی و شفافیت را فراهم می‌کند\n• مخازن راه‌دور تضمین می‌کنند همه به آخرین کد دسترسی دارند\n• ابزارهای پیگیری issue و مدیریت پروژه به‌خوبی با گردش‌کارهای Git یکپارچه می‌شوند",
 
-    "faq.commandLine.question": "Do I have to use the command line for Git?",
+    "faq.commandLine.question": "آیا باید از خط فرمان برای Git استفاده کنم؟",
     "faq.commandLine.answer":
-        "No, you don't have to use the command line, although understanding Git commands can be helpful. There are many graphical user interfaces (GUIs) available for Git, including:\n\n• GitHub Desktop: A simple, user-friendly interface\n• GitKraken: A powerful cross-platform Git client\n• Sourcetree: Feature-rich Git client for Windows and Mac\n• Git Extensions: Open-source UI for Windows\n• TortoiseGit: Windows shell interface for Git\n\nAdditionally, most modern IDEs like Visual Studio Code, IntelliJ IDEA, and others have built-in Git integration, allowing you to perform common Git operations directly from the editor.",
+        "خیر، لازم نیست از خط فرمان استفاده کنید، هرچند درک دستورات Git می‌تواند مفید باشد. رابط‌های کاربری گرافیکی (GUI) زیادی برای Git وجود دارند، از جمله:\n\n• GitHub Desktop: رابطی ساده و کاربرپسند\n• GitKraken: یک کلاینت قدرتمند Git برای چند پلتفرم\n• Sourcetree: کلاینت Git پر از ویژگی برای Windows و Mac\n• Git Extensions: رابط متن‌باز برای Windows\n• TortoiseGit: رابط پوسته Windows برای Git\n\nعلاوه بر این، بیشتر IDEهای مدرن مانند Visual Studio Code، IntelliJ IDEA و سایرین دارای یکپارچگی داخلی با Git هستند که به شما اجازه می‌دهد عملیات رایج Git را مستقیماً از ویرایشگر انجام دهید.",
 
-    "faq.hosting.question": "Where can I host my Git repositories?",
+    "faq.hosting.question": "کجا می‌توانم مخازن Git خود را میزبانی کنم؟",
     "faq.hosting.answer":
-        "There are several popular services for hosting Git repositories:\n\n• GitHub: The most popular platform, with many collaboration features\n• GitLab: Features a complete DevOps platform with CI/CD capabilities\n• Bitbucket: Integrates well with other Atlassian products like Jira\n• Azure DevOps: Microsoft's solution with extensive integration into their ecosystem\n• Self-hosted options: GitLab Community Edition or Gitea for hosting on your own servers\n\nMost of these services offer free tiers for public repositories and individual developers, with paid plans for private repositories and teams.",
+        "چندین سرویس محبوب برای میزبانی مخازن Git وجود دارد:\n\n• GitHub: محبوب‌ترین پلتفرم، با ویژگی‌های همکاری فراوان\n• GitLab: دارای یک پلتفرم کامل DevOps با قابلیت‌های CI/CD\n• Bitbucket: به‌خوبی با سایر محصولات Atlassian مانند Jira یکپارچه می‌شود\n• Azure DevOps: راه‌حل مایکروسافت با یکپارچگی گسترده در اکوسیستم خودش\n• گزینه‌های خودمیزبان: GitLab Community Edition یا Gitea برای میزبانی روی سرورهای خودتان\n\nبیشتر این سرویس‌ها لایه‌های رایگان برای مخازن عمومی و توسعه‌دهندگان فردی ارائه می‌دهند، همراه با طرح‌های پولی برای مخازن خصوصی و تیم‌ها.",
 
     // Call to action
-    "faq.readyToStart.title": "Ready to Get Started with Git?",
+    "faq.readyToStart.title": "آماده شروع کار با Git هستید؟",
     "faq.readyToStart.text":
-        "Now that you understand the basics of Git, you're ready to start using it in your projects!",
-    "faq.readyToStart.installButton": "Install Git",
-    "faq.readyToStart.practiceButton": "Practice Git Commands",
+        "حالا که مبانی Git را درک کردید، آماده‌اید تا استفاده از آن را در پروژه‌های خود شروع کنید!",
+    "faq.readyToStart.installButton": "نصب Git",
+    "faq.readyToStart.practiceButton": "تمرین دستورات Git",
 };
 
 export default faq;
