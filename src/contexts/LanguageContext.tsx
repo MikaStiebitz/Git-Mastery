@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { translations } from "~/translations";
 
-type Language = "de" | "en" | "fa" | "hi" | "tr";
+type Language = "de" | "en" | "es" | "fa" | "hi" | "tr";
 
 export type LanguageContextType = {
     language: Language;
@@ -24,6 +24,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (
             savedLanguage === "en" ||
             savedLanguage === "de" ||
+            savedLanguage === "es" ||
             savedLanguage === "fa" ||
             savedLanguage === "hi" ||
             savedLanguage === "tr"
@@ -40,6 +41,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
             if (detectedLanguage.startsWith("de")) {
                 detectedLang = "de";
+            } else if (detectedLanguage.startsWith("es")) {
+                detectedLang = "es";
             } else if (detectedLanguage.startsWith("fa") || detectedLanguage.startsWith("per")) {
                 detectedLang = "fa";
             } else if (detectedLanguage.startsWith("hi")) {
@@ -77,6 +80,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                         timezone.includes("Zurich")
                     ) {
                         detectedLang = "de";
+                    }
+                    // Spain and Latin America -> Spanish
+                    else if (timezone.includes("Madrid") || timezone.includes("Mexico_City") || timezone.includes("Buenos_Aires")) {
+                        detectedLang = "es";
                     }
                 } catch (e) {
                     // If geolocation fails, fall back to browser language detection

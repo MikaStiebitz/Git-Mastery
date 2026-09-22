@@ -38,6 +38,14 @@ import playgroundTr from "./tr/playground";
 import installationTr from "./tr/installation";
 import faqTr from "./tr/faq";
 
+import commonEs from "./es/common";
+import levelsEs from "./es/levels";
+import terminalEs from "./es/terminal";
+import homeEs from "./es/home";
+import playgroundEs from "./es/playground";
+import installationEs from "./es/installation";
+import faqEs from "./es/faq";
+
 export const translations = {
     en: {
         ...commonEn,
@@ -84,4 +92,13 @@ export const translations = {
         ...installationTr,
         ...faqTr,
     },
+    es: {
+        ...commonEs,
+        ...levelsEs,
+        ...terminalEs,
+        ...homeEs,
+        ...playgroundEs,
+        ...installationEs,
+        ...faqEs,
+    }
 };
