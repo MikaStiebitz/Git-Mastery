@@ -9,7 +9,7 @@ const SOUND_PATHS = {
     achievement: "/sounds/achievement.mp3",
     error: "/sounds/error.mp3",
     click: "/sounds/click.mp3",
-    notification: "/sounds/notification.mp3"
+    notification: "/sounds/notification.mp3",
 };
 
 export class SoundManager {
@@ -32,11 +32,11 @@ export class SoundManager {
                 audio.volume = 0.6; // Default volume
 
                 // Handle sound loading errors gracefully
-                audio.addEventListener('error', () => {
+                audio.addEventListener("error", () => {
                     console.warn(`Sound file not found: ${key} at ${path}`);
                 });
 
-                audio.addEventListener('canplaythrough', () => {
+                audio.addEventListener("canplaythrough", () => {
                     console.log(`Sound loaded: ${key}`);
                 });
 
@@ -104,17 +104,23 @@ export function getSoundManager(): SoundManager | null {
 export function useSoundManager(isEnabled: boolean) {
     const soundManager = initializeSoundManager(isEnabled);
 
-    const playSound = useCallback((soundKey: keyof typeof SOUND_PATHS) => {
-        soundManager.play(soundKey);
-    }, [soundManager]);
+    const playSound = useCallback(
+        (soundKey: keyof typeof SOUND_PATHS) => {
+            soundManager.play(soundKey);
+        },
+        [soundManager],
+    );
 
-    const setVolume = useCallback((volume: number) => {
-        soundManager.setVolume(volume);
-    }, [soundManager]);
+    const setVolume = useCallback(
+        (volume: number) => {
+            soundManager.setVolume(volume);
+        },
+        [soundManager],
+    );
 
     return {
         playSound,
         setVolume,
-        setEnabled: soundManager.setEnabled.bind(soundManager)
+        setEnabled: soundManager.setEnabled.bind(soundManager),
     };
 }

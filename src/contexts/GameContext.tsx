@@ -9,6 +9,7 @@ import { ProgressManager } from "~/models/ProgressManager";
 import { GitRepository } from "~/models/GitRepository";
 import { parseCommand, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import { resolvePath } from "~/lib/utils";
+import { didCommandFail } from "~/models/commandOutcome";
 import type { GameContextProps, DifficultyLevel } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { useSoundManager } from "~/lib/SoundManager";
@@ -138,12 +139,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Close the dialog after committing
         closeCommitDialog();
 
-        // Check for level completion after dialog commit (only if not in playground mode)
-        // Skip the check if the commit did not actually happen (e.g. empty message)
-        const commitFailed = output.some(
-            line => line.toLowerCase().includes("aborting commit") || line.toLowerCase().includes("nothing to commit"),
-        );
-        if (!commitFailed && typeof window !== "undefined" && !window.location.pathname.includes("/playground")) {
+        // Check for level completion after dialog commit (only if not in playground mode).
+        // Skip the check if the commit did not actually happen (e.g. empty message, nothing staged).
+        if (
+            !didCommandFail(output) &&
+            typeof window !== "undefined" &&
+            !window.location.pathname.includes("/playground")
+        ) {
             const [cmd, ...args] = splitCommandRespectingQuotes(`git commit -m "${escapedMessage}"`.trim());
             if (cmd && levelManager.checkLevelCompletion(currentStage, currentLevel, cmd, args, gitRepository)) {
                 markLevelAsCompleted();
@@ -307,30 +309,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return;
         }
 
-        // Check if the command was successful by looking for error messages in the output
-        // Note: "merge failed" due to conflicts is NOT a command failure - it's a normal workflow state
-        const commandFailed = output.some(line => {
-            const lowerLine = line.toLowerCase();
-            // Merge conflicts are not failures - they're normal workflow states
-            if (lowerLine.includes("merge") && lowerLine.includes("failed")) {
-                return false;
-            }
-            if (lowerLine.includes("automatic merge failed")) {
-                return false;
-            }
-            return (
-                lowerLine.includes("error:") ||
-                lowerLine.includes("fatal:") ||
-                lowerLine.includes("failed") ||
-                lowerLine.includes("aborting commit") ||
-                lowerLine.includes("not a git repository") ||
-                lowerLine.includes("nothing specified") ||
-                lowerLine.includes("did not match any files") ||
-                (lowerLine.includes("pathspec") && lowerLine.includes("did not match"))
-            );
-        });
-
-        if (commandFailed) {
+        // Only a command that worked can complete a level.
+        if (didCommandFail(output)) {
             return; // Don't mark level as completed if command failed
         }
 

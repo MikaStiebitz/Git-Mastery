@@ -100,5 +100,5 @@ export const translations = {
         ...playgroundEs,
         ...installationEs,
         ...faqEs,
-    }
+    },
 };

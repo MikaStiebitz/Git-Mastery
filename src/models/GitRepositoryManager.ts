@@ -45,7 +45,7 @@ export class GitRepositoryManager {
 
         // Search parent directories
         let currentPath = normalizedDir;
-        while (currentPath !== '/') {
+        while (currentPath !== "/") {
             if (this.repositories.has(currentPath)) {
                 return this.repositories.get(currentPath)!;
             }
@@ -54,8 +54,8 @@ export class GitRepositoryManager {
         }
 
         // Check root
-        if (this.repositories.has('/')) {
-            return this.repositories.get('/')!;
+        if (this.repositories.has("/")) {
+            return this.repositories.get("/")!;
         }
 
         return null;
@@ -81,7 +81,7 @@ export class GitRepositoryManager {
 
         // Search parent directories
         let currentPath = normalizedDir;
-        while (currentPath !== '/') {
+        while (currentPath !== "/") {
             if (this.repositories.has(currentPath)) {
                 return currentPath;
             }
@@ -89,8 +89,8 @@ export class GitRepositoryManager {
         }
 
         // Check root
-        if (this.repositories.has('/')) {
-            return '/';
+        if (this.repositories.has("/")) {
+            return "/";
         }
 
         return null;
@@ -120,17 +120,17 @@ export class GitRepositoryManager {
 
     private normalizePath(path: string): string {
         // Remove trailing slash except for root
-        if (path !== '/' && path.endsWith('/')) {
+        if (path !== "/" && path.endsWith("/")) {
             return path.slice(0, -1);
         }
         return path;
     }
 
     private getParentPath(path: string): string {
-        if (path === '/') return '/';
-        const parts = path.split('/').filter(p => p);
-        if (parts.length === 0) return '/';
+        if (path === "/") return "/";
+        const parts = path.split("/").filter(p => p);
+        if (parts.length === 0) return "/";
         parts.pop();
-        return parts.length === 0 ? '/' : '/' + parts.join('/');
+        return parts.length === 0 ? "/" : "/" + parts.join("/");
     }
 }

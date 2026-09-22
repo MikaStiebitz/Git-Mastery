@@ -2,7 +2,8 @@ const terminal = {
     // Terminal
     "terminal.welcome": "Git टर्मिनल सिम्युलेटर में आपका स्वागत है!",
     "terminal.levelStarted": "स्तर {level} का {stage} शुरू हुआ। मदद के लिए 'help' टाइप करें।",
-    "terminal.playgroundMode": "प्लेग्राउंड मोड सक्रिय। Git कमांड के साथ स्वतंत्र रूप से प्रयोग करें। मदद के लिए 'help' टाइप करें।",
+    "terminal.playgroundMode":
+        "प्लेग्राउंड मोड सक्रिय। Git कमांड के साथ स्वतंत्र रूप से प्रयोग करें। मदद के लिए 'help' टाइप करें।",
     "terminal.levelCompleted": "स्तर पूर्ण! 🎉 'next' टाइप करें या \"अगला स्तर\" बटन पर क्लिक करें।",
     "terminal.enterCommand": "एक कमांड दर्ज करें...",
     "terminal.typeNext": "जारी रखने के लिए 'next' टाइप करें या \"अगला स्तर\" बटन पर क्लिक करें।",

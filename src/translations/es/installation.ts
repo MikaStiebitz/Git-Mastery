@@ -60,8 +60,7 @@ const installation = {
     "installation.ssh.passphraseDesc":
         "Puedes introducir una contraseña para mayor seguridad o presionar Enter para continuar:",
     "installation.ssh.copyKey": "Copiar clave pública",
-    "installation.ssh.copyKeyDesc":
-        "Copia el contenido de tu clave SSH pública al portapapeles:",
+    "installation.ssh.copyKeyDesc": "Copia el contenido de tu clave SSH pública al portapapeles:",
     "installation.ssh.windows.copyKey": "Para Windows (Git Bash/PowerShell):",
     "installation.ssh.mac.copyKey": "Para macOS:",
     "installation.ssh.linux.copyKey": "Para Linux:",
@@ -145,8 +144,7 @@ const installation = {
     "installation.linux.enhanced.packageDesc":
         "La instalación mediante el gestor de paquetes es el método recomendado para Linux:",
     "installation.linux.enhanced.source": "Compilar desde el código fuente (avanzado)",
-    "installation.linux.enhanced.sourceDesc":
-        "Para la versión más reciente o configuraciones especiales:",
+    "installation.linux.enhanced.sourceDesc": "Para la versión más reciente o configuraciones especiales:",
     "installation.linux.enhanced.sourceSteps":
         "# Instalar dependencias (Ubuntu/Debian)\nsudo apt-get install make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libncurses5-dev autoconf build-essential\n\n# Descargar el código fuente de Git\nwget https://github.com/git/git/archive/v2.43.0.tar.gz\ntar -zxf v2.43.0.tar.gz\ncd git-2.43.0\n\n# Compilar e instalar\nmake configure\n./configure --prefix=/usr/local\nmake all\nsudo make install",
 
@@ -158,7 +156,7 @@ const installation = {
     "installation.mac.enhanced.homebrewDesc":
         "Homebrew es un gestor de paquetes para macOS que simplifica la gestión de herramientas para desarrolladores:",
     "installation.mac.enhanced.homebrewSteps":
-        "# Instalar Homebrew (si aún no está presente)\n/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n\n# Instalar Git\nbrew install git\n\n# Actualizar Git (más adelante)\nbrew upgrade git",
+        '# Instalar Homebrew (si aún no está presente)\n/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"\n\n# Instalar Git\nbrew install git\n\n# Actualizar Git (más adelante)\nbrew upgrade git',
     "installation.mac.enhanced.macports": "MacPorts (alternativa)",
     "installation.mac.enhanced.macportsDesc":
         "Si usas MacPorts:\n• sudo port install git +universal\n• sudo port install git-flow (opcional)",

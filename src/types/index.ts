@@ -75,6 +75,14 @@ export type GitState = {
     }[];
     fileChanges?: FileChange[];
     mergeConflicts?: MergeConflict[];
+    /**
+     * Remotes this level starts with, as name -> URL.
+     *
+     * Omit it to get the default "origin", which is what levels about pushing and pulling want. Set
+     * it to `{}` for a level whose task is to add a remote, so the command the level asks for is not
+     * pre-empted by a remote that already exists.
+     */
+    remotes?: Record<string, string>;
 };
 
 // Initial state for a level
@@ -119,6 +127,15 @@ export type LevelRequirement = {
     checkMergeExists?: boolean; // True if a merge commit exists in the current branch's history
     checkCommitCountAtLeast?: number; // Current branch must have at least N commits
     checkCommitMessageContains?: string; // Some commit on the current branch contains this substring
+
+    // Result guards. Unlike the guards above, these are evaluated ONLY after a command matched, and
+    // they verify what that command actually did to the repository. They exist because matching the
+    // typed command alone cannot tell a working command from one that did nothing: `git branch -c x`
+    // and `git switch -c x` both "look like" creating a branch, but only one of them moves you onto
+    // it. A requirement with no result guard behaves exactly as before.
+    checkRemoteExists?: string; // A specific remote name, or "*" for "any remote exists"
+    checkCurrentBranch?: string; // HEAD must be on this branch
+    checkCurrentBranchNot?: string; // HEAD must have moved off this branch
 };
 
 export type StoryContext = {

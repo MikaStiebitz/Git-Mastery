@@ -2,7 +2,8 @@ const terminal = {
     // Terminal
     "terminal.welcome": "به شبیه‌ساز ترمینال Git خوش آمدید!",
     "terminal.levelStarted": "سطح {level} از {stage} شروع شد. برای کمک 'help' را تایپ کنید.",
-    "terminal.playgroundMode": "حالت محوطه بازی فعال شد. آزادانه با دستورات Git آزمایش کنید. برای کمک 'help' را تایپ کنید.",
+    "terminal.playgroundMode":
+        "حالت محوطه بازی فعال شد. آزادانه با دستورات Git آزمایش کنید. برای کمک 'help' را تایپ کنید.",
     "terminal.levelCompleted": "سطح تکمیل شد! 🎉 'next' را تایپ کنید یا دکمه \"سطح بعدی\" را کلیک کنید.",
     "terminal.enterCommand": "یک دستور وارد کنید...",
     "terminal.typeNext": "'next' را تایپ کنید یا دکمه \"سطح بعدی\" را برای ادامه کلیک کنید.",
