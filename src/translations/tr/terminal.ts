@@ -30,6 +30,14 @@ const terminal = {
     "commit.placeholder": "Değişikliklerini anlatan bir commit mesajı gir...",
     "commit.tip": "İlk satır kısa bir özet olmalı. Gerekirse bir boş satır bırakıp ayrıntıları ekle.",
     "commit.button": "Değişiklikleri Commit'le",
+    "terminal.showHelp": "Yardımı göster",
+    "terminal.status.staged": "hazırlanan",
+    "terminal.status.modified": "değişen",
+    "terminal.status.untracked": "izlenmeyen",
+    "terminal.status.ahead": "gönderilecek commit",
+    "terminal.status.behind": "alınacak commit",
+    "terminal.status.clean": "temiz",
+    "terminal.status.noRepo": "depo yok",
 };
 
 export default terminal;

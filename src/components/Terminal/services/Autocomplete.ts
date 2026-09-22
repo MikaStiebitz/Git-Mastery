@@ -175,9 +175,7 @@ export class AutocompleteService {
         }
 
         // Filter branches that match the current input
-        const matchingBranches = branches.filter(branch =>
-            branch.toLowerCase().startsWith(branchPart.toLowerCase())
-        );
+        const matchingBranches = branches.filter(branch => branch.toLowerCase().startsWith(branchPart.toLowerCase()));
 
         if (matchingBranches.length === 0) {
             return {
@@ -204,13 +202,15 @@ export class AutocompleteService {
             const gitSubcommand = parts[1];
 
             // For git commands with branch/file completion
-            if (gitSubcommand === "switch" ||
+            if (
+                gitSubcommand === "switch" ||
                 gitSubcommand === "checkout" ||
                 gitSubcommand === "merge" ||
                 gitSubcommand === "rebase" ||
                 gitSubcommand === "diff" ||
                 gitSubcommand === "log" ||
-                gitSubcommand === "reset") {
+                gitSubcommand === "reset"
+            ) {
                 // Check if there are flags
                 const flags = parts.slice(2).filter(p => p.startsWith("-"));
                 if (flags.length > 0) {

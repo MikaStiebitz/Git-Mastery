@@ -12,16 +12,18 @@ export function TerminalOutput({
 }: TerminalOutputProps) {
     return (
         <div className="min-h-0 flex-1">
-            <ScrollArea className="h-full px-4 py-3 font-mono text-sm text-purple-300" ref={scrollAreaRef}>
+            <ScrollArea
+                className="gm-scroll h-full px-3 py-3 [font-family:var(--font-code)] text-[13px] leading-[1.6] text-[var(--term-text)] sm:px-4"
+                ref={scrollAreaRef}>
                 <div ref={outputContainerRef} className="pb-4">
                     {terminalOutput.map((line, i) => (
-                        <div key={i} className="whitespace-pre-wrap break-words">
+                        <div key={i} className="break-words whitespace-pre-wrap">
                             {renderTerminalOutput(line)}
                         </div>
                     ))}
 
                     {isLevelCompleted && !isPlaygroundMode && (
-                        <div className="mt-2 rounded bg-green-900/30 p-2 text-center text-white">
+                        <div className="mt-3 rounded-[0.85rem] border-2 border-[var(--term-success)] bg-[var(--term-success)] px-3 py-2 text-center font-sans text-sm font-semibold text-[var(--term-bg)]">
                             {t("terminal.levelCompleted")}
                         </div>
                     )}

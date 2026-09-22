@@ -1,0 +1,584 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-22T18:09:33.575Z",
+  "title": "Design System: GitMastery",
+  "extensions": {
+    "colorMeta": {
+      "gm-void": {
+        "role": "neutral",
+        "displayName": "Void",
+        "canonical": "oklch(0.16 0.045 287)",
+        "purpose": "Page background, and the ink colour on lime, gold or cyan fills.",
+        "tonalRamp": [
+          "oklch(0.15 0.045 287)",
+          "oklch(0.26 0.045 287)",
+          "oklch(0.37 0.045 287)",
+          "oklch(0.48 0.045 287)",
+          "oklch(0.59 0.045 287)",
+          "oklch(0.7 0.045 287)",
+          "oklch(0.82 0.032 287)",
+          "oklch(0.95 0.02 287)"
+        ]
+      },
+      "gm-night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "oklch(0.205 0.06 289)",
+        "purpose": "The one raised plane: panels, terminals, HUD, cartridges.",
+        "tonalRamp": [
+          "oklch(0.15 0.06 289)",
+          "oklch(0.26 0.06 289)",
+          "oklch(0.37 0.06 289)",
+          "oklch(0.48 0.06 289)",
+          "oklch(0.59 0.06 289)",
+          "oklch(0.7 0.06 289)",
+          "oklch(0.82 0.042 289)",
+          "oklch(0.95 0.027 289)"
+        ]
+      },
+      "gm-deep": {
+        "role": "neutral",
+        "displayName": "Deep",
+        "canonical": "oklch(0.26 0.08 291)",
+        "purpose": "Title bars, inset strips, oversized decorative ticker type.",
+        "tonalRamp": [
+          "oklch(0.15 0.08 291)",
+          "oklch(0.26 0.08 291)",
+          "oklch(0.37 0.08 291)",
+          "oklch(0.48 0.08 291)",
+          "oklch(0.59 0.08 291)",
+          "oklch(0.7 0.08 291)",
+          "oklch(0.82 0.056 291)",
+          "oklch(0.95 0.036 291)"
+        ]
+      },
+      "gm-line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "oklch(0.38 0.08 292)",
+        "purpose": "The 2px border on every panel and its resting shadow.",
+        "tonalRamp": [
+          "oklch(0.15 0.08 292)",
+          "oklch(0.26 0.08 292)",
+          "oklch(0.37 0.08 292)",
+          "oklch(0.48 0.08 292)",
+          "oklch(0.59 0.08 292)",
+          "oklch(0.7 0.08 292)",
+          "oklch(0.82 0.056 292)",
+          "oklch(0.95 0.036 292)"
+        ]
+      },
+      "gm-grape": {
+        "role": "primary",
+        "displayName": "Arcade Grape",
+        "canonical": "oklch(0.44 0.21 296)",
+        "purpose": "Brand colour and the main branch. Drenches the stage-map section.",
+        "tonalRamp": [
+          "oklch(0.15 0.21 296)",
+          "oklch(0.26 0.21 296)",
+          "oklch(0.37 0.21 296)",
+          "oklch(0.48 0.21 296)",
+          "oklch(0.59 0.21 296)",
+          "oklch(0.7 0.21 296)",
+          "oklch(0.82 0.147 296)",
+          "oklch(0.95 0.095 296)"
+        ]
+      },
+      "gm-grape-hi": {
+        "role": "primary",
+        "displayName": "Grape Glow",
+        "canonical": "oklch(0.6 0.22 298)",
+        "purpose": "Icons and graph strokes on dark surfaces. Never body text.",
+        "tonalRamp": [
+          "oklch(0.15 0.22 298)",
+          "oklch(0.26 0.22 298)",
+          "oklch(0.37 0.22 298)",
+          "oklch(0.48 0.22 298)",
+          "oklch(0.59 0.22 298)",
+          "oklch(0.7 0.22 298)",
+          "oklch(0.82 0.154 298)",
+          "oklch(0.95 0.099 298)"
+        ]
+      },
+      "gm-grape-edge": {
+        "role": "primary",
+        "displayName": "Grape Shadow",
+        "canonical": "oklch(0.3 0.15 294)",
+        "purpose": "Pressed edge under grape controls, locked tiles, dot texture.",
+        "tonalRamp": [
+          "oklch(0.15 0.15 294)",
+          "oklch(0.26 0.15 294)",
+          "oklch(0.37 0.15 294)",
+          "oklch(0.48 0.15 294)",
+          "oklch(0.59 0.15 294)",
+          "oklch(0.7 0.15 294)",
+          "oklch(0.82 0.105 294)",
+          "oklch(0.95 0.068 294)"
+        ]
+      },
+      "gm-lime": {
+        "role": "secondary",
+        "displayName": "Commit Lime",
+        "canonical": "oklch(0.9 0.2 128)",
+        "purpose": "Success, completion, and every primary call to action.",
+        "tonalRamp": [
+          "oklch(0.15 0.2 128)",
+          "oklch(0.26 0.2 128)",
+          "oklch(0.37 0.2 128)",
+          "oklch(0.48 0.2 128)",
+          "oklch(0.59 0.2 128)",
+          "oklch(0.7 0.2 128)",
+          "oklch(0.82 0.14 128)",
+          "oklch(0.95 0.09 128)"
+        ]
+      },
+      "gm-lime-edge": {
+        "role": "secondary",
+        "displayName": "Lime Shadow",
+        "canonical": "oklch(0.64 0.17 136)",
+        "purpose": "Pressed edge under lime controls.",
+        "tonalRamp": [
+          "oklch(0.15 0.17 136)",
+          "oklch(0.26 0.17 136)",
+          "oklch(0.37 0.17 136)",
+          "oklch(0.48 0.17 136)",
+          "oklch(0.59 0.17 136)",
+          "oklch(0.7 0.17 136)",
+          "oklch(0.82 0.119 136)",
+          "oklch(0.95 0.077 136)"
+        ]
+      },
+      "gm-cyan": {
+        "role": "tertiary",
+        "displayName": "Feature Cyan",
+        "canonical": "oklch(0.83 0.13 214)",
+        "purpose": "Feature branches in commit graphs, and the global focus ring.",
+        "tonalRamp": [
+          "oklch(0.15 0.13 214)",
+          "oklch(0.26 0.13 214)",
+          "oklch(0.37 0.13 214)",
+          "oklch(0.48 0.13 214)",
+          "oklch(0.59 0.13 214)",
+          "oklch(0.7 0.13 214)",
+          "oklch(0.82 0.091 214)",
+          "oklch(0.95 0.059 214)"
+        ]
+      },
+      "gm-cyan-edge": {
+        "role": "tertiary",
+        "displayName": "Cyan Shadow",
+        "canonical": "oklch(0.58 0.12 220)",
+        "purpose": "Pressed edge and dark-on-light pairing for cyan.",
+        "tonalRamp": [
+          "oklch(0.15 0.12 220)",
+          "oklch(0.26 0.12 220)",
+          "oklch(0.37 0.12 220)",
+          "oklch(0.48 0.12 220)",
+          "oklch(0.59 0.12 220)",
+          "oklch(0.7 0.12 220)",
+          "oklch(0.82 0.084 220)",
+          "oklch(0.95 0.054 220)"
+        ]
+      },
+      "gm-coral": {
+        "role": "tertiary",
+        "displayName": "Fix Coral",
+        "canonical": "oklch(0.74 0.17 22)",
+        "purpose": "Fix branches, destructive Git output, error states.",
+        "tonalRamp": [
+          "oklch(0.15 0.17 22)",
+          "oklch(0.26 0.17 22)",
+          "oklch(0.37 0.17 22)",
+          "oklch(0.48 0.17 22)",
+          "oklch(0.59 0.17 22)",
+          "oklch(0.7 0.17 22)",
+          "oklch(0.82 0.119 22)",
+          "oklch(0.95 0.077 22)"
+        ]
+      },
+      "gm-coral-edge": {
+        "role": "tertiary",
+        "displayName": "Coral Shadow",
+        "canonical": "oklch(0.52 0.16 22)",
+        "purpose": "Pressed edge and dark-on-light pairing for coral.",
+        "tonalRamp": [
+          "oklch(0.15 0.16 22)",
+          "oklch(0.26 0.16 22)",
+          "oklch(0.37 0.16 22)",
+          "oklch(0.48 0.16 22)",
+          "oklch(0.59 0.16 22)",
+          "oklch(0.7 0.16 22)",
+          "oklch(0.82 0.112 22)",
+          "oklch(0.95 0.072 22)"
+        ]
+      },
+      "gm-gold": {
+        "role": "tertiary",
+        "displayName": "Points Gold",
+        "canonical": "oklch(0.86 0.15 86)",
+        "purpose": "Score, coins, rewards, the shop. Currency and nothing else.",
+        "tonalRamp": [
+          "oklch(0.15 0.15 86)",
+          "oklch(0.26 0.15 86)",
+          "oklch(0.37 0.15 86)",
+          "oklch(0.48 0.15 86)",
+          "oklch(0.59 0.15 86)",
+          "oklch(0.7 0.15 86)",
+          "oklch(0.82 0.105 86)",
+          "oklch(0.95 0.068 86)"
+        ]
+      },
+      "gm-gold-edge": {
+        "role": "tertiary",
+        "displayName": "Gold Shadow",
+        "canonical": "oklch(0.62 0.13 70)",
+        "purpose": "Pressed edge and dark-on-light pairing for gold.",
+        "tonalRamp": [
+          "oklch(0.15 0.13 70)",
+          "oklch(0.26 0.13 70)",
+          "oklch(0.37 0.13 70)",
+          "oklch(0.48 0.13 70)",
+          "oklch(0.59 0.13 70)",
+          "oklch(0.7 0.13 70)",
+          "oklch(0.82 0.091 70)",
+          "oklch(0.95 0.059 70)"
+        ]
+      },
+      "gm-ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(0.97 0.012 292)",
+        "purpose": "Headings and primary text. 17.9:1 on void.",
+        "tonalRamp": [
+          "oklch(0.15 0.012 292)",
+          "oklch(0.26 0.012 292)",
+          "oklch(0.37 0.012 292)",
+          "oklch(0.48 0.012 292)",
+          "oklch(0.59 0.012 292)",
+          "oklch(0.7 0.012 292)",
+          "oklch(0.82 0.008 292)",
+          "oklch(0.95 0.005 292)"
+        ]
+      },
+      "gm-ink-soft": {
+        "role": "neutral",
+        "displayName": "Ink Soft",
+        "canonical": "oklch(0.85 0.04 292)",
+        "purpose": "Body copy. 12.2:1 on void, 5.5:1 on grape.",
+        "tonalRamp": [
+          "oklch(0.15 0.04 292)",
+          "oklch(0.26 0.04 292)",
+          "oklch(0.37 0.04 292)",
+          "oklch(0.48 0.04 292)",
+          "oklch(0.59 0.04 292)",
+          "oklch(0.7 0.04 292)",
+          "oklch(0.82 0.028 292)",
+          "oklch(0.95 0.018 292)"
+        ]
+      },
+      "gm-ink-dim": {
+        "role": "neutral",
+        "displayName": "Ink Dim",
+        "canonical": "oklch(0.72 0.05 292)",
+        "purpose": "Labels, terminal output, metadata. Void and night only.",
+        "tonalRamp": [
+          "oklch(0.15 0.05 292)",
+          "oklch(0.26 0.05 292)",
+          "oklch(0.37 0.05 292)",
+          "oklch(0.48 0.05 292)",
+          "oklch(0.59 0.05 292)",
+          "oklch(0.7 0.05 292)",
+          "oklch(0.82 0.035 292)",
+          "oklch(0.95 0.023 292)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The hero headline only, one per page. Bungee, positive tracking."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles and the closing call to action."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Stage names, feature titles, level-tile numerals."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All prose. Measure capped at 34rem / 52ch, text-wrap: pretty."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Quiet-button text, HUD labels, badges. Sentence case."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Anything Git itself would print: commands, hashes, branch names, HEAD."
+      }
+    },
+    "shadows": [
+      {
+        "name": "control-rest",
+        "value": "0 5px 0 var(--btn-edge)",
+        "purpose": "The solid edge below every arcade button (4px on the small variant)."
+      },
+      {
+        "name": "control-hover",
+        "value": "0 7px 0 var(--btn-edge)",
+        "purpose": "Paired with translateY(-2px): the button rises off its edge."
+      },
+      {
+        "name": "control-pressed",
+        "value": "0 1px 0 var(--btn-edge)",
+        "purpose": "Paired with translateY(4px): the face sinks into the edge."
+      },
+      {
+        "name": "panel-rest",
+        "value": "0 6px 0 oklch(0.38 0.08 292)",
+        "purpose": "The HUD bar sitting on its own border colour."
+      },
+      {
+        "name": "sticker",
+        "value": "10px 10px 0 0 oklch(0.44 0.21 296)",
+        "purpose": "Diagonal accent offset behind the hero terminal and feature cartridges. Blur is always 0."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Default easing for every state change and GSAP entrance."
+      },
+      {
+        "name": "duration-press",
+        "value": "160ms",
+        "purpose": "Button hover and press transitions."
+      },
+      {
+        "name": "duration-reveal",
+        "value": "900ms",
+        "purpose": "Scroll-triggered section and stage reveals."
+      },
+      {
+        "name": "marquee",
+        "value": "38s linear infinite",
+        "purpose": "The command ticker; translate3d(-50%) over a duplicated list."
+      },
+      {
+        "name": "caret",
+        "value": "1.05s steps(1) infinite",
+        "purpose": "Terminal caret blink. Disabled under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single most important action in a view: start, continue, advance.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M8 5.14v13.72a1 1 0 0 0 1.54.84l10.78-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14Z\"/></svg>Start learning<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-btn-primary{background:oklch(0.9 0.2 128);color:oklch(0.16 0.045 287);border:2px solid oklch(0.64 0.17 136);border-radius:1rem;box-shadow:0 5px 0 oklch(0.64 0.17 136);font-family:Bungee,ui-sans-serif,system-ui,sans-serif;font-size:1rem;letter-spacing:0.02em;line-height:1;min-height:3.25rem;padding:0 1.5rem;display:inline-flex;align-items:center;justify-content:center;gap:0.6rem;cursor:pointer;transition:transform 160ms cubic-bezier(0.16,1,0.3,1),box-shadow 160ms cubic-bezier(0.16,1,0.3,1),filter 160ms cubic-bezier(0.16,1,0.3,1);} .ds-btn-primary:hover{filter:brightness(1.06);transform:translateY(-2px);box-shadow:0 7px 0 oklch(0.64 0.17 136);} .ds-btn-primary:active{transform:translateY(4px);box-shadow:0 1px 0 oklch(0.64 0.17 136);} .ds-btn-primary:focus-visible{outline:3px solid oklch(0.83 0.13 214);outline-offset:4px;}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "The alternate route beside a primary action (cheat sheet, difficulty).",
+      "html": "<button class=\"ds-btn-secondary\">Cheat sheet</button>",
+      "css": ".ds-btn-secondary{background:oklch(0.44 0.21 296);color:oklch(0.97 0.012 292);border:2px solid oklch(0.3 0.15 294);border-radius:1rem;box-shadow:0 5px 0 oklch(0.3 0.15 294);font-family:Bungee,ui-sans-serif,system-ui,sans-serif;font-size:1rem;letter-spacing:0.02em;line-height:1;min-height:3.25rem;padding:0 1.5rem;display:inline-flex;align-items:center;justify-content:center;gap:0.6rem;cursor:pointer;transition:transform 160ms cubic-bezier(0.16,1,0.3,1),box-shadow 160ms cubic-bezier(0.16,1,0.3,1),filter 160ms cubic-bezier(0.16,1,0.3,1);} .ds-btn-secondary:hover{filter:brightness(1.06);transform:translateY(-2px);box-shadow:0 7px 0 oklch(0.3 0.15 294);} .ds-btn-secondary:active{transform:translateY(4px);box-shadow:0 1px 0 oklch(0.3 0.15 294);} .ds-btn-secondary:focus-visible{outline:3px solid oklch(0.83 0.13 214);outline-offset:4px;}"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Tertiary entry points. Geist Sans label plus one accent-coloured icon naming its domain.",
+      "html": "<button class=\"ds-btn-quiet\"><span class=\"ds-btn-quiet-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"21\" r=\"1\"/><circle cx=\"19\" cy=\"21\" r=\"1\"/><path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\"/></svg></span>Shop</button>",
+      "css": ".ds-btn-quiet{background:oklch(0.205 0.06 289);color:oklch(0.97 0.012 292);border:2px solid oklch(0.38 0.08 292);border-radius:0.85rem;box-shadow:0 4px 0 oklch(0.38 0.08 292);font-family:ui-sans-serif,system-ui,sans-serif;font-weight:600;font-size:0.9375rem;line-height:1;min-height:2.75rem;padding:0 1rem;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;cursor:pointer;transition:transform 160ms cubic-bezier(0.16,1,0.3,1),box-shadow 160ms cubic-bezier(0.16,1,0.3,1),filter 160ms cubic-bezier(0.16,1,0.3,1);} .ds-btn-quiet-icon{display:inline-flex;color:oklch(0.86 0.15 86);} .ds-btn-quiet:hover{filter:brightness(1.06);transform:translateY(-2px);box-shadow:0 7px 0 oklch(0.38 0.08 292);} .ds-btn-quiet:active{transform:translateY(4px);box-shadow:0 1px 0 oklch(0.38 0.08 292);} .ds-btn-quiet:focus-visible{outline:3px solid oklch(0.83 0.13 214);outline-offset:4px;}"
+    },
+    {
+      "name": "Level Tiles",
+      "kind": "custom",
+      "refersTo": "level-tile-open",
+      "description": "The three level states. Colour is never the only signal: done carries a check badge, locked a padlock.",
+      "html": "<div class=\"ds-tiles\"><button class=\"ds-tile ds-tile-done\" aria-label=\"Level 1: completed\">1<span class=\"ds-tile-badge\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></span></button><button class=\"ds-tile ds-tile-open\" aria-label=\"Level 2: start level\">2</button><button class=\"ds-tile ds-tile-locked\" disabled aria-label=\"Level 3: locked\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/></svg></button></div>",
+      "css": ".ds-tiles{display:flex;gap:0.75rem;} .ds-tile{position:relative;display:inline-flex;align-items:center;justify-content:center;width:3.5rem;height:3.5rem;border-radius:1rem;border:2px solid transparent;font-family:Bungee,ui-sans-serif,system-ui,sans-serif;font-size:1.25rem;cursor:pointer;transition:transform 150ms cubic-bezier(0.16,1,0.3,1),box-shadow 150ms cubic-bezier(0.16,1,0.3,1);} .ds-tile-done{background:oklch(0.9 0.2 128);color:oklch(0.16 0.045 287);border-color:oklch(0.64 0.17 136);box-shadow:0 4px 0 oklch(0.64 0.17 136);} .ds-tile-open{background:oklch(0.97 0.012 292);color:oklch(0.3 0.15 294);border-color:oklch(0.3 0.15 294);box-shadow:0 4px 0 oklch(0.3 0.15 294);} .ds-tile-locked{background:color-mix(in oklch, oklch(0.3 0.15 294) 50%, transparent);color:oklch(0.85 0.04 292);border-color:color-mix(in oklch, oklch(0.3 0.15 294) 70%, transparent);cursor:not-allowed;} .ds-tile-done:hover,.ds-tile-open:hover{transform:translateY(-2px);} .ds-tile-done:active,.ds-tile-open:active{transform:translateY(3px);box-shadow:0 1px 0 currentColor;} .ds-tile:focus-visible{outline:3px solid oklch(0.83 0.13 214);outline-offset:4px;} .ds-tile-badge{position:absolute;top:-6px;right:-6px;display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border-radius:9999px;border:2px solid oklch(0.64 0.17 136);background:oklch(0.16 0.045 287);color:oklch(0.9 0.2 128);}"
+    },
+    {
+      "name": "Terminal Panel",
+      "kind": "card",
+      "refersTo": "terminal",
+      "description": "The product's own voice. Lime prompt, ink commands, dim output, lime success, coral for destructive results.",
+      "html": "<div class=\"ds-term\"><div class=\"ds-term-bar\"><span class=\"ds-dot\" style=\"background:oklch(0.74 0.17 22)\"></span><span class=\"ds-dot\" style=\"background:oklch(0.86 0.15 86)\"></span><span class=\"ds-dot\" style=\"background:oklch(0.9 0.2 128)\"></span><span class=\"ds-term-path\">~/your-first-repo</span></div><div class=\"ds-term-body\"><div><span class=\"ds-prompt\">$</span> git switch -c feature</div><div class=\"ds-out\">Switched to a new branch 'feature'</div><div><span class=\"ds-prompt\">$</span> git merge feature</div><div class=\"ds-ok\">Merge made by the 'ort' strategy.</div><div><span class=\"ds-prompt\">$</span> <span class=\"ds-caret\"></span></div></div></div>",
+      "css": ".ds-term{background:oklch(0.205 0.06 289);border:2px solid oklch(0.38 0.08 292);border-radius:1.4rem;box-shadow:10px 10px 0 0 oklch(0.44 0.21 296);overflow:hidden;max-width:26rem;} .ds-term-bar{display:flex;align-items:center;gap:0.5rem;background:oklch(0.26 0.08 291);border-bottom:2px solid oklch(0.38 0.08 292);padding:0.625rem 1rem;} .ds-dot{width:0.75rem;height:0.75rem;border-radius:9999px;} .ds-term-path{margin-left:0.5rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:0.75rem;color:oklch(0.85 0.04 292);} .ds-term-body{padding:0.75rem 1rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:0.8125rem;line-height:1.6;color:oklch(0.97 0.012 292);} .ds-prompt{color:oklch(0.9 0.2 128);} .ds-out{color:oklch(0.72 0.05 292);padding-left:1rem;} .ds-ok{color:oklch(0.9 0.2 128);padding-left:1rem;} .ds-caret{display:inline-block;width:0.55em;height:1.05em;translate:0 0.18em;background:oklch(0.9 0.2 128);animation:ds-blink 1.05s steps(1) infinite;} @keyframes ds-blink{50%{opacity:0;}} @media (prefers-reduced-motion:reduce){.ds-caret{animation:none;}}"
+    },
+    {
+      "name": "Stage Station",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "A stop on the learning-path rail: the lane, the station node, and the stage heading with its HEAD badge.",
+      "html": "<div class=\"ds-stage\"><div class=\"ds-lane\"><span class=\"ds-lane-fill\"></span></div><div class=\"ds-node\"><svg width=\"26\" height=\"26\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z\"/><path d=\"m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z\"/><path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0\"/><path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\"/></svg></div><div class=\"ds-stage-body\"><div class=\"ds-stage-meta\"><span class=\"ds-ord\">01</span><span class=\"ds-head\">HEAD</span></div><h3 class=\"ds-stage-name\">Getting started with Git</h3><p class=\"ds-stage-desc\">Learn the fundamentals of Git.</p><div class=\"ds-bar\"><span class=\"ds-bar-fill\"></span></div></div></div>",
+      "css": ".ds-stage{position:relative;display:grid;grid-template-columns:72px minmax(0,1fr);gap:0 2rem;background:oklch(0.44 0.21 296);padding:1.5rem;border-radius:1.4rem;} .ds-lane{position:absolute;left:36px;top:0;bottom:0;width:0.5rem;transform:translateX(-50%);border-radius:9999px;background:oklch(0.3 0.15 294);overflow:hidden;} .ds-lane-fill{display:block;width:100%;height:55%;background:oklch(0.9 0.2 128);} .ds-node{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:72px;height:72px;border-radius:9999px;border:4px solid oklch(0.97 0.012 292);background:oklch(0.205 0.06 289);color:oklch(0.97 0.012 292);outline:4px solid oklch(0.9 0.2 128);outline-offset:4px;} .ds-stage-meta{display:flex;align-items:center;gap:0.75rem;} .ds-ord{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:0.875rem;color:oklch(0.85 0.04 292);} .ds-head{background:oklch(0.9 0.2 128);color:oklch(0.16 0.045 287);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:0.75rem;font-weight:700;padding:0.125rem 0.5rem;border-radius:0.5rem;} .ds-stage-name{margin:0.5rem 0 0;font-family:Bungee,ui-sans-serif,system-ui,sans-serif;font-size:2rem;line-height:1.05;color:oklch(0.97 0.012 292);} .ds-stage-desc{margin:0.75rem 0 0;font-family:ui-sans-serif,system-ui,sans-serif;font-size:1.0625rem;line-height:1.6;color:oklch(0.85 0.04 292);} .ds-bar{margin-top:1.25rem;height:0.625rem;max-width:24rem;border-radius:9999px;background:oklch(0.3 0.15 294);overflow:hidden;} .ds-bar-fill{display:block;height:100%;width:45%;border-radius:9999px;background:oklch(0.9 0.2 128);}"
+    },
+    {
+      "name": "Branch Pills",
+      "kind": "chip",
+      "refersTo": "panel",
+      "description": "Git vocabulary rendered as pills: grape for main, cyan for a feature branch, lime for the HEAD marker.",
+      "html": "<div class=\"ds-pills\"><span class=\"ds-pill ds-pill-main\">main</span><span class=\"ds-pill ds-pill-feature\">feature</span><span class=\"ds-pill ds-pill-head\">HEAD</span></div>",
+      "css": ".ds-pills{display:flex;align-items:center;gap:0.5rem;} .ds-pill{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:0.6875rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:9999px;} .ds-pill-main{background:oklch(0.6 0.22 298);color:oklch(0.97 0.012 292);} .ds-pill-feature{background:oklch(0.83 0.13 214);color:oklch(0.16 0.045 287);} .ds-pill-head{background:oklch(0.9 0.2 128);color:oklch(0.16 0.045 287);border-radius:0.5rem;}"
+    },
+    {
+      "name": "HUD Stat",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "One cell of the player HUD: accent icon chip, quiet label, display-face value.",
+      "html": "<div class=\"ds-hud\"><span class=\"ds-hud-icon\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></span><div><div class=\"ds-hud-label\">Points</div><div class=\"ds-hud-value\">447</div></div></div>",
+      "css": ".ds-hud{display:flex;align-items:center;gap:0.75rem;background:oklch(0.205 0.06 289);border:2px solid oklch(0.38 0.08 292);box-shadow:0 6px 0 oklch(0.38 0.08 292);border-radius:1.4rem;padding:1.25rem;} .ds-hud-icon{display:inline-flex;align-items:center;justify-content:center;width:2.75rem;height:2.75rem;border-radius:0.75rem;background:color-mix(in oklch, oklch(0.86 0.15 86) 12%, transparent);color:oklch(0.86 0.15 86);} .ds-hud-label{font-family:ui-sans-serif,system-ui,sans-serif;font-size:0.875rem;color:oklch(0.72 0.05 292);} .ds-hud-value{font-family:Bungee,ui-sans-serif,system-ui,sans-serif;font-size:1.5rem;color:oklch(0.97 0.012 292);font-variant-numeric:tabular-nums;}"
+    },
+    {
+      "name": "App Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "The in-app button: same keycap shape as the landing CTA, Geist Sans instead of the display face, 2.75rem tall. Disabled goes flat and dim instead of fading, so its label stays readable.",
+      "html": "<div class=\"ds-appbtns\"><button class=\"ds-appbtn ds-appbtn-primary\">Continue</button><button class=\"ds-appbtn ds-appbtn-outline\">Show hints</button><button class=\"ds-appbtn ds-appbtn-primary\" disabled>Not enough points</button></div>",
+      "css": ".ds-appbtns{display:flex;flex-wrap:wrap;gap:0.75rem;} .ds-appbtn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;height:2.75rem;padding:0 1rem;border-radius:0.85rem;border:2px solid transparent;font-family:ui-sans-serif,system-ui,sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;transition:transform 150ms cubic-bezier(0.16,1,0.3,1),box-shadow 150ms cubic-bezier(0.16,1,0.3,1),background 150ms,color 150ms;} .ds-appbtn-primary{background:oklch(0.9 0.2 128);color:oklch(0.16 0.045 287);border-color:oklch(0.64 0.17 136);box-shadow:0 4px 0 oklch(0.64 0.17 136);} .ds-appbtn-outline{background:oklch(0.205 0.06 289);color:oklch(0.97 0.012 292);border-color:oklch(0.38 0.08 292);box-shadow:0 4px 0 oklch(0.38 0.08 292);} .ds-appbtn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.05);} .ds-appbtn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 currentColor;} .ds-appbtn:focus-visible{outline:3px solid oklch(0.83 0.13 214);outline-offset:4px;} .ds-appbtn:disabled{background:oklch(0.26 0.08 291);color:oklch(0.72 0.05 292);border-color:oklch(0.38 0.08 292);box-shadow:none;cursor:not-allowed;}"
+    },
+    {
+      "name": "Form Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "One field vocabulary for inputs, textareas and selects: void inside a panel, 2px line border, cyan focus ring, dim placeholder at 7.8:1.",
+      "html": "<label class=\"ds-label\" for=\"ds-commit\">Commit message</label><input class=\"ds-field\" id=\"ds-commit\" placeholder=\"fix: handle empty repository\">",
+      "css": ".ds-label{display:block;margin-bottom:0.5rem;font-family:ui-sans-serif,system-ui,sans-serif;font-size:0.875rem;font-weight:600;color:oklch(0.85 0.04 292);} .ds-field{width:100%;max-width:22rem;height:2.75rem;background:oklch(0.16 0.045 287);border:2px solid oklch(0.38 0.08 292);border-radius:0.85rem;color:oklch(0.97 0.012 292);padding:0.625rem 0.875rem;font-family:ui-sans-serif,system-ui,sans-serif;font-size:1rem;transition:border-color 180ms cubic-bezier(0.16,1,0.3,1);} .ds-field::placeholder{color:oklch(0.72 0.05 292);} .ds-field:hover{border-color:oklch(0.6 0.22 298);} .ds-field:focus-visible{outline:3px solid oklch(0.83 0.13 214);outline-offset:2px;border-color:oklch(0.83 0.13 214);}"
+    },
+    {
+      "name": "Terminal Statusline",
+      "kind": "custom",
+      "refersTo": "terminal",
+      "description": "The terminal's title bar and statusline: a live LED with the session path, and below the output the branch plus what is pending. Colours come from the active theme, not from tokens.",
+      "html": "<div class=\"ds-term2\"><div class=\"ds-term2-bar\"><span class=\"ds-led\"></span><span class=\"ds-path\">~/intro/level-1</span></div><div class=\"ds-term2-body\"><div><span class=\"ds-p\">$</span> git add app.js</div><div class=\"ds-dim\">Added app.js to staging area.</div></div><div class=\"ds-term2-status\"><span class=\"ds-dim\">~/</span><span class=\"ds-branch\">main</span><span class=\"ds-ok\">+1</span><span class=\"ds-warn\">?2</span></div><div class=\"ds-term2-input\"><span class=\"ds-p\">$</span><span class=\"ds-dim\">Enter a command…</span></div></div>",
+      "css": ".ds-term2{background:oklch(0.205 0.06 289);border:2px solid oklch(0.38 0.08 292);border-radius:1.4rem;overflow:hidden;max-width:26rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:oklch(0.97 0.012 292);box-shadow:0 6px 0 oklch(0.38 0.08 292);} .ds-term2-bar{display:flex;align-items:center;gap:0.625rem;padding:0.375rem 0.75rem;background:color-mix(in oklab, oklch(0.38 0.08 292) 28%, oklch(0.205 0.06 289));border-bottom:2px solid oklch(0.38 0.08 292);} .ds-led{position:relative;width:10px;height:10px;} .ds-led::before{content:\"\";position:absolute;inset:0;border-radius:9999px;background:oklch(0.9 0.2 128);opacity:0.35;animation:ds-led 2s ease-in-out infinite;} .ds-led::after{content:\"\";position:absolute;inset:3px;border-radius:9999px;background:oklch(0.9 0.2 128);} @keyframes ds-led{50%{opacity:0.1;}} @media (prefers-reduced-motion:reduce){.ds-led::before{animation:none;}} .ds-path{color:oklch(0.85 0.04 292);} .ds-term2-body{padding:0.75rem;line-height:1.6;} .ds-p{color:oklch(0.9 0.2 128);font-weight:700;} .ds-dim{color:oklch(0.72 0.05 292);} .ds-term2-status{display:flex;align-items:center;gap:0.75rem;padding:0.375rem 0.75rem;font-size:11px;background:color-mix(in oklab, oklch(0.38 0.08 292) 28%, oklch(0.205 0.06 289));border-top:2px solid oklch(0.38 0.08 292);} .ds-branch{background:oklch(0.44 0.21 296);color:oklch(0.97 0.012 292);font-weight:700;border-radius:9999px;padding:0.125rem 0.5rem;} .ds-ok{color:oklch(0.9 0.2 128);} .ds-warn{color:oklch(0.74 0.17 22);} .ds-term2-input{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;border-top:2px solid oklch(0.38 0.08 292);}"
+    },
+    {
+      "name": "Cabinet Readout",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "The navbar's score pill: coins in gold carry the spendable currency and stay visible on a phone, the XP total follows behind a hairline divider. A readout, never a control.",
+      "html": "<div class=\"ds-purse\"><span class=\"ds-coins\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6\"/><path d=\"M18.09 10.37A6 6 0 1 1 10.34 18\"/></svg>120</span><span class=\"ds-sep\"></span><span class=\"ds-xp\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M6 9H4.5a2.5 2.5 0 0 1 0-5H6\"/><path d=\"M18 9h1.5a2.5 2.5 0 0 0 0-5H18\"/><path d=\"M4 22h16\"/><path d=\"M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22\"/><path d=\"M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22\"/><path d=\"M18 2H6v7a6 6 0 0 0 12 0V2Z\"/></svg>447 <span class=\"ds-unit\">XP</span></span></div>",
+      "css": ".ds-purse{display:inline-flex;align-items:center;gap:0.5rem;height:2.5rem;padding:0 0.75rem;border:2px solid oklch(0.62 0.13 70);background:oklch(0.205 0.06 289);border-radius:9999px;font-family:ui-sans-serif,system-ui,sans-serif;font-size:0.75rem;} .ds-coins{display:inline-flex;align-items:center;gap:0.375rem;color:oklch(0.86 0.15 86);font-weight:700;font-variant-numeric:tabular-nums;} .ds-sep{width:1px;height:1rem;background:oklch(0.38 0.08 292);} .ds-xp{display:inline-flex;align-items:center;gap:0.25rem;color:oklch(0.85 0.04 292);font-weight:600;font-variant-numeric:tabular-nums;} .ds-unit{color:oklch(0.72 0.05 292);}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Git Arcade",
+    "overview": "Git is the game world, and the interface is the cabinet it runs on. Branches are rails, commits are stations, HEAD is the player's token, and a merge is a level cleared. Every visual decision answers to that world: colour carries Git meaning, the display face is signage, and controls are physical buttons that sink when pressed. The surface is a dark violet night because the product is played, often in the evening, on a laptop next to an editor — not read like documentation under office light.\n\nLoudness is earned, not sprayed. The hero, the stage select and the reward moments shout in saturated lime and grape; the surfaces people actually read stay calm and high-contrast. Chroma is carried by accents and typography, never by a gradient wash.\n\nThis system explicitly rejects the generic SaaS landing (purple gradients, glassmorphism cards, gradient headline text, three identical icon-feature tiles, hero-metric stat rows), the dry tutorial/docs look, kiddy edutainment, and the green-Matrix hacker cliché.",
+    "keyCharacteristics": [
+      "Dark violet base, four saturated accents, each with a fixed Git meaning.",
+      "One display face (Bungee) for signage, Geist Sans for reading, Geist Mono for anything Git actually prints.",
+      "Hard, offset, zero-blur shadows. No glass, no soft glow, no gradient fills behind text.",
+      "Controls that visibly depress: a solid colour edge below the face that collapses on :active.",
+      "Motion is choreography, always with a static, complete prefers-reduced-motion fallback.",
+      "The landing page tokens are canonical; legacy purple-* routes migrate toward them."
+    ],
+    "rules": [
+      {
+        "name": "The Git Legend Rule",
+        "section": "colors",
+        "body": "Colour always means the same thing: grape = main, cyan = feature branch, coral = fix or danger, lime = commit succeeded, gold = points. A cyan button that isn't about branching, or a lime badge that isn't success, breaks the legend and is forbidden."
+      },
+      {
+        "name": "The Grape Floor Rule",
+        "section": "colors",
+        "body": "On the grape surface, gm-ink-dim is prohibited (3.5:1). Text on grape is gm-ink or gm-ink-soft — nothing else. gm-ink-dim is for void and night only."
+      },
+      {
+        "name": "The No Wash Rule",
+        "section": "colors",
+        "body": "Gradients never carry brand colour behind or inside text. The only permitted gradients are single-hue scrims over photography or video, whose job is contrast, not decoration. background-clip: text is banned outright."
+      },
+      {
+        "name": "The Marquee-Only Rule",
+        "section": "typography",
+        "body": "Bungee is for headings, level numerals and the ticker. It never sets a sentence, never sets body copy, and never appears below 1.3rem except inside a button."
+      },
+      {
+        "name": "The No Tracked Eyebrow Rule",
+        "section": "typography",
+        "body": "Small uppercase letter-spaced kickers above section headings are prohibited. Where a marker is genuinely ordinal — the stage sequence — it is a plain two-digit mono number, not a styled label."
+      },
+      {
+        "name": "The Overflow Test Rule",
+        "section": "typography",
+        "body": "Every display and headline string must be checked in German, Turkish and Hindi at 375px. If a word overflows, lower the clamp() minimum; don't let it bleed."
+      },
+      {
+        "name": "The Zero-Blur Rule",
+        "section": "elevation",
+        "body": "Every shadow in this system has a blur radius of 0 and an accent or line colour. Soft black shadows are permitted only inside an illustrative mock, never on real UI."
+      },
+      {
+        "name": "The One Raised Plane Rule",
+        "section": "elevation",
+        "body": "Content sits on void, and raised elements sit on night with a gm-line border. Never nest a raised surface inside another raised surface."
+      },
+      {
+        "name": "The Theme Exception",
+        "section": "components",
+        "body": "The terminal's purchasable themes (Dark Blue, Matrix, Golden) are the one place literal hex colours are allowed; they are sold goods with their own identity. The default theme is tokens only, and no other surface may follow their example."
+      },
+      {
+        "name": "The Role Rule",
+        "section": "components",
+        "body": "Inside the terminal every printed line picks a role (prompt, success, warning, error, accent, text) published by the frame as --term-* variables, never a token. A bought theme therefore repaints what the terminal says, not just its border."
+      }
+    ],
+    "dos": [
+      "Do give every pressable control the edge treatment (0 5px 0 edge at rest, 0 1px 0 with a 4px translate on :active). Pressability is the system's signature.",
+      "Do keep the Git legend intact: grape main, cyan feature, coral fix/danger, lime success, gold points.",
+      "Do use gm-ink-soft for body copy on the grape section and gm-ink-dim only on void or night.",
+      "Do pair every state colour with an icon or text — check, padlock, HEAD — so colour is never the only signal.",
+      "Do ship every animation with a prefers-reduced-motion path that renders the finished state: no autoplaying video (poster only), no scroll-scrubbed lanes, no parallax.",
+      "Do render reveal animations on top of markup that is already complete in the HTML, so a headless renderer or a paused tab never ships a blank section.",
+      "Do use logical properties (ms-, me-, ps-, pe-, start-, end-) and rtl:rotate-180 on directional arrows; the product ships Persian.",
+      "Do test every heading in German, Turkish and Hindi at 375px before calling it done.",
+      "Do keep <video> backdrops muted, looping, playsInline, with preload=\"none\" until playback is decided, and a poster that is the clip's own first frame.",
+      "Do style shared primitives once in src/components/ui/* and let screens inherit them; a screen only passes layout classes."
+    ],
+    "donts": [
+      "Don't build a \"generic SaaS landing\": purple gradients, glassmorphism cards, gradient headline text, hero-metric stat rows, or three identical icon+heading+text tiles.",
+      "Don't let the page slide into the \"dry tutorial / docs\" look, or into kiddy edutainment that talks down to developers, or the green-Matrix hacker cliché.",
+      "Don't use background-clip: text, soft blurred shadows, backdrop-filter, or translucent glass on real UI.",
+      "Don't put a small uppercase letter-spaced eyebrow above a section heading, and don't number sections that aren't a real sequence.",
+      "Don't set body text in Bungee, and don't give it negative letter-spacing.",
+      "Don't put gm-ink-dim (3.5:1) or gm-grape-hi (4.2:1 on night) on body text.",
+      "Don't nest a gm-night surface inside another gm-night surface.",
+      "Don't wrap a <button> in a <Link> or hang onClick on a <div>; level tiles and CTAs are real buttons and links with real disabled states.",
+      "Don't remove a focus outline without replacing it with something at least as visible as the 3px cyan ring.",
+      "Don't extend the legacy purple-* Tailwind utilities on new work; add to the gm-* tokens or migrate the surface.",
+      "Don't colour a shared primitive at the call site; pick the variant, or add one.",
+      "Don't fade a disabled control to 50%; go flat (gm-deep + gm-ink-dim) so its label stays readable.",
+      "Don't write a bare z-50 or z-[999]; use the --z-* scale."
+    ]
+  }
+}

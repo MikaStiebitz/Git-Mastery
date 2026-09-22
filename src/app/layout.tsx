@@ -1,5 +1,7 @@
 import "~/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import { Bungee } from "next/font/google";
 import { type Metadata } from "next";
 import Script from "next/script";
 import { GameProvider } from "~/contexts/GameContext";
@@ -7,6 +9,9 @@ import { LanguageProvider } from "~/contexts/LanguageContext";
 import { TerminalThemeWrapper } from "~/components/TerminalThemeWrapper";
 import { env } from "~/env";
 import { getPageUrl, getSiteUrl } from "~/lib/site";
+
+// Arcade-marquee display face for the landing page headlines.
+const bungee = Bungee({ weight: "400", subsets: ["latin", "latin-ext"], display: "swap", variable: "--font-bungee" });
 
 const cloudflareAnalyticsToken = env.NEXT_PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN;
 
@@ -70,7 +75,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
-        <html lang="en" className={`${GeistSans.variable}`}>
+        <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${bungee.variable}`}>
             <body className="dark overflow-x-hidden">
                 {cloudflareAnalyticsToken ? (
                     <Script

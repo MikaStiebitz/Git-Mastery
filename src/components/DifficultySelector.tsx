@@ -1,10 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type KeyboardEvent } from "react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
-import { CheckCircle2, Settings } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "~/components/ui/dialog";
+import { Check, Circle, Settings } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { difficulties } from "~/config/difficulties";
@@ -32,140 +38,123 @@ export function DifficultySelector({ isOpen, onClose, isInitialSelection = false
         onClose();
     };
 
-    const getDifficultyColorClasses = (difficulty: DifficultyLevel, isSelected: boolean) => {
-        const baseClasses = "transition-all duration-300 cursor-pointer";
+    // Arrow keys move through the options the way a real radio group does: selection and
+    // focus travel together, and the group stays a single tab stop.
+    const handleOptionKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+        const forward = event.key === "ArrowRight" || event.key === "ArrowDown";
+        const backward = event.key === "ArrowLeft" || event.key === "ArrowUp";
+        if (!forward && !backward) return;
 
-        if (isSelected) {
-            switch (difficulty) {
-                case "beginner":
-                    return `${baseClasses} border-green-500/50 bg-green-900/20 ring-2 ring-green-500/30`;
-                case "advanced":
-                    return `${baseClasses} border-blue-500/50 bg-blue-900/20 ring-2 ring-blue-500/30`;
-                case "pro":
-                    return `${baseClasses} border-purple-500/50 bg-purple-900/20 ring-2 ring-purple-500/30`;
-            }
-        }
+        event.preventDefault();
+        const nextIndex = (index + (forward ? 1 : -1) + difficulties.length) % difficulties.length;
+        const nextDifficulty = difficulties[nextIndex];
+        if (!nextDifficulty) return;
 
-        switch (difficulty) {
-            case "beginner":
-                return `${baseClasses} border-green-800/30 bg-green-900/10 hover:border-green-600 hover:bg-green-900/20`;
-            case "advanced":
-                return `${baseClasses} border-blue-800/30 bg-blue-900/10 hover:border-blue-600 hover:bg-blue-900/20`;
-            case "pro":
-                return `${baseClasses} border-purple-800/30 bg-purple-900/10 hover:border-purple-600 hover:bg-purple-900/20`;
-            default:
-                return baseClasses;
-        }
+        setSelectedDifficulty(nextDifficulty.id);
+        const options = event.currentTarget.parentElement?.children;
+        (options?.[nextIndex] as HTMLElement | undefined)?.focus();
     };
 
-    const getDifficultyTextColor = (difficulty: DifficultyLevel) => {
-        switch (difficulty) {
-            case "beginner":
-                return "text-green-400";
-            case "advanced":
-                return "text-blue-400";
-            case "pro":
-                return "text-purple-400";
-        }
-    };
+    // The three options are one choice, so the selected card carries three signals at once:
+    // a lime border, a lime tint and a filled check. Colour never decides on its own.
+    const optionClasses = (isSelected: boolean) =>
+        isSelected
+            ? "border-gm-lime bg-gm-lime/10 shadow-[0_4px_0_var(--color-gm-lime-edge)]"
+            : "border-gm-line hover:border-gm-grape-hi";
 
     return (
         <Dialog open={isOpen} onOpenChange={() => !isInitialSelection && onClose()}>
             <DialogContent
-                className="z-50 mx-2 max-h-[90vh] w-[calc(100vw-1rem)] max-w-4xl overflow-y-auto border-purple-900/20 bg-[#1a1625] text-purple-100 sm:mx-6 sm:w-[calc(100vw-3rem)] md:mx-0 md:w-full"
+                className="sm:max-w-3xl"
                 onPointerDownOutside={e => isInitialSelection && e.preventDefault()}
                 onEscapeKeyDown={e => isInitialSelection && e.preventDefault()}
                 showClose={!isInitialSelection}>
-                {isInitialSelection && (
-                    <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 transform px-2 sm:top-2">
-                        <div className="whitespace-nowrap rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-1 text-xs font-semibold text-white sm:px-4">
-                            {t("difficulty.firstTime")}
-                        </div>
-                    </div>
-                )}
-
-                <DialogHeader className="mt-8 text-center sm:mt-3">
-                    <DialogTitle className="flex items-center justify-center text-xl text-white sm:text-2xl">
-                        <Settings className="mr-2 h-5 w-5 text-purple-400 sm:h-6 sm:w-6" />
+                <DialogHeader>
+                    {isInitialSelection && (
+                        <p className="gm-chip bg-gm-grape text-gm-ink self-start">{t("difficulty.firstTime")}</p>
+                    )}
+                    <DialogTitle className="flex items-center gap-2">
+                        <Settings className="text-gm-grape-hi h-5 w-5 shrink-0 sm:h-6 sm:w-6" aria-hidden="true" />
                         {isInitialSelection ? t("difficulty.welcomeTitle") : t("difficulty.changeTitle")}
                     </DialogTitle>
-                    <DialogDescription className="px-2 text-sm text-purple-300 sm:px-0 sm:text-base">
+                    <DialogDescription>
                         {isInitialSelection ? t("difficulty.welcomeDescription") : t("difficulty.changeDescription")}
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-6 sm:gap-4 md:grid-cols-3">
-                    {difficulties.map(diff => (
-                        <Card
-                            key={diff.id}
-                            className={`flex flex-col ${getDifficultyColorClasses(diff.id, selectedDifficulty === diff.id)}`}
-                            onClick={() => setSelectedDifficulty(diff.id)}>
-                            <CardHeader className="p-3 text-center sm:p-6">
-                                <div className="mx-auto mb-2 text-3xl sm:text-4xl">{diff.icon}</div>
-                                <CardTitle className={`text-lg sm:text-xl ${getDifficultyTextColor(diff.id)}`}>
+                <div
+                    role="radiogroup"
+                    aria-label={t("difficulty.selectTitle")}
+                    className="mt-5 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
+                    {difficulties.map((diff, index) => {
+                        const isSelected = selectedDifficulty === diff.id;
+
+                        return (
+                            <button
+                                key={diff.id}
+                                type="button"
+                                role="radio"
+                                aria-checked={isSelected}
+                                tabIndex={isSelected ? 0 : -1}
+                                onKeyDown={event => handleOptionKeyDown(event, index)}
+                                onClick={() => setSelectedDifficulty(diff.id)}
+                                className={`gm-inset focus-visible:outline-gm-cyan flex cursor-pointer flex-col gap-3 p-4 text-start transition-[border-color,background-color,box-shadow] duration-200 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:outline-offset-2 ${optionClasses(
+                                    isSelected,
+                                )}`}>
+                                <div className="flex items-center justify-between gap-2">
+                                    <span className="text-3xl leading-none sm:text-4xl" aria-hidden="true">
+                                        {diff.icon}
+                                    </span>
+                                    {isSelected ? (
+                                        <span className="border-gm-lime-edge bg-gm-lime text-gm-void inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2">
+                                            <Check className="h-4 w-4" aria-hidden="true" />
+                                        </span>
+                                    ) : (
+                                        <Circle className="text-gm-ink-dim h-7 w-7 shrink-0" aria-hidden="true" />
+                                    )}
+                                </div>
+
+                                <h3 className="text-gm-ink text-lg font-bold [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
                                     {t(`difficulty.${diff.id}`)}
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="flex flex-1 flex-col space-y-2 p-3 sm:space-y-3 sm:p-6">
-                                <p className="text-center text-xs text-purple-200 sm:text-sm">
+                                </h3>
+
+                                <p className="text-gm-ink-soft text-sm leading-relaxed">
                                     {t(`difficulty.${diff.id}.description`)}
                                 </p>
 
-                                <div className="flex flex-1 flex-col space-y-2">
-                                    <div className="text-xs text-purple-400">
-                                        <strong>{t("difficulty.topicsCovered")}:</strong>
-                                    </div>
-                                    <div className="flex min-h-[60px] flex-wrap content-start gap-1">
+                                <div className="flex flex-1 flex-col gap-2">
+                                    <p className="text-gm-ink-dim text-xs font-semibold">
+                                        {t("difficulty.topicsCovered")}:
+                                    </p>
+                                    <div className="flex flex-wrap content-start gap-1.5">
                                         {diff.stages.map(stage => (
                                             <span
                                                 key={stage}
-                                                className={`rounded-full px-2 py-1 text-xs ${getDifficultyTextColor(diff.id)} bg-opacity-20`}
-                                                style={{ backgroundColor: `var(--${diff.color}-900)` }}>
+                                                className="gm-chip border-gm-line bg-gm-deep text-gm-ink-soft">
                                                 {t(allStages[stage as keyof typeof allStages]?.name ?? stage)}
                                             </span>
                                         ))}
                                     </div>
                                 </div>
 
-                                <div className="pt-2 text-center">
-                                    <div className="text-xs text-purple-400">
-                                        {t("difficulty.maxPoints")}: {diff.maxPoints}
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-center pt-2">
-                                    {selectedDifficulty === diff.id ? (
-                                        <CheckCircle2 className={`h-6 w-6 ${getDifficultyTextColor(diff.id)}`} />
-                                    ) : (
-                                        <div className="h-6 w-6" />
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                                <p className="text-gm-ink-dim text-xs">
+                                    {t("difficulty.maxPoints")}: <span className="text-gm-gold">{diff.maxPoints}</span>
+                                </p>
+                            </button>
+                        );
+                    })}
                 </div>
 
-                <div className="mt-4 flex flex-col justify-center space-y-2 sm:mt-6 sm:flex-row sm:space-x-4 sm:space-y-0">
+                <DialogFooter>
                     {!isInitialSelection && (
-                        <Button
-                            variant="outline"
-                            onClick={onClose}
-                            className="w-full border-purple-700 text-purple-300 hover:bg-purple-900/50 sm:w-auto">
+                        <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">
                             {t("difficulty.cancel")}
                         </Button>
                     )}
-                    <Button
-                        onClick={handleConfirm}
-                        className={`w-full sm:w-auto ${
-                            selectedDifficulty === "beginner"
-                                ? "bg-green-600 hover:bg-green-700"
-                                : selectedDifficulty === "advanced"
-                                  ? "bg-blue-600 hover:bg-blue-700"
-                                  : "bg-purple-600 hover:bg-purple-700"
-                        } text-white`}>
+                    <Button onClick={handleConfirm} className="w-full sm:w-auto">
                         {isInitialSelection ? t("difficulty.startLearning") : t("difficulty.applyChanges")}
                     </Button>
-                </div>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );

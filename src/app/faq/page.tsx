@@ -1,7 +1,7 @@
 "use client";
 
 import { PageLayout } from "~/components/layout/PageLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card } from "~/components/ui/card";
 import { useLanguage } from "~/contexts/LanguageContext";
 import {
     HelpCircle,
@@ -37,6 +37,9 @@ interface FAQSection {
     items: FAQItem[];
 }
 
+/** Question icons are graphics, so they carry the lifted grape and never a text colour. */
+const iconClass = "h-5 w-5 shrink-0 text-gm-grape-hi";
+
 export default function FAQPage() {
     const { t } = useLanguage();
 
@@ -48,31 +51,31 @@ export default function FAQPage() {
             items: [
                 {
                     id: "what-is-git",
-                    icon: <GitBranch className="h-5 w-5 text-purple-400" />,
+                    icon: <GitBranch className={iconClass} aria-hidden="true" />,
                     question: t("faq.whatIsGit.question"),
                     answer: t("faq.whatIsGit.answer"),
                 },
                 {
                     id: "why-created",
-                    icon: <History className="h-5 w-5 text-purple-400" />,
+                    icon: <History className={iconClass} aria-hidden="true" />,
                     question: t("faq.whyCreated.question"),
                     answer: t("faq.whyCreated.answer"),
                 },
                 {
                     id: "vs-other-vcs",
-                    icon: <Search className="h-5 w-5 text-purple-400" />,
+                    icon: <Search className={iconClass} aria-hidden="true" />,
                     question: t("faq.vsOtherVcs.question"),
                     answer: t("faq.vsOtherVcs.answer"),
                 },
                 {
                     id: "benefits",
-                    icon: <CheckCircle className="h-5 w-5 text-purple-400" />,
+                    icon: <CheckCircle className={iconClass} aria-hidden="true" />,
                     question: t("faq.benefits.question"),
                     answer: t("faq.benefits.answer"),
                 },
                 {
                     id: "git-vs-github",
-                    icon: <Github className="h-5 w-5 text-purple-400" />,
+                    icon: <Github className={iconClass} aria-hidden="true" />,
                     question: t("faq.gitVsGithub.question"),
                     answer: t("faq.gitVsGithub.answer"),
                 },
@@ -84,31 +87,31 @@ export default function FAQPage() {
             items: [
                 {
                     id: "repositories",
-                    icon: <Folder className="h-5 w-5 text-purple-400" />,
+                    icon: <Folder className={iconClass} aria-hidden="true" />,
                     question: t("faq.repositories.question"),
                     answer: t("faq.repositories.answer"),
                 },
                 {
                     id: "commits",
-                    icon: <GitCommit className="h-5 w-5 text-purple-400" />,
+                    icon: <GitCommit className={iconClass} aria-hidden="true" />,
                     question: t("faq.commits.question"),
                     answer: t("faq.commits.answer"),
                 },
                 {
                     id: "branches",
-                    icon: <GitBranch className="h-5 w-5 text-purple-400" />,
+                    icon: <GitBranch className={iconClass} aria-hidden="true" />,
                     question: t("faq.branches.question"),
                     answer: t("faq.branches.answer"),
                 },
                 {
                     id: "merge",
-                    icon: <GitMerge className="h-5 w-5 text-purple-400" />,
+                    icon: <GitMerge className={iconClass} aria-hidden="true" />,
                     question: t("faq.merge.question"),
                     answer: t("faq.merge.answer"),
                 },
                 {
                     id: "workflow",
-                    icon: <Workflow className="h-5 w-5 text-purple-400" />,
+                    icon: <Workflow className={iconClass} aria-hidden="true" />,
                     question: t("faq.workflow.question"),
                     answer: t("faq.workflow.answer"),
                 },
@@ -120,31 +123,31 @@ export default function FAQPage() {
             items: [
                 {
                     id: "when-use",
-                    icon: <HelpCircle className="h-5 w-5 text-purple-400" />,
+                    icon: <HelpCircle className={iconClass} aria-hidden="true" />,
                     question: t("faq.whenUse.question"),
                     answer: t("faq.whenUse.answer"),
                 },
                 {
                     id: "small-projects",
-                    icon: <Code className="h-5 w-5 text-purple-400" />,
+                    icon: <Code className={iconClass} aria-hidden="true" />,
                     question: t("faq.smallProjects.question"),
                     answer: t("faq.smallProjects.answer"),
                 },
                 {
                     id: "team-collaboration",
-                    icon: <Users className="h-5 w-5 text-purple-400" />,
+                    icon: <Users className={iconClass} aria-hidden="true" />,
                     question: t("faq.teamCollaboration.question"),
                     answer: t("faq.teamCollaboration.answer"),
                 },
                 {
                     id: "command-line",
-                    icon: <Terminal className="h-5 w-5 text-purple-400" />,
+                    icon: <Terminal className={iconClass} aria-hidden="true" />,
                     question: t("faq.commandLine.question"),
                     answer: t("faq.commandLine.answer"),
                 },
                 {
                     id: "hosting",
-                    icon: <ServerCrash className="h-5 w-5 text-purple-400" />,
+                    icon: <ServerCrash className={iconClass} aria-hidden="true" />,
                     question: t("faq.hosting.question"),
                     answer: t("faq.hosting.answer"),
                 },
@@ -152,74 +155,78 @@ export default function FAQPage() {
         },
     ];
 
-    // Helper function to render a FAQ section
+    // Helper function to render a FAQ section: one panel per category, questions as rows
+    // inside it, so nothing turns into a card inside a card.
     const renderFAQSection = (category: string, items: FAQItem[]) => (
-        <div className="mb-8">
-            <h2 className="mb-4 text-xl font-semibold text-white">{t(`faq.categories.${category}`)}</h2>
-            <Accordion type="single" collapsible className="space-y-3">
-                {items.map(item => (
-                    <AccordionItem
-                        key={item.id}
-                        value={item.id}
-                        className="overflow-hidden rounded-md border border-purple-800/40">
-                        <AccordionTrigger className="px-4 py-3 hover:bg-purple-900/30 hover:no-underline">
-                            <div className="flex items-center text-left">
-                                <span className="mr-3 flex-shrink-0">{item.icon}</span>
-                                <span className="font-medium text-purple-100">{item.question}</span>
-                            </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="border-t border-purple-800/40 bg-purple-900/20 px-4 py-3 text-purple-200">
-                            <div className="pl-9">{item.answer}</div>
-                        </AccordionContent>
-                    </AccordionItem>
-                ))}
-            </Accordion>
-        </div>
+        <section key={category} className="mt-10">
+            <h2 className="text-gm-ink text-xl font-bold [overflow-wrap:anywhere] sm:text-2xl sm:[overflow-wrap:normal]">
+                {t(`faq.categories.${category}`)}
+            </h2>
+            <Card className="mt-4 px-5 py-1 sm:px-6 sm:py-2">
+                <Accordion type="single" collapsible>
+                    {items.map(item => (
+                        <AccordionItem key={item.id} value={item.id}>
+                            <AccordionTrigger>
+                                <span className="flex min-w-0 items-center gap-3 text-start">
+                                    {item.icon}
+                                    {item.question}
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent className="max-w-[70ch] ps-8 whitespace-pre-line">
+                                {item.answer}
+                            </AccordionContent>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
+            </Card>
+        </section>
     );
 
     return (
         <PageLayout>
-            <div className="min-h-screen bg-[#1a1625] text-purple-100">
-                <div className="container mx-auto p-4 py-8">
-                    <h1 className="mb-6 text-center text-3xl font-bold text-white">{t("faq.title")}</h1>
+            <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
+                <h1 className="font-display text-gm-ink text-3xl leading-[1.05] [text-wrap:balance] [overflow-wrap:anywhere] sm:text-4xl sm:[overflow-wrap:normal]">
+                    {t("faq.title")}
+                </h1>
 
-                    <Card className="mb-8 border-purple-900/20 bg-purple-900/10">
-                        <CardHeader>
-                            <CardTitle className="flex items-center text-white">
-                                <HelpCircle className="mr-2 h-6 w-6 text-purple-400" />
-                                {t("faq.subtitle")}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="mb-6 text-purple-200">{t("faq.intro")}</p>
-
-                            {/* Render each FAQ section */}
-                            {faqItems.map(section => (
-                                <div key={section.category}>{renderFAQSection(section.category, section.items)}</div>
-                            ))}
-
-                            {/* Final encouragement section */}
-                            <div className="mt-8 rounded-lg border border-purple-700/30 bg-purple-900/30 p-6 text-center">
-                                <h3 className="mb-3 text-lg font-semibold text-white">{t("faq.readyToStart.title")}</h3>
-                                <p className="mb-4 text-purple-200">{t("faq.readyToStart.text")}</p>
-                                <div className="flex flex-wrap justify-center gap-3">
-                                    <Link href="/installation">
-                                        <Button className="bg-purple-600 text-white hover:bg-purple-700">
-                                            <Download className="mr-2 h-4 w-4" />
-                                            {t("faq.readyToStart.installButton")}
-                                        </Button>
-                                    </Link>
-                                    <Link href="/level">
-                                        <Button className="bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800">
-                                            <Code className="mr-2 h-4 w-4" />
-                                            {t("faq.readyToStart.practiceButton")}
-                                        </Button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                <div className="mt-5 flex items-center gap-3">
+                    <HelpCircle className="text-gm-grape-hi h-6 w-6 shrink-0" aria-hidden="true" />
+                    <h2 className="text-gm-ink text-lg font-bold sm:text-xl">{t("faq.subtitle")}</h2>
                 </div>
+                <p className="text-gm-ink-soft mt-3 max-w-[70ch] text-lg leading-relaxed text-pretty">
+                    {t("faq.intro")}
+                </p>
+
+                {/* Render each FAQ section */}
+                {faqItems.map(section => renderFAQSection(section.category, section.items))}
+
+                {/* Final encouragement section */}
+                <Card className="mt-12 p-6 text-center sm:p-8">
+                    <h2 className="text-gm-ink text-xl font-bold [overflow-wrap:anywhere] sm:text-2xl sm:[overflow-wrap:normal]">
+                        {t("faq.readyToStart.title")}
+                    </h2>
+                    <p className="text-gm-ink-soft mx-auto mt-3 max-w-[60ch] leading-relaxed text-pretty">
+                        {t("faq.readyToStart.text")}
+                    </p>
+                    <div className="mt-6 flex flex-col flex-wrap justify-center gap-3 sm:flex-row">
+                        <Button
+                            asChild
+                            variant="secondary"
+                            size="lg"
+                            className="h-auto min-h-13 py-3 whitespace-normal">
+                            <Link href="/installation">
+                                <Download className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                {t("faq.readyToStart.installButton")}
+                            </Link>
+                        </Button>
+                        <Button asChild size="lg" className="h-auto min-h-13 py-3 whitespace-normal">
+                            <Link href="/level">
+                                <Code className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                {t("faq.readyToStart.practiceButton")}
+                            </Link>
+                        </Button>
+                    </div>
+                </Card>
             </div>
         </PageLayout>
     );

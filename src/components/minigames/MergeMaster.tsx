@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { GitMerge, Timer, Trophy, X, ChevronDown, ChevronRight, Copy } from "lucide-react";
+import { Textarea } from "~/components/ui/textarea";
+import { GitMerge, Timer, Trophy, X, ChevronDown, ChevronRight, Copy, CheckCircle, XCircle } from "lucide-react";
 
 interface MergeMasterProps {
     onComplete: (score: number) => void;
@@ -149,6 +149,24 @@ const CONFLICT_SCENARIOS: ConflictScenario[] = [
         difficulty: "pro",
     },
 ];
+
+// Git's own conflict markers, called out in coral so the thing the player has to remove is
+// the loudest line in the block.
+const CONFLICT_MARKER = /^(<<<<<<<|=======|>>>>>>>)/;
+
+function ConflictCode({ content }: { content: string }) {
+    return (
+        <pre className="gm-inset gm-scroll h-56 overflow-auto p-4 [font-family:var(--font-code)] text-sm leading-relaxed sm:h-64">
+            <code className="text-gm-ink-soft">
+                {content.split("\n").map((line, i) => (
+                    <span key={i} className={`block ${CONFLICT_MARKER.test(line) ? "text-gm-coral font-bold" : ""}`}>
+                        {line === "" ? " " : line}
+                    </span>
+                ))}
+            </code>
+        </pre>
+    );
+}
 
 export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: MergeMasterProps) {
     const [currentScenario, setCurrentScenario] = useState(0);
@@ -326,185 +344,198 @@ export function MergeMaster({ onComplete, onClose, difficulty = "beginner" }: Me
     };
 
     const scenario = selectedScenarios[currentScenario];
+    // The clock only turns coral once it is genuinely about to run out.
+    const timeCritical = timeLeft <= 15;
 
     if (!gameStarted) {
         return (
-            <Card className="mx-auto max-w-md border-red-600 bg-red-900/20">
-                <CardHeader className="text-center">
-                    <CardTitle className="flex items-center justify-center text-xl text-red-400">
-                        <GitMerge className="mr-2 h-6 w-6" />
+            <div className="mx-auto flex w-full max-w-md flex-col gap-5">
+                <div className="flex items-start justify-between gap-3">
+                    <h2 className="font-display text-gm-ink flex min-w-0 items-center gap-2.5 text-2xl [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                        <GitMerge className="text-gm-coral h-6 w-6 shrink-0" aria-hidden="true" />
                         Merge Master
-                    </CardTitle>
-                    <div className="absolute right-2 top-2">
-                        <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
-                            <X className="h-4 w-4" />
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-4 text-center">
-                    <p className="text-purple-200">Resolve merge conflicts like a pro developer!</p>
-                    <p className="text-sm text-purple-300">
+                    </h2>
+                    <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+                        <X className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                </div>
+                <p className="text-gm-ink-soft">Resolve merge conflicts like a pro developer!</p>
+                <div className="gm-inset flex flex-col gap-1.5 p-4">
+                    <p className="text-gm-ink-dim text-sm">
                         • Difficulty: {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
                     </p>
-                    <p className="text-sm text-purple-300">
+                    <p className="text-gm-ink-dim text-sm">
                         • 3 conflicts • 2 minutes • Remove markers and fix conflicts
                     </p>
-                    <Button onClick={startGame} className="w-full bg-red-600 text-white hover:bg-red-700">
-                        Start Game
-                    </Button>
-                </CardContent>
-            </Card>
+                </div>
+                <Button onClick={startGame} size="lg" className="w-full">
+                    Start Game
+                </Button>
+            </div>
         );
     }
 
     if (gameEnded) {
         const finalScore = Math.max(0, score + Math.floor(timeLeft / 2));
         return (
-            <Card className="mx-auto max-w-md border-red-600 bg-red-900/20">
-                <CardHeader className="text-center">
-                    <CardTitle className="flex items-center justify-center text-xl text-red-400">
-                        <Trophy className="mr-2 h-6 w-6" />
-                        Game Complete!
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 text-center">
-                    <div className="space-y-2">
-                        <p className="text-lg text-white">Final Score: {finalScore}</p>
-                        <p className="text-sm text-purple-200">Resolution Points: {score}</p>
-                        <p className="text-sm text-purple-200">Time Bonus: {Math.floor(timeLeft / 2)} points</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <Button
-                            onClick={startGame}
-                            variant="outline"
-                            className="flex-1 border-red-600 text-red-300 hover:bg-red-900/50">
-                            Play Again
-                        </Button>
-                        <Button onClick={onClose} className="flex-1 bg-purple-600 text-white hover:bg-purple-700">
-                            Close
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="mx-auto flex w-full max-w-md flex-col gap-5">
+                <h2 className="font-display text-gm-ink flex items-center justify-center gap-2.5 text-center text-2xl">
+                    <Trophy className="text-gm-gold h-6 w-6 shrink-0" aria-hidden="true" />
+                    Game Complete!
+                </h2>
+                <div className="gm-inset flex flex-col gap-2 p-5 text-center">
+                    <p className="text-gm-ink text-lg">
+                        Final Score:{" "}
+                        <span className="font-display text-gm-gold text-2xl tabular-nums">{finalScore}</span>
+                    </p>
+                    <p className="text-gm-ink-soft text-sm">Resolution Points: {score}</p>
+                    <p className="text-gm-ink-soft text-sm">Time Bonus: {Math.floor(timeLeft / 2)} points</p>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                    <Button onClick={startGame} className="flex-1">
+                        Play Again
+                    </Button>
+                    <Button onClick={onClose} variant="outline" className="flex-1">
+                        Close
+                    </Button>
+                </div>
+            </div>
         );
     }
 
     return (
-        <Card className="mx-auto max-w-4xl border-red-600 bg-red-900/20">
-            <CardHeader>
-                <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center text-lg text-red-400">
-                        <GitMerge className="mr-2 h-5 w-5" />
-                        Merge Master - Playing
-                    </CardTitle>
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center text-purple-300">
-                            <Timer className="mr-1 h-4 w-4" />
-                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
-                        </div>
-                        <div className="text-purple-300">Score: {score}</div>
-                        <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
-                            <X className="h-4 w-4" />
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
+            {/* HUD: name, clock, score — inset so it never reads as a card inside the dialog */}
+            <div className="gm-inset flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 py-2.5">
+                <h2 className="text-gm-ink flex min-w-0 items-center gap-2 font-bold">
+                    <GitMerge className="text-gm-coral h-5 w-5 shrink-0" aria-hidden="true" />
+                    <span className="truncate">Merge Master - Playing</span>
+                </h2>
+                <div className="flex items-center gap-3">
+                    <span
+                        className={`flex items-center gap-1.5 text-sm tabular-nums ${
+                            timeCritical ? "text-gm-coral" : "text-gm-ink-soft"
+                        }`}>
+                        <Timer className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
+                    </span>
+                    <span className="text-gm-gold flex items-center gap-1.5 text-sm font-semibold tabular-nums">
+                        <Trophy className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        Score: {score}
+                    </span>
+                    <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+                        <X className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                </div>
+            </div>
+
+            <div>
+                <p className="text-gm-ink-dim text-sm">
+                    Conflict {currentScenario + 1} of {selectedScenarios.length}
+                </p>
+                <div className="border-gm-line bg-gm-void mt-1.5 h-2.5 w-full overflow-hidden rounded-full border-2">
+                    <div
+                        className="bg-gm-lime h-full transition-[width] duration-300 ease-[var(--ease-out-expo)] motion-reduce:transition-none"
+                        style={{ width: `${((currentScenario + 1) / selectedScenarios.length) * 100}%` }}
+                    />
+                </div>
+            </div>
+
+            <div>
+                <h3 className="text-gm-ink mb-2 text-lg [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                    {scenario?.description}
+                </h3>
+                <p className="text-gm-ink-dim text-sm">
+                    File:{" "}
+                    <code className="border-gm-line bg-gm-void text-gm-ink rounded-[0.5rem] border-2 px-2 py-0.5 [font-family:var(--font-code)] [overflow-wrap:anywhere]">
+                        {scenario?.conflictedFile}
+                    </code>
+                </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div className="flex min-w-0 flex-col">
+                    <div className="mb-2 flex min-h-11 items-center">
+                        <h4 className="text-gm-ink-soft text-sm font-semibold">Conflicted Code:</h4>
+                    </div>
+                    <ConflictCode content={scenario?.conflictContent ?? ""} />
+                </div>
+
+                <div className="flex min-w-0 flex-col">
+                    <div className="mb-2 flex min-h-11 flex-wrap items-center justify-between gap-2">
+                        <h4 id="merge-resolution-label" className="text-gm-ink-soft text-sm font-semibold">
+                            Your Resolution:
+                        </h4>
+                        <Button
+                            onClick={handleCopyConflictedCode}
+                            variant="outline"
+                            size="sm"
+                            title="Copy conflicted code to resolution field">
+                            <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                            Copy Conflicted Code
                         </Button>
                     </div>
+                    <Textarea
+                        aria-labelledby="merge-resolution-label"
+                        value={resolution}
+                        onChange={e => setResolution(e.target.value)}
+                        placeholder="Remove conflict markers and resolve the conflict..."
+                        className="h-56 resize-none p-4 [font-family:var(--font-code)] text-sm sm:h-64"
+                    />
                 </div>
-                <div className="mt-2">
-                    <div className="flex text-sm text-purple-400">
-                        Conflict {currentScenario + 1} of {selectedScenarios.length}
-                    </div>
-                    <div className="mt-1 h-2 w-full rounded-full bg-purple-900/30">
-                        <div
-                            className="h-full rounded-full bg-red-600 transition-all duration-300"
-                            style={{ width: `${((currentScenario + 1) / selectedScenarios.length) * 100}%` }}
-                        />
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div>
-                    <h3 className="mb-2 text-lg text-white">{scenario?.description}</h3>
-                    <p className="mb-4 text-sm text-purple-300">
-                        File:{" "}
-                        <code className="rounded bg-purple-900/50 px-2 py-1 font-mono">{scenario?.conflictedFile}</code>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+                <Button onClick={() => setShowHint(!showHint)} variant="outline" aria-expanded={showHint}>
+                    {showHint ? (
+                        <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                    ) : (
+                        <ChevronRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
+                    )}
+                    {showHint ? "Hide Hint" : "Show Hint"}
+                </Button>
+
+                <Button
+                    onClick={handleSubmitResolution}
+                    disabled={!resolution.trim() || feedback.type !== null}
+                    className="flex-1 sm:flex-none">
+                    Submit Resolution
+                </Button>
+            </div>
+
+            {showHint && (
+                <div className="border-gm-cyan-edge bg-gm-cyan/12 rounded-[0.85rem] border-2 p-4">
+                    <p className="text-gm-ink-soft text-sm">
+                        <strong className="text-gm-ink">Hint:</strong> Remove the conflict markers
+                        (&lt;&lt;&lt;&lt;&lt;&lt;&lt;, =======, &gt;&gt;&gt;&gt;&gt;&gt;&gt;) and choose the best
+                        solution. Consider which version is more complete, follows better practices, or provides
+                        enhanced functionality.
                     </p>
                 </div>
+            )}
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <div className="flex flex-col">
-                        <div className="mb-2 flex h-8 items-center">
-                            <h4 className="text-md text-purple-300">Conflicted Code:</h4>
-                        </div>
-                        <pre className="h-64 overflow-x-auto overflow-y-auto rounded-md border border-gray-700 bg-gray-900 p-4 text-sm text-gray-100">
-                            <code>{scenario?.conflictContent}</code>
-                        </pre>
-                    </div>
-
-                    <div className="flex flex-col">
-                        <div className="mb-2 flex h-8 items-center justify-between">
-                            <h4 className="text-md text-purple-300">Your Resolution:</h4>
-                            <Button
-                                onClick={handleCopyConflictedCode}
-                                variant="outline"
-                                size="sm"
-                                className="border-purple-600 text-purple-300 hover:bg-purple-900/50"
-                                title="Copy conflicted code to resolution field">
-                                <Copy className="mr-1.5 h-3.5 w-3.5" />
-                                Copy Conflicted Code
-                            </Button>
-                        </div>
-                        <textarea
-                            value={resolution}
-                            onChange={e => setResolution(e.target.value)}
-                            placeholder="Remove conflict markers and resolve the conflict..."
-                            className="h-64 w-full resize-none rounded-md border border-gray-700 bg-gray-900 p-4 font-mono text-sm text-gray-100"
-                        />
-                    </div>
-                </div>
-
-                <div className="flex gap-4">
-                    <Button
-                        onClick={() => setShowHint(!showHint)}
-                        variant="outline"
-                        className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
-                        {showHint ? (
-                            <ChevronDown className="mr-2 h-4 w-4" />
-                        ) : (
-                            <ChevronRight className="mr-2 h-4 w-4" />
-                        )}
-                        {showHint ? "Hide Hint" : "Show Hint"}
-                    </Button>
-
-                    <Button
-                        onClick={handleSubmitResolution}
-                        disabled={!resolution.trim() || feedback.type !== null}
-                        className="bg-red-600 text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-600">
-                        Submit Resolution
-                    </Button>
-                </div>
-
-                {showHint && (
-                    <div className="rounded-md border border-blue-700 bg-blue-900/30 p-4">
-                        <p className="text-sm text-blue-300">
-                            <strong>Hint:</strong> Remove the conflict markers (&lt;&lt;&lt;&lt;&lt;&lt;&lt;, =======,
-                            &gt;&gt;&gt;&gt;&gt;&gt;&gt;) and choose the best solution. Consider which version is more
-                            complete, follows better practices, or provides enhanced functionality.
-                        </p>
-                    </div>
-                )}
-
-                {feedback.type && (
-                    <div
-                        className={`rounded-md p-4 text-center ${
-                            feedback.type === "good"
-                                ? "border border-green-700 bg-green-900/50"
-                                : "border border-red-700 bg-red-900/50"
+            {feedback.type && (
+                <div
+                    role="status"
+                    aria-live="polite"
+                    className={`rounded-[0.85rem] border-2 p-4 text-center ${
+                        feedback.type === "good"
+                            ? "border-gm-lime-edge bg-gm-lime/12"
+                            : "border-gm-coral-edge bg-gm-coral/12"
+                    }`}>
+                    <p
+                        className={`flex items-center justify-center gap-2 font-semibold ${
+                            feedback.type === "good" ? "text-gm-lime" : "text-gm-coral"
                         }`}>
-                        <p className={`font-medium ${feedback.type === "good" ? "text-green-300" : "text-red-300"}`}>
-                            {feedback.message}
-                        </p>
-                    </div>
-                )}
-            </CardContent>
-        </Card>
+                        {feedback.type === "good" ? (
+                            <CheckCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+                        ) : (
+                            <XCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+                        )}
+                        {feedback.message}
+                    </p>
+                </div>
+            )}
+        </div>
     );
 }

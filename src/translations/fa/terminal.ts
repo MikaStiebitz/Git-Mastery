@@ -29,6 +29,14 @@ const terminal = {
     "commit.placeholder": "یک پیام کامیت وارد کنید که تغییرات شما را توصیف می‌کند...",
     "commit.tip": "خط اول باید یک خلاصه کوتاه باشد. یک خط خالی بگذارید و در صورت نیاز جزئیات اضافه کنید.",
     "commit.button": "کامیت تغییرات",
+    "terminal.showHelp": "نمایش راهنما",
+    "terminal.status.staged": "استیج‌شده",
+    "terminal.status.modified": "تغییر‌یافته",
+    "terminal.status.untracked": "ردیابی‌نشده",
+    "terminal.status.ahead": "کامیت برای push",
+    "terminal.status.behind": "کامیت برای pull",
+    "terminal.status.clean": "تمیز",
+    "terminal.status.noRepo": "بدون مخزن",
 };
 
 export default terminal;

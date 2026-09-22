@@ -1,928 +1,694 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PageLayout } from "~/components/layout/PageLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useLanguage } from "~/contexts/LanguageContext";
-import { Grid2X2, Apple, Terminal, Download, ExternalLink, Key, Github, GitlabIcon as Gitlab, AlertTriangle, Folder, HelpCircle } from "lucide-react";
+import {
+    Grid2X2,
+    Apple,
+    Terminal,
+    Download,
+    ExternalLink,
+    Key,
+    Github,
+    GitlabIcon as Gitlab,
+    AlertTriangle,
+    Folder,
+    HelpCircle,
+    Check,
+    Copy,
+} from "lucide-react";
+
+type Platform = "windows" | "linux" | "mac";
+
+/** Prose measure + colour, shared by every paragraph and list on the page. */
+const PROSE = "max-w-[70ch] leading-relaxed text-gm-ink-soft";
+
+/** The only part of the SSH walk-through that differs per platform. */
+const COPY_KEY_COMMANDS: Record<Platform, string[]> = {
+    windows: ["clip < ~/.ssh/id_ed25519.pub", "# oder:", "Get-Content ~/.ssh/id_ed25519.pub | Set-Clipboard"],
+    linux: [
+        "cat ~/.ssh/id_ed25519.pub | xclip -selection clipboard",
+        "# oder bei Ubuntu/Debian:",
+        "cat ~/.ssh/id_ed25519.pub | wl-copy",
+        "# oder einfach anzeigen und manuell kopieren:",
+        "cat ~/.ssh/id_ed25519.pub",
+    ],
+    mac: ["pbcopy < ~/.ssh/id_ed25519.pub", "# oder anzeigen und manuell kopieren:", "cat ~/.ssh/id_ed25519.pub"],
+};
+
+const COPY_KEY_LABEL_KEYS: Record<Platform, string> = {
+    windows: "installation.ssh.windows.copyKey",
+    linux: "installation.ssh.linux.copyKey",
+    mac: "installation.ssh.mac.copyKey",
+};
+
+/**
+ * A terminal snippet: an inset inside the surrounding panel, set in the code face, with a
+ * copy button that reports success by swapping its icon and turning lime. Comment lines are
+ * dimmed like terminal output so the commands stay the loudest thing in the box.
+ */
+function CodeBlock({ lines }: { lines: string[] }) {
+    const { t } = useLanguage();
+    const [copied, setCopied] = useState(false);
+    const resetTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(
+        () => () => {
+            if (resetTimeout.current) clearTimeout(resetTimeout.current);
+        },
+        [],
+    );
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(lines.join("\n"));
+            setCopied(true);
+            if (resetTimeout.current) clearTimeout(resetTimeout.current);
+            resetTimeout.current = setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // Clipboard unavailable (insecure origin or denied permission): leave the block as is.
+        }
+    };
+
+    return (
+        <div className="gm-inset relative">
+            <pre className="gm-scroll overflow-x-auto p-3 pe-14 [font-family:var(--font-code)] text-sm leading-relaxed">
+                <code>
+                    {lines.map((line, index) => (
+                        <span
+                            key={index}
+                            className={`block ${line.trimStart().startsWith("#") ? "text-gm-ink-dim" : "text-gm-ink"}`}>
+                            {line === "" ? " " : line}
+                        </span>
+                    ))}
+                </code>
+            </pre>
+            <button
+                type="button"
+                onClick={() => void handleCopy()}
+                aria-label={copied ? t("common.copied") : t("common.copy")}
+                className={`focus-visible:outline-gm-cyan absolute end-1.5 top-1.5 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-[0.7rem] border-2 transition-colors duration-150 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:outline-offset-2 ${
+                    copied
+                        ? "border-gm-lime-edge bg-gm-night text-gm-lime"
+                        : "border-gm-line bg-gm-night text-gm-ink-dim hover:border-gm-grape-hi hover:text-gm-ink"
+                }`}>
+                {copied ? (
+                    <Check className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                    <Copy className="h-4 w-4" aria-hidden="true" />
+                )}
+            </button>
+        </div>
+    );
+}
+
+/** A numbered walk-through inside a panel. */
+function Steps({ items }: { items: string[] }) {
+    return (
+        <ol className={`marker:text-gm-ink-dim list-decimal space-y-2 ps-6 marker:font-semibold ${PROSE}`}>
+            {items.map((step, index) => (
+                <li key={index}>{step}</li>
+            ))}
+        </ol>
+    );
+}
+
+/** A sub-step of an installation panel: bold Geist Sans heading plus its content. */
+function Section({ title, icon, children }: { title: string; icon?: ReactNode; children: ReactNode }) {
+    return (
+        <section className="space-y-3">
+            <h3 className="text-gm-ink flex items-center gap-2 text-base font-bold [overflow-wrap:anywhere] sm:text-lg sm:[overflow-wrap:normal]">
+                {icon}
+                {title}
+            </h3>
+            {children}
+        </section>
+    );
+}
+
+/** The one outbound download per platform panel: the primary action, so lime. */
+function DownloadLink({ href, label }: { href: string; label: string }) {
+    return (
+        <div className="flex justify-center pt-1">
+            <Button asChild size="lg" className="h-auto min-h-13 w-full py-3 whitespace-normal sm:w-auto">
+                <a href={href} target="_blank" rel="noopener noreferrer">
+                    <Download className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    {label}
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                </a>
+            </Button>
+        </div>
+    );
+}
+
+/** An outbound link in the resources list. */
+function ResourceLink({ href, label, className = "" }: { href: string; label: string; className?: string }) {
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`text-gm-lime inline-flex items-center gap-1 underline-offset-4 hover:underline ${className}`}>
+            {label}
+            <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+        </a>
+    );
+}
+
+/**
+ * SSH keys, the GitHub/GitLab hook-up and the first repository. Identical on all three
+ * platforms apart from the clipboard command, so the platform comes in as a prop instead of
+ * the block being repeated per tab.
+ */
+function SshSection({ platform }: { platform: Platform }) {
+    const { t } = useLanguage();
+
+    return (
+        <section className="border-gm-line space-y-4 border-t-2 pt-6">
+            <h3 className="text-gm-ink flex items-center gap-2 text-lg font-bold">
+                <Key className="text-gm-grape-hi h-5 w-5 shrink-0" aria-hidden="true" />
+                {t("installation.ssh.title")}
+            </h3>
+            <p className={PROSE}>{t("installation.ssh.intro")}</p>
+
+            <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="ssh-generate">
+                    <AccordionTrigger>
+                        <span className="min-w-0 text-start">{t("installation.ssh.generate")}</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-3">
+                        <p className={PROSE}>{t("installation.ssh.generateDesc")}</p>
+                        <CodeBlock lines={['ssh-keygen -t ed25519 -C "your.email@example.com"']} />
+                        <p className={PROSE}>{t("installation.ssh.saveLocationDesc")}</p>
+                        <p className={PROSE}>{t("installation.ssh.passphraseDesc")}</p>
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="ssh-copy">
+                    <AccordionTrigger>
+                        <span className="min-w-0 text-start">{t("installation.ssh.copyKey")}</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-3">
+                        <p className={PROSE}>{t("installation.ssh.copyKeyDesc")}</p>
+                        <p className="text-gm-ink font-semibold">{t(COPY_KEY_LABEL_KEYS[platform])}</p>
+                        <CodeBlock lines={COPY_KEY_COMMANDS[platform]} />
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="github-setup">
+                    <AccordionTrigger>
+                        <span className="flex min-w-0 items-center gap-2 text-start">
+                            <Github className="text-gm-grape-hi h-4 w-4 shrink-0" aria-hidden="true" />
+                            {t("installation.github.title")}
+                        </span>
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-3">
+                        <p className={PROSE}>{t("installation.github.intro")}</p>
+                        <Steps
+                            items={[
+                                t("installation.github.step1"),
+                                t("installation.github.step2"),
+                                t("installation.github.step3"),
+                                t("installation.github.step4"),
+                                t("installation.github.step5"),
+                                t("installation.github.step6"),
+                                t("installation.github.step7"),
+                            ]}
+                        />
+                        <p className="text-gm-ink font-semibold">{t("installation.github.test")}</p>
+                        <p className={PROSE}>{t("installation.github.testDesc")}</p>
+                        <CodeBlock lines={["ssh -T git@github.com"]} />
+                        <p className={`text-sm ${PROSE}`}>{t("installation.github.testSuccess")}</p>
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="gitlab-setup">
+                    <AccordionTrigger>
+                        <span className="flex min-w-0 items-center gap-2 text-start">
+                            <Gitlab className="text-gm-grape-hi h-4 w-4 shrink-0" aria-hidden="true" />
+                            {t("installation.gitlab.title")}
+                        </span>
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-3">
+                        <p className={PROSE}>{t("installation.gitlab.intro")}</p>
+                        <Steps
+                            items={[
+                                t("installation.gitlab.step1"),
+                                t("installation.gitlab.step2"),
+                                t("installation.gitlab.step3"),
+                                t("installation.gitlab.step4"),
+                                t("installation.gitlab.step5"),
+                                t("installation.gitlab.step6"),
+                                t("installation.gitlab.step7"),
+                            ]}
+                        />
+                        <p className="text-gm-ink font-semibold">{t("installation.gitlab.test")}</p>
+                        <p className={PROSE}>{t("installation.gitlab.testDesc")}</p>
+                        <CodeBlock lines={["ssh -T git@gitlab.com"]} />
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="first-repo">
+                    <AccordionTrigger>
+                        <span className="flex min-w-0 items-center gap-2 text-start">
+                            <Folder className="text-gm-grape-hi h-4 w-4 shrink-0" aria-hidden="true" />
+                            {t("installation.firstRepo.title")}
+                        </span>
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-5">
+                        <p className={PROSE}>{t("installation.firstRepo.intro")}</p>
+
+                        <div className="space-y-3">
+                            <h4 className="text-gm-ink font-bold">{t("installation.firstRepo.clone")}</h4>
+                            <p className={PROSE}>{t("installation.firstRepo.cloneDesc")}</p>
+                            <CodeBlock lines={["git clone git@github.com:username/repository.git", "cd repository"]} />
+                        </div>
+
+                        <div className="space-y-3">
+                            <h4 className="text-gm-ink font-bold">{t("installation.firstRepo.create")}</h4>
+                            <p className={PROSE}>{t("installation.firstRepo.createDesc")}</p>
+                            <CodeBlock
+                                lines={[
+                                    "mkdir mein-projekt",
+                                    "cd mein-projekt",
+                                    "git init",
+                                    'echo "# Mein Projekt" > README.md',
+                                    "git add README.md",
+                                    'git commit -m "Initial commit"',
+                                ]}
+                            />
+                        </div>
+
+                        <div className="space-y-3">
+                            <h4 className="text-gm-ink font-bold">{t("installation.firstRepo.connect")}</h4>
+                            <p className={PROSE}>{t("installation.firstRepo.connectDesc")}</p>
+                            <CodeBlock
+                                lines={[
+                                    "git remote add origin git@github.com:username/repository.git",
+                                    "git branch -M main",
+                                    "git push -u origin main",
+                                ]}
+                            />
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+        </section>
+    );
+}
 
 export default function InstallationPage() {
     const { t } = useLanguage();
-    const [activeTab, setActiveTab] = useState<"windows" | "linux" | "mac">("windows");
 
-    const renderCommand = (command: string, index: number) => (
-        <div key={index} className="py-0.5">
-            {command}
-        </div>
+    /** Name and email are configured the same way on every platform. */
+    const configCommands = [
+        'git config --global user.name "Your Name"',
+        'git config --global user.email "your.email@example.com"',
+    ];
+
+    /** Configure + verify close every platform panel. */
+    const renderSharedSetup = () => (
+        <>
+            <Section title={t("installation.config")}>
+                <p className={PROSE}>{t("installation.configDesc")}</p>
+                <CodeBlock lines={configCommands} />
+            </Section>
+
+            <Section title={t("installation.verification")}>
+                <p className={PROSE}>{t("installation.verificationDesc")}</p>
+                <CodeBlock lines={["git --version"]} />
+            </Section>
+        </>
     );
 
     return (
         <PageLayout>
-            <div className="min-h-screen bg-[#1a1625] text-purple-100">
-                <div className="container mx-auto p-4 py-8">
-                    <h1 className="mb-6 text-center text-3xl font-bold text-white">{t("installation.title")}</h1>
+            <div className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
+                <h1 className="font-display text-gm-ink text-3xl leading-[1.05] [text-wrap:balance] [overflow-wrap:anywhere] sm:text-4xl sm:[overflow-wrap:normal]">
+                    {t("installation.title")}
+                </h1>
+                <h2 className="text-gm-ink mt-5 text-lg font-bold sm:text-xl">{t("installation.subtitle")}</h2>
+                <p className={`mt-3 text-lg text-pretty ${PROSE}`}>{t("installation.intro")}</p>
 
-                    <Card className="mb-8 border-purple-900/20 bg-purple-900/10">
-                        <CardHeader>
-                            <CardTitle className="text-white">{t("installation.subtitle")}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 text-purple-200">
-                            <p>{t("installation.intro")}</p>
+                {/* OS selection: one panel of instructions at a time. */}
+                <Tabs defaultValue="windows" className="mt-8">
+                    <TabsList className="flex w-full justify-start gap-1">
+                        <TabsTrigger value="windows" className="min-h-11 flex-1 px-2 sm:flex-none sm:px-3.5">
+                            <Grid2X2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                            Windows
+                        </TabsTrigger>
+                        <TabsTrigger value="linux" className="min-h-11 flex-1 px-2 sm:flex-none sm:px-3.5">
+                            <Terminal className="h-4 w-4 shrink-0" aria-hidden="true" />
+                            Linux
+                        </TabsTrigger>
+                        <TabsTrigger value="mac" className="min-h-11 flex-1 px-2 sm:flex-none sm:px-3.5">
+                            <Apple className="h-4 w-4 shrink-0" aria-hidden="true" />
+                            macOS
+                        </TabsTrigger>
+                    </TabsList>
 
-                            {/* OS Selection Tabs */}
-                            <div className="flex flex-wrap gap-2 pt-4">
-                                <Button
-                                    variant={activeTab === "windows" ? "default" : "outline"}
-                                    className={`flex items-center ${activeTab === "windows" ? "bg-purple-600 text-white" : "border-purple-700 text-purple-300"}`}
-                                    onClick={() => setActiveTab("windows")}>
-                                    <Grid2X2 className="mr-2 h-4 w-4" />
-                                    Windows
-                                </Button>
-                                <Button
-                                    variant={activeTab === "linux" ? "default" : "outline"}
-                                    className={`flex items-center ${activeTab === "linux" ? "bg-purple-600 text-white" : "border-purple-700 text-purple-300"}`}
-                                    onClick={() => setActiveTab("linux")}>
-                                    <Terminal className="mr-2 h-4 w-4" />
-                                    Linux
-                                </Button>
-                                <Button
-                                    variant={activeTab === "mac" ? "default" : "outline"}
-                                    className={`flex items-center ${activeTab === "mac" ? "bg-purple-600 text-white" : "border-purple-700 text-purple-300"}`}
-                                    onClick={() => setActiveTab("mac")}>
-                                    <Apple className="mr-2 h-4 w-4" />
-                                    macOS
-                                </Button>
-                            </div>
+                    {/* Windows Installation Instructions */}
+                    <TabsContent value="windows">
+                        <Card className="space-y-6 p-5 sm:p-7">
+                            <h2 className="text-gm-ink text-xl font-bold [overflow-wrap:anywhere] sm:text-2xl sm:[overflow-wrap:normal]">
+                                {t("installation.windows.title")}
+                            </h2>
 
-                            {/* Windows Installation Instructions */}
-                            {activeTab === "windows" && (
-                                <div className="mt-6 space-y-6">
-                                    <h2 className="text-xl font-semibold text-white">
-                                        {t("installation.windows.title")}
-                                    </h2>
+                            <Section
+                                title={t("installation.windows.download")}
+                                icon={<Download className="text-gm-grape-hi h-5 w-5 shrink-0" aria-hidden="true" />}>
+                                <Steps
+                                    items={[
+                                        t("installation.windows.step1"),
+                                        t("installation.windows.step2"),
+                                        t("installation.windows.step3"),
+                                    ]}
+                                />
+                                <DownloadLink
+                                    href="https://git-scm.com/download/win"
+                                    label={t("installation.download")}
+                                />
+                            </Section>
 
-                                    <div className="space-y-4">
-                                        <h3 className="flex items-center text-lg font-medium text-purple-300">
-                                            <Download className="mr-2 h-5 w-5" />
-                                            {t("installation.windows.download")}
-                                        </h3>
-                                        <ol className="ml-6 list-decimal space-y-2 text-purple-200">
-                                            <li>{t("installation.windows.step1")}</li>
-                                            <li>{t("installation.windows.step2")}</li>
-                                            <li>{t("installation.windows.step3")}</li>
-                                        </ol>
+                            <Section title={t("installation.windows.install")}>
+                                <Steps
+                                    items={[
+                                        t("installation.windows.step4"),
+                                        t("installation.windows.step5"),
+                                        t("installation.windows.step6"),
+                                        t("installation.windows.step7"),
+                                    ]}
+                                />
+                            </Section>
 
-                                        <div className="flex justify-center">
-                                            <a
-                                                href="https://git-scm.com/download/win"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="group flex items-center rounded bg-purple-700 px-4 py-2 text-white transition-all hover:bg-purple-600">
-                                                <Download className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-                                                {t("installation.download")}
-                                                <ExternalLink className="ml-1 h-3.5 w-3.5" />
-                                            </a>
-                                        </div>
+                            {renderSharedSetup()}
 
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.windows.install")}
-                                        </h3>
-                                        <ol className="ml-6 list-decimal space-y-2 text-purple-200">
-                                            <li>{t("installation.windows.step4")}</li>
-                                            <li>{t("installation.windows.step5")}</li>
-                                            <li>{t("installation.windows.step6")}</li>
-                                            <li>{t("installation.windows.step7")}</li>
-                                        </ol>
+                            <SshSection platform="windows" />
+                        </Card>
+                    </TabsContent>
 
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.config")}
-                                        </h3>
-                                        <p>{t("installation.configDesc")}</p>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            {[
-                                                'git config --global user.name "Your Name"',
-                                                'git config --global user.email "your.email@example.com"',
-                                            ].map((cmd, index) => renderCommand(cmd, index))}
-                                        </div>
+                    {/* Linux Installation Instructions */}
+                    <TabsContent value="linux">
+                        <Card className="space-y-6 p-5 sm:p-7">
+                            <h2 className="text-gm-ink text-xl font-bold [overflow-wrap:anywhere] sm:text-2xl sm:[overflow-wrap:normal]">
+                                {t("installation.linux.title")}
+                            </h2>
 
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.verification")}
-                                        </h3>
-                                        <p>{t("installation.verificationDesc")}</p>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            git --version
-                                        </div>
+                            <Section title={t("installation.linux.debian")}>
+                                <CodeBlock lines={["sudo apt update", "sudo apt install git"]} />
+                            </Section>
 
-                                        {/* SSH Key Generation and Git Hosting Setup */}
-                                        <Card className="mt-6 border-purple-800/30 bg-purple-950/30">
-                                            <CardHeader>
-                                                <CardTitle className="flex items-center text-purple-300">
-                                                    <Key className="mr-2 h-5 w-5" />
-                                                    {t("installation.ssh.title")}
-                                                </CardTitle>
-                                            </CardHeader>
-                                            <CardContent className="space-y-4">
-                                                <p className="text-purple-200">{t("installation.ssh.intro")}</p>
-                                                
-                                                <Accordion type="single" collapsible className="w-full">
-                                                    <AccordionItem value="ssh-generate" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            {t("installation.ssh.generate")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.ssh.generateDesc")}</p>
-                                                            <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                {renderCommand('ssh-keygen -t ed25519 -C "your.email@example.com"', 0)}
-                                                            </div>
-                                                            <p className="text-purple-200">{t("installation.ssh.saveLocationDesc")}</p>
-                                                            <p className="text-purple-200">{t("installation.ssh.passphraseDesc")}</p>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
+                            <Section title={t("installation.linux.fedora")}>
+                                <CodeBlock lines={["sudo dnf install git"]} />
+                            </Section>
 
-                                                    <AccordionItem value="ssh-copy" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            {t("installation.ssh.copyKey")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.ssh.copyKeyDesc")}</p>
-                                                            <div className="space-y-2">
-                                                                <p className="text-purple-300 font-medium">{t("installation.ssh.windows.copyKey")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('clip < ~/.ssh/id_ed25519.pub', 0)}
-                                                                    {renderCommand('# oder:', 1)}
-                                                                    {renderCommand('Get-Content ~/.ssh/id_ed25519.pub | Set-Clipboard', 2)}
-                                                                </div>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
+                            <Section title={t("installation.linux.arch")}>
+                                <CodeBlock lines={["sudo pacman -S git"]} />
+                                <DownloadLink
+                                    href="https://git-scm.com/download/linux"
+                                    label={t("installation.moreDistros")}
+                                />
+                            </Section>
 
-                                                    <AccordionItem value="github-setup" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            <Github className="mr-2 h-4 w-4" />
-                                                            {t("installation.github.title")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.github.intro")}</p>
-                                                            <ol className="ml-6 list-decimal space-y-2 text-purple-200">
-                                                                <li>{t("installation.github.step1")}</li>
-                                                                <li>{t("installation.github.step2")}</li>
-                                                                <li>{t("installation.github.step3")}</li>
-                                                                <li>{t("installation.github.step4")}</li>
-                                                                <li>{t("installation.github.step5")}</li>
-                                                                <li>{t("installation.github.step6")}</li>
-                                                                <li>{t("installation.github.step7")}</li>
-                                                            </ol>
-                                                            <div className="space-y-2">
-                                                                <p className="text-purple-300 font-medium">{t("installation.github.test")}</p>
-                                                                <p className="text-purple-200">{t("installation.github.testDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('ssh -T git@github.com', 0)}
-                                                                </div>
-                                                                <p className="text-purple-200 text-sm">{t("installation.github.testSuccess")}</p>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
+                            {renderSharedSetup()}
 
-                                                    <AccordionItem value="gitlab-setup" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            <Gitlab className="mr-2 h-4 w-4" />
-                                                            {t("installation.gitlab.title")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.gitlab.intro")}</p>
-                                                            <ol className="ml-6 list-decimal space-y-2 text-purple-200">
-                                                                <li>{t("installation.gitlab.step1")}</li>
-                                                                <li>{t("installation.gitlab.step2")}</li>
-                                                                <li>{t("installation.gitlab.step3")}</li>
-                                                                <li>{t("installation.gitlab.step4")}</li>
-                                                                <li>{t("installation.gitlab.step5")}</li>
-                                                                <li>{t("installation.gitlab.step6")}</li>
-                                                                <li>{t("installation.gitlab.step7")}</li>
-                                                            </ol>
-                                                            <div className="space-y-2">
-                                                                <p className="text-purple-300 font-medium">{t("installation.gitlab.test")}</p>
-                                                                <p className="text-purple-200">{t("installation.gitlab.testDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('ssh -T git@gitlab.com', 0)}
-                                                                </div>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
+                            <SshSection platform="linux" />
+                        </Card>
+                    </TabsContent>
 
-                                                    <AccordionItem value="first-repo" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            <Folder className="mr-2 h-4 w-4" />
-                                                            {t("installation.firstRepo.title")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-4">
-                                                            <p className="text-purple-200">{t("installation.firstRepo.intro")}</p>
-                                                            
-                                                            <div className="space-y-3">
-                                                                <h4 className="text-purple-300 font-medium">{t("installation.firstRepo.clone")}</h4>
-                                                                <p className="text-purple-200">{t("installation.firstRepo.cloneDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('git clone git@github.com:username/repository.git', 0)}
-                                                                    {renderCommand('cd repository', 1)}
-                                                                </div>
-                                                            </div>
+                    {/* macOS Installation Instructions */}
+                    <TabsContent value="mac">
+                        <Card className="space-y-6 p-5 sm:p-7">
+                            <h2 className="text-gm-ink text-xl font-bold [overflow-wrap:anywhere] sm:text-2xl sm:[overflow-wrap:normal]">
+                                {t("installation.mac.title")}
+                            </h2>
 
-                                                            <div className="space-y-3">
-                                                                <h4 className="text-purple-300 font-medium">{t("installation.firstRepo.create")}</h4>
-                                                                <p className="text-purple-200">{t("installation.firstRepo.createDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('mkdir mein-projekt', 0)}
-                                                                    {renderCommand('cd mein-projekt', 1)}
-                                                                    {renderCommand('git init', 2)}
-                                                                    {renderCommand('echo "# Mein Projekt" > README.md', 3)}
-                                                                    {renderCommand('git add README.md', 4)}
-                                                                    {renderCommand('git commit -m "Initial commit"', 5)}
-                                                                </div>
-                                                            </div>
+                            <Section title={t("installation.mac.option1")}>
+                                <p className={PROSE}>{t("installation.mac.option1Desc")}</p>
+                                <CodeBlock lines={["git --version"]} />
+                            </Section>
 
-                                                            <div className="space-y-3">
-                                                                <h4 className="text-purple-300 font-medium">{t("installation.firstRepo.connect")}</h4>
-                                                                <p className="text-purple-200">{t("installation.firstRepo.connectDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('git remote add origin git@github.com:username/repository.git', 0)}
-                                                                    {renderCommand('git branch -M main', 1)}
-                                                                    {renderCommand('git push -u origin main', 2)}
-                                                                </div>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                </Accordion>
-                                            </CardContent>
-                                        </Card>
-                                    </div>
+                            <Section title={t("installation.mac.option2")}>
+                                <Steps
+                                    items={[
+                                        t("installation.mac.step1"),
+                                        t("installation.mac.step2"),
+                                        t("installation.mac.step3"),
+                                    ]}
+                                />
+                                <DownloadLink
+                                    href="https://git-scm.com/download/mac"
+                                    label={t("installation.download")}
+                                />
+                            </Section>
+
+                            <Section title={t("installation.mac.brew")}>
+                                <p className={PROSE}>{t("installation.mac.brewDesc")}</p>
+                                <CodeBlock
+                                    lines={[
+                                        '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"',
+                                        "brew install git",
+                                    ]}
+                                />
+                            </Section>
+
+                            {renderSharedSetup()}
+
+                            <SshSection platform="mac" />
+                        </Card>
+                    </TabsContent>
+                </Tabs>
+
+                {/* Additional Tips and Resources */}
+                <Card className="mt-8 space-y-6 p-5 sm:p-7">
+                    <h2 className="text-gm-ink text-xl font-bold [overflow-wrap:anywhere] sm:text-2xl sm:[overflow-wrap:normal]">
+                        {t("installation.additionalSettings.title")}
+                    </h2>
+                    <p className={PROSE}>{t("installation.additionalSettings.intro")}</p>
+
+                    <Section title={t("installation.additionalSettings.lineEndings")}>
+                        <p className={PROSE}>{t("installation.additionalSettings.lineEndingsDesc")}</p>
+                        <CodeBlock
+                            lines={[
+                                "# Windows",
+                                "git config --global core.autocrlf true",
+                                "",
+                                "# macOS/Linux",
+                                "git config --global core.autocrlf input",
+                            ]}
+                        />
+                    </Section>
+
+                    <Section title={t("installation.additionalSettings.defaultBranch")}>
+                        <p className={PROSE}>{t("installation.additionalSettings.defaultBranchDesc")}</p>
+                        <CodeBlock lines={["git config --global init.defaultBranch main"]} />
+                    </Section>
+
+                    <Section title={t("installation.additionalSettings.editor")}>
+                        <p className={PROSE}>{t("installation.additionalSettings.editorDesc")}</p>
+                        <CodeBlock
+                            lines={[
+                                "# For VSCode",
+                                'git config --global core.editor "code --wait"',
+                                "",
+                                "# For Vim",
+                                "git config --global core.editor vim",
+                            ]}
+                        />
+                    </Section>
+                </Card>
+
+                {/* Troubleshooting Section */}
+                <Card className="mt-8 space-y-4 p-5 sm:p-7">
+                    <h2 className="text-gm-ink flex items-center gap-2 text-xl font-bold [overflow-wrap:anywhere] sm:text-2xl sm:[overflow-wrap:normal]">
+                        <HelpCircle className="text-gm-grape-hi h-5 w-5 shrink-0" aria-hidden="true" />
+                        {t("installation.troubleshooting.title")}
+                    </h2>
+                    <p className={PROSE}>{t("installation.troubleshooting.intro")}</p>
+
+                    <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="command-not-found">
+                            <AccordionTrigger>
+                                <span className="flex min-w-0 items-center gap-2 text-start">
+                                    <AlertTriangle className="text-gm-coral h-4 w-4 shrink-0" aria-hidden="true" />
+                                    {t("installation.troubleshooting.commandNotFound")}
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className={`whitespace-pre-line ${PROSE}`}>
+                                    {t("installation.troubleshooting.commandNotFoundSolution")}
                                 </div>
-                            )}
+                            </AccordionContent>
+                        </AccordionItem>
 
-                            {/* Linux Installation Instructions */}
-                            {activeTab === "linux" && (
-                                <div className="mt-6 space-y-6">
-                                    <h2 className="text-xl font-semibold text-white">
-                                        {t("installation.linux.title")}
-                                    </h2>
-
-                                    <div className="space-y-4">
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.linux.debian")}
-                                        </h3>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            {renderCommand("sudo apt update", 0)}
-                                            {renderCommand("sudo apt install git", 1)}
-                                        </div>
-
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.linux.fedora")}
-                                        </h3>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            {renderCommand("sudo dnf install git", 0)}
-                                        </div>
-
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.linux.arch")}
-                                        </h3>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            {renderCommand("sudo pacman -S git", 0)}
-                                        </div>
-
-                                        <div className="flex justify-center">
-                                            <a
-                                                href="https://git-scm.com/download/linux"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="group flex items-center rounded bg-purple-700 px-4 py-2 text-white transition-all hover:bg-purple-600">
-                                                <Download className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-                                                {t("installation.moreDistros")}
-                                                <ExternalLink className="ml-1 h-3.5 w-3.5" />
-                                            </a>
-                                        </div>
-
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.config")}
-                                        </h3>
-                                        <p>{t("installation.configDesc")}</p>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            {[
-                                                'git config --global user.name "Your Name"',
-                                                'git config --global user.email "your.email@example.com"',
-                                            ].map((cmd, index) => renderCommand(cmd, index))}
-                                        </div>
-
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.verification")}
-                                        </h3>
-                                        <p>{t("installation.verificationDesc")}</p>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            git --version
-                                        </div>
-
-                                        {/* SSH Key Generation and Git Hosting Setup for Linux */}
-                                        <Card className="mt-6 border-purple-800/30 bg-purple-950/30">
-                                            <CardHeader>
-                                                <CardTitle className="flex items-center text-purple-300">
-                                                    <Key className="mr-2 h-5 w-5" />
-                                                    {t("installation.ssh.title")}
-                                                </CardTitle>
-                                            </CardHeader>
-                                            <CardContent className="space-y-4">
-                                                <p className="text-purple-200">{t("installation.ssh.intro")}</p>
-                                                
-                                                <Accordion type="single" collapsible className="w-full">
-                                                    <AccordionItem value="ssh-generate" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            {t("installation.ssh.generate")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.ssh.generateDesc")}</p>
-                                                            <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                {renderCommand('ssh-keygen -t ed25519 -C "your.email@example.com"', 0)}
-                                                            </div>
-                                                            <p className="text-purple-200">{t("installation.ssh.saveLocationDesc")}</p>
-                                                            <p className="text-purple-200">{t("installation.ssh.passphraseDesc")}</p>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-
-                                                    <AccordionItem value="ssh-copy" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            {t("installation.ssh.copyKey")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.ssh.copyKeyDesc")}</p>
-                                                            <div className="space-y-2">
-                                                                <p className="text-purple-300 font-medium">{t("installation.ssh.linux.copyKey")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('cat ~/.ssh/id_ed25519.pub | xclip -selection clipboard', 0)}
-                                                                    {renderCommand('# oder bei Ubuntu/Debian:', 1)}
-                                                                    {renderCommand('cat ~/.ssh/id_ed25519.pub | wl-copy', 2)}
-                                                                    {renderCommand('# oder einfach anzeigen und manuell kopieren:', 3)}
-                                                                    {renderCommand('cat ~/.ssh/id_ed25519.pub', 4)}
-                                                                </div>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-
-                                                    <AccordionItem value="github-setup" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            <Github className="mr-2 h-4 w-4" />
-                                                            {t("installation.github.title")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.github.intro")}</p>
-                                                            <ol className="ml-6 list-decimal space-y-2 text-purple-200">
-                                                                <li>{t("installation.github.step1")}</li>
-                                                                <li>{t("installation.github.step2")}</li>
-                                                                <li>{t("installation.github.step3")}</li>
-                                                                <li>{t("installation.github.step4")}</li>
-                                                                <li>{t("installation.github.step5")}</li>
-                                                                <li>{t("installation.github.step6")}</li>
-                                                                <li>{t("installation.github.step7")}</li>
-                                                            </ol>
-                                                            <div className="space-y-2">
-                                                                <p className="text-purple-300 font-medium">{t("installation.github.test")}</p>
-                                                                <p className="text-purple-200">{t("installation.github.testDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('ssh -T git@github.com', 0)}
-                                                                </div>
-                                                                <p className="text-purple-200 text-sm">{t("installation.github.testSuccess")}</p>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-
-                                                    <AccordionItem value="gitlab-setup" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            <Gitlab className="mr-2 h-4 w-4" />
-                                                            {t("installation.gitlab.title")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.gitlab.intro")}</p>
-                                                            <ol className="ml-6 list-decimal space-y-2 text-purple-200">
-                                                                <li>{t("installation.gitlab.step1")}</li>
-                                                                <li>{t("installation.gitlab.step2")}</li>
-                                                                <li>{t("installation.gitlab.step3")}</li>
-                                                                <li>{t("installation.gitlab.step4")}</li>
-                                                                <li>{t("installation.gitlab.step5")}</li>
-                                                                <li>{t("installation.gitlab.step6")}</li>
-                                                                <li>{t("installation.gitlab.step7")}</li>
-                                                            </ol>
-                                                            <div className="space-y-2">
-                                                                <p className="text-purple-300 font-medium">{t("installation.gitlab.test")}</p>
-                                                                <p className="text-purple-200">{t("installation.gitlab.testDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('ssh -T git@gitlab.com', 0)}
-                                                                </div>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-
-                                                    <AccordionItem value="first-repo" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            <Folder className="mr-2 h-4 w-4" />
-                                                            {t("installation.firstRepo.title")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-4">
-                                                            <p className="text-purple-200">{t("installation.firstRepo.intro")}</p>
-                                                            
-                                                            <div className="space-y-3">
-                                                                <h4 className="text-purple-300 font-medium">{t("installation.firstRepo.clone")}</h4>
-                                                                <p className="text-purple-200">{t("installation.firstRepo.cloneDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('git clone git@github.com:username/repository.git', 0)}
-                                                                    {renderCommand('cd repository', 1)}
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="space-y-3">
-                                                                <h4 className="text-purple-300 font-medium">{t("installation.firstRepo.create")}</h4>
-                                                                <p className="text-purple-200">{t("installation.firstRepo.createDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('mkdir mein-projekt', 0)}
-                                                                    {renderCommand('cd mein-projekt', 1)}
-                                                                    {renderCommand('git init', 2)}
-                                                                    {renderCommand('echo "# Mein Projekt" > README.md', 3)}
-                                                                    {renderCommand('git add README.md', 4)}
-                                                                    {renderCommand('git commit -m "Initial commit"', 5)}
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="space-y-3">
-                                                                <h4 className="text-purple-300 font-medium">{t("installation.firstRepo.connect")}</h4>
-                                                                <p className="text-purple-200">{t("installation.firstRepo.connectDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('git remote add origin git@github.com:username/repository.git', 0)}
-                                                                    {renderCommand('git branch -M main', 1)}
-                                                                    {renderCommand('git push -u origin main', 2)}
-                                                                </div>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                </Accordion>
-                                            </CardContent>
-                                        </Card>
-                                    </div>
+                        <AccordionItem value="permission-denied">
+                            <AccordionTrigger>
+                                <span className="flex min-w-0 items-center gap-2 text-start">
+                                    <AlertTriangle className="text-gm-coral h-4 w-4 shrink-0" aria-hidden="true" />
+                                    {t("installation.troubleshooting.permissionDenied")}
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className={`whitespace-pre-line ${PROSE}`}>
+                                    {t("installation.troubleshooting.permissionDeniedSolution")}
                                 </div>
-                            )}
+                            </AccordionContent>
+                        </AccordionItem>
 
-                            {/* macOS Installation Instructions */}
-                            {activeTab === "mac" && (
-                                <div className="mt-6 space-y-6">
-                                    <h2 className="text-xl font-semibold text-white">{t("installation.mac.title")}</h2>
+                        <AccordionItem value="https-to-ssh">
+                            <AccordionTrigger>
+                                <span className="min-w-0 text-start">
+                                    {t("installation.troubleshooting.httpsToSsh")}
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-3">
+                                <p className={PROSE}>{t("installation.troubleshooting.httpsToSshSolution")}</p>
+                                <CodeBlock
+                                    lines={["git remote set-url origin git@github.com:username/repository.git"]}
+                                />
+                            </AccordionContent>
+                        </AccordionItem>
 
-                                    <div className="space-y-4">
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.mac.option1")}
-                                        </h3>
-                                        <p>{t("installation.mac.option1Desc")}</p>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            git --version
-                                        </div>
-
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.mac.option2")}
-                                        </h3>
-                                        <ol className="ml-6 list-decimal space-y-2 text-purple-200">
-                                            <li>{t("installation.mac.step1")}</li>
-                                            <li>{t("installation.mac.step2")}</li>
-                                            <li>{t("installation.mac.step3")}</li>
-                                        </ol>
-
-                                        <div className="flex justify-center">
-                                            <a
-                                                href="https://git-scm.com/download/mac"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="group flex items-center rounded bg-purple-700 px-4 py-2 text-white transition-all hover:bg-purple-600">
-                                                <Download className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-                                                {t("installation.download")}
-                                                <ExternalLink className="ml-1 h-3.5 w-3.5" />
-                                            </a>
-                                        </div>
-
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.mac.brew")}
-                                        </h3>
-                                        <p>{t("installation.mac.brewDesc")}</p>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            {renderCommand(
-                                                '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"',
-                                                0,
-                                            )}
-                                            {renderCommand("brew install git", 1)}
-                                        </div>
-
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.config")}
-                                        </h3>
-                                        <p>{t("installation.configDesc")}</p>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            {renderCommand('git config --global user.name "Your Name"', 0)}
-                                            {renderCommand(
-                                                'git config --global user.email "your.email@example.com"',
-                                                1,
-                                            )}
-                                        </div>
-
-                                        <h3 className="text-lg font-medium text-purple-300">
-                                            {t("installation.verification")}
-                                        </h3>
-                                        <p>{t("installation.verificationDesc")}</p>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            git --version
-                                        </div>
-
-                                        {/* SSH Key Generation and Git Hosting Setup for macOS */}
-                                        <Card className="mt-6 border-purple-800/30 bg-purple-950/30">
-                                            <CardHeader>
-                                                <CardTitle className="flex items-center text-purple-300">
-                                                    <Key className="mr-2 h-5 w-5" />
-                                                    {t("installation.ssh.title")}
-                                                </CardTitle>
-                                            </CardHeader>
-                                            <CardContent className="space-y-4">
-                                                <p className="text-purple-200">{t("installation.ssh.intro")}</p>
-                                                
-                                                <Accordion type="single" collapsible className="w-full">
-                                                    <AccordionItem value="ssh-generate" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            {t("installation.ssh.generate")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.ssh.generateDesc")}</p>
-                                                            <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                {renderCommand('ssh-keygen -t ed25519 -C "your.email@example.com"', 0)}
-                                                            </div>
-                                                            <p className="text-purple-200">{t("installation.ssh.saveLocationDesc")}</p>
-                                                            <p className="text-purple-200">{t("installation.ssh.passphraseDesc")}</p>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-
-                                                    <AccordionItem value="ssh-copy" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            {t("installation.ssh.copyKey")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.ssh.copyKeyDesc")}</p>
-                                                            <div className="space-y-2">
-                                                                <p className="text-purple-300 font-medium">{t("installation.ssh.mac.copyKey")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('pbcopy < ~/.ssh/id_ed25519.pub', 0)}
-                                                                    {renderCommand('# oder anzeigen und manuell kopieren:', 1)}
-                                                                    {renderCommand('cat ~/.ssh/id_ed25519.pub', 2)}
-                                                                </div>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-
-                                                    <AccordionItem value="github-setup" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            <Github className="mr-2 h-4 w-4" />
-                                                            {t("installation.github.title")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.github.intro")}</p>
-                                                            <ol className="ml-6 list-decimal space-y-2 text-purple-200">
-                                                                <li>{t("installation.github.step1")}</li>
-                                                                <li>{t("installation.github.step2")}</li>
-                                                                <li>{t("installation.github.step3")}</li>
-                                                                <li>{t("installation.github.step4")}</li>
-                                                                <li>{t("installation.github.step5")}</li>
-                                                                <li>{t("installation.github.step6")}</li>
-                                                                <li>{t("installation.github.step7")}</li>
-                                                            </ol>
-                                                            <div className="space-y-2">
-                                                                <p className="text-purple-300 font-medium">{t("installation.github.test")}</p>
-                                                                <p className="text-purple-200">{t("installation.github.testDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('ssh -T git@github.com', 0)}
-                                                                </div>
-                                                                <p className="text-purple-200 text-sm">{t("installation.github.testSuccess")}</p>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-
-                                                    <AccordionItem value="gitlab-setup" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            <Gitlab className="mr-2 h-4 w-4" />
-                                                            {t("installation.gitlab.title")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-3">
-                                                            <p className="text-purple-200">{t("installation.gitlab.intro")}</p>
-                                                            <ol className="ml-6 list-decimal space-y-2 text-purple-200">
-                                                                <li>{t("installation.gitlab.step1")}</li>
-                                                                <li>{t("installation.gitlab.step2")}</li>
-                                                                <li>{t("installation.gitlab.step3")}</li>
-                                                                <li>{t("installation.gitlab.step4")}</li>
-                                                                <li>{t("installation.gitlab.step5")}</li>
-                                                                <li>{t("installation.gitlab.step6")}</li>
-                                                                <li>{t("installation.gitlab.step7")}</li>
-                                                            </ol>
-                                                            <div className="space-y-2">
-                                                                <p className="text-purple-300 font-medium">{t("installation.gitlab.test")}</p>
-                                                                <p className="text-purple-200">{t("installation.gitlab.testDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('ssh -T git@gitlab.com', 0)}
-                                                                </div>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-
-                                                    <AccordionItem value="first-repo" className="border-purple-800/30">
-                                                        <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                                            <Folder className="mr-2 h-4 w-4" />
-                                                            {t("installation.firstRepo.title")}
-                                                        </AccordionTrigger>
-                                                        <AccordionContent className="space-y-4">
-                                                            <p className="text-purple-200">{t("installation.firstRepo.intro")}</p>
-                                                            
-                                                            <div className="space-y-3">
-                                                                <h4 className="text-purple-300 font-medium">{t("installation.firstRepo.clone")}</h4>
-                                                                <p className="text-purple-200">{t("installation.firstRepo.cloneDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('git clone git@github.com:username/repository.git', 0)}
-                                                                    {renderCommand('cd repository', 1)}
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="space-y-3">
-                                                                <h4 className="text-purple-300 font-medium">{t("installation.firstRepo.create")}</h4>
-                                                                <p className="text-purple-200">{t("installation.firstRepo.createDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('mkdir mein-projekt', 0)}
-                                                                    {renderCommand('cd mein-projekt', 1)}
-                                                                    {renderCommand('git init', 2)}
-                                                                    {renderCommand('echo "# Mein Projekt" > README.md', 3)}
-                                                                    {renderCommand('git add README.md', 4)}
-                                                                    {renderCommand('git commit -m "Initial commit"', 5)}
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="space-y-3">
-                                                                <h4 className="text-purple-300 font-medium">{t("installation.firstRepo.connect")}</h4>
-                                                                <p className="text-purple-200">{t("installation.firstRepo.connectDesc")}</p>
-                                                                <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                                                    {renderCommand('git remote add origin git@github.com:username/repository.git', 0)}
-                                                                    {renderCommand('git branch -M main', 1)}
-                                                                    {renderCommand('git push -u origin main', 2)}
-                                                                </div>
-                                                            </div>
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                </Accordion>
-                                            </CardContent>
-                                        </Card>
-                                    </div>
+                        <AccordionItem value="ssl-error">
+                            <AccordionTrigger>
+                                <span className="flex min-w-0 items-center gap-2 text-start">
+                                    <AlertTriangle className="text-gm-coral h-4 w-4 shrink-0" aria-hidden="true" />
+                                    {t("installation.troubleshooting.sslError")}
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className={`whitespace-pre-line ${PROSE}`}>
+                                    {t("installation.troubleshooting.sslErrorSolution")}
                                 </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                            </AccordionContent>
+                        </AccordionItem>
 
-                    {/* Additional Tips and Resources */}
-                    <Card className="mb-6 border-purple-900/20 bg-purple-900/10">
-                        <CardHeader>
-                            <CardTitle className="text-white">{t("installation.additionalSettings.title")}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 text-purple-200">
-                            <p>{t("installation.additionalSettings.intro")}</p>
+                        <AccordionItem value="line-endings">
+                            <AccordionTrigger>
+                                <span className="min-w-0 text-start">
+                                    {t("installation.troubleshooting.lineEndingIssues")}
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className={`whitespace-pre-line ${PROSE}`}>
+                                    {t("installation.troubleshooting.lineEndingIssuesSolution")}
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
 
-                            <h3 className="text-lg font-medium text-purple-300">
-                                {t("installation.additionalSettings.lineEndings")}
-                            </h3>
-                            <p>{t("installation.additionalSettings.lineEndingsDesc")}</p>
-                            <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                {renderCommand("# Windows", 0)}
-                                {renderCommand("git config --global core.autocrlf true", 1)}
-                                {renderCommand("", 2)}
-                                {renderCommand("# macOS/Linux", 3)}
-                                {renderCommand("git config --global core.autocrlf input", 4)}
-                            </div>
+                        <AccordionItem value="merge-conflicts">
+                            <AccordionTrigger>
+                                <span className="min-w-0 text-start">
+                                    {t("installation.troubleshooting.mergeConflicts")}
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className={`whitespace-pre-line ${PROSE}`}>
+                                    {t("installation.troubleshooting.mergeConflictsSolution")}
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                </Card>
 
-                            <h3 className="text-lg font-medium text-purple-300">
-                                {t("installation.additionalSettings.defaultBranch")}
-                            </h3>
-                            <p>{t("installation.additionalSettings.defaultBranchDesc")}</p>
-                            <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                {renderCommand("git config --global init.defaultBranch main", 0)}
-                            </div>
+                {/* Resources */}
+                <Card className="mt-8 space-y-6 p-5 sm:p-7">
+                    <h2 className="text-gm-ink text-xl font-bold [overflow-wrap:anywhere] sm:text-2xl sm:[overflow-wrap:normal]">
+                        {t("installation.resources.title")}
+                    </h2>
 
-                            <h3 className="text-lg font-medium text-purple-300">
-                                {t("installation.additionalSettings.editor")}
-                            </h3>
-                            <p>{t("installation.additionalSettings.editorDesc")}</p>
-                            <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                {renderCommand("# For VSCode", 0)}
-                                {renderCommand('git config --global core.editor "code --wait"', 1)}
-                                {renderCommand("", 2)}
-                                {renderCommand("# For Vim", 3)}
-                                {renderCommand("git config --global core.editor vim", 4)}
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <Section title={t("installation.resources.gui")}>
+                        <ul className={`marker:text-gm-ink-dim list-disc space-y-2 ps-6 ${PROSE}`}>
+                            <li>
+                                <strong className="text-gm-ink font-semibold">GitHub Desktop</strong> -{" "}
+                                {t("installation.resources.githubDesktop")}
+                                <ResourceLink
+                                    href="https://desktop.github.com/"
+                                    label={t("installation.resources.download")}
+                                    className="ms-2"
+                                />
+                            </li>
+                            <li>
+                                <strong className="text-gm-ink font-semibold">GitKraken</strong> -{" "}
+                                {t("installation.resources.gitkraken")}
+                                <ResourceLink
+                                    href="https://www.gitkraken.com/download"
+                                    label={t("installation.resources.download")}
+                                    className="ms-2"
+                                />
+                            </li>
+                            <li>
+                                <strong className="text-gm-ink font-semibold">Sourcetree</strong> -{" "}
+                                {t("installation.resources.sourcetree")}
+                                <ResourceLink
+                                    href="https://www.sourcetreeapp.com/"
+                                    label={t("installation.resources.download")}
+                                    className="ms-2"
+                                />
+                            </li>
+                        </ul>
+                    </Section>
 
-                    {/* Troubleshooting Section */}
-                    <Card className="mb-6 border-purple-900/20 bg-purple-900/10">
-                        <CardHeader>
-                            <CardTitle className="flex items-center text-white">
-                                <HelpCircle className="mr-2 h-5 w-5" />
-                                {t("installation.troubleshooting.title")}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 text-purple-200">
-                            <p>{t("installation.troubleshooting.intro")}</p>
-                            
-                            <Accordion type="single" collapsible className="w-full">
-                                <AccordionItem value="command-not-found" className="border-purple-800/30">
-                                    <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                        <AlertTriangle className="mr-2 h-4 w-4" />
-                                        {t("installation.troubleshooting.commandNotFound")}
-                                    </AccordionTrigger>
-                                    <AccordionContent className="space-y-3">
-                                        <div className="whitespace-pre-line text-purple-200">
-                                            {t("installation.troubleshooting.commandNotFoundSolution")}
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
+                    <Section title={t("installation.resources.editors")}>
+                        <ul className={`marker:text-gm-ink-dim list-disc space-y-2 ps-6 ${PROSE}`}>
+                            <li>
+                                <strong className="text-gm-ink font-semibold">Visual Studio Code</strong> -{" "}
+                                {t("installation.resources.vscode")}
+                                <ResourceLink
+                                    href="https://code.visualstudio.com/"
+                                    label={t("installation.resources.download")}
+                                    className="ms-2"
+                                />
+                            </li>
+                            <li>
+                                <strong className="text-gm-ink font-semibold">Atom</strong> -{" "}
+                                {t("installation.resources.atom")}
+                                <ResourceLink
+                                    href="https://atom.io/"
+                                    label={t("installation.resources.download")}
+                                    className="ms-2"
+                                />
+                            </li>
+                            <li>
+                                <strong className="text-gm-ink font-semibold">Sublime Text</strong> -{" "}
+                                {t("installation.resources.sublime")}
+                                <ResourceLink
+                                    href="https://www.sublimetext.com/"
+                                    label={t("installation.resources.download")}
+                                    className="ms-2"
+                                />
+                            </li>
+                        </ul>
+                    </Section>
 
-                                <AccordionItem value="permission-denied" className="border-purple-800/30">
-                                    <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                        <AlertTriangle className="mr-2 h-4 w-4" />
-                                        {t("installation.troubleshooting.permissionDenied")}
-                                    </AccordionTrigger>
-                                    <AccordionContent className="space-y-3">
-                                        <div className="whitespace-pre-line text-purple-200">
-                                            {t("installation.troubleshooting.permissionDeniedSolution")}
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-
-                                <AccordionItem value="https-to-ssh" className="border-purple-800/30">
-                                    <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                        {t("installation.troubleshooting.httpsToSsh")}
-                                    </AccordionTrigger>
-                                    <AccordionContent className="space-y-3">
-                                        <p className="text-purple-200">{t("installation.troubleshooting.httpsToSshSolution")}</p>
-                                        <div className="overflow-x-auto rounded bg-black/30 p-3 font-mono text-sm text-green-400">
-                                            {renderCommand('git remote set-url origin git@github.com:username/repository.git', 0)}
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-
-                                <AccordionItem value="ssl-error" className="border-purple-800/30">
-                                    <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                        <AlertTriangle className="mr-2 h-4 w-4" />
-                                        {t("installation.troubleshooting.sslError")}
-                                    </AccordionTrigger>
-                                    <AccordionContent className="space-y-3">
-                                        <div className="whitespace-pre-line text-purple-200">
-                                            {t("installation.troubleshooting.sslErrorSolution")}
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-
-                                <AccordionItem value="line-endings" className="border-purple-800/30">
-                                    <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                        {t("installation.troubleshooting.lineEndingIssues")}
-                                    </AccordionTrigger>
-                                    <AccordionContent className="space-y-3">
-                                        <div className="whitespace-pre-line text-purple-200">
-                                            {t("installation.troubleshooting.lineEndingIssuesSolution")}
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-
-                                <AccordionItem value="merge-conflicts" className="border-purple-800/30">
-                                    <AccordionTrigger className="text-purple-300 hover:text-purple-200">
-                                        {t("installation.troubleshooting.mergeConflicts")}
-                                    </AccordionTrigger>
-                                    <AccordionContent className="space-y-3">
-                                        <div className="whitespace-pre-line text-purple-200">
-                                            {t("installation.troubleshooting.mergeConflictsSolution")}
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="border-purple-900/20 bg-purple-900/10">
-                        <CardHeader>
-                            <CardTitle className="text-white">{t("installation.resources.title")}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 text-purple-200">
-                            <h3 className="text-lg font-medium text-purple-300">{t("installation.resources.gui")}</h3>
-                            <ul className="ml-6 list-disc space-y-2">
-                                <li>
-                                    <strong>GitHub Desktop</strong> - {t("installation.resources.githubDesktop")}
-                                    <a
-                                        href="https://desktop.github.com/"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="ml-2 inline-flex items-center text-purple-400 hover:text-purple-300 hover:underline">
-                                        {t("installation.resources.download")}
-                                        <ExternalLink className="ml-1 h-3 w-3" />
-                                    </a>
-                                </li>
-                                <li>
-                                    <strong>GitKraken</strong> - {t("installation.resources.gitkraken")}
-                                    <a
-                                        href="https://www.gitkraken.com/download"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="ml-2 inline-flex items-center text-purple-400 hover:text-purple-300 hover:underline">
-                                        {t("installation.resources.download")}
-                                        <ExternalLink className="ml-1 h-3 w-3" />
-                                    </a>
-                                </li>
-                                <li>
-                                    <strong>Sourcetree</strong> - {t("installation.resources.sourcetree")}
-                                    <a
-                                        href="https://www.sourcetreeapp.com/"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="ml-2 inline-flex items-center text-purple-400 hover:text-purple-300 hover:underline">
-                                        {t("installation.resources.download")}
-                                        <ExternalLink className="ml-1 h-3 w-3" />
-                                    </a>
-                                </li>
-                            </ul>
-
-                            <h3 className="text-lg font-medium text-purple-300">
-                                {t("installation.resources.editors")}
-                            </h3>
-                            <ul className="ml-6 list-disc space-y-2">
-                                <li>
-                                    <strong>Visual Studio Code</strong> - {t("installation.resources.vscode")}
-                                    <a
-                                        href="https://code.visualstudio.com/"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="ml-2 inline-flex items-center text-purple-400 hover:text-purple-300 hover:underline">
-                                        {t("installation.resources.download")}
-                                        <ExternalLink className="ml-1 h-3 w-3" />
-                                    </a>
-                                </li>
-                                <li>
-                                    <strong>Atom</strong> - {t("installation.resources.atom")}
-                                    <a
-                                        href="https://atom.io/"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="ml-2 inline-flex items-center text-purple-400 hover:text-purple-300 hover:underline">
-                                        {t("installation.resources.download")}
-                                        <ExternalLink className="ml-1 h-3 w-3" />
-                                    </a>
-                                </li>
-                                <li>
-                                    <strong>Sublime Text</strong> - {t("installation.resources.sublime")}
-                                    <a
-                                        href="https://www.sublimetext.com/"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="ml-2 inline-flex items-center text-purple-400 hover:text-purple-300 hover:underline">
-                                        {t("installation.resources.download")}
-                                        <ExternalLink className="ml-1 h-3 w-3" />
-                                    </a>
-                                </li>
-                            </ul>
-
-                            <h3 className="text-lg font-medium text-purple-300">{t("installation.resources.docs")}</h3>
-                            <ul className="ml-6 list-disc space-y-2">
-                                <li>
-                                    <a
-                                        href="https://git-scm.com/doc"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-purple-400 hover:text-purple-300 hover:underline">
-                                        {t("installation.resources.officialDocs")}
-                                        <ExternalLink className="ml-1 inline-block h-3 w-3" />
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="https://git-scm.com/book/en/v2"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-purple-400 hover:text-purple-300 hover:underline">
-                                        {t("installation.resources.proGitBook")}
-                                        <ExternalLink className="ml-1 inline-block h-3 w-3" />
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="https://docs.github.com/en/get-started/quickstart/set-up-git"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-purple-400 hover:text-purple-300 hover:underline">
-                                        {t("installation.resources.githubGuide")}
-                                        <ExternalLink className="ml-1 inline-block h-3 w-3" />
-                                    </a>
-                                </li>
-                            </ul>
-                        </CardContent>
-                    </Card>
-                </div>
+                    <Section title={t("installation.resources.docs")}>
+                        <ul className={`marker:text-gm-ink-dim list-disc space-y-2 ps-6 ${PROSE}`}>
+                            <li>
+                                <ResourceLink
+                                    href="https://git-scm.com/doc"
+                                    label={t("installation.resources.officialDocs")}
+                                />
+                            </li>
+                            <li>
+                                <ResourceLink
+                                    href="https://git-scm.com/book/en/v2"
+                                    label={t("installation.resources.proGitBook")}
+                                />
+                            </li>
+                            <li>
+                                <ResourceLink
+                                    href="https://docs.github.com/en/get-started/quickstart/set-up-git"
+                                    label={t("installation.resources.githubGuide")}
+                                />
+                            </li>
+                        </ul>
+                    </Section>
+                </Card>
             </div>
         </PageLayout>
     );

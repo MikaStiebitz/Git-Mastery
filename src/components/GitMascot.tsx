@@ -57,27 +57,34 @@ export function GitMascot({ isActive }: GitMascotProps) {
 
     return (
         <div
-            className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${
+            className={`fixed end-6 bottom-6 z-(--z-toast) transition-all duration-300 ease-[var(--ease-out-expo)] motion-reduce:transition-none ${
                 isAnimating ? "animate-in slide-in-from-bottom-4 fade-in" : "animate-out slide-out-to-bottom-4 fade-out"
             }`}>
             <div className="relative">
                 {/* Speech bubble */}
-                <div className="mb-2 max-w-xs rounded-lg bg-white p-3 shadow-lg">
-                    <p className="text-sm font-medium text-gray-800">{currentMessage}</p>
-                    {/* Arrow pointing down to mascot */}
-                    <div className="absolute -bottom-2 left-6 h-0 w-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-white"></div>
+                <div
+                    role="status"
+                    className="gm-panel relative mb-3 max-w-[16rem] p-3 shadow-[0_6px_0_var(--color-gm-line)]">
+                    <p className="text-gm-ink text-sm font-medium text-pretty">{currentMessage}</p>
+                    {/* Arrow pointing down to mascot: border layer first, then the face */}
+                    <span
+                        className="border-t-gm-line absolute start-6 -bottom-[10px] h-0 w-0 border-s-[10px] border-e-[10px] border-t-[10px] border-s-transparent border-e-transparent"
+                        aria-hidden="true"></span>
+                    <span
+                        className="border-t-gm-night absolute start-[26px] -bottom-[6px] h-0 w-0 border-s-[8px] border-e-[8px] border-t-[8px] border-s-transparent border-e-transparent"
+                        aria-hidden="true"></span>
                 </div>
 
-                {/* GitHub Mascot */}
-                <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-gray-800 to-gray-900 shadow-lg">
+                {/* GitHub Mascot — calm idle breathing instead of a bounce */}
+                <div className="border-gm-lime-edge bg-gm-night relative flex h-16 w-16 animate-pulse items-center justify-center rounded-full border-2 shadow-[0_4px_0_var(--color-gm-lime-edge)] motion-reduce:animate-none">
                     {/* GitHub Icon */}
-                    <Github className="animate-bounce h-10 w-10 text-white" />
+                    <Github className="text-gm-lime h-9 w-9" aria-hidden="true" />
 
-                    {/* Celebration sparkles */}
-                    <div className="animate-ping absolute -left-2 -top-2 h-4 w-4 rounded-full bg-yellow-400 opacity-75"></div>
-                    <div className="animate-ping animation-delay-300 absolute -right-3 -top-1 h-3 w-3 rounded-full bg-green-400 opacity-75"></div>
-                    <div className="animate-ping animation-delay-500 absolute -bottom-3 -left-1 h-2 w-2 rounded-full bg-blue-400 opacity-75"></div>
-                    <div className="animate-ping animation-delay-700 absolute -bottom-2 -right-2 h-3 w-3 rounded-full bg-purple-400 opacity-75"></div>
+                    {/* Celebration markers: lime for the win, gold for the reward */}
+                    <span
+                        className="bg-gm-lime absolute -start-1 -top-1 h-3 w-3 rounded-full"
+                        aria-hidden="true"></span>
+                    <span className="bg-gm-gold absolute -end-2 -top-2 h-4 w-4 rounded-full" aria-hidden="true"></span>
                 </div>
             </div>
         </div>

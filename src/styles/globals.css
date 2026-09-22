@@ -5,8 +5,283 @@
         var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
         "Segoe UI Symbol", "Noto Color Emoji";
 
+    --font-display: var(--font-bungee), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    --font-code: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* GitMastery arcade palette. Each accent doubles as a Git role so colour always means
+       the same thing: grape = main, cyan = feature branch, coral = fix branch,
+       lime = commit / success, gold = points & rewards. */
+    --color-gm-void: oklch(0.16 0.045 287);
+    --color-gm-night: oklch(0.205 0.06 289);
+    --color-gm-deep: oklch(0.26 0.08 291);
+    --color-gm-line: oklch(0.38 0.08 292);
+    --color-gm-grape: oklch(0.44 0.21 296);
+    --color-gm-grape-hi: oklch(0.6 0.22 298);
+    --color-gm-grape-edge: oklch(0.3 0.15 294);
+    --color-gm-lime: oklch(0.9 0.2 128);
+    --color-gm-lime-edge: oklch(0.64 0.17 136);
+    --color-gm-coral: oklch(0.74 0.17 22);
+    --color-gm-coral-edge: oklch(0.52 0.16 22);
+    --color-gm-cyan: oklch(0.83 0.13 214);
+    --color-gm-cyan-edge: oklch(0.58 0.12 220);
+    --color-gm-gold: oklch(0.86 0.15 86);
+    --color-gm-gold-edge: oklch(0.62 0.13 70);
+    --color-gm-ink: oklch(0.97 0.012 292);
+    --color-gm-ink-soft: oklch(0.85 0.04 292);
+    --color-gm-ink-dim: oklch(0.72 0.05 292);
+
+    /* Semantic layer. The shadcn primitives (button, card, dialog, input…) are written
+       against these names, so mapping them here is what makes the whole app inherit the
+       arcade system instead of colouring itself by hand in every file. */
+    --color-background: var(--color-gm-void);
+    --color-foreground: var(--color-gm-ink);
+    --color-card: var(--color-gm-night);
+    --color-card-foreground: var(--color-gm-ink);
+    --color-popover: var(--color-gm-night);
+    --color-popover-foreground: var(--color-gm-ink);
+    --color-primary: var(--color-gm-lime);
+    --color-primary-foreground: var(--color-gm-void);
+    --color-secondary: var(--color-gm-grape);
+    --color-secondary-foreground: var(--color-gm-ink);
+    --color-muted: var(--color-gm-deep);
+    --color-muted-foreground: var(--color-gm-ink-dim);
+    --color-accent: var(--color-gm-deep);
+    --color-accent-foreground: var(--color-gm-ink);
+    --color-destructive: var(--color-gm-coral);
+    --color-destructive-foreground: var(--color-gm-void);
+    --color-border: var(--color-gm-line);
+    --color-input: var(--color-gm-line);
+    --color-ring: var(--color-gm-cyan);
+
+    /* Semantic stacking order. Never write a bare z-index number in a component. */
+    --z-sticky: 30;
+    --z-dropdown: 40;
+    --z-overlay: 50;
+    --z-modal: 60;
+    --z-toast: 70;
+    --z-tooltip: 80;
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
     --animate-accordion-down: accordion-down 0.2s ease-out;
     --animate-accordion-up: accordion-up 0.2s ease-out;
+    --animate-marquee: gm-marquee 38s linear infinite;
+    --animate-caret: gm-caret 1.05s steps(1) infinite;
+}
+
+@keyframes gm-marquee {
+    to {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+
+@keyframes gm-caret {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* Chunky, pressable arcade buttons: a solid bottom "edge" that the face sinks into on
+   press. Colour comes from --btn-face / --btn-edge / --btn-ink set per variant. */
+@utility btn-arcade {
+    --btn-lift: 5px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3.25rem;
+    padding: 0 1.5rem;
+    border-radius: 1rem;
+    border: 2px solid var(--btn-edge);
+    background: var(--btn-face);
+    color: var(--btn-ink);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    box-shadow: 0 var(--btn-lift) 0 var(--btn-edge);
+    transform: translateY(0);
+    transition:
+        transform 160ms var(--ease-out-expo),
+        box-shadow 160ms var(--ease-out-expo),
+        filter 160ms var(--ease-out-expo);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover {
+        filter: brightness(1.06);
+        transform: translateY(-2px);
+        box-shadow: 0 calc(var(--btn-lift) + 2px) 0 var(--btn-edge);
+    }
+    &:active {
+        transform: translateY(calc(var(--btn-lift) - 1px));
+        box-shadow: 0 1px 0 var(--btn-edge);
+    }
+    &:focus-visible {
+        outline: 3px solid var(--color-gm-cyan);
+        outline-offset: 4px;
+    }
+    &:disabled,
+    &[aria-disabled="true"] {
+        cursor: not-allowed;
+        filter: saturate(0.3) brightness(0.8);
+        transform: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        transition: filter 120ms linear;
+        &:hover {
+            transform: none;
+            box-shadow: 0 var(--btn-lift) 0 var(--btn-edge);
+        }
+    }
+}
+
+@utility btn-arcade-lime {
+    --btn-face: var(--color-gm-lime);
+    --btn-edge: var(--color-gm-lime-edge);
+    --btn-ink: var(--color-gm-void);
+}
+@utility btn-arcade-grape {
+    --btn-face: var(--color-gm-grape);
+    --btn-edge: var(--color-gm-grape-edge);
+    --btn-ink: var(--color-gm-ink);
+}
+@utility btn-arcade-night {
+    --btn-face: var(--color-gm-night);
+    --btn-edge: var(--color-gm-line);
+    --btn-ink: var(--color-gm-ink);
+}
+@utility btn-arcade-sm {
+    --btn-lift: 4px;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border-radius: 0.85rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    letter-spacing: 0;
+    gap: 0.5rem;
+}
+
+/* Accent variants for the app-side controls. */
+@utility btn-arcade-coral {
+    --btn-face: var(--color-gm-coral);
+    --btn-edge: var(--color-gm-coral-edge);
+    --btn-ink: var(--color-gm-void);
+}
+@utility btn-arcade-gold {
+    --btn-face: var(--color-gm-gold);
+    --btn-edge: var(--color-gm-gold-edge);
+    --btn-ink: var(--color-gm-void);
+}
+@utility btn-arcade-cyan {
+    --btn-face: var(--color-gm-cyan);
+    --btn-edge: var(--color-gm-cyan-edge);
+    --btn-ink: var(--color-gm-void);
+}
+
+/* The single raised plane: every panel, card and dialog in the app uses this so
+   surfaces never drift apart file by file. */
+@utility gm-panel {
+    background: var(--color-gm-night);
+    border: 2px solid var(--color-gm-line);
+    border-radius: 1.4rem;
+    color: var(--color-gm-ink);
+}
+
+/* Inset regions *inside* a panel (toolbars, list rows, code blocks). Darker instead of
+   another raised card, so panels never nest. */
+@utility gm-inset {
+    background: var(--color-gm-void);
+    border: 2px solid var(--color-gm-line);
+    border-radius: 1rem;
+}
+
+/* Form controls. One field vocabulary for inputs, textareas and selects. */
+@utility gm-field {
+    width: 100%;
+    background: var(--color-gm-void);
+    border: 2px solid var(--color-gm-line);
+    border-radius: 0.85rem;
+    color: var(--color-gm-ink);
+    padding: 0.625rem 0.875rem;
+    font-size: 1rem;
+    line-height: 1.4;
+    transition:
+        border-color 180ms var(--ease-out-expo),
+        background 180ms var(--ease-out-expo);
+
+    &::placeholder {
+        color: var(--color-gm-ink-dim);
+    }
+    &:hover:not(:disabled) {
+        border-color: var(--color-gm-grape-hi);
+    }
+    &:focus-visible {
+        outline: 3px solid var(--color-gm-cyan);
+        outline-offset: 2px;
+        border-color: var(--color-gm-cyan);
+    }
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+}
+
+/* Small status pills: state colour comes from the accent utilities on the element. */
+@utility gm-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    padding: 0.125rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+/* Scrollbars inside panels: styled, but still a normal scrollbar. */
+@utility gm-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gm-line) transparent;
+
+    &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: var(--color-gm-line);
+        border-radius: 9999px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--color-gm-grape-hi);
+        background-clip: content-box;
+    }
+}
+
+/* Keyboard focus, everywhere, in one place. */
+@layer base {
+    :focus-visible {
+        outline: 3px solid var(--color-gm-cyan);
+        outline-offset: 2px;
+    }
+    body {
+        background: var(--color-gm-void);
+        color: var(--color-gm-ink);
+    }
+    ::selection {
+        background: var(--color-gm-lime);
+        color: var(--color-gm-void);
+    }
 }
 
 @keyframes accordion-down {

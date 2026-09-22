@@ -31,6 +31,9 @@ const home = {
     "home.feature3.title": "Kişiselleştirme",
     "home.feature3.description":
         "Temalar, sesler ve kilidini açabileceğin diğer öğelerle deneyimini kişiselleştir. Öğrenme yolculuğunu tamamen kendine ait kıl.",
+    "home.continue": "Devam et",
+    "home.demoLabel":
+        "Canlı demo: bir feature dalında commit, main üzerinde commit, ardından merge. Commit grafiği her komutla büyür.",
 };
 
 export default home;

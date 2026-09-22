@@ -29,6 +29,14 @@ const terminal = {
     "commit.placeholder": "अपने परिवर्तनों का वर्णन करने वाला एक कमिट संदेश दर्ज करें...",
     "commit.tip": "पहली पंक्ति एक छोटा सारांश होना चाहिए। एक खाली पंक्ति छोड़ें फिर यदि आवश्यक हो तो विवरण जोड़ें।",
     "commit.button": "परिवर्तन कमिट करें",
+    "terminal.showHelp": "सहायता दिखाएँ",
+    "terminal.status.staged": "स्टेज किए गए",
+    "terminal.status.modified": "बदले गए",
+    "terminal.status.untracked": "अनट्रैक्ड",
+    "terminal.status.ahead": "पुश करने वाले commit",
+    "terminal.status.behind": "पुल करने वाले commit",
+    "terminal.status.clean": "साफ़",
+    "terminal.status.noRepo": "कोई रिपॉज़िटरी नहीं",
 };
 
 export default terminal;

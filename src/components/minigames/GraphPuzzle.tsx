@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { GitGraph as GitGraphIcon, Timer, Trophy, X, CheckCircle, XCircle, RotateCcw } from "lucide-react";
 import { useLanguage } from "~/contexts/LanguageContext";
 
@@ -107,14 +106,17 @@ export function GraphPuzzle({ onComplete, onClose, difficulty = "beginner" }: Gr
 
     const current = puzzles[round];
 
-    const loadRound = useCallback((index: number) => {
-        const puzzle = puzzles[index];
-        if (!puzzle) return;
-        setPlaced([]);
-        setRemaining(shuffle(puzzle.steps));
-        setFeedback(null);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [round]);
+    const loadRound = useCallback(
+        (index: number) => {
+            const puzzle = puzzles[index];
+            if (!puzzle) return;
+            setPlaced([]);
+            setRemaining(shuffle(puzzle.steps));
+            setFeedback(null);
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        },
+        [round],
+    );
 
     // Initialise the first round on mount
     useEffect(() => {
@@ -181,159 +183,162 @@ export function GraphPuzzle({ onComplete, onClose, difficulty = "beginner" }: Gr
         }
     };
 
+    // The clock only turns coral once it is genuinely about to run out.
+    const timeCritical = timeLeft <= 10;
+
     if (gameOver) {
         return (
-            <Card className="border-purple-700 bg-purple-900/20">
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-center text-white">
-                        <Trophy className="mr-2 h-6 w-6 text-yellow-400" />
-                        {t("minigame.graphPuzzle.name")}
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6 text-center">
-                    <div>
-                        <p className="text-sm text-purple-300">{t("minigame.finalScore")}</p>
-                        <p className="text-4xl font-bold text-white">{score}</p>
-                    </div>
-                    <div className="flex justify-center gap-3">
-                        <Button
-                            onClick={() => onComplete(score)}
-                            className="bg-purple-600 text-white hover:bg-purple-700">
-                            <Trophy className="mr-2 h-4 w-4" />
-                            {t("minigame.claimReward")}
-                        </Button>
-                        <Button
-                            onClick={onClose}
-                            variant="outline"
-                            className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
-                            <X className="mr-2 h-4 w-4" />
-                            {t("minigame.close")}
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="flex flex-col gap-6">
+                <h2 className="font-display text-gm-ink flex items-center justify-center gap-2.5 text-center text-2xl [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                    <Trophy className="text-gm-gold h-6 w-6 shrink-0" aria-hidden="true" />
+                    {t("minigame.graphPuzzle.name")}
+                </h2>
+                <div className="gm-inset flex flex-col items-center gap-1 p-5 text-center">
+                    <p className="text-gm-ink-dim text-sm">{t("minigame.finalScore")}</p>
+                    <p className="font-display text-gm-gold text-4xl tabular-nums">{score}</p>
+                </div>
+                <div className="flex flex-col justify-center gap-3 sm:flex-row">
+                    {/* Gold is currency: claiming the reward is the one gold control here. */}
+                    <button type="button" onClick={() => onComplete(score)} className="btn-arcade btn-arcade-gold">
+                        <Trophy className="h-4 w-4" aria-hidden="true" />
+                        {t("minigame.claimReward")}
+                    </button>
+                    <Button onClick={onClose} variant="outline" size="lg">
+                        <X className="h-4 w-4" aria-hidden="true" />
+                        {t("minigame.close")}
+                    </Button>
+                </div>
+            </div>
         );
     }
 
     if (!current) return null;
 
     return (
-        <Card className="border-purple-700 bg-purple-900/20">
-            <CardHeader>
-                <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center text-white">
-                        <GitGraphIcon className="mr-2 h-5 w-5 text-purple-400" />
-                        {t("minigame.graphPuzzle.name")}
-                    </CardTitle>
-                    <div className="flex items-center gap-3 text-sm">
-                        <span className="flex items-center text-purple-300">
-                            <Timer className="mr-1 h-4 w-4" />
-                            {timeLeft}s
-                        </span>
-                        <span className="text-purple-300">
-                            {round + 1}/{puzzles.length}
-                        </span>
-                        <span className="font-semibold text-yellow-400">{score}</span>
-                    </div>
+        <div className="flex flex-col gap-5">
+            {/* HUD: name, clock, round, score — inset so it never reads as a card in a card */}
+            <div className="gm-inset flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 py-2.5">
+                <h2 className="text-gm-ink flex min-w-0 items-center gap-2 font-bold">
+                    <GitGraphIcon className="text-gm-grape-hi h-5 w-5 shrink-0" aria-hidden="true" />
+                    <span className="truncate">{t("minigame.graphPuzzle.name")}</span>
+                </h2>
+                <div className="flex items-center gap-3 text-sm">
+                    <span
+                        className={`flex items-center gap-1.5 tabular-nums ${
+                            timeCritical ? "text-gm-coral" : "text-gm-ink-soft"
+                        }`}>
+                        <Timer className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        {timeLeft}s
+                    </span>
+                    <span className="text-gm-ink-dim tabular-nums">
+                        {round + 1}/{puzzles.length}
+                    </span>
+                    <span className="text-gm-gold flex items-center gap-1.5 font-semibold tabular-nums">
+                        <Trophy className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        {score}
+                    </span>
                 </div>
-            </CardHeader>
-            <CardContent className="space-y-5">
-                <div>
-                    <p className="mb-1 text-sm text-purple-300">{t("minigame.graphPuzzle.goal")}</p>
-                    <p className="text-base text-white">{current.goal}</p>
-                </div>
+            </div>
 
-                {/* Target graph */}
-                <div className="overflow-x-auto rounded-md border border-purple-800/40 bg-[#140f1f] p-3">
-                    <pre className="font-mono text-xs leading-relaxed text-purple-200">{current.diagram.join("\n")}</pre>
-                </div>
+            <div>
+                <p className="text-gm-ink-dim mb-1 text-sm">{t("minigame.graphPuzzle.goal")}</p>
+                <p className="text-gm-ink text-base [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                    {current.goal}
+                </p>
+            </div>
 
-                {/* Ordered sequence */}
+            {/* Target graph — what Git itself would print, so it stays mono */}
+            <div className="gm-inset gm-scroll overflow-x-auto p-3">
+                <pre className="text-gm-ink-soft [font-family:var(--font-code)] text-xs leading-relaxed">
+                    {current.diagram.join("\n")}
+                </pre>
+            </div>
+
+            {/* Ordered sequence */}
+            <div>
+                <p className="text-gm-ink-dim mb-2 text-sm">{t("minigame.graphPuzzle.yourOrder")}</p>
+                <div className="border-gm-line flex min-h-[3.5rem] flex-col gap-2 rounded-[1rem] border-2 border-dashed p-2">
+                    {placed.length === 0 && (
+                        <p className="text-gm-ink-dim py-3 text-center text-xs">{t("minigame.graphPuzzle.tapHint")}</p>
+                    )}
+                    {placed.map((chip, i) => (
+                        <Button
+                            key={`${chip}-${i}`}
+                            onClick={() => removeChip(i)}
+                            disabled={feedback === "correct"}
+                            variant="outline"
+                            className="hover:border-gm-coral hover:text-gm-coral h-auto min-h-11 w-full justify-between gap-3 rounded-2xl px-3 py-2 text-start whitespace-normal">
+                            <span className="[font-family:var(--font-code)] text-xs [overflow-wrap:anywhere]">
+                                <span className="text-gm-ink-dim me-2">{i + 1}.</span>
+                                {chip}
+                            </span>
+                            <X className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        </Button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Command pool — arcade keycaps that sink onto their edge when pressed */}
+            {remaining.length > 0 && (
                 <div>
-                    <p className="mb-2 text-sm text-purple-300">{t("minigame.graphPuzzle.yourOrder")}</p>
-                    <div className="min-h-[3rem] space-y-2 rounded-md border border-dashed border-purple-700/50 p-2">
-                        {placed.length === 0 && (
-                            <p className="py-2 text-center text-xs text-purple-500">
-                                {t("minigame.graphPuzzle.tapHint")}
-                            </p>
-                        )}
-                        {placed.map((chip, i) => (
-                            <button
+                    <p className="text-gm-ink-dim mb-2 text-sm">{t("minigame.graphPuzzle.commands")}</p>
+                    <div className="flex flex-wrap gap-2">
+                        {remaining.map((chip, i) => (
+                            <Button
                                 key={`${chip}-${i}`}
-                                onClick={() => removeChip(i)}
+                                onClick={() => pickChip(chip, i)}
                                 disabled={feedback === "correct"}
-                                className="flex w-full items-center justify-between rounded border border-purple-600/60 bg-purple-800/40 px-3 py-2 text-left font-mono text-xs text-purple-100 transition-colors hover:border-red-500/60 hover:bg-red-900/20">
-                                <span>
-                                    <span className="mr-2 text-purple-400">{i + 1}.</span>
-                                    {chip}
-                                </span>
-                                <X className="h-3.5 w-3.5 text-purple-400" />
-                            </button>
+                                variant="outline"
+                                className="h-auto min-h-11 max-w-full rounded-2xl px-3 py-2 [font-family:var(--font-code)] text-xs whitespace-normal">
+                                <span className="[overflow-wrap:anywhere]">{chip}</span>
+                            </Button>
                         ))}
                     </div>
                 </div>
+            )}
 
-                {/* Command pool */}
-                {remaining.length > 0 && (
-                    <div>
-                        <p className="mb-2 text-sm text-purple-300">{t("minigame.graphPuzzle.commands")}</p>
-                        <div className="flex flex-wrap gap-2">
-                            {remaining.map((chip, i) => (
-                                <button
-                                    key={`${chip}-${i}`}
-                                    onClick={() => pickChip(chip, i)}
-                                    disabled={feedback === "correct"}
-                                    className="rounded border border-purple-700/60 bg-purple-900/40 px-3 py-2 font-mono text-xs text-purple-100 transition-colors hover:border-purple-500 hover:bg-purple-800/50">
-                                    {chip}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {feedback && (
-                    <div
-                        className={`flex items-center justify-center rounded-md p-2 text-sm ${
-                            feedback === "correct"
-                                ? "border border-green-700 bg-green-900/40 text-green-300"
-                                : "border border-red-700 bg-red-900/40 text-red-300"
-                        }`}>
-                        {feedback === "correct" ? (
-                            <>
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                {t("minigame.graphPuzzle.correct")}
-                            </>
-                        ) : (
-                            <>
-                                <XCircle className="mr-2 h-4 w-4" />
-                                {t("minigame.graphPuzzle.wrong")}
-                            </>
-                        )}
-                    </div>
-                )}
-
-                <div className="flex gap-3">
-                    <Button
-                        onClick={checkOrder}
-                        disabled={remaining.length > 0 || feedback === "correct"}
-                        className="flex-1 bg-purple-600 text-white hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-600">
-                        {t("minigame.graphPuzzle.check")}
-                    </Button>
-                    <Button
-                        onClick={resetRound}
-                        variant="outline"
-                        disabled={feedback === "correct" || placed.length === 0}
-                        className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
-                        <RotateCcw className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        onClick={onClose}
-                        variant="outline"
-                        className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
-                        <X className="h-4 w-4" />
-                    </Button>
+            {feedback && (
+                <div
+                    role="status"
+                    aria-live="polite"
+                    className={`flex items-center justify-center gap-2 rounded-[0.85rem] border-2 p-2.5 text-center text-sm font-semibold ${
+                        feedback === "correct"
+                            ? "border-gm-lime-edge bg-gm-lime/12 text-gm-lime"
+                            : "border-gm-coral-edge bg-gm-coral/12 text-gm-coral"
+                    }`}>
+                    {feedback === "correct" ? (
+                        <>
+                            <CheckCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+                            {t("minigame.graphPuzzle.correct")}
+                        </>
+                    ) : (
+                        <>
+                            <XCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+                            {t("minigame.graphPuzzle.wrong")}
+                        </>
+                    )}
                 </div>
-            </CardContent>
-        </Card>
+            )}
+
+            <div className="flex gap-3">
+                <Button
+                    onClick={checkOrder}
+                    disabled={remaining.length > 0 || feedback === "correct"}
+                    className="flex-1">
+                    {t("minigame.graphPuzzle.check")}
+                </Button>
+                <Button
+                    onClick={resetRound}
+                    variant="outline"
+                    size="icon"
+                    disabled={feedback === "correct" || placed.length === 0}
+                    aria-label={t("minigame.playAgain")}>
+                    <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                </Button>
+                <Button onClick={onClose} variant="outline" size="icon" aria-label={t("minigame.close")}>
+                    <X className="h-4 w-4" aria-hidden="true" />
+                </Button>
+            </div>
+        </div>
     );
 }

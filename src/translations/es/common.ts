@@ -30,7 +30,8 @@ const common = {
     "difficulty.selectTitle": "Elige tu ruta de aprendizaje",
     "difficulty.selectDescription": "Selecciona un nivel de dificultad que coincida con tu nivel de experiencia en Git",
     "difficulty.changeTitle": "Cambiar Nivel de Dificultad",
-    "difficulty.changeDescription": "Puedes cambiar esto en cualquier momento para ajustar la complejidad del aprendizaje",
+    "difficulty.changeDescription":
+        "Puedes cambiar esto en cualquier momento para ajustar la complejidad del aprendizaje",
     "difficulty.startLearning": "Comenzar Aprender",
     "difficulty.applyChanges": "Aplicar Cambios",
     "difficulty.cancel": "Cancelar",
@@ -108,21 +109,27 @@ const common = {
     "shop.item.darkTerminal.name": "Tema de Terminal Oscuro",
     "shop.item.darkTerminal.description": "Un tema de terminal oscuro con acentos azules - clásico y profesional",
     "shop.item.matrixTerminal.name": "Tema de Terminal Matrix",
-    "shop.item.matrixTerminal.description": "Tema de terminal verde sobre negro como en las películas de Matrix - para la sensación de hacker definitiva",
+    "shop.item.matrixTerminal.description":
+        "Tema de terminal verde sobre negro como en las películas de Matrix - para la sensación de hacker definitiva",
     "shop.item.goldenTerminal.name": "Tema de Terminal Dorado",
-    "shop.item.goldenTerminal.description": "Un tema de terminal dorado brillante que muestra tu dominio de Git a todos",
+    "shop.item.goldenTerminal.description":
+        "Un tema de terminal dorado brillante que muestra tu dominio de Git a todos",
     "shop.item.gitMascot.name": "Máscota de Git",
     "shop.item.gitMascot.description": "Una adorable mascota animada que te anima durante los niveles difíciles",
     "shop.item.victorySound.name": "Paquete de Sonidos de Victoria",
-    "shop.item.victorySound.description": "Efectos de sonido satisfactorios cuando completas niveles y resuelves desafíos",
+    "shop.item.victorySound.description":
+        "Efectos de sonido satisfactorios cuando completas niveles y resuelves desafíos",
     "shop.item.doubleXp.name": "Fin de Semana de Doble XP",
     "shop.item.doubleXp.description": "Obtén 2x puntos por completar niveles durante los próximos 7 días",
     "shop.item.emojiCommits.name": "Mensajes de confirmación con emojis",
-    "shop.item.emojiCommits.description": "Agrega sugerencias de emojis divertidos a tus mensajes de confirmación para mejorar el historial de Git",
+    "shop.item.emojiCommits.description":
+        "Agrega sugerencias de emojis divertidos a tus mensajes de confirmación para mejorar el historial de Git",
     "shop.item.proTips.name": "Consejos de Git Pro",
-    "shop.item.proTips.description": "Desbloquea comandos y trucos útiles de Git - conocimiento oculto de expertos en Git",
+    "shop.item.proTips.description":
+        "Desbloquea comandos y trucos útiles de Git - conocimiento oculto de expertos en Git",
     "shop.item.gitLegend.name": "Insignia Leyenda de Git",
-    "shop.item.gitLegend.description": "Insignia exclusiva que demuestra que dominas Git a nivel avanzado - obtén un reconocimiento especial",
+    "shop.item.gitLegend.description":
+        "Insignia exclusiva que demuestra que dominas Git a nivel avanzado - obtén un reconocimiento especial",
 
     // Pro Tip Dialog
     "shop.proTip.title": "Consejo de Git Pro",
@@ -144,6 +151,8 @@ const common = {
     "shop.rarity.rare": "Raro",
     "shop.rarity.epic": "Épico",
     "shop.rarity.legendary": "Legendario",
+    "common.copy": "Copiar",
+    "common.copied": "Copiado",
 };
 
 export default common;

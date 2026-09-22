@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "~/components/ui/dialog";
 import { VisuallyHidden } from "~/components/ui/visually-hidden";
 import { Gamepad2 } from "lucide-react";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -30,7 +37,7 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent
-                className="mx-2 w-[calc(100vw-1rem)] max-w-4xl border-purple-900/20 bg-[#1a1625] text-purple-100 sm:mx-6 sm:w-[calc(100vw-3rem)] md:mx-0 md:w-full"
+                className="sm:max-w-3xl"
                 showClose={!activeMinigame} // Hide X button when a minigame is active
             >
                 {activeDef ? (
@@ -51,28 +58,27 @@ export function Minigames({ isOpen, onClose }: MinigamesProps) {
                 ) : (
                     <>
                         <DialogHeader>
-                            <DialogTitle className="flex items-center text-xl text-white sm:text-2xl">
-                                <Gamepad2 className="mr-2 h-5 w-5 text-purple-400 sm:h-6 sm:w-6" />
+                            <DialogTitle className="flex items-center gap-2">
+                                <Gamepad2
+                                    className="text-gm-grape-hi h-5 w-5 shrink-0 sm:h-6 sm:w-6"
+                                    aria-hidden="true"
+                                />
                                 {t("minigame.title")}
                             </DialogTitle>
-                            <DialogDescription className="text-sm text-purple-300 sm:text-base">
-                                {t("minigame.subtitle")}
-                            </DialogDescription>
+                            <DialogDescription>{t("minigame.subtitle")}</DialogDescription>
                         </DialogHeader>
 
                         <MinigameGrid
+                            className="mt-5"
                             completedMinigames={progressManager.getCompletedMinigames()}
                             onPlay={setActiveMinigame}
                         />
 
-                        <div className="mt-6 flex justify-center">
-                            <Button
-                                onClick={onClose}
-                                variant="outline"
-                                className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
+                        <DialogFooter>
+                            <Button onClick={onClose} variant="outline" className="w-full sm:w-auto">
                                 {t("minigame.close")}
                             </Button>
-                        </div>
+                        </DialogFooter>
                     </>
                 )}
             </DialogContent>

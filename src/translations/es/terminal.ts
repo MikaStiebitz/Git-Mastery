@@ -29,6 +29,14 @@ const terminal = {
     "commit.placeholder": "Escribe un mensaje de commit describiendo tus cambios...",
     "commit.tip": "La primera línea debe ser un breve resumen. Deja una línea en blanco y añade detalles si es necesario.",
     "commit.button": "Confirmar cambios",
+    "terminal.showHelp": "Mostrar ayuda",
+    "terminal.status.staged": "preparados",
+    "terminal.status.modified": "modificados",
+    "terminal.status.untracked": "sin seguimiento",
+    "terminal.status.ahead": "commits para subir",
+    "terminal.status.behind": "commits para bajar",
+    "terminal.status.clean": "limpio",
+    "terminal.status.noRepo": "sin repositorio",
 };
 
 export default terminal;

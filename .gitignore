@@ -36,3 +36,6 @@ yarn-error.log*
 
 # idea files
 .idea
+
+# impeccable design-hook cache (generated)
+.impeccable/hook.cache.json

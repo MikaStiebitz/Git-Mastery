@@ -29,6 +29,14 @@ const terminal = {
     "commit.placeholder": "Enter a commit message describing your changes...",
     "commit.tip": "First line should be a short summary. Leave a blank line then add details if needed.",
     "commit.button": "Commit Changes",
+    "terminal.showHelp": "Show help",
+    "terminal.status.staged": "staged",
+    "terminal.status.modified": "modified",
+    "terminal.status.untracked": "untracked",
+    "terminal.status.ahead": "commits to push",
+    "terminal.status.behind": "commits to pull",
+    "terminal.status.clean": "clean",
+    "terminal.status.noRepo": "no repository",
 };
 
 export default terminal;

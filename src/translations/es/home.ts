@@ -30,6 +30,9 @@ const home = {
     "home.feature3.title": "Personalización",
     "home.feature3.description":
         "Personaliza tu experiencia con temas, sonidos y otros elementos desbloqueables. Haz que sea realmente tu propia aventura de aprendizaje.",
+    "home.continue": "Continuar",
+    "home.demoLabel":
+        "Demo en vivo: un commit en una rama feature, otro en main y luego un merge. El grafo de commits crece con cada comando.",
 };
 
 export default home;

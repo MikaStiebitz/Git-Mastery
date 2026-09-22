@@ -1,11 +1,13 @@
+import type React from "react";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { cn } from "~/lib/utils";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { useTerminalTheme } from "~/contexts/TerminalThemeContext";
 import { TerminalHeader } from "./models/Header";
 import { TerminalOutput } from "./models/Output";
 import { TerminalInput } from "./models/Input";
-import { TerminalPrompt } from "./models/Prompt";
+import { TerminalStatusBar } from "./models/StatusBar";
 import { TerminalThemeSwitcher } from "../TerminalThemeSwitcher";
 import { CommandService } from "./services/Command";
 import { HistoryService } from "./services/History";
@@ -232,56 +234,74 @@ export function Terminal({
         }
     };
 
-    // Render a fancy Oh My Posh-like prompt
-    const renderFancyPrompt = () => {
+    // Everything the status bar needs: where we are, which branch, what is pending.
+    const gitStatus = useMemo(() => {
         const currentDir = commandProcessor.getCurrentDirectory();
-        const isGitInitialized = gitRepository.isInitialized();
-
-        // Check if current directory is actually within the repository
-        const isInRepository = isGitInitialized && gitRepository.isInRepository(currentDir);
-        const branch = isInRepository ? gitRepository.getCurrentBranch() : "";
-
-        // Get git status info (only if in repository)
+        const isInRepository = gitRepository.isInitialized() && gitRepository.isInRepository(currentDir);
         const status = isInRepository ? gitRepository.getStatus() : {};
-        const stagedCount = Object.values(status).filter(s => s === "staged").length;
-        const modifiedCount = Object.values(status).filter(s => s === "modified").length;
-        const untrackedCount = Object.values(status).filter(s => s === "untracked").length;
+        const values = Object.values(status);
 
-        // Check for unpushed commits (only if in repository)
-        const unpushedCommitsCount = isInRepository ? gitRepository.getUnpushedCommitCount() : 0;
+        return {
+            path: currentDir === "/" ? "~/" : `~${currentDir}`,
+            isGitInitialized: isInRepository,
+            branch: isInRepository ? gitRepository.getCurrentBranch() : "",
+            stagedCount: values.filter(s => s === "staged").length,
+            modifiedCount: values.filter(s => s === "modified").length,
+            untrackedCount: values.filter(s => s === "untracked").length,
+            unpushedCommitsCount: isInRepository ? gitRepository.getUnpushedCommitCount() : 0,
+            unpulledCommitsCount: isInRepository ? gitRepository.getUnpulledCommitCount() : 0,
+        };
+        // terminalOutput is the signal that a command ran and the repository may have moved on.
+    }, [commandProcessor, gitRepository, terminalOutput]);
 
-        // Check for unpulled commits (remote commits available to pull)
-        const unpulledCommitsCount = isInRepository ? gitRepository.getUnpulledCommitCount() : 0;
+    // The branch pill keeps the Git legend on the default theme (grape is `main`, cyan is any
+    // other line of history) and hands the choice to a purchased theme, which owns its own
+    // palette. Both pairings are checked for contrast, not assumed.
+    const branchPill = useMemo(() => {
+        const isMain = /^(main|master|trunk)$/i.test(gitStatus.branch);
+        if (currentTheme.id !== "default") {
+            return { fill: currentTheme.colors.accent, ink: currentTheme.colors.background };
+        }
+        return isMain
+            ? { fill: "var(--color-gm-grape)", ink: "var(--color-gm-ink)" }
+            : { fill: "var(--color-gm-cyan)", ink: "var(--color-gm-void)" };
+    }, [gitStatus.branch, currentTheme]);
 
-        return (
-            <TerminalPrompt
-                currentDirectory={currentDir}
-                isGitInitialized={isInRepository}
-                branch={branch}
-                stagedCount={stagedCount}
-                modifiedCount={modifiedCount}
-                untrackedCount={untrackedCount}
-                unpushedCommitsCount={unpushedCommitsCount}
-                unpulledCommitsCount={unpulledCommitsCount}
-            />
-        );
-    };
+    // The title bar shows the session you are in, the way a real shell shows its cwd.
+    const sessionPath = isPlaygroundMode ? "~/playground" : `~/${currentStage.toLowerCase()}/level-${currentLevel}`;
 
     return (
         <>
             <div
-                className={`flex flex-col overflow-hidden rounded-md border shadow-lg ${className}`}
-                style={{
-                    backgroundColor: currentTheme.colors.background,
-                    borderColor: currentTheme.colors.border,
-                    color: currentTheme.colors.text,
-                }}>
+                className={cn(
+                    "gm-panel flex w-full min-w-0 flex-col overflow-hidden shadow-[0_6px_0_var(--color-gm-line)]",
+                    className,
+                    // Last, so a legacy `rounded-md` from a call site can't undo the panel shape.
+                    "rounded-[1.4rem]",
+                )}
+                style={
+                    {
+                        // The purchasable themes stay in charge of the terminal body: the panel
+                        // utility only supplies the shape, these three win over it.
+                        backgroundColor: currentTheme.colors.background,
+                        borderColor: currentTheme.colors.border,
+                        color: currentTheme.colors.text,
+                        // Output lines are coloured by role, not by token, so a bought theme
+                        // actually repaints what the terminal prints — not just its frame.
+                        "--term-bg": currentTheme.colors.background,
+                        "--term-text": currentTheme.colors.text,
+                        "--term-accent": currentTheme.colors.accent,
+                        "--term-prompt": currentTheme.colors.prompt,
+                        "--term-success": currentTheme.colors.success,
+                        "--term-error": currentTheme.colors.error,
+                        "--term-warning": currentTheme.colors.warning,
+                    } as React.CSSProperties
+                }>
                 <TerminalHeader
-                    isPlaygroundMode={isPlaygroundMode}
-                    currentStage={currentStage}
-                    currentLevel={currentLevel}
+                    path={sessionPath}
+                    theme={currentTheme.colors}
                     showHelpButton={showHelpButton}
-                    showResetButton={showResetButton}
+                    showResetButton={showResetButton && !isPlaygroundMode}
                     handleShowHelp={handleShowHelp}
                     handleReset={handleReset}
                     handleShowThemes={handleShowThemes}
@@ -298,6 +318,14 @@ export function Terminal({
                     t={t}
                 />
 
+                <TerminalStatusBar
+                    {...gitStatus}
+                    branchFill={branchPill.fill}
+                    branchInk={branchPill.ink}
+                    theme={currentTheme.colors}
+                    t={t}
+                />
+
                 <TerminalInput
                     input={input}
                     inputRef={inputRef}
@@ -309,7 +337,7 @@ export function Terminal({
                     showAutocomplete={showAutocomplete}
                     fileAutocomplete={fileAutocomplete}
                     selectAutocompleteOption={selectAutocompleteOption}
-                    renderFancyPrompt={renderFancyPrompt}
+                    theme={currentTheme.colors}
                     t={t}
                 />
             </div>

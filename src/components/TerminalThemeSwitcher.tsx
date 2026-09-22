@@ -1,8 +1,14 @@
 "use client";
 
 import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/components/ui/dialog";
-import { Card, CardContent } from "~/components/ui/card";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "~/components/ui/dialog";
 import { Palette, Lock, Check } from "lucide-react";
 import { useTerminalTheme } from "~/contexts/TerminalThemeContext";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -25,78 +31,76 @@ export function TerminalThemeSwitcher({ isOpen, onClose }: TerminalThemeSwitcher
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl border-purple-900/20 bg-[#1a1625] text-purple-100">
+            <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center text-xl text-white">
-                        <Palette className="mr-2 h-5 w-5 text-purple-400" />
+                    <DialogTitle className="flex items-center gap-2">
+                        <Palette className="text-gm-grape-hi h-5 w-5 shrink-0" aria-hidden="true" />
                         {t("themes.title")}
                     </DialogTitle>
-                    <p className="text-purple-300">{t("themes.subtitle")}</p>
+                    <DialogDescription>{t("themes.subtitle")}</DialogDescription>
                 </DialogHeader>
 
-                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {availableThemes.map(theme => {
                         const isUnlocked = isThemeUnlocked(theme.id);
                         const isActive = currentTheme.id === theme.id;
 
                         return (
-                            <Card
+                            <button
                                 key={theme.id}
-                                className={`cursor-pointer border transition-all duration-300 ${
+                                type="button"
+                                aria-pressed={isActive}
+                                disabled={!isUnlocked}
+                                onClick={() => handleThemeSelect(theme.id)}
+                                className={`gm-inset focus-visible:outline-gm-cyan cursor-pointer p-4 text-start transition-[transform,box-shadow,border-color] duration-150 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-55 motion-reduce:transition-[border-color] ${
                                     isActive
-                                        ? "border-purple-400 bg-purple-900/30"
-                                        : "border-purple-800/30 hover:border-purple-600/50"
-                                } ${!isUnlocked ? "opacity-50" : "hover:scale-105"} `}
-                                onClick={() => handleThemeSelect(theme.id)}>
-                                <CardContent className="p-4">
-                                    <div className="mb-3 flex items-center justify-between">
-                                        <h3 className="font-medium text-white">{theme.name}</h3>
-                                        <div className="flex items-center space-x-2">
-                                            {isActive && <Check className="h-4 w-4 text-green-400" />}
-                                            {!isUnlocked && <Lock className="h-4 w-4 text-gray-400" />}
-                                        </div>
+                                        ? "border-gm-lime shadow-[0_4px_0_var(--color-gm-lime-edge)]"
+                                        : "enabled:hover:border-gm-grape-hi shadow-[0_4px_0_var(--color-gm-line)] enabled:hover:-translate-y-0.5 enabled:active:translate-y-[3px] enabled:active:shadow-[0_1px_0_var(--color-gm-line)] motion-reduce:enabled:hover:translate-y-0"
+                                } ${!isUnlocked ? "shadow-none" : ""}`}>
+                                <div className="mb-3 flex items-center justify-between gap-2">
+                                    <h3 className="text-gm-ink truncate font-semibold">{theme.name}</h3>
+                                    <div className="flex flex-shrink-0 items-center gap-2">
+                                        {isActive && <Check className="text-gm-lime h-4 w-4" aria-hidden="true" />}
+                                        {!isUnlocked && <Lock className="text-gm-ink-dim h-4 w-4" aria-hidden="true" />}
                                     </div>
+                                </div>
 
-                                    {/* Theme Preview */}
-                                    <div
-                                        className="rounded border p-2 font-mono text-xs"
-                                        style={{
-                                            backgroundColor: theme.colors.background,
-                                            borderColor: theme.colors.border,
-                                            color: theme.colors.text,
-                                        }}>
-                                        <div className="mb-1 flex items-center space-x-1">
-                                            <span style={{ color: theme.colors.prompt }}>git-mastery:~$</span>
-                                            <span>git status</span>
-                                        </div>
-                                        <div style={{ color: theme.colors.success }} className="mb-1">
-                                            On branch main
-                                        </div>
-                                        <div style={{ color: theme.colors.warning }}>
-                                            Changes not staged for commit:
-                                        </div>
-                                        <div style={{ color: theme.colors.accent }} className="ml-2">
-                                            modified: README.md
-                                        </div>
+                                {/* Theme Preview — the purchased themes keep their own literal colours */}
+                                <div
+                                    className="overflow-hidden rounded-[0.7rem] border-2 p-2 [font-family:var(--font-code)] text-xs"
+                                    style={{
+                                        backgroundColor: theme.colors.background,
+                                        borderColor: theme.colors.border,
+                                        color: theme.colors.text,
+                                    }}>
+                                    <div className="mb-1 flex items-center gap-1 truncate">
+                                        <span style={{ color: theme.colors.prompt }}>git-mastery:~$</span>
+                                        <span>git status</span>
                                     </div>
+                                    <div style={{ color: theme.colors.success }} className="mb-1 truncate">
+                                        On branch main
+                                    </div>
+                                    <div style={{ color: theme.colors.warning }} className="truncate">
+                                        Changes not staged for commit:
+                                    </div>
+                                    <div style={{ color: theme.colors.accent }} className="ms-2 truncate">
+                                        modified: README.md
+                                    </div>
+                                </div>
 
-                                    {!isUnlocked && (
-                                        <p className="mt-2 text-xs text-gray-400">{t("themes.unlockHint")}</p>
-                                    )}
-                                </CardContent>
-                            </Card>
+                                {!isUnlocked && (
+                                    <p className="text-gm-ink-dim mt-2 text-xs">{t("themes.unlockHint")}</p>
+                                )}
+                            </button>
                         );
                     })}
                 </div>
 
-                <div className="mt-6 flex justify-center">
-                    <Button
-                        onClick={onClose}
-                        variant="outline"
-                        className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
+                <DialogFooter className="sm:justify-center">
+                    <Button onClick={onClose} variant="outline">
                         {t("themes.close")}
                     </Button>
-                </div>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );

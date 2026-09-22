@@ -4,6 +4,10 @@ import type { CommitGraph } from "~/lib/buildCommitGraph";
 
 const GIT_GRAPH_PREFIX = "__GIT_GRAPH__:";
 
+/**
+ * Terminal output follows the Git legend: lime for commands and anything that succeeded,
+ * cyan for branches and directories, coral for danger or lost work, dim ink for the rest.
+ */
 export class OutputFormatterService {
     constructor(private terminalOutput: string[]) {}
 
@@ -18,12 +22,12 @@ export class OutputFormatterService {
                     nodes: raw.nodes.map(n => ({ ...n, timestamp: new Date(n.timestamp) })),
                 };
                 return (
-                    <div className="py-2 overflow-x-auto">
+                    <div className="gm-scroll overflow-x-auto py-2">
                         <GitGraph graph={graph} />
                     </div>
                 );
             } catch {
-                return <div className="text-red-400">Failed to render git graph</div>;
+                return <div className="text-[var(--term-error)]">Failed to render git graph</div>;
             }
         }
 
@@ -35,15 +39,26 @@ export class OutputFormatterService {
             if (parts[0] === "git") {
                 return (
                     <div>
-                        <span className="text-gray-400">$</span> <span className="text-purple-400">git</span>{" "}
-                        <span className="text-yellow-400">{parts.slice(1).join(" ")}</span>
+                        <span className="text-[var(--term-prompt)] select-none">$</span>{" "}
+                        <span className="text-[var(--term-prompt)]">git</span>{" "}
+                        <span className="text-[var(--term-text)]">{parts.slice(1).join(" ")}</span>
                     </div>
                 );
             }
 
             return (
                 <div>
-                    <span className="text-gray-400">$</span> <span className="text-green-400">{cmd}</span>
+                    <span className="text-[var(--term-prompt)] select-none">$</span>{" "}
+                    <span className="text-[var(--term-text)]">{cmd}</span>
+                </div>
+            );
+        }
+
+        // Git's own failure lines — coral is the danger colour in the legend
+        if (line.startsWith("error:") || line.startsWith("fatal:")) {
+            return (
+                <div>
+                    <span className="text-[var(--term-error)]">{line}</span>
                 </div>
             );
         }
@@ -52,7 +67,7 @@ export class OutputFormatterService {
         if (line.trim().endsWith("/") && !line.includes(":")) {
             return (
                 <div>
-                    <span className="text-blue-400">{line}</span>
+                    <span className="text-[var(--term-accent)]">{line}</span>
                 </div>
             );
         }
@@ -61,35 +76,35 @@ export class OutputFormatterService {
         if (line.includes("new file:")) {
             return (
                 <div>
-                    <span className="text-green-400">{line}</span>
+                    <span className="text-[var(--term-success)]">{line}</span>
                 </div>
             );
         }
         if (line.includes("modified:")) {
             return (
                 <div>
-                    <span className="text-yellow-400">{line}</span>
+                    <span className="text-[var(--term-warning)]">{line}</span>
                 </div>
             );
         }
         if (line.includes("deleted:")) {
             return (
                 <div>
-                    <span className="text-red-400">{line}</span>
+                    <span className="text-[var(--term-error)]">{line}</span>
                 </div>
             );
         }
         if (line.includes("Initialized empty Git")) {
             return (
                 <div>
-                    <span className="text-green-400">{line}</span>
+                    <span className="text-[var(--term-success)]">{line}</span>
                 </div>
             );
         }
         if (line.includes("branch")) {
             return (
                 <div>
-                    <span className="text-purple-400">{line}</span>
+                    <span className="text-[var(--term-accent)]">{line}</span>
                 </div>
             );
         }
@@ -98,7 +113,7 @@ export class OutputFormatterService {
         if (line.trim() === "Untracked files:") {
             return (
                 <div>
-                    <span className="font-semibold text-red-400">{line}</span>
+                    <span className="font-semibold text-[var(--term-error)]">{line}</span>
                 </div>
             );
         }
@@ -111,7 +126,7 @@ export class OutputFormatterService {
         ) {
             return (
                 <div>
-                    <span className="text-red-400">{line}</span>
+                    <span className="text-[var(--term-warning)]">{line}</span>
                 </div>
             );
         }
@@ -120,7 +135,7 @@ export class OutputFormatterService {
         if (line.trim() === "Changes to be committed:") {
             return (
                 <div>
-                    <span className="font-semibold text-green-400">{line}</span>
+                    <span className="font-semibold text-[var(--term-success)]">{line}</span>
                 </div>
             );
         }
@@ -129,24 +144,24 @@ export class OutputFormatterService {
         if (line.includes("working tree clean")) {
             return (
                 <div>
-                    <span className="text-green-400">{line}</span>
+                    <span className="text-[var(--term-success)]">{line}</span>
                 </div>
             );
         }
 
-        // Directory listing - highlight directories with blue
+        // Directory listing - highlight directories with cyan
         // This is for the ls command output
         const dirRegex = /^(.+)\/$/;
         const dirMatch = dirRegex.exec(line);
         if (dirMatch) {
             return (
                 <div>
-                    <span className="font-medium text-blue-400">{line}</span>
+                    <span className="font-medium text-[var(--term-accent)]">{line}</span>
                 </div>
             );
         }
 
         // Default formatting - use non-breaking space for empty lines to preserve height
-        return <div className="text-purple-300">{line || '\u00A0'}</div>;
+        return <div className="text-[var(--term-text)] opacity-80">{line || "\u00A0"}</div>;
     }
 }

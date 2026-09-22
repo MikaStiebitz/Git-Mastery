@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { Heart, GitBranch, Github, BookCopy, Gamepad2, Download, HelpCircle, Home, Scale } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { ProTipDisplay } from "../ProTipDisplay";
@@ -7,30 +7,92 @@ interface FooterProps {
     className?: string;
 }
 
+/**
+ * The footer is the second door into the app, not a legal afterthought: every destination
+ * that the top bar collapses on a phone is reachable here, next to the repository link.
+ * The `git gud` line is the real hidden command from the terminal, used as a sign-off.
+ */
 export function Footer({ className = "" }: FooterProps) {
     const { t } = useLanguage();
 
+    const links = [
+        { href: "/", label: t("nav.home"), icon: Home },
+        { href: "/playground", label: t("nav.playground"), icon: BookCopy },
+        { href: "/arcade", label: t("nav.arcade"), icon: Gamepad2 },
+        { href: "/installation", label: t("nav.installation"), icon: Download },
+        { href: "/faq", label: t("nav.faq"), icon: HelpCircle },
+    ];
+
     return (
-        <footer className={`mt-auto bg-[#1a1625] ${className}`}>
+        <footer className={`bg-gm-void mt-auto ${className}`}>
             {/* Pro Tips Bar - only shows if purchased */}
             <ProTipDisplay />
 
-            {/* Regular Footer Content */}
-            <div className="border-t border-purple-900/20 py-4">
-                <div className="container mx-auto px-4 text-center text-purple-400">
-                    <p className="flex flex-col items-center justify-center sm:flex-row">
-                        <span className="flex items-center">
-                            Git Mastery - Made with <Heart className="mx-1 h-4 w-4 text-red-400" /> by{" "}
-                            <Link
-                                className="ml-1 text-purple-300 hover:underline"
-                                href="https://github.com/MikaStiebitz"
-                                passHref>
-                                Mika Stiebitz
-                            </Link>
-                        </span>
-                        <span className="mx-2 hidden sm:inline">|</span>
-                        <Link href="/impressum" className="mt-1 text-purple-300 hover:underline sm:mt-0">
+            <div className="border-gm-line border-t-2">
+                <div className="container mx-auto grid gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12">
+                    {/* Mark and sign-off */}
+                    <div className="max-w-sm">
+                        <Link
+                            href="/"
+                            className="group focus-visible:outline-gm-cyan inline-flex items-center gap-2 rounded-lg focus-visible:outline-3 focus-visible:outline-offset-4">
+                            <span className="border-gm-grape-edge bg-gm-grape text-gm-ink group-hover:border-gm-lime-edge group-hover:bg-gm-lime group-hover:text-gm-void flex h-9 w-9 items-center justify-center rounded-[0.7rem] border-2 transition-colors duration-150">
+                                <GitBranch className="h-5 w-5" aria-hidden="true" />
+                            </span>
+                            <span className="font-display text-gm-ink text-lg">GitMastery</span>
+                        </Link>
+
+                        <p
+                            className="border-gm-line bg-gm-night text-gm-ink-dim mt-4 inline-flex items-center gap-2 rounded-[0.7rem] border-2 px-3 py-1.5 [font-family:var(--font-code)] text-xs"
+                            aria-hidden="true">
+                            <span className="text-gm-lime font-bold">$</span>
+                            git gud
+                        </p>
+                    </div>
+
+                    {/* Destinations */}
+                    <nav aria-label={t("nav.home")}>
+                        <ul className="flex flex-col gap-1">
+                            {links.map(({ href, label, icon: Icon }) => (
+                                <li key={href}>
+                                    <Link
+                                        href={href}
+                                        className="text-gm-ink-soft hover:text-gm-lime focus-visible:outline-gm-cyan -ms-2 inline-flex min-h-9 items-center gap-2.5 rounded-[0.7rem] px-2 text-sm font-semibold transition-colors duration-150 focus-visible:outline-3 focus-visible:-outline-offset-2">
+                                        <Icon className="text-gm-ink-dim h-4 w-4" aria-hidden="true" />
+                                        {label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+
+                    {/* Project */}
+                    <div className="flex flex-col gap-1">
+                        <a
+                            href="https://github.com/MikaStiebitz/Git-Mastery"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gm-ink-soft hover:text-gm-lime focus-visible:outline-gm-cyan -ms-2 inline-flex min-h-9 items-center gap-2.5 rounded-[0.7rem] px-2 text-sm font-semibold transition-colors duration-150 focus-visible:outline-3 focus-visible:-outline-offset-2">
+                            <Github className="text-gm-ink-dim h-4 w-4" aria-hidden="true" />
+                            GitHub
+                        </a>
+                        <Link
+                            href="/impressum"
+                            className="text-gm-ink-soft hover:text-gm-lime focus-visible:outline-gm-cyan -ms-2 inline-flex min-h-9 items-center gap-2.5 rounded-[0.7rem] px-2 text-sm font-semibold transition-colors duration-150 focus-visible:outline-3 focus-visible:-outline-offset-2">
+                            <Scale className="text-gm-ink-dim h-4 w-4" aria-hidden="true" />
                             {t("footer.legalNotice")}
+                        </Link>
+                    </div>
+                </div>
+
+                <div className="border-gm-line border-t-2">
+                    <p className="text-gm-ink-dim container mx-auto flex flex-wrap items-center justify-center gap-1 px-4 py-4 text-center text-xs">
+                        Git Mastery — made with
+                        <Heart className="fill-gm-coral text-gm-coral h-3.5 w-3.5" aria-hidden="true" />
+                        by
+                        <Link
+                            className="text-gm-ink-soft hover:text-gm-lime focus-visible:outline-gm-cyan rounded font-semibold underline-offset-4 transition-colors duration-150 hover:underline focus-visible:outline-3 focus-visible:outline-offset-2"
+                            href="https://github.com/MikaStiebitz">
+                            Mika Stiebitz
                         </Link>
                     </p>
                 </div>

@@ -20,17 +20,22 @@ interface TerminalTheme {
 
 const TERMINAL_THEMES: TerminalTheme[] = [
     {
+        // The default theme is the arcade design system itself, so it reads as the same
+        // object as the landing page terminal. The purchasable themes below keep their own
+        // literal colours untouched.
         id: "default",
         name: "Default Purple",
         colors: {
-            background: "#1a1625",
-            text: "#e5e4e2",
-            accent: "#a855f7",
-            border: "#7c3aed",
-            prompt: "#a855f7",
-            success: "#22c55e",
-            error: "#ef4444",
-            warning: "#f59e0b",
+            background: "var(--color-gm-night)",
+            text: "var(--color-gm-ink)",
+            // Cyan, not grape-hi: grape-hi is a graphics colour and fails as terminal text.
+            // Gold stays reserved for points, so "needs attention" is coral.
+            accent: "var(--color-gm-cyan)",
+            border: "var(--color-gm-line)",
+            prompt: "var(--color-gm-lime)",
+            success: "var(--color-gm-lime)",
+            error: "var(--color-gm-coral)",
+            warning: "var(--color-gm-coral)",
         },
     },
     {

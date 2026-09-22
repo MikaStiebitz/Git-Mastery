@@ -8,20 +8,22 @@ export function highlightGitCommands(text: string) {
     return parts.map((part, index) => {
         if (part.startsWith("`") && part.endsWith("`")) {
             const command = part.slice(1, -1);
-            // Check if it's a git command
+            // Check if it's a git command — a command is lime, like in the terminal
             if (command.toLowerCase().includes("git ")) {
                 return (
                     <span
                         key={index}
-                        className="inline-flex items-center rounded-md border border-gray-700 bg-gray-900 px-2 py-1 font-mono text-sm text-green-400 shadow-md">
-                        <Terminal className="mr-1 h-3 w-3" />
+                        className="border-gm-lime-edge bg-gm-void text-gm-lime inline-flex items-center gap-1 rounded-[0.5rem] border-2 px-2 py-0.5 [font-family:var(--font-code)] text-sm">
+                        <Terminal className="h-3 w-3 flex-shrink-0" aria-hidden="true" />
                         {command}
                     </span>
                 );
             }
             // Regular code highlighting for non-git commands
             return (
-                <code key={index} className="rounded bg-purple-800/40 px-1.5 py-0.5 font-mono text-sm text-purple-300">
+                <code
+                    key={index}
+                    className="bg-gm-deep text-gm-ink rounded-[0.5rem] px-1.5 py-0.5 [font-family:var(--font-code)] text-sm">
                     {command}
                 </code>
             );
@@ -35,7 +37,7 @@ export function highlightGitCommands(text: string) {
                     {boldParts.map((boldPart, boldIndex) => {
                         if (boldPart.startsWith("**") && boldPart.endsWith("**")) {
                             return (
-                                <strong key={`${index}-${boldIndex}`} className="font-semibold text-purple-100">
+                                <strong key={`${index}-${boldIndex}`} className="text-gm-ink font-semibold">
                                     {boldPart.slice(2, -2)}
                                 </strong>
                             );

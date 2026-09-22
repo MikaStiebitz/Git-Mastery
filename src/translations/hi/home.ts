@@ -31,6 +31,9 @@ const home = {
     "home.feature3.title": "अनुकूलन",
     "home.feature3.description":
         "थीम, ध्वनियों और अन्य अनलॉक करने योग्य आइटम के साथ अपने अनुभव को व्यक्तिगत बनाएं। इसे वास्तव में अपनी सीखने की यात्रा बनाएं।",
+    "home.continue": "जारी रखें",
+    "home.demoLabel":
+        "लाइव डेमो: feature ब्रांच पर एक commit, main पर एक commit, फिर merge. हर कमांड के साथ commit ग्राफ़ बढ़ता है।",
 };
 
 export default home;

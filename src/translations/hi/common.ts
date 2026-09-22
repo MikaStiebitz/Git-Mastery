@@ -122,7 +122,8 @@ const common = {
     "shop.item.proTips.name": "प्रो Git टिप्स",
     "shop.item.proTips.description": "उपयोगी Git कमांड और ट्रिक्स अनलॉक करें - Git विशेषज्ञों से छुपा ज्ञान",
     "shop.item.gitLegend.name": "Git लीजेंड बैज",
-    "shop.item.gitLegend.description": "विशेष बैज जो दिखाता है कि आपने उन्नत Git में महारत हासिल की है - विशेष मान्यता अनलॉक करें",
+    "shop.item.gitLegend.description":
+        "विशेष बैज जो दिखाता है कि आपने उन्नत Git में महारत हासिल की है - विशेष मान्यता अनलॉक करें",
 
     // Pro Tip Dialog
     "shop.proTip.title": "प्रो Git टिप",
@@ -144,6 +145,8 @@ const common = {
     "shop.rarity.rare": "दुर्लभ",
     "shop.rarity.epic": "महाकाव्य",
     "shop.rarity.legendary": "पौराणिक",
+    "common.copy": "कॉपी करें",
+    "common.copied": "कॉपी हो गया",
 };
 
 export default common;

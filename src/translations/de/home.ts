@@ -31,6 +31,9 @@ const home = {
     "home.feature3.title": "Anpassung",
     "home.feature3.description":
         "Personalisieren Sie Ihre Erfahrung mit Themes, Sounds und anderen freischaltbaren Elementen. Machen Sie es zu Ihrer eigenen Lernreise.",
+    "home.continue": "Weiterspielen",
+    "home.demoLabel":
+        "Live-Demo: ein Commit auf einem Feature-Branch, ein Commit auf main, dann ein Merge. Der Commit-Graph wächst mit jedem Befehl.",
 };
 
 export default home;

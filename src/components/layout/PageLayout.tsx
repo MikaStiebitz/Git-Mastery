@@ -9,7 +9,7 @@ interface PageLayoutProps {
 
 export function PageLayout({ children, showLevelInfo = false }: PageLayoutProps) {
     return (
-        <div className="flex min-h-screen flex-col bg-[#1a1625] text-purple-100">
+        <div className="bg-gm-void text-gm-ink flex min-h-screen flex-col">
             <Navbar showLevelInfo={showLevelInfo} />
             <main className="flex-grow">{children}</main>
             <Footer />

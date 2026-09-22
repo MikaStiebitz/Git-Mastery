@@ -118,11 +118,13 @@ const common = {
     "shop.item.doubleXp.name": "آخر هفته دو برابر XP",
     "shop.item.doubleXp.description": "برای 7 روز آینده 2 برابر امتیاز برای تکمیل سطوح دریافت کنید",
     "shop.item.emojiCommits.name": "پیام‌های کامیت ایموجی",
-    "shop.item.emojiCommits.description": "پیشنهادهای ایموجی سرگرم‌کننده را به پیام‌های کامیت خود اضافه کنید برای تاریخچه Git بهتر",
+    "shop.item.emojiCommits.description":
+        "پیشنهادهای ایموجی سرگرم‌کننده را به پیام‌های کامیت خود اضافه کنید برای تاریخچه Git بهتر",
     "shop.item.proTips.name": "نکات حرفه‌ای Git",
     "shop.item.proTips.description": "دستورات و ترفندهای مفید Git را باز کنید - دانش پنهان از متخصصان Git",
     "shop.item.gitLegend.name": "نشان افسانه Git",
-    "shop.item.gitLegend.description": "نشان انحصاری که نشان می‌دهد شما Git پیشرفته را تسلط دارید - باز کردن شناخت ویژه",
+    "shop.item.gitLegend.description":
+        "نشان انحصاری که نشان می‌دهد شما Git پیشرفته را تسلط دارید - باز کردن شناخت ویژه",
 
     // Pro Tip Dialog
     "shop.proTip.title": "نکته حرفه‌ای Git",
@@ -144,6 +146,8 @@ const common = {
     "shop.rarity.rare": "نادر",
     "shop.rarity.epic": "حماسی",
     "shop.rarity.legendary": "افسانه‌ای",
+    "common.copy": "کپی",
+    "common.copied": "کپی شد",
 };
 
 export default common;

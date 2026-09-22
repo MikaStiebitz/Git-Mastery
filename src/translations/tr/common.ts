@@ -149,6 +149,8 @@ const common = {
     "shop.rarity.rare": "Nadir",
     "shop.rarity.epic": "Epik",
     "shop.rarity.legendary": "Efsanevi",
+    "common.copy": "Kopyala",
+    "common.copied": "Kopyalandı",
 };
 
 export default common;

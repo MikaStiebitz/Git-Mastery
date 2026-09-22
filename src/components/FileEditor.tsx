@@ -78,52 +78,38 @@ export function FileEditor({ isOpen, onClose, fileName, initialContent = "" }: F
 
     return (
         <Dialog open={isOpen} onOpenChange={handleCancel}>
-            <DialogContent
-                className="flex h-[92vh] max-h-[92vh] w-[95vw] max-w-[95vw] flex-col border-purple-900/20 bg-[#1a1625] p-3 text-purple-100 sm:h-[85vh] sm:max-h-[85vh] sm:w-[90vw] sm:max-w-[90vw] sm:p-6 md:h-[80vh] md:max-h-[80vh] md:max-w-5xl"
-                onKeyDown={handleKeyDown}
-                // Remove the built-in X button by overriding its CSS
-                style={
-                    {
-                        "--close-button-display": "none",
-                    } as React.CSSProperties
-                }>
-                <DialogHeader className="mb-2 flex flex-shrink-0 flex-row items-center justify-between">
-                    <DialogTitle className="mr-2 flex items-center text-sm text-white sm:text-base">
-                        <span className="max-w-[120px] truncate sm:max-w-[200px] md:max-w-md">{fileName}</span>
-                        <span className="ml-2 text-xs text-purple-400">
-                            {isDirty ? `(${t("editor.unsaved")})` : ""}
+            <DialogContent className="h-[88svh] sm:max-w-4xl" onKeyDown={handleKeyDown}>
+                <DialogHeader className="shrink-0">
+                    <DialogTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
+                        <span className="font-code min-w-0 truncate" title={fileName}>
+                            {fileName}
                         </span>
+                        {isDirty && (
+                            <span className="gm-chip border-gm-coral-edge text-gm-coral">{t("editor.unsaved")}</span>
+                        )}
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="relative min-h-0 flex-grow overflow-hidden rounded border border-purple-800/30">
-                    <div className="absolute left-0 top-0 z-10 w-full bg-purple-900/50 px-2 py-1 text-xs text-purple-300 sm:px-3">
-                        {t("editor.fileContent")}
-                    </div>
+                <div className="mt-4 flex min-h-0 flex-1 flex-col gap-2">
+                    <p className="text-gm-ink-dim text-xs font-semibold">{t("editor.fileContent")}</p>
                     <Textarea
                         value={content}
                         onChange={handleContentChange}
-                        className="h-full w-full resize-none bg-purple-900/10 pt-7 font-mono text-xs text-purple-200 focus-visible:ring-purple-500 sm:text-sm"
+                        className="font-code h-full min-h-0 w-full flex-1 resize-none text-xs sm:text-sm"
                         autoFocus={!isMobileDevice()}
                         onKeyDown={handleKeyDown}
-                        style={{ minHeight: 0 }}
                     />
                 </div>
 
-                <DialogFooter className="mt-2 flex flex-shrink-0 flex-col-reverse gap-2 sm:flex-row sm:justify-between">
-                    <div className="hidden text-xs text-purple-400 md:block">{t("editor.escToCancel")}</div>
-                    <div className="flex w-full gap-2 sm:w-auto">
-                        <Button
-                            variant="outline"
-                            onClick={handleCancel}
-                            className="flex-1 border-purple-700 text-purple-400 hover:bg-purple-900/30 sm:flex-auto">
+                <DialogFooter className="shrink-0 sm:justify-between">
+                    <p className="font-code text-gm-ink-dim hidden text-xs md:block">{t("editor.escToCancel")}</p>
+                    <div className="flex w-full flex-col-reverse gap-2 sm:w-auto sm:flex-row">
+                        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto">
                             {t("editor.cancel")}
                         </Button>
-                        <Button
-                            onClick={handleSave}
-                            className="flex-1 bg-purple-600 text-white hover:bg-purple-700 sm:flex-auto">
-                            <Save className="mr-1 h-4 w-4 sm:mr-2" />
-                            <span className="text-sm sm:text-base">{t("editor.save")}</span>
+                        <Button onClick={handleSave} className="w-full sm:w-auto">
+                            <Save className="h-4 w-4" aria-hidden="true" />
+                            {t("editor.save")}
                         </Button>
                     </div>
                 </DialogFooter>

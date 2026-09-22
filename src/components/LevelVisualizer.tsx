@@ -5,6 +5,8 @@ import { gsap } from "gsap";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { buildCommitGraph, type GraphNode } from "~/lib/buildCommitGraph";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import { GitBranch, GitCommit, ZoomIn, ZoomOut, Maximize2, X, Sparkles } from "lucide-react";
 
 // ── Layout constants ────────────────────────────────────────────────────────
@@ -17,16 +19,14 @@ const PAD_BOTTOM = 36;
 const BADGE_W_CHAR = 7.2;
 const BADGE_H = 22;
 
-// Lane palette tuned to the app's dark purple theme
+// Lane palette straight out of the Git legend, so a lane's colour always means the same
+// thing: the first lane is `main` (grape), the ones branching off it are feature (cyan),
+// fix (coral) and commit (lime). Gold stays reserved for points and never shows up here.
 const LANE_COLORS = [
-    "#a78bfa", // violet — main lane
-    "#38bdf8", // sky
-    "#34d399", // emerald
-    "#fbbf24", // amber
-    "#f472b6", // pink
-    "#22d3ee", // cyan
-    "#fb923c", // orange
-    "#a3e635", // lime
+    "var(--color-gm-grape-hi)",
+    "var(--color-gm-cyan)",
+    "var(--color-gm-coral)",
+    "var(--color-gm-lime)",
 ];
 
 const laneColor = (col: number): string => LANE_COLORS[col % LANE_COLORS.length]!;
@@ -43,7 +43,7 @@ interface LevelVisualizerProps {
 /**
  * Interactive, animated commit-graph of the player's current repository state.
  * Renders live after every terminal command: new commits pop in, edges draw
- * themselves and the HEAD halo pulses. Nodes are tappable for details and
+ * themselves and HEAD keeps a ring around it. Nodes are tappable for details and
  * branch badges highlight their history — a visual path through the level.
  */
 export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
@@ -132,8 +132,8 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                     gsap.from(nodeEls, {
                         scale: 0,
                         transformOrigin: "center center",
-                        ease: "back.out(2)",
-                        duration: 0.55,
+                        ease: "power3.out",
+                        duration: 0.45,
                         stagger: 0.07,
                     });
                 }
@@ -150,21 +150,11 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                 gsap.from(badgeEls, { opacity: 0, x: -8, duration: 0.4, ease: "power2.out", stagger: 0.04 });
             }
 
-            // Pulsing halo around HEAD
+            // The HEAD marker is a static ring, not a pulse: it says where the player is,
+            // and a permanently throbbing halo is decoration the design system rules out.
             const halo = container.querySelector("[data-head-halo]");
             if (halo && !reduced) {
-                gsap.fromTo(
-                    halo,
-                    { scale: 1, opacity: 0.55, transformOrigin: "center center" },
-                    {
-                        scale: 1.7,
-                        opacity: 0,
-                        duration: 1.6,
-                        ease: "power1.out",
-                        repeat: -1,
-                        repeatDelay: 0.35,
-                    },
-                );
+                gsap.from(halo, { scale: 0.75, opacity: 0, transformOrigin: "center center", duration: 0.4 });
             }
         }, container);
 
@@ -231,24 +221,30 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
     if (!initialized || rowCount === 0) {
         return (
             <div
-                className={`flex h-full min-h-[280px] flex-col items-center justify-center rounded-lg border border-purple-800/30 bg-[#151022]/60 p-6 text-center ${className}`}>
-                <svg width="120" height="120" viewBox="0 0 120 120" className="mb-4 opacity-70">
+                className={`gm-inset flex h-full min-h-[280px] flex-col items-center justify-center p-6 text-center ${className}`}>
+                <svg width="120" height="120" viewBox="0 0 120 120" className="mb-4" aria-hidden="true">
                     <path
                         d="M60 96 L60 62 M60 62 C60 40 40 48 40 28 M60 62 C60 40 80 48 80 28"
-                        stroke="#7c3aed"
+                        stroke="var(--color-gm-grape-edge)"
                         strokeWidth="2.5"
                         strokeDasharray="5 6"
                         fill="none"
-                        strokeLinecap="round">
-                        <animate attributeName="stroke-dashoffset" from="44" to="0" dur="3s" repeatCount="indefinite" />
-                    </path>
-                    <circle cx="60" cy="96" r="9" fill="#1e1633" stroke="#a78bfa" strokeWidth="2.5" />
+                        strokeLinecap="round"
+                    />
+                    <circle
+                        cx="60"
+                        cy="96"
+                        r="9"
+                        fill="var(--color-gm-night)"
+                        stroke="var(--color-gm-grape-hi)"
+                        strokeWidth="2.5"
+                    />
                     <circle
                         cx="40"
                         cy="28"
                         r="9"
-                        fill="#1e1633"
-                        stroke="#7c3aed"
+                        fill="var(--color-gm-night)"
+                        stroke="var(--color-gm-grape-edge)"
                         strokeWidth="2.5"
                         strokeDasharray="3 4"
                     />
@@ -256,14 +252,14 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                         cx="80"
                         cy="28"
                         r="9"
-                        fill="#1e1633"
-                        stroke="#7c3aed"
+                        fill="var(--color-gm-night)"
+                        stroke="var(--color-gm-grape-edge)"
                         strokeWidth="2.5"
                         strokeDasharray="3 4"
                     />
                 </svg>
-                <h3 className="mb-1 text-base font-semibold text-purple-100">{t("visualizer.emptyTitle")}</h3>
-                <p className="max-w-xs text-sm text-purple-300/80">
+                <h3 className="text-gm-ink mb-1 text-base font-semibold">{t("visualizer.emptyTitle")}</h3>
+                <p className="text-gm-ink-soft max-w-xs text-sm">
                     {initialized ? t("visualizer.emptyCommitHint") : t("visualizer.emptyInitHint")}
                 </p>
             </div>
@@ -274,59 +270,72 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
         <div className={`flex h-full flex-col ${className}`}>
             {/* Toolbar: branch chips + zoom controls */}
             <div className="mb-2 flex flex-wrap items-center gap-2">
-                <div className="flex flex-wrap items-center gap-1.5">
+                <ul className="flex flex-wrap items-center gap-1.5">
                     {Object.keys(branchHeads).map(branch => {
                         const isCurrent = branch === currentBranch;
                         const isHighlighted = branch === highlightBranch;
                         return (
-                            <button
-                                key={branch}
-                                onClick={() => setHighlightBranch(isHighlighted ? null : branch)}
-                                className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[11px] transition-all ${
-                                    isHighlighted
-                                        ? "border-purple-400 bg-purple-500/30 text-purple-100 shadow-[0_0_12px_rgba(167,139,250,0.35)]"
-                                        : isCurrent
-                                          ? "border-purple-500/60 bg-purple-900/40 text-purple-200"
-                                          : "border-purple-800/50 bg-purple-950/40 text-purple-400 hover:border-purple-600/60 hover:text-purple-200"
-                                }`}
-                                title={t("visualizer.branchFilterHint")}>
-                                <GitBranch className="h-3 w-3" />
-                                {branch}
-                                {isCurrent && <Sparkles className="h-2.5 w-2.5 text-amber-300" />}
-                            </button>
+                            <li key={branch}>
+                                {/* The branch HEAD sits on is lime, like every other "you are
+                                    here" marker in the game; an active filter reads as a
+                                    pressed keycap rather than as a second colour. */}
+                                <button
+                                    type="button"
+                                    aria-pressed={isHighlighted}
+                                    onClick={() => setHighlightBranch(isHighlighted ? null : branch)}
+                                    className={`focus-visible:outline-gm-cyan flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full border-2 px-3 [font-family:var(--font-code)] text-[11px] transition-[transform,box-shadow,border-color,color,filter] duration-150 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:outline-offset-4 motion-reduce:transition-none ${
+                                        isCurrent
+                                            ? "border-gm-lime-edge bg-gm-lime text-gm-void hover:brightness-105"
+                                            : "border-gm-line bg-gm-void text-gm-ink-soft hover:border-gm-grape-hi hover:text-gm-ink"
+                                    } ${
+                                        isHighlighted
+                                            ? isCurrent
+                                                ? "translate-y-[3px] shadow-[0_1px_0_var(--color-gm-lime-edge)]"
+                                                : "translate-y-[3px] shadow-[0_1px_0_var(--color-gm-line)]"
+                                            : isCurrent
+                                              ? "shadow-[0_4px_0_var(--color-gm-lime-edge)]"
+                                              : "shadow-[0_4px_0_var(--color-gm-line)]"
+                                    }`}
+                                    title={t("visualizer.branchFilterHint")}>
+                                    <GitBranch className="h-3 w-3 shrink-0" aria-hidden="true" />
+                                    {branch}
+                                    {isCurrent && <Sparkles className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />}
+                                </button>
+                            </li>
                         );
                     })}
-                </div>
-                <div className="ml-auto flex items-center gap-1">
-                    <span className="mr-1 hidden items-center gap-1 font-mono text-[11px] text-purple-400 sm:flex">
-                        <GitCommit className="h-3 w-3" />
+                </ul>
+                <div className="ms-auto flex items-center gap-1">
+                    <span className="text-gm-ink-dim me-1 hidden items-center gap-1 [font-family:var(--font-code)] text-[11px] tabular-nums sm:flex">
+                        <GitCommit className="h-3 w-3" aria-hidden="true" />
                         {rowCount}
                     </span>
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => applyZoom(zoom - 0.15)}
-                        aria-label={t("visualizer.zoomOut")}
-                        className="rounded-md border border-purple-800/50 bg-purple-950/40 p-1 text-purple-300 transition-colors hover:bg-purple-800/40">
-                        <ZoomOut className="h-3.5 w-3.5" />
-                    </button>
-                    <button
+                        disabled={zoom <= 0.45}
+                        aria-label={t("visualizer.zoomOut")}>
+                        <ZoomOut className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => applyZoom(zoom + 0.15)}
-                        aria-label={t("visualizer.zoomIn")}
-                        className="rounded-md border border-purple-800/50 bg-purple-950/40 p-1 text-purple-300 transition-colors hover:bg-purple-800/40">
-                        <ZoomIn className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                        onClick={fitToView}
-                        aria-label={t("visualizer.fit")}
-                        className="rounded-md border border-purple-800/50 bg-purple-950/40 p-1 text-purple-300 transition-colors hover:bg-purple-800/40">
-                        <Maximize2 className="h-3.5 w-3.5" />
-                    </button>
+                        disabled={zoom >= 1.6}
+                        aria-label={t("visualizer.zoomIn")}>
+                        <ZoomIn className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={fitToView} aria-label={t("visualizer.fit")}>
+                        <Maximize2 className="h-4 w-4" aria-hidden="true" />
+                    </Button>
                 </div>
             </div>
 
             {/* Graph canvas */}
             <div
                 ref={containerRef}
-                className="relative flex-1 overflow-auto rounded-lg border border-purple-800/30 bg-[#120d1e]/80 [background-image:radial-gradient(rgba(167,139,250,0.08)_1px,transparent_1px)] [background-size:22px_22px]"
+                className="gm-inset gm-scroll relative flex-1 overflow-auto [background-image:radial-gradient(var(--color-gm-grape-edge)_1px,transparent_1.1px)] [background-size:22px_22px]"
                 onClick={() => setSelected(null)}>
                 <div
                     ref={stageRef}
@@ -336,7 +345,7 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                         width: svgWidth,
                         height: svgHeight,
                     }}
-                    className="transition-transform duration-300 ease-out">
+                    className="transition-transform duration-300 ease-[var(--ease-out-expo)] motion-reduce:transition-none">
                     <svg width={svgWidth} height={svgHeight} className="overflow-visible select-none">
                         <defs>
                             {LANE_COLORS.map((c, i) => (
@@ -394,6 +403,8 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                             const isSelected = selected?.id === node.id;
                             return (
                                 <g key={node.id} data-node-group={node.id}>
+                                    {/* HEAD is lime everywhere in the game, so the ring that marks
+                                        the player's position is lime rather than lane-coloured. */}
                                     {node.isHead && (
                                         <circle
                                             data-head-halo
@@ -401,14 +412,24 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                             cy={y}
                                             r={R + 4}
                                             fill="none"
-                                            stroke={color}
+                                            stroke="var(--color-gm-lime)"
                                             strokeWidth={2}
                                         />
                                     )}
                                     <g
                                         data-node-id={node.id}
-                                        className="cursor-pointer"
+                                        role="button"
+                                        tabIndex={0}
+                                        aria-label={`${commitLabel(node)} ${node.shortId}`}
+                                        aria-pressed={isSelected}
+                                        className="focus-visible:outline-gm-cyan cursor-pointer focus-visible:outline-3 focus-visible:outline-offset-2"
                                         onClick={e => {
+                                            e.stopPropagation();
+                                            setSelected(isSelected ? null : node);
+                                        }}
+                                        onKeyDown={e => {
+                                            if (e.key !== "Enter" && e.key !== " ") return;
+                                            e.preventDefault();
                                             e.stopPropagation();
                                             setSelected(isSelected ? null : node);
                                         }}>
@@ -416,17 +437,10 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                             cx={x}
                                             cy={y}
                                             r={R}
-                                            fill={isSelected ? color : "#1e1633"}
+                                            fill={isSelected ? color : "var(--color-gm-night)"}
                                             stroke={color}
                                             strokeWidth={node.isMergeCommit ? 3.5 : 2.5}
                                             strokeDasharray={node.isMergeCommit ? "4 3" : undefined}
-                                            style={
-                                                isSelected
-                                                    ? { filter: `drop-shadow(0 0 8px ${color})` }
-                                                    : node.isHead
-                                                      ? { filter: `drop-shadow(0 0 5px ${color}66)` }
-                                                      : undefined
-                                            }
                                         />
                                         <text
                                             x={x}
@@ -434,9 +448,8 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                             textAnchor="middle"
                                             fontSize={10}
                                             fontWeight={700}
-                                            fill={isSelected ? "#14101e" : color}
-                                            fontFamily="monospace"
-                                            className="pointer-events-none">
+                                            fill={isSelected ? "var(--color-gm-void)" : "var(--color-gm-ink)"}
+                                            className="pointer-events-none [font-family:var(--font-code)]">
                                             {commitLabel(node)}
                                         </text>
                                     </g>
@@ -452,15 +465,26 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                             <g
                                                 key={branch}
                                                 data-badge
-                                                className="cursor-pointer"
+                                                role="button"
+                                                tabIndex={0}
+                                                aria-label={branch}
+                                                aria-pressed={highlightBranch === branch}
+                                                className="focus-visible:outline-gm-cyan cursor-pointer focus-visible:outline-3 focus-visible:outline-offset-2"
                                                 onClick={e => {
+                                                    e.stopPropagation();
+                                                    setHighlightBranch(highlightBranch === branch ? null : branch);
+                                                }}
+                                                onKeyDown={e => {
+                                                    if (e.key !== "Enter" && e.key !== " ") return;
+                                                    e.preventDefault();
                                                     e.stopPropagation();
                                                     setHighlightBranch(highlightBranch === branch ? null : branch);
                                                 }}>
                                                 <path
                                                     d={`M ${bx - 7} ${y} L ${bx} ${y - 5} L ${bx} ${y + 5} z`}
-                                                    fill={isCurrentHead ? color : "#2d2344"}
-                                                    opacity={0.95}
+                                                    fill={
+                                                        isCurrentHead ? "var(--color-gm-lime)" : "var(--color-gm-deep)"
+                                                    }
                                                 />
                                                 <rect
                                                     x={bx}
@@ -468,10 +492,11 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                                     width={w}
                                                     height={BADGE_H}
                                                     rx={BADGE_H / 2}
-                                                    fill={isCurrentHead ? color : "#2d2344"}
-                                                    stroke={color}
-                                                    strokeWidth={isCurrentHead ? 0 : 1}
-                                                    opacity={0.95}
+                                                    fill={
+                                                        isCurrentHead ? "var(--color-gm-lime)" : "var(--color-gm-deep)"
+                                                    }
+                                                    stroke={isCurrentHead ? "var(--color-gm-lime-edge)" : color}
+                                                    strokeWidth={2}
                                                 />
                                                 <text
                                                     x={bx + w / 2}
@@ -479,9 +504,10 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                                     textAnchor="middle"
                                                     fontSize={11}
                                                     fontWeight={isCurrentHead ? 700 : 500}
-                                                    fill={isCurrentHead ? "#14101e" : color}
-                                                    fontFamily="monospace"
-                                                    className="pointer-events-none">
+                                                    fill={
+                                                        isCurrentHead ? "var(--color-gm-void)" : "var(--color-gm-ink)"
+                                                    }
+                                                    className="pointer-events-none [font-family:var(--font-code)]">
                                                     {label}
                                                 </text>
                                             </g>
@@ -498,60 +524,56 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                     <div
                         ref={detailRef}
                         onClick={e => e.stopPropagation()}
-                        className="sticky right-2 bottom-2 left-2 mx-2 mb-2 rounded-lg border border-purple-700/50 bg-[#1b1430]/95 p-3 shadow-xl shadow-purple-950/50 backdrop-blur-sm">
+                        className="gm-panel sticky start-2 end-2 bottom-2 mx-2 mb-2 p-3 shadow-[0_4px_0_var(--color-gm-line)]">
                         <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <span
-                                        className="rounded px-1.5 py-0.5 font-mono text-[11px] font-bold"
-                                        style={{
-                                            backgroundColor: `${laneColor(selected.col)}22`,
-                                            color: laneColor(selected.col),
-                                        }}>
+                                    <Badge
+                                        variant="outline"
+                                        className="border-2 [font-family:var(--font-code)] font-bold"
+                                        style={{ borderColor: laneColor(selected.col) }}>
                                         {commitLabel(selected)} · {selected.shortId}
-                                    </span>
+                                    </Badge>
                                     {selected.isHead && (
-                                        <span className="rounded bg-purple-500/25 px-1.5 py-0.5 font-mono text-[11px] font-bold text-purple-200">
-                                            HEAD
-                                        </span>
+                                        <Badge className="[font-family:var(--font-code)] font-bold">HEAD</Badge>
                                     )}
                                     {selected.isMergeCommit && (
-                                        <span className="rounded bg-pink-500/20 px-1.5 py-0.5 font-mono text-[11px] text-pink-300">
+                                        <Badge variant="info" className="[font-family:var(--font-code)]">
                                             {t("visualizer.mergeCommit")}
-                                        </span>
+                                        </Badge>
                                     )}
                                 </div>
-                                <p className="mt-1.5 truncate text-sm font-medium text-purple-100">
-                                    {selected.message}
-                                </p>
-                                <p className="mt-0.5 text-xs text-purple-400">
+                                <p className="text-gm-ink mt-1.5 truncate text-sm font-semibold">{selected.message}</p>
+                                <p className="text-gm-ink-dim mt-0.5 text-xs">
                                     {selected.author} · {selected.timestamp.toLocaleString()}
                                 </p>
                                 {selected.branches.length > 0 && (
-                                    <div className="mt-1.5 flex flex-wrap gap-1">
+                                    <ul className="mt-1.5 flex flex-wrap gap-1">
                                         {selected.branches.map(b => (
-                                            <span
+                                            <li
                                                 key={b}
-                                                className="flex items-center gap-1 rounded-full border border-purple-700/50 bg-purple-950/60 px-2 py-0.5 font-mono text-[10px] text-purple-300">
-                                                <GitBranch className="h-2.5 w-2.5" />
+                                                className="border-gm-line bg-gm-void text-gm-ink-soft flex items-center gap-1 rounded-full border-2 px-2 py-0.5 [font-family:var(--font-code)] text-[10px]">
+                                                <GitBranch className="h-2.5 w-2.5" aria-hidden="true" />
                                                 {b}
-                                            </span>
+                                            </li>
                                         ))}
-                                    </div>
+                                    </ul>
                                 )}
                             </div>
-                            <button
+                            <Button
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => setSelected(null)}
                                 aria-label={t("visualizer.close")}
-                                className="shrink-0 rounded-md p-1 text-purple-400 transition-colors hover:bg-purple-800/40 hover:text-purple-200">
-                                <X className="h-4 w-4" />
-                            </button>
+                                className="shrink-0">
+                                <X className="h-4 w-4" aria-hidden="true" />
+                            </Button>
                         </div>
                     </div>
                 )}
             </div>
 
-            <p className="mt-2 text-center text-[11px] text-purple-500/80">{t("visualizer.interactHint")}</p>
+            <p className="text-gm-ink-dim mt-2 text-center text-[11px]">{t("visualizer.interactHint")}</p>
         </div>
     );
 }

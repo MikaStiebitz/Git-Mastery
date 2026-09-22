@@ -31,6 +31,9 @@ const home = {
     "home.feature3.title": "سفارشی‌سازی",
     "home.feature3.description":
         "تجربه خود را با تم‌ها، صداها و سایر موارد قابل باز کردن شخصی‌سازی کنید. آن را به یک سفر یادگیری واقعی خود تبدیل کنید.",
+    "home.continue": "ادامه",
+    "home.demoLabel":
+        "دموی زنده: یک commit روی شاخه feature، یک commit روی main و سپس merge. گراف commitها با هر دستور رشد می‌کند.",
 };
 
 export default home;

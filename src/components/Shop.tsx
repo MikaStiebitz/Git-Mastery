@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
-import { ShoppingCart, Star, Zap, Trophy, Coins, Sparkles, Gamepad2, Lightbulb } from "lucide-react";
+import { Badge } from "~/components/ui/badge";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "~/components/ui/dialog";
+import { ShoppingCart, Star, Zap, Trophy, Coins, Sparkles, Gamepad2, Lightbulb, Check, Ban } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { getRandomGitTip } from "~/lib/ProGitTips";
@@ -23,6 +30,25 @@ interface ShopProps {
     isOpen: boolean;
     onClose: () => void;
 }
+
+/**
+ * Rarity is a shop concept, not a Git one, so it rides the neutral / info / brand / reward
+ * end of the palette. Lime and coral stay reserved for "owned" and "can't afford", which are
+ * the two states a player actually acts on.
+ */
+const rarityBadgeVariant = {
+    common: "outline",
+    rare: "info",
+    epic: "secondary",
+    legendary: "reward",
+} as const;
+
+const rarityIconColor = {
+    common: "text-gm-ink-dim",
+    rare: "text-gm-cyan",
+    epic: "text-gm-grape-hi",
+    legendary: "text-gm-gold",
+} as const;
 
 export function Shop({ isOpen, onClose }: ShopProps) {
     const { progressManager } = useGameContext();
@@ -166,201 +192,158 @@ export function Shop({ isOpen, onClose }: ShopProps) {
         }
     };
 
-    const getRarityColor = (rarity: ShopItem["rarity"]) => {
-        switch (rarity) {
-            case "common":
-                return "text-gray-400 border-gray-600";
-            case "rare":
-                return "text-blue-400 border-blue-600";
-            case "epic":
-                return "text-purple-400 border-purple-600";
-            case "legendary":
-                return "text-yellow-400 border-yellow-600";
-        }
-    };
-
-    const getRarityBg = (rarity: ShopItem["rarity"]) => {
-        switch (rarity) {
-            case "common":
-                return "bg-gray-900/20";
-            case "rare":
-                return "bg-blue-900/20";
-            case "epic":
-                return "bg-purple-900/20";
-            case "legendary":
-                return "bg-yellow-900/20";
-        }
-    };
-
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="mx-2 flex max-h-[90vh] w-[calc(100vw-1rem)] max-w-4xl flex-col overflow-hidden border-purple-900/20 bg-[#1a1625] text-purple-100 sm:mx-6 sm:w-[calc(100vw-3rem)] md:mx-0 md:w-full">
-                    <DialogHeader className="flex-shrink-0">
-                        <DialogTitle className="flex items-center text-xl text-white sm:text-2xl">
-                            <ShoppingCart className="mr-2 h-5 w-5 text-purple-400 sm:h-6 sm:w-6" />
+                <DialogContent className="sm:max-w-3xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <ShoppingCart className="text-gm-gold h-5 w-5 shrink-0 sm:h-6 sm:w-6" aria-hidden="true" />
                             {t("shop.title")}
                         </DialogTitle>
-                        <DialogDescription className="text-sm text-purple-300 sm:text-base">
-                            {t("shop.subtitle")}
-                        </DialogDescription>
-                        <div className="flex items-center space-x-2 text-base font-semibold text-yellow-400 sm:text-lg">
-                            <Coins className="h-4 w-4 sm:h-5 sm:w-5" />
-                            <span className="text-sm sm:text-base">
+                        <DialogDescription>{t("shop.subtitle")}</DialogDescription>
+                        <p className="border-gm-gold-edge text-gm-gold mt-1 inline-flex items-center gap-2 self-start rounded-full border-2 px-3 py-1 text-sm font-semibold">
+                            <Coins className="h-4 w-4 shrink-0" aria-hidden="true" />
+                            <span>
                                 {t("shop.balance")}: {playerCoins} {t("shop.coins")}
                             </span>
-                        </div>
+                        </p>
                     </DialogHeader>
 
-                    <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1 sm:pr-2">
-                        <div className="mt-6 grid max-w-full grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
-                            {shopItems.map(item => {
-                                const isPurchased = purchasedItems.includes(item.id);
-                                const canAfford = playerCoins >= item.price;
+                    <ul className="mt-5 grid list-none grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+                        {shopItems.map(item => {
+                            const isPurchased = purchasedItems.includes(item.id);
+                            const canAfford = playerCoins >= item.price;
 
-                                return (
-                                    <Card
-                                        key={item.id}
-                                        className={`border transition-all duration-300 ${getRarityColor(item.rarity)} ${getRarityBg(item.rarity)} ${
-                                            isPurchased ? "opacity-60" : "hover:shadow-lg hover:shadow-purple-500/20"
-                                        } min-w-0`}>
-                                        <CardHeader className="p-4 sm:p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center space-x-2">
-                                                    <div className={`${getRarityColor(item.rarity).split(" ")[0]}`}>
-                                                        {item.icon}
-                                                    </div>
-                                                    <CardTitle
-                                                        className={`text-base ${getRarityColor(item.rarity).split(" ")[0]} sm:text-lg`}>
-                                                        {item.name}
-                                                    </CardTitle>
-                                                </div>
-                                                <span
-                                                    className={`rounded-full px-2 py-1 text-xs capitalize ${getRarityColor(item.rarity)}`}>
-                                                    {t(`shop.rarity.${item.rarity}`)}
-                                                </span>
+                            return (
+                                <li
+                                    key={item.id}
+                                    className={`gm-inset flex min-w-0 flex-col gap-3 p-4 transition-colors duration-200 ease-[var(--ease-out-expo)] ${
+                                        isPurchased ? "border-gm-lime-edge" : ""
+                                    }`}>
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex min-w-0 items-center gap-2">
+                                            <span
+                                                className={`shrink-0 ${rarityIconColor[item.rarity]}`}
+                                                aria-hidden="true">
+                                                {item.icon}
+                                            </span>
+                                            <h3 className="text-gm-ink min-w-0 text-base font-bold [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                                                {item.name}
+                                            </h3>
+                                        </div>
+                                        <Badge variant={rarityBadgeVariant[item.rarity]} className="shrink-0">
+                                            {t(`shop.rarity.${item.rarity}`)}
+                                        </Badge>
+                                    </div>
+
+                                    <p className="text-gm-ink-soft text-sm leading-relaxed">{item.description}</p>
+
+                                    <div className="mt-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <p className="text-gm-gold inline-flex items-center gap-1.5 font-semibold">
+                                            <Coins className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                            <span>{item.price}</span>
+                                            <span className="sr-only">{t("shop.coins")}</span>
+                                        </p>
+
+                                        {item.id === "pro-tips" && isPurchased ? (
+                                            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                                                <Button
+                                                    onClick={() => {
+                                                        setCurrentTip(getRandomGitTip());
+                                                        setShowProTip(true);
+                                                    }}
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    className="w-full sm:w-auto">
+                                                    <Lightbulb className="h-4 w-4" aria-hidden="true" />
+                                                    {t("shop.showTip")}
+                                                </Button>
+                                                <Button
+                                                    onClick={() => {
+                                                        const newState = !proTipsEnabled;
+                                                        setProTipsEnabled(newState);
+                                                        localStorage.setItem("proTipsEnabled", String(newState));
+                                                        forceUpdate({});
+                                                    }}
+                                                    size="sm"
+                                                    variant="outline"
+                                                    aria-pressed={proTipsEnabled}
+                                                    className="w-full sm:w-auto">
+                                                    {proTipsEnabled
+                                                        ? t("shop.proTip.disable")
+                                                        : t("shop.proTip.enable")}
+                                                </Button>
                                             </div>
-                                        </CardHeader>
-                                        <CardContent className="space-y-3 overflow-hidden p-4 pt-0 sm:space-y-4 sm:p-6 sm:pt-0">
-                                            <p className="break-words text-xs text-purple-200 sm:text-sm">
-                                                {item.description}
-                                            </p>
-
-                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                                <div className="flex items-center space-x-1 text-yellow-400">
-                                                    <Coins className="h-4 w-4" />
-                                                    <span className="text-sm font-semibold sm:text-base">
-                                                        {item.price}
-                                                    </span>
-                                                </div>
-
-                                                {item.id === "pro-tips" && isPurchased ? (
-                                                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-                                                        <Button
-                                                            onClick={() => {
-                                                                setCurrentTip(getRandomGitTip());
-                                                                setShowProTip(true);
-                                                            }}
-                                                            size="sm"
-                                                            className="bg-blue-600 text-white hover:bg-blue-700">
-                                                            <Lightbulb className="mr-2 h-4 w-4" />
-                                                            {t("shop.showTip")}
-                                                        </Button>
-                                                        <Button
-                                                            onClick={() => {
-                                                                const newState = !proTipsEnabled;
-                                                                setProTipsEnabled(newState);
-                                                                localStorage.setItem(
-                                                                    "proTipsEnabled",
-                                                                    String(newState),
-                                                                );
-                                                                forceUpdate({});
-                                                            }}
-                                                            size="sm"
-                                                            variant="outline"
-                                                            className={`${
-                                                                proTipsEnabled
-                                                                    ? "border-green-600 text-green-400"
-                                                                    : "border-red-600 text-red-400"
-                                                            }`}>
-                                                            {proTipsEnabled
-                                                                ? t("shop.proTip.disable")
-                                                                : t("shop.proTip.enable")}
-                                                        </Button>
-                                                    </div>
+                                        ) : isPurchased ? (
+                                            /* Owned never rides on colour alone: lime chip + check + the word. */
+                                            <Badge className="self-start sm:self-auto">
+                                                <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                                                {t("shop.purchased")}
+                                            </Badge>
+                                        ) : (
+                                            <Button
+                                                onClick={() => handlePurchase(item)}
+                                                disabled={!canAfford}
+                                                size="sm"
+                                                variant={canAfford ? "secondary" : "destructive"}
+                                                className="w-full sm:w-auto">
+                                                {canAfford ? (
+                                                    <>
+                                                        <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+                                                        {t("shop.buy")}
+                                                    </>
                                                 ) : (
-                                                    <Button
-                                                        onClick={() => handlePurchase(item)}
-                                                        disabled={isPurchased || !canAfford}
-                                                        size="sm"
-                                                        className={`w-full sm:w-auto ${
-                                                            isPurchased
-                                                                ? "cursor-not-allowed bg-green-600 text-white"
-                                                                : !canAfford
-                                                                  ? "cursor-not-allowed bg-gray-600 text-gray-300"
-                                                                  : "bg-purple-600 text-white hover:bg-purple-700"
-                                                        }`}>
-                                                        {isPurchased
-                                                            ? t("shop.purchased")
-                                                            : !canAfford
-                                                              ? t("shop.insufficient")
-                                                              : t("shop.buy")}
-                                                    </Button>
+                                                    <>
+                                                        <Ban className="h-4 w-4" aria-hidden="true" />
+                                                        {t("shop.insufficient")}
+                                                    </>
                                                 )}
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                );
-                            })}
-                        </div>
-                    </div>
+                                            </Button>
+                                        )}
+                                    </div>
+                                </li>
+                            );
+                        })}
+                    </ul>
 
-                    <div className="mt-6 flex flex-shrink-0 justify-center">
-                        <Button
-                            onClick={onClose}
-                            variant="outline"
-                            className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
+                    <DialogFooter>
+                        <Button onClick={onClose} variant="outline" className="w-full sm:w-auto">
                             {t("minigame.close")}
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 
             {/* Pro Tip Dialog */}
             <Dialog open={showProTip} onOpenChange={setShowProTip}>
-                <DialogContent className="max-w-md border-blue-600 bg-gradient-to-br from-blue-950 to-purple-950">
+                <DialogContent>
                     <DialogHeader>
-                        <div className="flex items-center space-x-3">
-                            <Lightbulb className="h-6 w-6 text-yellow-400" />
-                            <DialogTitle className="text-2xl font-bold text-blue-300">
-                                {t("shop.proTip.title")}
-                            </DialogTitle>
-                        </div>
-                        <DialogDescription className="text-purple-200">{t("shop.proTip.subtitle")}</DialogDescription>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Lightbulb className="text-gm-gold h-5 w-5 shrink-0 sm:h-6 sm:w-6" aria-hidden="true" />
+                            {t("shop.proTip.title")}
+                        </DialogTitle>
+                        <DialogDescription>{t("shop.proTip.subtitle")}</DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-4">
-                        <div className="rounded-lg border border-blue-700 bg-blue-950/50 p-4">
-                            <p className="text-lg leading-relaxed text-purple-100">{currentTip}</p>
-                        </div>
-
-                        <div className="flex justify-between gap-2">
-                            <Button
-                                onClick={() => {
-                                    setCurrentTip(getRandomGitTip());
-                                }}
-                                className="bg-blue-600 hover:bg-blue-700">
-                                <Lightbulb className="mr-2 h-4 w-4" />
-                                {t("shop.proTip.another")}
-                            </Button>
-                            <Button
-                                onClick={() => setShowProTip(false)}
-                                variant="outline"
-                                className="border-purple-700 text-purple-300 hover:bg-purple-900/50">
-                                {t("minigame.close")}
-                            </Button>
-                        </div>
+                    <div className="gm-inset mt-4 p-4">
+                        <p className="text-gm-ink-soft leading-relaxed">{currentTip}</p>
                     </div>
+
+                    <DialogFooter>
+                        <Button onClick={() => setShowProTip(false)} variant="outline" className="w-full sm:w-auto">
+                            {t("minigame.close")}
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                setCurrentTip(getRandomGitTip());
+                            }}
+                            variant="secondary"
+                            className="w-full sm:w-auto">
+                            <Lightbulb className="h-4 w-4" aria-hidden="true" />
+                            {t("shop.proTip.another")}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </>

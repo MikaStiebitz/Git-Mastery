@@ -68,14 +68,3 @@ export const MINIGAMES: MinigameDef[] = [
         Component: MergeMaster,
     },
 ];
-
-export const difficultyColorClasses = (difficulty: MinigameDifficulty): string => {
-    switch (difficulty) {
-        case "easy":
-            return "text-green-400 border-green-600 bg-green-900/20";
-        case "medium":
-            return "text-yellow-400 border-yellow-600 bg-yellow-900/20";
-        case "hard":
-            return "text-red-400 border-red-600 bg-red-900/20";
-    }
-};

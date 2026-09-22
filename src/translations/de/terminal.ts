@@ -32,6 +32,14 @@ const terminal = {
     "commit.tip":
         "Die erste Zeile sollte eine kurze Zusammenfassung sein. Füge eine Leerzeile ein und dann Details, falls nötig.",
     "commit.button": "Änderungen committen",
+    "terminal.showHelp": "Hilfe anzeigen",
+    "terminal.status.staged": "gestaged",
+    "terminal.status.modified": "geändert",
+    "terminal.status.untracked": "unverfolgt",
+    "terminal.status.ahead": "Commits zum Pushen",
+    "terminal.status.behind": "Commits zum Pullen",
+    "terminal.status.clean": "sauber",
+    "terminal.status.noRepo": "kein Repository",
 };
 
 export default terminal;

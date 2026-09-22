@@ -8,6 +8,42 @@ interface BadgeDisplayProps {
     className?: string;
 }
 
+/** One achievement token: a solid accent tile plus a plain-text tooltip on hover/focus. */
+function BadgeToken({
+    label,
+    tone,
+    children,
+}: {
+    label: string;
+    tone: "gold" | "grape" | "lime" | "cyan" | "coral";
+    children: React.ReactNode;
+}) {
+    const tones = {
+        gold: "border-gm-gold-edge bg-gm-gold text-gm-void",
+        grape: "border-gm-grape-edge bg-gm-grape text-gm-ink",
+        lime: "border-gm-lime-edge bg-gm-lime text-gm-void",
+        cyan: "border-gm-cyan-edge bg-gm-cyan text-gm-void",
+        coral: "border-gm-coral-edge bg-gm-coral text-gm-void",
+    } as const;
+
+    return (
+        <div className="group relative">
+            <span
+                tabIndex={0}
+                role="img"
+                aria-label={label}
+                className={`flex h-9 w-9 items-center justify-center rounded-[0.7rem] border-2 ${tones[tone]} focus-visible:outline-gm-cyan focus-visible:outline-3 focus-visible:outline-offset-2`}>
+                {children}
+            </span>
+            <span
+                className="border-gm-line bg-gm-night text-gm-ink pointer-events-none absolute -bottom-1 left-1/2 z-(--z-tooltip) hidden -translate-x-1/2 translate-y-full rounded-lg border-2 px-2 py-1 text-xs font-semibold whitespace-nowrap group-focus-within:block group-hover:block"
+                aria-hidden="true">
+                {label}
+            </span>
+        </div>
+    );
+}
+
 export function BadgeDisplay({ className = "" }: BadgeDisplayProps) {
     const { progressManager } = useGameContext();
 
@@ -28,79 +64,37 @@ export function BadgeDisplay({ className = "" }: BadgeDisplayProps) {
 
     return (
         <ClientOnly>
-            <div className={`flex items-center space-x-2 ${className}`}>
-                {/* Git Legend Badge */}
+            <div className={`flex items-center gap-2 ${className}`}>
                 {hasGitLegendBadge && (
-                    <div className="group relative">
-                        <div className="animate-pulse flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 shadow-lg">
-                            <Crown className="h-5 w-5 text-white" />
-                        </div>
-
-                        {/* Tooltip */}
-                        <div className="absolute -top-12 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-black/80 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                            Git Legend
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-black/80"></div>
-                        </div>
-
-                        {/* Sparkle effect */}
-                        <div className="animate-ping absolute -right-1 -top-1 h-3 w-3 rounded-full bg-yellow-300 opacity-75"></div>
-                    </div>
+                    <BadgeToken label="Git Legend" tone="gold">
+                        <Crown className="h-5 w-5" aria-hidden="true" />
+                    </BadgeToken>
                 )}
 
-                {/* High Score Achievement (500+ points) */}
                 {totalScore >= 500 && (
-                    <div className="group relative">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
-                            <Star className="h-5 w-5 text-white" />
-                        </div>
-
-                        <div className="absolute -top-12 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-black/80 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                            High Achiever ({totalScore} pts)
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-black/80"></div>
-                        </div>
-                    </div>
+                    <BadgeToken label={`High Achiever (${totalScore} pts)`} tone="grape">
+                        <Star className="h-5 w-5 fill-current" aria-hidden="true" />
+                    </BadgeToken>
                 )}
 
-                {/* Level Master Achievement (10+ levels) */}
                 {completedLevels >= 10 && (
-                    <div className="group relative">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg">
-                            <Trophy className="h-5 w-5 text-white" />
-                        </div>
-
-                        <div className="absolute -top-12 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-black/80 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                            Level Master ({completedLevels} levels)
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-black/80"></div>
-                        </div>
-                    </div>
+                    <BadgeToken label={`Level Master (${completedLevels} levels)`} tone="lime">
+                        <Trophy className="h-5 w-5" aria-hidden="true" />
+                    </BadgeToken>
                 )}
 
-                {/* Minigame Champion (3+ minigames) */}
                 {completedMinigames >= 3 && (
-                    <div className="group relative">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg">
-                            <Award className="h-5 w-5 text-white" />
-                        </div>
-
-                        <div className="absolute -top-12 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-black/80 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                            Minigame Champion
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-black/80"></div>
-                        </div>
-                    </div>
+                    <BadgeToken label="Minigame Champion" tone="cyan">
+                        <Award className="h-5 w-5" aria-hidden="true" />
+                    </BadgeToken>
                 )}
 
-                {/* Double XP Badge (if active) */}
                 {progressManager.isDoubleXpActive() && (
-                    <div className="group relative">
-                        <div className="animate-bounce flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-red-600 shadow-lg">
-                            <Zap className="h-5 w-5 text-white" />
-                        </div>
-
-                        <div className="absolute -top-12 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-black/80 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                            2X XP Active ({progressManager.getDoubleXpRemainingHours()}h left)
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-black/80"></div>
-                        </div>
-                    </div>
+                    <BadgeToken
+                        label={`2X XP Active (${progressManager.getDoubleXpRemainingHours()}h left)`}
+                        tone="coral">
+                        <Zap className="h-5 w-5 fill-current" aria-hidden="true" />
+                    </BadgeToken>
                 )}
             </div>
         </ClientOnly>

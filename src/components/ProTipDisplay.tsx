@@ -47,22 +47,22 @@ export function ProTipDisplay() {
 
     // Simple, always-visible tip bar integrated into footer
     return (
-        <div className="border-t border-blue-500/30 bg-gradient-to-r from-blue-950/95 via-purple-950/95 to-blue-950/95 px-4 py-2">
-            <div className="container mx-auto flex items-center justify-between space-x-3">
-                <div className="flex items-center space-x-3">
-                    <Lightbulb className="h-4 w-4 flex-shrink-0 text-yellow-400" />
-                    <div className="flex items-baseline space-x-2">
-                        <span className="text-xs font-semibold text-blue-300">{t("shop.proTip.title")}:</span>
-                        <p className="text-xs text-purple-100">{currentTip}</p>
-                    </div>
+        <div className="border-gm-line bg-gm-night border-t-2 px-4 py-2.5">
+            <div className="container mx-auto flex items-center justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-3">
+                    <Lightbulb className="text-gm-gold h-4 w-4 shrink-0" aria-hidden="true" />
+                    <p className="text-gm-ink-soft min-w-0 text-sm">
+                        <span className="text-gm-ink font-semibold">{t("shop.proTip.title")}: </span>
+                        {currentTip}
+                    </p>
                 </div>
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={toggleEnabled}
-                    className="h-6 w-6 p-0 text-blue-300 hover:bg-blue-900/50 hover:text-blue-100"
-                    title={t("shop.proTip.hide")}>
-                    <X className="h-4 w-4" />
+                    className="h-8 w-8 shrink-0 p-0"
+                    aria-label={t("shop.proTip.hide")}>
+                    <X className="h-4 w-4" aria-hidden="true" />
                 </Button>
             </div>
         </div>

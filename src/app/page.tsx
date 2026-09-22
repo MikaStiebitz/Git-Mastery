@@ -4,28 +4,24 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
 import {
     GitBranch,
     GitCommit,
     GitMerge,
     Rocket,
-    CheckCircle2,
-    LockIcon,
-    Code,
-    BookOpen,
-    ChevronRight,
+    Check,
+    Lock,
     Activity,
     Award,
     Star,
-    BookMarked,
     ArrowRight,
     Github,
-    Settings,
+    Settings2,
     ShoppingCart,
     Gamepad2,
-    Terminal as TerminalIcon,
+    Play,
+    TerminalSquare,
+    Coins,
 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { PageLayout } from "~/components/layout/PageLayout";
@@ -35,79 +31,94 @@ import { useRouter } from "next/navigation";
 import { DifficultySelector } from "~/components/DifficultySelector";
 import { Shop } from "~/components/Shop";
 import { Minigames } from "~/components/Minigames";
+import { HeroDemo } from "~/components/home/HeroDemo";
+import { MINIGAMES } from "~/components/minigames/registry";
 import { getAvailableStagesForDifficulty } from "~/config/difficulties";
 import type { DifficultyLevel } from "~/types";
 
+const TICKER = [
+    "git init",
+    "git add .",
+    "git commit -m",
+    "git switch -c",
+    "git merge",
+    "git rebase -i",
+    "git stash pop",
+    "git cherry-pick",
+    "git reflog",
+    "git bisect",
+    "git push",
+    "git gud",
+];
+
+/** Horizontal command ticker. Duplicated once so the -50% loop is seamless. */
+function Ticker({ className = "", reverse = false }: { className?: string; reverse?: boolean }) {
+    return (
+        <div
+            className={`animate-marquee flex w-max motion-reduce:animate-none ${reverse ? "[animation-direction:reverse]" : ""}`}>
+            {[0, 1].map(copy => (
+                <ul key={copy} className={`flex shrink-0 items-center ${className}`} aria-hidden={copy === 1}>
+                    {TICKER.map(cmd => (
+                        <li key={cmd} className="flex items-center whitespace-nowrap">
+                            {cmd}
+                            <Star className="mx-6 h-[0.7em] w-[0.7em] fill-current" aria-hidden="true" />
+                        </li>
+                    ))}
+                </ul>
+            ))}
+        </div>
+    );
+}
+
 /**
- * Animated hero commit-graph: draws itself on load and gently pulses.
- * Pure SVG, animated with GSAP through the parent timeline (classes hg-*).
+ * Looping hero backdrop. The poster is the first frame of the clip, so the page looks the
+ * same with or without video. Playback only starts when the visitor hasn't asked for
+ * reduced motion or reduced data.
  */
-const HeroGraph = () => (
-    <svg viewBox="0 0 340 380" className="h-full w-full" fill="none" aria-hidden="true">
-        {/* main lane */}
-        <path className="hg-path" d="M170 340 L170 60" stroke="#a78bfa" strokeWidth="2.5" strokeLinecap="round" />
-        {/* feature branch out + merge back */}
-        <path
-            className="hg-path"
-            d="M170 290 C170 250 250 260 250 220 L250 170 C250 130 170 140 170 100"
-            stroke="#38bdf8"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-        />
-        {/* second branch */}
-        <path
-            className="hg-path"
-            d="M170 240 C170 210 96 216 96 180 L96 150"
-            stroke="#f472b6"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-        />
-        {/* nodes bottom-up */}
-        {[
-            { cx: 170, cy: 340, c: "#a78bfa" },
-            { cx: 170, cy: 290, c: "#a78bfa" },
-            { cx: 250, cy: 220, c: "#38bdf8" },
-            { cx: 170, cy: 240, c: "#a78bfa" },
-            { cx: 96, cy: 180, c: "#f472b6" },
-            { cx: 250, cy: 170, c: "#38bdf8" },
-            { cx: 96, cy: 150, c: "#f472b6" },
-            { cx: 170, cy: 100, c: "#a78bfa" },
-            { cx: 170, cy: 60, c: "#c4b5fd" },
-        ].map((n, i) => (
-            <g key={i} className="hg-node">
-                <circle cx={n.cx} cy={n.cy} r="10" fill="#171126" stroke={n.c} strokeWidth="2.5" />
-                <circle cx={n.cx} cy={n.cy} r="3.5" fill={n.c} />
-            </g>
-        ))}
-        {/* HEAD badge */}
-        <g className="hg-badge">
-            <rect x="196" y="46" width="72" height="26" rx="13" fill="#a78bfa" />
-            <text
-                x="232"
-                y="63"
-                textAnchor="middle"
-                fontSize="12"
-                fontWeight="700"
-                fill="#171126"
-                fontFamily="monospace">
-                main ★
-            </text>
-            <path d="M186 60 L198 53 L198 67 Z" fill="#a78bfa" />
-        </g>
-        <g className="hg-badge">
-            <rect x="24" y="137" width="62" height="24" rx="12" fill="#241a3a" stroke="#f472b6" />
-            <text x="55" y="153" textAnchor="middle" fontSize="11" fill="#f472b6" fontFamily="monospace">
-                fix/ui
-            </text>
-        </g>
-        <g className="hg-badge">
-            <rect x="264" y="158" width="66" height="24" rx="12" fill="#241a3a" stroke="#38bdf8" />
-            <text x="297" y="174" textAnchor="middle" fontSize="11" fill="#38bdf8" fontFamily="monospace">
-                feature
-            </text>
-        </g>
-    </svg>
-);
+function HeroBackdrop() {
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+
+        const sync = () => {
+            if (reduce.matches || saveData) {
+                video.pause();
+                return;
+            }
+            if (video.preload !== "auto") {
+                video.preload = "auto";
+                video.load();
+            }
+            void video.play().catch(() => undefined);
+        };
+        sync();
+        reduce.addEventListener("change", sync);
+        return () => reduce.removeEventListener("change", sync);
+    }, []);
+
+    return (
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+            <video
+                ref={videoRef}
+                className="hero-video absolute inset-0 h-full w-full scale-105 object-cover object-[72%_50%]"
+                poster="/hero-rails.webp"
+                muted
+                loop
+                playsInline
+                preload="none">
+                <source src="/hero-rails.webm" type="video/webm" />
+                <source src="/hero-rails.mp4" type="video/mp4" />
+            </video>
+            {/* Scrims keep the headline at AA contrast over the brightest frame */}
+            <div className="bg-gm-void/65 absolute inset-0 lg:bg-transparent lg:bg-[linear-gradient(90deg,var(--color-gm-void)_0%,color-mix(in_oklch,var(--color-gm-void)_82%,transparent)_38%,transparent_72%)]"></div>
+            <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(to_top,var(--color-gm-void),transparent)]"></div>
+        </div>
+    );
+}
 
 export default function Home() {
     const { levelManager, progressManager, currentDifficulty, setCurrentDifficulty } = useGameContext();
@@ -131,93 +142,73 @@ export default function Home() {
     // Set up exactly once. The hero markup is server-rendered and never depends on
     // `isMounted`, so it deliberately does NOT share the mount-gated effect below:
     // reverting and rebuilding the context while the entrance timeline was mid-flight
-    // used to strand the secondary CTA row (Difficulty / Shop / Mini Games) at
-    // opacity 0, making those buttons invisible on the live site.
+    // used to strand the secondary CTA row at opacity 0.
     useEffect(() => {
         if (!rootRef.current) return;
         gsap.registerPlugin(ScrollTrigger);
 
-        const heroTargets = ".hero-word > span, .hero-sub, .hero-cta > *, .hero-panel";
+        const heroTargets = ".hero-word > span, .hero-play, .hero-sub, .hero-cta > *, .hero-panel";
 
         const ctx = gsap.context(() => {
             const mm = gsap.matchMedia();
 
             mm.add("(prefers-reduced-motion: no-preference)", () => {
-                // Hero entrance
                 const tl = gsap.timeline({
-                    defaults: { ease: "power3.out" },
-                    // Belt and braces: drop the inline styles the entrance wrote so no
-                    // interruption can leave a hero control stuck at opacity 0.
+                    defaults: { ease: "expo.out" },
+                    // Drop the inline styles the entrance wrote so no interruption can
+                    // leave a hero control stuck at opacity 0.
                     onComplete: () => gsap.set(heroTargets, { clearProps: "all" }),
                 });
-                tl.from(".hero-word > span", { yPercent: 120, duration: 0.9, stagger: 0.08, ease: "power4.out" })
-                    .from(".hero-sub", { y: 20, opacity: 0, duration: 0.7 }, "-=0.5")
-                    .from(".hero-cta > *", { y: 18, opacity: 0, duration: 0.5, stagger: 0.08 }, "-=0.45")
+                tl.from(".hero-word > span", { yPercent: 115, duration: 1, stagger: 0.07 })
                     .from(
-                        ".hero-panel",
-                        { y: 40, opacity: 0, scale: 0.96, duration: 0.9, ease: "power4.out" },
+                        ".hero-play",
+                        { scale: 0.3, rotate: -18, autoAlpha: 0, duration: 1.1, transformOrigin: "20% 80%" },
                         "-=0.7",
-                    );
+                    )
+                    .from(".hero-sub", { y: 18, autoAlpha: 0, duration: 0.8 }, "-=0.8")
+                    .from(".hero-cta > *", { y: 16, autoAlpha: 0, duration: 0.7, stagger: 0.06 }, "-=0.65")
+                    .from(".hero-panel", { y: 60, rotate: 4, autoAlpha: 0, duration: 1.2 }, 0.35);
 
-                // Hero commit graph draws itself
-                gsap.utils.toArray<SVGPathElement>(".hg-path").forEach((path, i) => {
-                    const len = path.getTotalLength();
-                    tl.fromTo(
-                        path,
-                        { strokeDasharray: len, strokeDashoffset: len },
-                        { strokeDashoffset: 0, duration: 1.1, ease: "power2.inOut" },
-                        0.5 + i * 0.25,
-                    );
-                });
-                tl.from(
-                    ".hg-node",
-                    { scale: 0, transformOrigin: "center center", stagger: 0.09, duration: 0.5, ease: "back.out(2.5)" },
-                    0.9,
-                );
-                tl.from(
-                    ".hg-badge",
-                    {
-                        opacity: 0,
-                        scale: 0.6,
-                        transformOrigin: "center center",
-                        stagger: 0.12,
-                        duration: 0.45,
-                        ease: "back.out(2)",
-                    },
-                    1.7,
-                );
-
-                // Floating glow orbs — slow drift + scroll parallax
-                gsap.to(".orb-a", { y: -40, x: 30, duration: 8, yoyo: true, repeat: -1, ease: "sine.inOut" });
-                gsap.to(".orb-b", { y: 50, x: -20, duration: 10, yoyo: true, repeat: -1, ease: "sine.inOut" });
-                gsap.to(".orb-a", {
-                    yPercent: -30,
-                    scrollTrigger: { trigger: ".hero-section", start: "top top", end: "bottom top", scrub: 1 },
+                // Video drifts slower than the page for a little depth.
+                gsap.to(".hero-video", {
+                    yPercent: 12,
+                    ease: "none",
+                    scrollTrigger: { trigger: ".hero-section", start: "top top", end: "bottom top", scrub: true },
                 });
             });
 
-            // Pointer parallax on the hero glow (all motion preferences: very subtle)
-            const hero = document.querySelector<HTMLElement>(".hero-section");
-            if (hero) {
-                const xTo = gsap.quickTo(".orb-a", "xPercent", { duration: 0.8, ease: "power3.out" });
-                const yTo = gsap.quickTo(".orb-a", "yPercent", { duration: 0.8, ease: "power3.out" });
+            // The demo cartridge tilts toward the pointer (fine pointers only).
+            mm.add("(prefers-reduced-motion: no-preference) and (pointer: fine)", () => {
+                const hero = document.querySelector<HTMLElement>(".hero-section");
+                const panel = document.querySelector<HTMLElement>(".hero-tilt");
+                if (!hero || !panel) return;
+                gsap.set(panel, { transformPerspective: 1100 });
+                const rx = gsap.quickTo(panel, "rotationX", { duration: 0.9, ease: "power3.out" });
+                const ry = gsap.quickTo(panel, "rotationY", { duration: 0.9, ease: "power3.out" });
                 const onMove = (e: PointerEvent) => {
                     const r = hero.getBoundingClientRect();
-                    xTo(((e.clientX - r.left) / r.width - 0.5) * 8);
-                    yTo(((e.clientY - r.top) / r.height - 0.5) * 8);
+                    ry(((e.clientX - r.left) / r.width - 0.5) * 9);
+                    rx(-((e.clientY - r.top) / r.height - 0.5) * 7);
+                };
+                const onLeave = () => {
+                    rx(0);
+                    ry(0);
                 };
                 hero.addEventListener("pointermove", onMove);
-                return () => hero.removeEventListener("pointermove", onMove);
-            }
+                hero.addEventListener("pointerleave", onLeave);
+                return () => {
+                    hero.removeEventListener("pointermove", onMove);
+                    hero.removeEventListener("pointerleave", onLeave);
+                };
+            });
         }, rootRef);
 
         return () => ctx.revert();
     }, []);
 
-    // ── GSAP: scroll reveals, stage cards, stat counters ────────────────────
+    // ── GSAP: scroll choreography for the client-rendered sections ──────────
     // Gated on `isMounted` because everything below lives inside <ClientOnly> and
-    // only exists after hydration. The guard means this runs once, on the mounted
-    // pass, instead of being torn down and rebuilt.
+    // only exists after hydration.
     useEffect(() => {
         if (!isMounted || !rootRef.current) return;
         gsap.registerPlugin(ScrollTrigger);
@@ -226,46 +217,14 @@ export default function Home() {
             const mm = gsap.matchMedia();
 
             mm.add("(prefers-reduced-motion: no-preference)", () => {
-                // Generic scroll reveals
-                gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach(el => {
-                    gsap.from(el, {
-                        y: 44,
-                        opacity: 0,
-                        duration: 0.85,
-                        ease: "power3.out",
-                        scrollTrigger: { trigger: el, start: "top 88%" },
-                    });
+                // HUD slides up like a game overlay
+                gsap.from(".hud", {
+                    y: 40,
+                    autoAlpha: 0,
+                    duration: 0.9,
+                    ease: "expo.out",
+                    scrollTrigger: { trigger: ".hud", start: "top 92%", once: true },
                 });
-
-                // Stage cards stagger in alternating from the sides
-                gsap.utils.toArray<HTMLElement>("[data-stage-card]").forEach((el, i) => {
-                    gsap.from(el, {
-                        x: i % 2 === 0 ? 60 : -60,
-                        opacity: 0,
-                        duration: 0.9,
-                        ease: "power3.out",
-                        scrollTrigger: { trigger: el, start: "top 85%" },
-                    });
-                });
-
-                // Learning-path spine grows with scroll
-                const line = document.querySelector(".path-line-fill");
-                if (line) {
-                    gsap.fromTo(
-                        line,
-                        { scaleY: 0, transformOrigin: "top center" },
-                        {
-                            scaleY: 1,
-                            ease: "none",
-                            scrollTrigger: {
-                                trigger: ".path-section",
-                                start: "top 60%",
-                                end: "bottom 80%",
-                                scrub: 0.5,
-                            },
-                        },
-                    );
-                }
 
                 // Stat counters roll up
                 gsap.utils.toArray<HTMLElement>("[data-counter]").forEach(el => {
@@ -275,10 +234,64 @@ export default function Home() {
                         val: target,
                         duration: 1.4,
                         ease: "power2.out",
-                        scrollTrigger: { trigger: el, start: "top 92%" },
+                        scrollTrigger: { trigger: el, start: "top 95%", once: true },
                         onUpdate: () => {
                             el.textContent = String(Math.round(obj.val));
                         },
+                    });
+                });
+
+                // Stage map: the lane fills as you scroll, stations light up as they're reached
+                const fill = document.querySelector(".lane-fill");
+                if (fill) {
+                    gsap.fromTo(
+                        fill,
+                        { scaleY: 0 },
+                        {
+                            scaleY: 1,
+                            ease: "none",
+                            scrollTrigger: {
+                                trigger: ".stage-list",
+                                start: "top 65%",
+                                end: "bottom 65%",
+                                scrub: 0.4,
+                            },
+                        },
+                    );
+                }
+
+                gsap.utils.toArray<HTMLElement>("[data-stage]").forEach(row => {
+                    const tl = gsap.timeline({
+                        defaults: { ease: "expo.out" },
+                        scrollTrigger: { trigger: row, start: "top 82%", once: true },
+                    });
+                    tl.from(row.querySelector("[data-stage-node]"), { scale: 0.4, autoAlpha: 0, duration: 0.8 })
+                        .from(row.querySelector("[data-stage-body]"), { x: 40, autoAlpha: 0, duration: 0.9 }, "<0.05")
+                        .from(
+                            row.querySelectorAll("[data-level]"),
+                            { y: 18, autoAlpha: 0, duration: 0.6, stagger: 0.05 },
+                            "<0.2",
+                        );
+                });
+
+                // Feature cartridges drop in with a little tilt, each from its own side
+                gsap.utils.toArray<HTMLElement>("[data-cart]").forEach((el, i) => {
+                    gsap.from(el, {
+                        y: 70,
+                        rotate: i % 2 === 0 ? -6 : 6,
+                        autoAlpha: 0,
+                        duration: 1.1,
+                        ease: "expo.out",
+                        scrollTrigger: { trigger: el, start: "top 85%", once: true },
+                    });
+                });
+                gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach(el => {
+                    gsap.from(el, {
+                        y: 30,
+                        autoAlpha: 0,
+                        duration: 0.9,
+                        ease: "expo.out",
+                        scrollTrigger: { trigger: el, start: "top 88%", once: true },
                     });
                 });
             });
@@ -295,7 +308,6 @@ export default function Home() {
             setProgress(progressManager.getProgress());
         };
 
-        // Initial update
         updateProgress();
 
         // Update on storage events (in case another tab changes the progress)
@@ -333,37 +345,21 @@ export default function Home() {
         router.push(`/${stageId.toLowerCase()}?stage=${stageId}&level=${levelId}`);
     };
 
-    // Get stage icon component with animation
     const getStageIcon = (stageId: string) => {
+        const cls = "h-6 w-6 sm:h-7 sm:w-7";
         switch (stageId) {
             case "Intro":
-                return (
-                    <Rocket className="h-5 w-5 text-purple-400 transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6" />
-                );
-            case "Files":
-                return (
-                    <GitCommit className="h-5 w-5 text-purple-400 transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6" />
-                );
+                return <Rocket className={cls} aria-hidden="true" />;
             case "Branches":
-                return (
-                    <GitBranch className="h-5 w-5 text-purple-400 transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6" />
-                );
+                return <GitBranch className={cls} aria-hidden="true" />;
             case "Merge":
-                return (
-                    <GitMerge className="h-5 w-5 text-purple-400 transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6" />
-                );
+                return <GitMerge className={cls} aria-hidden="true" />;
             case "Rebase":
-                return (
-                    <Activity className="h-5 w-5 text-purple-400 transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6" />
-                );
+                return <Activity className={cls} aria-hidden="true" />;
             case "Remote":
-                return (
-                    <Github className="h-5 w-5 text-purple-400 transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6" />
-                );
+                return <Github className={cls} aria-hidden="true" />;
             default:
-                return (
-                    <GitCommit className="h-5 w-5 text-purple-400 transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6" />
-                );
+                return <GitCommit className={cls} aria-hidden="true" />;
         }
     };
 
@@ -436,424 +432,559 @@ export default function Home() {
     }
 
     const completedCount = Object.values(progress.completedLevels).flat().length;
+    const nextDifficulty = getNextDifficulty();
+
+    const features = [
+        {
+            key: "sandbox",
+            title: t("home.feature1.title"),
+            description: t("home.feature1.description"),
+            shadow: "shadow-[12px_12px_0_0_var(--color-gm-lime)]",
+            tilt: "-rotate-2",
+            action: (
+                <Link href="/playground" className="btn-arcade btn-arcade-sm btn-arcade-night">
+                    <TerminalSquare className="text-gm-lime h-4 w-4" aria-hidden="true" />
+                    {t("nav.playground")}
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
+                </Link>
+            ),
+            visual: (
+                <div className="p-5 [font-family:var(--font-code)] text-[13px] leading-[1.75] sm:p-7 sm:text-sm">
+                    <p className="text-gm-ink">
+                        <span className="text-gm-lime">$ </span>git reset --hard HEAD~3
+                    </p>
+                    <p className="text-gm-coral">HEAD is now at 1c0ffee initial commit</p>
+                    <p className="text-gm-ink mt-2">
+                        <span className="text-gm-lime">$ </span>git reflog
+                    </p>
+                    <p className="text-gm-ink-dim">
+                        <span className="text-gm-gold">3e9a0b2</span> HEAD@&#123;1&#125;: commit: fix typo
+                    </p>
+                    <p className="text-gm-ink mt-2">
+                        <span className="text-gm-lime">$ </span>git reset --hard HEAD@&#123;1&#125;
+                    </p>
+                    <p className="text-gm-lime">HEAD is now at 3e9a0b2 fix typo ✓</p>
+                    <p className="text-gm-ink mt-2">
+                        <span className="text-gm-lime">$ </span>
+                        <span className="animate-caret bg-gm-lime inline-block h-[1.05em] w-[0.55em] translate-y-[0.18em] motion-reduce:animate-none"></span>
+                    </p>
+                </div>
+            ),
+        },
+        {
+            key: "games",
+            title: t("home.feature2.title"),
+            description: t("home.feature2.description"),
+            shadow: "shadow-[12px_12px_0_0_var(--color-gm-coral)]",
+            tilt: "rotate-2",
+            action: (
+                <button
+                    type="button"
+                    onClick={() => setShowMinigames(true)}
+                    className="btn-arcade btn-arcade-sm btn-arcade-night">
+                    <Gamepad2 className="text-gm-coral h-4 w-4" aria-hidden="true" />
+                    {t("home.miniGames")}
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
+                </button>
+            ),
+            visual: (
+                <ul className="grid grid-cols-2 gap-3 p-4 sm:gap-4 sm:p-6">
+                    {MINIGAMES.map((game, i) => (
+                        <li
+                            key={game.id}
+                            className={`flex flex-col gap-3 rounded-2xl border-2 p-4 ${
+                                [
+                                    "border-gm-cyan/50 text-gm-cyan",
+                                    "border-gm-coral/50 text-gm-coral",
+                                    "border-gm-lime/50 text-gm-lime",
+                                    "border-gm-gold/50 text-gm-gold",
+                                ][i % 4]
+                            }`}>
+                            <span aria-hidden="true">{game.icon}</span>
+                            <span className="text-gm-ink text-sm leading-snug font-semibold">{t(game.nameKey)}</span>
+                            <span className="text-gm-gold mt-auto flex items-center gap-1 text-xs font-semibold">
+                                <Coins className="h-3.5 w-3.5" aria-hidden="true" />+{game.coins}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            ),
+        },
+        {
+            key: "shop",
+            title: t("home.feature3.title"),
+            description: t("home.feature3.description"),
+            shadow: "shadow-[12px_12px_0_0_var(--color-gm-gold)]",
+            tilt: "-rotate-1",
+            action: (
+                <button
+                    type="button"
+                    onClick={() => setShowShop(true)}
+                    className="btn-arcade btn-arcade-sm btn-arcade-night">
+                    <ShoppingCart className="text-gm-gold h-4 w-4" aria-hidden="true" />
+                    {t("home.shop")}
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
+                </button>
+            ),
+            visual: (
+                <div className="group/themes relative h-[248px] sm:h-[280px]">
+                    {[
+                        {
+                            name: t("shop.item.darkTerminal.name"),
+                            bg: "bg-[oklch(0.2_0.03_250)]",
+                            ink: "text-[oklch(0.8_0.12_240)]",
+                            pos: "left-[6%] top-[14%] -rotate-[8deg] group-hover/themes:-translate-x-3 group-hover/themes:-rotate-[11deg]",
+                        },
+                        {
+                            name: t("shop.item.matrixTerminal.name"),
+                            bg: "bg-[oklch(0.14_0.02_150)]",
+                            ink: "text-[oklch(0.85_0.2_145)]",
+                            pos: "left-[22%] top-[24%] rotate-[2deg]",
+                        },
+                        {
+                            name: t("shop.item.goldenTerminal.name"),
+                            bg: "bg-[oklch(0.26_0.05_80)]",
+                            ink: "text-gm-gold",
+                            pos: "left-[38%] top-[36%] rotate-[9deg] group-hover/themes:translate-x-3 group-hover/themes:rotate-[12deg]",
+                        },
+                    ].map(theme => (
+                        <div
+                            key={theme.name}
+                            className={`border-gm-void/70 absolute w-[56%] overflow-hidden rounded-xl border-2 shadow-[0_10px_24px_-8px_rgb(0_0_0/0.6)] transition-transform duration-500 ease-[var(--ease-out-expo)] ${theme.bg} ${theme.pos}`}>
+                            <div className="flex items-center gap-1.5 border-b border-white/10 px-3 py-2">
+                                <span className="h-2 w-2 rounded-full bg-white/30"></span>
+                                <span className="h-2 w-2 rounded-full bg-white/30"></span>
+                                <span className="h-2 w-2 rounded-full bg-white/30"></span>
+                            </div>
+                            <div
+                                className={`px-3 py-3 [font-family:var(--font-code)] text-xs leading-relaxed ${theme.ink}`}>
+                                <p>$ git gud</p>
+                                <p className="truncate opacity-80">{theme.name}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ),
+        },
+    ];
 
     return (
         <PageLayout>
-            <div ref={rootRef} className="min-h-screen overflow-x-clip bg-[#120d1e] text-purple-100">
-                {/* ── Hero ─────────────────────────────────────────────────── */}
-                <section className="hero-section relative overflow-hidden">
-                    {/* Layered background: Higgsfield nebula + glow orbs + grid */}
-                    <div className="pointer-events-none absolute inset-0 -z-10">
-                        <img
-                            src="/hero-nebula.webp"
-                            alt=""
-                            className="h-full w-full [mask-image:linear-gradient(to_bottom,black_45%,transparent_100%)] object-cover opacity-60"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-b from-[#120d1e]/30 via-[#120d1e]/55 to-[#120d1e]"></div>
-                        <div className="orb-a absolute top-10 -left-24 h-96 w-96 rounded-full bg-purple-600/25 blur-3xl"></div>
-                        <div className="orb-b absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-fuchsia-600/15 blur-3xl"></div>
-                        <div className="absolute inset-0 [background-image:linear-gradient(rgba(167,139,250,0.35)_1px,transparent_1px),linear-gradient(90deg,rgba(167,139,250,0.35)_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_35%,black,transparent)] [background-size:56px_56px] opacity-[0.15]"></div>
-                    </div>
+            <div ref={rootRef} className="bg-gm-void text-gm-ink min-h-screen overflow-x-clip">
+                {/* ── Hero: title screen ───────────────────────────────────── */}
+                <section className="hero-section relative isolate overflow-hidden">
+                    <HeroBackdrop />
 
-                    <div className="container mx-auto grid items-center gap-10 px-4 py-16 sm:py-24 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6 lg:py-28">
-                        <div className="text-center lg:text-left">
-                            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl xl:text-7xl">
+                    <div className="container mx-auto grid min-h-[calc(100svh-4rem)] items-center gap-12 px-4 pt-14 pb-24 sm:pt-20 lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 lg:pb-28">
+                        <div className="max-w-[40rem] text-center lg:text-start">
+                            <h1 className="font-display text-gm-ink text-[clamp(2.5rem,6vw,5.25rem)] leading-[0.98] tracking-[0.01em] [text-wrap:balance] break-words">
                                 {t("home.title")
                                     .split(" ")
                                     .map((word, i) => (
                                         <span
                                             key={i}
-                                            className="hero-word inline-block overflow-hidden pb-1 align-bottom">
+                                            className="hero-word inline-block overflow-hidden pb-[0.08em] align-bottom">
                                             <span className="inline-block">{word}&nbsp;</span>
                                         </span>
                                     ))}
-                                <span className="hero-word inline-block overflow-hidden pb-1 align-bottom">
-                                    <span className="inline-block bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-500 bg-clip-text text-transparent">
+                                <span className="mt-[0.18em] block">
+                                    <span className="hero-play bg-gm-lime text-gm-void inline-block -rotate-3 rounded-[0.3em] px-[0.28em] pt-[0.14em] pb-[0.04em] text-[1.3em] shadow-[0_0.12em_0_var(--color-gm-lime-edge)]">
                                         {t("home.title2")}
                                     </span>
                                 </span>
                             </h1>
 
-                            <p className="hero-sub mx-auto mt-6 max-w-xl text-base leading-relaxed text-purple-200/90 sm:text-lg lg:mx-0">
+                            <p className="hero-sub text-gm-ink-soft mx-auto mt-8 max-w-[34rem] text-lg leading-relaxed text-pretty sm:text-xl lg:mx-0">
                                 {t("home.subtitle")}
                             </p>
 
-                            <div className="hero-cta mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
-                                <Link href="/intro" className="group w-full sm:w-auto">
-                                    <Button
-                                        size="lg"
-                                        className="group relative w-full overflow-hidden bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-lg shadow-purple-900/40 transition-all duration-300 hover:shadow-purple-700/40 hover:brightness-110 sm:w-auto">
-                                        <span className="relative z-10 flex items-center">
-                                            <Code className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
-                                            {t("home.startLearning")}
-                                            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                                        </span>
-                                    </Button>
+                            <div className="hero-cta mt-9 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center lg:justify-start">
+                                <Link
+                                    href="/intro"
+                                    className="btn-arcade btn-arcade-lime group min-h-[3.75rem] px-7 text-lg">
+                                    <Play className="h-5 w-5 fill-current" aria-hidden="true" />
+                                    {t("home.startLearning")}
+                                    <ArrowRight
+                                        className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180"
+                                        aria-hidden="true"
+                                    />
                                 </Link>
-
-                                <Link href="/playground" className="group w-full sm:w-auto">
-                                    <Button
-                                        size="lg"
-                                        variant="outline"
-                                        className="w-full border-purple-600/50 bg-purple-950/30 text-purple-200 backdrop-blur-sm transition-all duration-300 hover:border-purple-500 hover:bg-purple-900/50 hover:text-purple-100 sm:w-auto">
-                                        <BookOpen className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
-                                        {t("home.cheatSheet")}
-                                    </Button>
+                                <Link
+                                    href="/playground"
+                                    className="btn-arcade btn-arcade-grape min-h-[3.75rem] px-7 text-lg">
+                                    <TerminalSquare className="h-5 w-5" aria-hidden="true" />
+                                    {t("home.cheatSheet")}
                                 </Link>
                             </div>
 
-                            {/* Secondary actions. These are the only entry points to the shop
-                                and the difficulty picker, so they get solid fills instead of
-                                transparent outlines — on the nebula backdrop the ghost variant
-                                was effectively invisible. */}
-                            <div className="hero-cta mt-4 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-                                <Button
-                                    variant="outline"
+                            {/* Secondary actions: the only entry points to the difficulty picker,
+                                shop and mini games, so they stay solid and legible over the video. */}
+                            <div className="hero-cta mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+                                <button
+                                    type="button"
                                     onClick={() => setShowDifficultySelector(true)}
-                                    className="border-purple-400/60 bg-purple-600/30 text-purple-50 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-purple-300 hover:bg-purple-600/50 hover:text-white">
-                                    <Settings className="mr-2 h-4 w-4" />
+                                    className="btn-arcade btn-arcade-sm btn-arcade-night">
+                                    <Settings2 className="text-gm-grape-hi h-4 w-4" aria-hidden="true" />
                                     {t("home.difficulty")}
                                     <ClientOnly>
-                                        <span className="ml-1.5 rounded-full bg-purple-950/60 px-2 py-0.5 text-xs font-medium text-purple-100">
+                                        <span className="bg-gm-grape text-gm-ink rounded-full px-2 py-0.5 text-xs font-semibold">
                                             {t(`difficulty.${currentDifficulty}`)}
                                         </span>
                                     </ClientOnly>
-                                </Button>
-                                <Button
-                                    variant="outline"
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => setShowShop(true)}
-                                    className="border-amber-400/60 bg-amber-500/25 text-amber-50 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-amber-300 hover:bg-amber-500/40 hover:text-white">
-                                    <ShoppingCart className="mr-2 h-4 w-4" />
+                                    className="btn-arcade btn-arcade-sm btn-arcade-night">
+                                    <ShoppingCart className="text-gm-gold h-4 w-4" aria-hidden="true" />
                                     {t("home.shop")}
-                                </Button>
-                                <Button
-                                    variant="outline"
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => setShowMinigames(true)}
-                                    className="border-emerald-400/60 bg-emerald-500/25 text-emerald-50 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-emerald-300 hover:bg-emerald-500/40 hover:text-white">
-                                    <Gamepad2 className="mr-2 h-4 w-4" />
+                                    className="btn-arcade btn-arcade-sm btn-arcade-night">
+                                    <Gamepad2 className="text-gm-lime h-4 w-4" aria-hidden="true" />
                                     {t("home.miniGames")}
-                                </Button>
+                                </button>
                             </div>
                         </div>
 
-                        {/* Hero panel: fake window with the animated commit graph */}
-                        <div className="hero-panel relative mx-auto w-full max-w-md">
-                            <div className="absolute -inset-3 -z-10 rounded-3xl bg-gradient-to-br from-purple-500/25 via-fuchsia-500/10 to-transparent blur-xl"></div>
-                            <div className="overflow-hidden rounded-2xl border border-purple-500/25 bg-[#171126]/90 shadow-2xl shadow-purple-950/60 backdrop-blur-md">
-                                <div className="flex items-center gap-2 border-b border-purple-800/40 px-4 py-2.5">
-                                    <span className="h-2.5 w-2.5 rounded-full bg-red-400/80"></span>
-                                    <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/80"></span>
-                                    <span className="h-2.5 w-2.5 rounded-full bg-green-400/80"></span>
-                                    <span className="ml-2 flex items-center gap-1.5 font-mono text-xs text-purple-300/80">
-                                        <TerminalIcon className="h-3 w-3" />
-                                        {t("home.heroTerminalTitle")}
-                                    </span>
-                                </div>
-                                <div className="h-[300px] p-3 sm:h-[360px]">
-                                    <HeroGraph />
-                                </div>
+                        <div className="hero-panel mx-auto w-full max-w-[30rem] lg:ms-auto lg:me-0">
+                            <div className="hero-tilt">
+                                <HeroDemo title={t("home.heroTerminalTitle")} label={t("home.demoLabel")} />
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* Difficulty Completion Celebration */}
-                {isMounted && isDifficultyCompleted() && getNextDifficulty() && (
-                    <section className="container mx-auto px-4 py-6" data-reveal>
-                        <div className="mx-auto max-w-2xl rounded-2xl border border-green-700/50 bg-gradient-to-r from-green-900/30 to-emerald-900/20 p-6 text-center">
-                            <div className="mb-4 flex justify-center">
-                                <Award className="h-12 w-12 text-yellow-400" />
-                            </div>
-                            <h2 className="mb-4 text-xl font-bold text-white sm:text-2xl">🎉 Difficulty Mastered!</h2>
-                            <p className="mb-6 text-green-200">
-                                Congratulations! You&apos;ve completed all levels in {currentDifficulty} difficulty.
-                                Ready for the next challenge?
-                            </p>
-                            <Button
-                                onClick={() => {
-                                    const nextDiff = getNextDifficulty();
-                                    if (nextDiff) {
-                                        setCurrentDifficulty(nextDiff);
-                                    }
-                                }}
-                                size="lg"
-                                className="group bg-gradient-to-r from-green-600 to-emerald-700 text-white hover:from-green-700 hover:to-emerald-800">
-                                <ChevronRight className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                                Advance to {getNextDifficulty()} Difficulty
-                            </Button>
-                        </div>
-                    </section>
-                )}
+                {/* ── Command ticker ───────────────────────────────────────── */}
+                <div
+                    className="border-gm-lime-edge bg-gm-lime relative z-10 -mx-[5%] -mt-10 -rotate-2 overflow-hidden border-y-4 py-3.5 sm:py-4"
+                    aria-hidden="true">
+                    <Ticker className="font-display text-gm-void text-lg sm:text-2xl" />
+                </div>
 
-                {/* ── Stats ─────────────────────────────────────────────────── */}
-                <section className="container mx-auto px-4 py-6" data-reveal>
-                    <ClientOnly>
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-                            {[
-                                { label: t("home.points"), value: progress.score },
-                                { label: t("home.completed"), value: completedCount },
-                                { label: t("level.level"), value: progress.currentLevel },
-                            ].map((stat, i) => (
-                                <div
-                                    key={i}
-                                    className="rounded-xl border border-purple-800/30 bg-gradient-to-b from-purple-900/25 to-purple-900/10 p-3 text-center backdrop-blur-sm sm:p-5">
-                                    <h3 className="text-xs text-purple-400 sm:text-sm">{stat.label}</h3>
-                                    <p
-                                        className="text-2xl font-bold text-white tabular-nums sm:text-3xl"
-                                        data-counter={stat.value}>
-                                        {stat.value}
-                                    </p>
-                                </div>
-                            ))}
-                            <div className="rounded-xl border border-purple-800/30 bg-gradient-to-b from-purple-900/25 to-purple-900/10 p-3 text-center backdrop-blur-sm sm:p-5">
-                                <h3 className="text-xs text-purple-400 sm:text-sm">{t("level.branch")}</h3>
-                                <p className="truncate text-2xl font-bold text-white sm:text-3xl">
-                                    {progress.currentStage}
-                                </p>
+                {/* ── Player HUD ───────────────────────────────────────────── */}
+                <section className="container mx-auto px-4 pt-20 pb-24 sm:pt-24">
+                    <ClientOnly fallback={<div className="h-[104px]" />}>
+                        <div className="hud border-gm-line bg-gm-night flex flex-col overflow-hidden rounded-[1.4rem] border-2 shadow-[0_6px_0_var(--color-gm-line)] md:flex-row md:items-stretch">
+                            <dl className="grid flex-1 grid-cols-2 md:grid-cols-4">
+                                {[
+                                    {
+                                        label: t("home.points"),
+                                        value: progress.score,
+                                        counter: true,
+                                        icon: <Star className="h-5 w-5 fill-current" />,
+                                        tone: "text-gm-gold bg-gm-gold/12",
+                                    },
+                                    {
+                                        label: t("home.completed"),
+                                        value: completedCount,
+                                        counter: true,
+                                        icon: <Check className="h-5 w-5" strokeWidth={3} />,
+                                        tone: "text-gm-lime bg-gm-lime/12",
+                                    },
+                                    {
+                                        label: t("level.level"),
+                                        value: progress.currentLevel,
+                                        counter: true,
+                                        icon: <Award className="h-5 w-5" />,
+                                        tone: "text-gm-coral bg-gm-coral/12",
+                                    },
+                                    {
+                                        label: t("level.branch"),
+                                        value: progress.currentStage,
+                                        counter: false,
+                                        icon: <GitBranch className="h-5 w-5" />,
+                                        tone: "text-gm-cyan bg-gm-cyan/12",
+                                    },
+                                ].map((stat, i) => (
+                                    <div
+                                        key={stat.label}
+                                        className={`border-gm-line flex min-w-0 items-center gap-3 px-5 py-5 ${i % 2 === 1 ? "border-s-2" : ""} ${i > 1 ? "border-t-2 md:border-t-0" : ""} ${i === 2 ? "md:border-s-2" : ""}`}>
+                                        <span
+                                            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${stat.tone}`}
+                                            aria-hidden="true">
+                                            {stat.icon}
+                                        </span>
+                                        <div className="min-w-0">
+                                            <dt className="text-gm-ink-dim text-sm">{stat.label}</dt>
+                                            <dd
+                                                className="font-display text-gm-ink truncate text-2xl tabular-nums"
+                                                {...(stat.counter ? { "data-counter": stat.value } : {})}>
+                                                {stat.value}
+                                            </dd>
+                                        </div>
+                                    </div>
+                                ))}
+                            </dl>
+                            <div className="border-gm-line flex items-center border-t-2 p-4 md:border-s-2 md:border-t-0 md:px-6">
+                                <button
+                                    type="button"
+                                    onClick={() => navigateToLevel(progress.currentStage, progress.currentLevel)}
+                                    className="btn-arcade btn-arcade-lime group w-full whitespace-nowrap md:w-auto">
+                                    <Play className="h-4 w-4 fill-current" aria-hidden="true" />
+                                    {t("home.continue")}
+                                </button>
                             </div>
                         </div>
                     </ClientOnly>
                 </section>
 
-                {/* ── Learning Path ─────────────────────────────────────────── */}
-                <section className="path-section container mx-auto px-4 py-8 sm:py-16">
-                    <h2 className="mb-8 text-center text-2xl font-bold text-white sm:mb-12 sm:text-3xl" data-reveal>
-                        <span className="relative">
-                            {learningPathHeading()}
-                            <span className="absolute -bottom-1 left-0 h-1 w-full rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-400 to-purple-300"></span>
-                        </span>
-                    </h2>
+                {/* Difficulty completion celebration */}
+                {isMounted && isDifficultyCompleted() && nextDifficulty && (
+                    <section className="container mx-auto px-4 pb-20" data-reveal>
+                        <div className="border-gm-lime-edge bg-gm-night mx-auto flex max-w-3xl flex-col items-center gap-5 rounded-[1.4rem] border-2 p-8 text-center shadow-[10px_10px_0_0_var(--color-gm-lime)] sm:p-10">
+                            <Award className="text-gm-gold h-12 w-12" aria-hidden="true" />
+                            <h2 className="font-display text-gm-ink text-2xl sm:text-3xl">Difficulty Mastered!</h2>
+                            <p className="text-gm-ink-soft max-w-prose">
+                                Congratulations! You&apos;ve completed all levels in {currentDifficulty} difficulty.
+                                Ready for the next challenge?
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => setCurrentDifficulty(nextDifficulty)}
+                                className="btn-arcade btn-arcade-lime">
+                                Advance to {nextDifficulty} Difficulty
+                                <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
+                            </button>
+                        </div>
+                    </section>
+                )}
 
-                    <ClientOnly>
-                        <div className="relative">
-                            {/* Central spine that fills as you scroll */}
-                            <div className="absolute left-1/2 hidden h-full w-1 -translate-x-1/2 overflow-hidden rounded-full bg-purple-900/40 lg:block">
-                                <div className="path-line-fill h-full w-full bg-gradient-to-b from-purple-400 via-fuchsia-500 to-purple-700"></div>
-                            </div>
+                {/* ── Stage map ────────────────────────────────────────────── */}
+                <section className="path-section bg-gm-grape relative py-24 [clip-path:polygon(0_2.5vw,100%_0,100%_calc(100%-2.5vw),0_100%)] sm:py-32">
+                    {/* Dot-matrix texture */}
+                    <div
+                        className="pointer-events-none absolute inset-0 [background-image:radial-gradient(var(--color-gm-grape-edge)_1.5px,transparent_1.6px)] [background-size:22px_22px] opacity-60"
+                        aria-hidden="true"></div>
 
-                            <div className="space-y-10 sm:space-y-16 lg:space-y-24">
+                    <div className="relative container mx-auto px-4">
+                        <div className="flex flex-wrap items-end justify-between gap-6" data-reveal>
+                            <h2 className="font-display text-gm-ink max-w-3xl text-[clamp(1.8rem,4.6vw,3.6rem)] leading-[1.02] [text-wrap:balance] [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                                {learningPathHeading()}
+                            </h2>
+                            <button
+                                type="button"
+                                onClick={() => setShowDifficultySelector(true)}
+                                className="btn-arcade btn-arcade-sm btn-arcade-night">
+                                <Settings2 className="text-gm-grape-hi h-4 w-4" aria-hidden="true" />
+                                {t("home.difficulty")}
+                                <ClientOnly>
+                                    <span className="bg-gm-grape text-gm-ink rounded-full px-2 py-0.5 text-xs font-semibold">
+                                        {t(`difficulty.${currentDifficulty}`)}
+                                    </span>
+                                </ClientOnly>
+                            </button>
+                        </div>
+
+                        <ClientOnly>
+                            <ol className="stage-list relative mt-14 sm:mt-20">
+                                {/* The main lane; fills with lime as you scroll */}
+                                <div
+                                    className="bg-gm-grape-edge absolute start-[26px] top-2 bottom-2 w-2 -translate-x-1/2 overflow-hidden rounded-full sm:start-[36px] rtl:translate-x-1/2"
+                                    aria-hidden="true">
+                                    <div className="lane-fill bg-gm-lime h-full w-full origin-top"></div>
+                                </div>
+
                                 {Object.entries(stages).map(([stageId, stageData], index) => {
                                     const isUnlocked = isStageUnlocked(stageId);
                                     const totalLevels = Object.keys(stageData.levels).length;
                                     const completedLevels = progress.completedLevels[stageId]?.length ?? 0;
                                     const progressPercent = calculateProgress(stageId);
+                                    const isDone = totalLevels > 0 && completedLevels === totalLevels;
+                                    const isCurrent = stageId === progress.currentStage;
 
                                     return (
-                                        <div className="relative" key={stageId}>
-                                            {/* Stage Node on the spine */}
+                                        <li
+                                            key={stageId}
+                                            data-stage
+                                            className="relative grid grid-cols-[52px_minmax(0,1fr)] gap-x-5 py-7 sm:grid-cols-[72px_minmax(0,1fr)] sm:gap-x-9 sm:py-10">
+                                            {/* Station on the lane */}
                                             <div
-                                                className={`group hidden h-12 w-12 transform items-center justify-center rounded-full lg:absolute lg:top-0 lg:left-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 ${
-                                                    isUnlocked
-                                                        ? "bg-gradient-to-br from-purple-500 to-fuchsia-600 shadow-lg shadow-purple-900/50"
-                                                        : "bg-gray-700"
-                                                } ${stageId === progress.currentStage ? "ring-4 ring-purple-400/50" : ""}`}>
-                                                {isUnlocked && (
-                                                    <span className="absolute -inset-2 hidden animate-ping rounded-full bg-purple-400/20 lg:inline-block"></span>
+                                                data-stage-node
+                                                className={`relative z-10 flex h-[52px] w-[52px] items-center justify-center rounded-full border-4 sm:h-[72px] sm:w-[72px] ${
+                                                    isDone
+                                                        ? "border-gm-lime-edge bg-gm-lime text-gm-void"
+                                                        : isUnlocked
+                                                          ? "border-gm-ink bg-gm-night text-gm-ink"
+                                                          : "border-gm-grape-edge bg-gm-grape text-gm-ink-soft"
+                                                } ${isCurrent ? "outline-gm-lime outline-4 outline-offset-4" : ""}`}>
+                                                {isUnlocked ? (
+                                                    getStageIcon(stageId)
+                                                ) : (
+                                                    <Lock className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                                                 )}
-                                                {getStageIcon(stageId)}
                                             </div>
 
                                             <div
-                                                data-stage-card
-                                                className={`group relative rounded-2xl border p-6 backdrop-blur-sm transition-all duration-300 ${
-                                                    isUnlocked
-                                                        ? "border-purple-700/30 bg-gradient-to-b from-purple-900/25 to-purple-950/20 hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-950/50"
-                                                        : "border-gray-800/20 bg-gray-900/10"
-                                                } ${index % 2 === 0 ? "lg:mr-12 lg:ml-auto" : "lg:mr-auto lg:ml-12"} w-full lg:w-5/12`}>
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center">
-                                                        {/* Show stage icon inline on mobile */}
-                                                        <div className="relative mr-3 lg:hidden">
-                                                            <div
-                                                                className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                                                                    isUnlocked
-                                                                        ? "bg-gradient-to-br from-purple-500 to-fuchsia-600"
-                                                                        : "bg-gray-700"
-                                                                }`}>
-                                                                {getStageIcon(stageId)}
-                                                            </div>
-                                                            {isUnlocked && (
-                                                                <span className="absolute -inset-1 animate-ping rounded-full bg-purple-400/20"></span>
-                                                            )}
-                                                        </div>
-                                                        <h3
-                                                            className={`text-lg font-bold sm:text-xl ${
-                                                                isUnlocked ? "text-white" : "text-gray-500"
-                                                            }`}>
-                                                            {stageData.name}
-                                                        </h3>
-                                                    </div>
-                                                    <div
-                                                        className={`flex items-center text-xs sm:text-sm ${
-                                                            isUnlocked ? "text-purple-400" : "text-gray-500"
-                                                        }`}>
-                                                        <div className="flex items-center">
+                                                data-stage-body
+                                                className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] lg:items-center lg:gap-12">
+                                                <div className="min-w-0">
+                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                                                        <span className="text-gm-ink-soft [font-family:var(--font-code)] text-sm tabular-nums">
+                                                            {String(index + 1).padStart(2, "0")}
+                                                        </span>
+                                                        {isCurrent && (
+                                                            <span className="bg-gm-lime text-gm-void rounded-md px-2 py-0.5 [font-family:var(--font-code)] text-xs font-bold">
+                                                                HEAD
+                                                            </span>
+                                                        )}
+                                                        <span
+                                                            className={`ms-auto flex items-center gap-1.5 text-sm font-semibold tabular-nums lg:ms-0 ${isDone ? "text-gm-lime" : "text-gm-ink-soft"}`}>
+                                                            <Award className="h-4 w-4" aria-hidden="true" />
                                                             {completedLevels}/{totalLevels}
-                                                            <Award className="ml-1 h-4 w-4" />
-                                                        </div>
+                                                        </span>
+                                                    </div>
+                                                    <h3
+                                                        className={`font-display mt-2 text-[clamp(1.3rem,5.4vw,2.5rem)] leading-[1.05] [overflow-wrap:anywhere] sm:[overflow-wrap:normal] ${isUnlocked ? "text-gm-ink" : "text-gm-ink-soft"}`}>
+                                                        {stageData.name}
+                                                    </h3>
+                                                    <p
+                                                        className={`text-gm-ink-soft mt-3 max-w-[52ch] text-base leading-relaxed sm:text-lg`}>
+                                                        {stageData.description}
+                                                    </p>
+                                                    <div
+                                                        className="bg-gm-grape-edge mt-5 h-2.5 w-full max-w-md overflow-hidden rounded-full"
+                                                        role="progressbar"
+                                                        aria-valuemin={0}
+                                                        aria-valuemax={totalLevels}
+                                                        aria-valuenow={completedLevels}
+                                                        aria-label={stageData.name}>
+                                                        <div
+                                                            className="bg-gm-lime h-full rounded-full transition-[width] duration-700 ease-[var(--ease-out-expo)]"
+                                                            style={{ width: `${progressPercent}%` }}></div>
                                                     </div>
                                                 </div>
 
-                                                {/* Stage progress bar */}
-                                                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-purple-900/40">
-                                                    <div
-                                                        className="h-full bg-gradient-to-r from-purple-500 via-fuchsia-400 to-purple-300 transition-all duration-700"
-                                                        style={{ width: `${progressPercent}%` }}></div>
-                                                </div>
-
-                                                <p
-                                                    className={`mt-3 text-sm sm:text-base ${
-                                                        isUnlocked ? "text-purple-200" : "text-gray-500"
-                                                    }`}>
-                                                    {stageData.description}
-                                                </p>
-
-                                                <div className="mt-4 flex flex-wrap gap-2">
-                                                    {Object.entries(stageData.levels).map(([levelId]) => {
+                                                <ul className="flex flex-wrap gap-3">
+                                                    {Object.keys(stageData.levels).map(levelId => {
                                                         const level = parseInt(levelId);
                                                         const levelUnlocked = isLevelUnlocked(stageId, level);
                                                         const levelCompleted = isLevelCompleted(stageId, level);
+                                                        const state = levelCompleted
+                                                            ? t("home.completed")
+                                                            : levelUnlocked
+                                                              ? t("home.startLevel")
+                                                              : t("home.locked");
 
                                                         return (
-                                                            <div
-                                                                key={levelId}
-                                                                className={
-                                                                    levelUnlocked
-                                                                        ? "transition-transform hover:scale-105"
-                                                                        : "pointer-events-none"
-                                                                }
-                                                                onClick={() =>
-                                                                    levelUnlocked && navigateToLevel(stageId, level)
-                                                                }>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className={`group flex cursor-pointer items-center ${
-                                                                        levelUnlocked
-                                                                            ? levelCompleted
-                                                                                ? "border-green-700 bg-green-900/20 text-green-300 hover:bg-green-900/40"
-                                                                                : "border-purple-700 bg-purple-900/10 text-purple-300 hover:border-purple-600 hover:bg-purple-900/30 hover:text-purple-100"
-                                                                            : "border-gray-800 bg-gray-900/20 text-gray-500"
+                                                            <li key={levelId} data-level>
+                                                                <button
+                                                                    type="button"
+                                                                    disabled={!levelUnlocked}
+                                                                    onClick={() => navigateToLevel(stageId, level)}
+                                                                    aria-label={`${t("level.level")} ${levelId}: ${state}`}
+                                                                    title={`${t("level.level")} ${levelId}`}
+                                                                    className={`font-display focus-visible:outline-gm-cyan relative flex h-14 w-14 items-center justify-center rounded-2xl border-2 text-xl transition-[transform,box-shadow,filter] duration-150 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:outline-offset-4 ${
+                                                                        levelCompleted
+                                                                            ? "border-gm-lime-edge bg-gm-lime text-gm-void cursor-pointer shadow-[0_4px_0_var(--color-gm-lime-edge)] hover:-translate-y-0.5 hover:shadow-[0_6px_0_var(--color-gm-lime-edge)] active:translate-y-[3px] active:shadow-[0_1px_0_var(--color-gm-lime-edge)]"
+                                                                            : levelUnlocked
+                                                                              ? "border-gm-grape-edge bg-gm-ink text-gm-grape-edge cursor-pointer shadow-[0_4px_0_var(--color-gm-grape-edge)] hover:-translate-y-0.5 hover:shadow-[0_6px_0_var(--color-gm-grape-edge)] active:translate-y-[3px] active:shadow-[0_1px_0_var(--color-gm-grape-edge)]"
+                                                                              : "border-gm-grape-edge/70 bg-gm-grape-edge/50 text-gm-ink-soft cursor-not-allowed"
                                                                     }`}>
-                                                                    {levelCompleted ? (
-                                                                        <CheckCircle2 className="mr-1 h-3 w-3 text-green-400 transition-transform duration-300 group-hover:scale-110" />
-                                                                    ) : !levelUnlocked ? (
-                                                                        <LockIcon className="mr-1 h-3 w-3" />
+                                                                    {levelUnlocked ? (
+                                                                        levelId
                                                                     ) : (
-                                                                        <Star className="mr-1 h-3 w-3 text-purple-400 transition-transform duration-300 group-hover:rotate-45" />
+                                                                        <Lock className="h-4 w-4" aria-hidden="true" />
                                                                     )}
-                                                                    Level {levelId}
-                                                                </Button>
-                                                            </div>
+                                                                    {levelCompleted && (
+                                                                        <span className="border-gm-lime-edge bg-gm-void text-gm-lime absolute -end-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2">
+                                                                            <Check
+                                                                                className="h-3 w-3"
+                                                                                strokeWidth={4}
+                                                                                aria-hidden="true"
+                                                                            />
+                                                                        </span>
+                                                                    )}
+                                                                </button>
+                                                            </li>
                                                         );
                                                     })}
-                                                </div>
-
-                                                {/* Arrow to next stage */}
-                                                {isUnlocked && index < Object.keys(stages).length - 1 && (
-                                                    <div className="absolute right-4 bottom-4 hidden text-purple-500 lg:block">
-                                                        <ChevronRight className="h-6 w-6 animate-bounce" />
-                                                    </div>
-                                                )}
+                                                </ul>
                                             </div>
-                                        </div>
+                                        </li>
                                     );
                                 })}
-                            </div>
-                        </div>
-                    </ClientOnly>
+                            </ol>
+                        </ClientOnly>
+                    </div>
                 </section>
 
-                {/* ── Features ──────────────────────────────────────────────── */}
-                <section className="container mx-auto px-4 py-8 sm:py-16">
-                    <h2 className="mb-8 text-center text-2xl font-bold text-white sm:mb-12 sm:text-3xl" data-reveal>
-                        <span className="relative">
-                            {t("home.gameFeatures")}
-                            <span className="absolute -bottom-1 left-0 h-1 w-full rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-400 to-purple-300"></span>
-                        </span>
+                {/* ── What's in the cartridge ──────────────────────────────── */}
+                <section className="container mx-auto px-4 py-24 sm:py-32">
+                    <h2
+                        className="font-display text-gm-ink max-w-3xl text-[clamp(1.8rem,4.6vw,3.6rem)] leading-[1.02] [text-wrap:balance] [overflow-wrap:anywhere] sm:[overflow-wrap:normal]"
+                        data-reveal>
+                        {t("home.gameFeatures")}
                     </h2>
 
-                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                        {[
-                            {
-                                icon: <Activity className="h-8 w-8 text-white" />,
-                                gradient: "from-green-500 to-emerald-600",
-                                border: "border-green-800/30",
-                                bg: "from-green-900/20 to-emerald-900/10",
-                                glow: "hover:shadow-green-500/10",
-                                bar: "bg-green-400",
-                                title: t("home.feature1.title"),
-                                description: t("home.feature1.description"),
-                            },
-                            {
-                                icon: <Gamepad2 className="h-8 w-8 text-white" />,
-                                gradient: "from-purple-500 to-indigo-600",
-                                border: "border-purple-800/30",
-                                bg: "from-purple-900/20 to-indigo-900/10",
-                                glow: "hover:shadow-purple-500/10",
-                                bar: "bg-purple-400",
-                                title: t("home.feature2.title"),
-                                description: t("home.feature2.description"),
-                            },
-                            {
-                                icon: <ShoppingCart className="h-8 w-8 text-white" />,
-                                gradient: "from-yellow-500 to-amber-600",
-                                border: "border-yellow-800/30",
-                                bg: "from-yellow-900/20 to-amber-900/10",
-                                glow: "hover:shadow-yellow-500/10",
-                                bar: "bg-yellow-400",
-                                title: t("home.feature3.title"),
-                                description: t("home.feature3.description"),
-                            },
-                        ].map((feature, i) => (
-                            <div key={i} data-reveal>
-                                <Card
-                                    className={`group relative overflow-hidden ${feature.border} bg-gradient-to-br ${feature.bg} backdrop-blur-sm transition-all duration-500 hover:scale-[1.03] hover:shadow-2xl ${feature.glow}`}>
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
-                                    <CardContent className="relative p-8 text-center">
-                                        <div
-                                            className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${feature.gradient} shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6`}>
-                                            {feature.icon}
-                                        </div>
-                                        <h3 className="mb-4 text-xl font-bold text-white">{feature.title}</h3>
-                                        <p className="leading-relaxed text-purple-200">{feature.description}</p>
-                                        <div className="mt-6 flex justify-center">
-                                            <div className="flex space-x-1">
-                                                <div className={`h-1 w-8 rounded-full ${feature.bar}`}></div>
-                                                <div className={`h-1 w-4 rounded-full ${feature.bar} opacity-50`}></div>
-                                                <div className={`h-1 w-2 rounded-full ${feature.bar} opacity-25`}></div>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
+                    <div className="mt-16 flex flex-col gap-20 sm:mt-20 sm:gap-28">
+                        {features.map((feature, i) => (
+                            <article
+                                key={feature.key}
+                                className="grid items-center gap-10 md:grid-cols-2 md:gap-16 lg:gap-24">
+                                <div className={i % 2 === 1 ? "md:order-2" : ""}>
+                                    <div
+                                        data-cart
+                                        className={`border-gm-line bg-gm-night overflow-hidden rounded-[1.6rem] border-2 ${feature.shadow} ${feature.tilt} transition-transform duration-500 ease-[var(--ease-out-expo)] hover:rotate-0`}
+                                        aria-hidden="true">
+                                        {feature.visual}
+                                    </div>
+                                </div>
+                                <div className="max-w-[34rem]" data-reveal>
+                                    <h3 className="font-display text-gm-ink text-[clamp(1.5rem,3vw,2.4rem)] leading-[1.05] [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                                        {feature.title}
+                                    </h3>
+                                    <p className="text-gm-ink-soft mt-4 text-lg leading-relaxed text-pretty">
+                                        {feature.description}
+                                    </p>
+                                    <div className="mt-7">{feature.action}</div>
+                                </div>
+                            </article>
                         ))}
                     </div>
                 </section>
 
-                {/* ── Bottom CTA ────────────────────────────────────────────── */}
-                <section className="container mx-auto px-4 py-12 text-center" data-reveal>
-                    <div className="relative mx-auto max-w-3xl overflow-hidden rounded-3xl border border-purple-700/30 bg-gradient-to-b from-purple-900/30 to-[#171126] p-8 sm:p-12">
-                        <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-96 -translate-x-1/2 rounded-full bg-purple-500/20 blur-3xl"></div>
-                        <BookMarked className="mx-auto mb-4 h-12 w-12 text-purple-400" />
-                        <h2 className="mb-4 text-2xl font-bold text-white sm:text-3xl">{t("home.startLearning")}</h2>
-                        <p className="mb-6 text-purple-200">{t("home.subtitle")}</p>
-                        <Link href="/intro">
-                            <Button
-                                size="lg"
-                                className="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-lg shadow-purple-900/40 transition-all duration-300 hover:brightness-110">
-                                <span className="relative z-10 flex items-center">
-                                    <Code className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
-                                    {t("home.startLearning")}
-                                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                                </span>
-                            </Button>
-                        </Link>
+                {/* ── Final call: insert coin ──────────────────────────────── */}
+                <section className="border-gm-line bg-gm-night relative isolate overflow-hidden border-t-2 py-28 sm:py-36">
+                    <div
+                        className="pointer-events-none absolute inset-0 -z-10 flex -rotate-6 flex-col justify-center gap-4 opacity-[0.55] select-none"
+                        aria-hidden="true">
+                        <Ticker className="font-display text-gm-deep text-[clamp(3rem,9vw,7rem)]" />
+                        <Ticker reverse className="font-display text-gm-deep text-[clamp(3rem,9vw,7rem)]" />
+                    </div>
+
+                    <div className="container mx-auto flex flex-col items-center px-4 text-center" data-reveal>
+                        <h2 className="font-display text-gm-ink max-w-4xl text-[clamp(1.8rem,7.5vw,5rem)] leading-[1] [text-wrap:balance] [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                            {t("home.chooseChallenge")}
+                        </h2>
+                        <p className="text-gm-ink-soft mt-6 max-w-[40rem] text-lg leading-relaxed text-pretty">
+                            {t("home.subtitle")}
+                        </p>
+                        <div className="mt-10 flex w-full flex-col items-stretch justify-center gap-4 sm:w-auto sm:flex-row sm:items-center">
+                            <Link
+                                href="/intro"
+                                className="btn-arcade btn-arcade-lime group min-h-[3.75rem] px-8 text-lg">
+                                <Play className="h-5 w-5 fill-current" aria-hidden="true" />
+                                {t("home.startLearning")}
+                                <ArrowRight
+                                    className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180"
+                                    aria-hidden="true"
+                                />
+                            </Link>
+                            <button
+                                type="button"
+                                onClick={() => setShowDifficultySelector(true)}
+                                className="btn-arcade btn-arcade-grape min-h-[3.75rem] px-8 text-lg">
+                                <Settings2 className="h-5 w-5" aria-hidden="true" />
+                                {t("home.difficulty")}
+                            </button>
+                        </div>
                     </div>
                 </section>
             </div>
 
-            {/* New Gamification Dialogs */}
             <DifficultySelector
                 isOpen={showDifficultySelector}
                 onClose={() => {

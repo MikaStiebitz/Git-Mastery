@@ -8,15 +8,42 @@ export interface TerminalProps {
     onResetClick?: () => void;
 }
 
+/** The runtime colours of the active (possibly purchased) terminal theme. */
+export interface TerminalThemeColors {
+    background: string;
+    text: string;
+    accent: string;
+    border: string;
+    prompt: string;
+    success: string;
+    error: string;
+    warning: string;
+}
+
 export interface TerminalHeaderProps {
-    isPlaygroundMode: boolean;
-    currentStage: string;
-    currentLevel: number;
+    path: string;
+    theme: TerminalThemeColors;
     showHelpButton: boolean;
     showResetButton: boolean;
     handleShowHelp: () => void;
     handleReset: () => void;
     handleShowThemes?: () => void;
+    t: (key: string) => string;
+}
+
+export interface TerminalStatusBarProps {
+    path: string;
+    /** Fill and ink of the branch pill, resolved against the Git legend or the active theme. */
+    branchFill: string;
+    branchInk: string;
+    isGitInitialized: boolean;
+    branch: string;
+    stagedCount: number;
+    modifiedCount: number;
+    untrackedCount: number;
+    unpushedCommitsCount: number;
+    unpulledCommitsCount: number;
+    theme: TerminalThemeColors;
     t: (key: string) => string;
 }
 
@@ -41,19 +68,8 @@ export interface TerminalInputProps {
     showAutocomplete: boolean;
     fileAutocomplete: string[];
     selectAutocompleteOption: (file: string) => void;
-    renderFancyPrompt: () => ReactNode;
+    theme: TerminalThemeColors;
     t: (key: string) => string;
-}
-
-export interface TerminalPromptProps {
-    currentDirectory: string;
-    isGitInitialized: boolean;
-    branch: string;
-    stagedCount: number;
-    modifiedCount: number;
-    untrackedCount: number;
-    unpushedCommitsCount: number;
-    unpulledCommitsCount: number;
 }
 
 export interface HistoryState {

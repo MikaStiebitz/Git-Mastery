@@ -2,22 +2,25 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "~/lib/utils";
 
-const badgeVariants = cva(
-    "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-    {
-        variants: {
-            variant: {
-                default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-                secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-                destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-                outline: "text-foreground",
-            },
-        },
-        defaultVariants: {
-            variant: "default",
+/**
+ * Status pills. Variants follow the Git legend: lime = done, cyan = branch/info,
+ * coral = danger, gold = rewards, grape = neutral brand.
+ */
+const badgeVariants = cva("gm-chip", {
+    variants: {
+        variant: {
+            default: "bg-gm-lime text-gm-void",
+            secondary: "bg-gm-grape text-gm-ink",
+            destructive: "bg-gm-coral text-gm-void",
+            info: "bg-gm-cyan text-gm-void",
+            reward: "bg-gm-gold text-gm-void",
+            outline: "border-gm-line bg-gm-void text-gm-ink-soft",
         },
     },
-);
+    defaultVariants: {
+        variant: "default",
+    },
+});
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
 

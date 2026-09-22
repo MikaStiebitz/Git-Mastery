@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { GitBranch, Timer, Trophy, X } from "lucide-react";
+import { CheckCircle, GitBranch, Timer, Trophy, X, XCircle } from "lucide-react";
 
 interface BranchMasterProps {
     onComplete: (score: number) => void;
@@ -146,7 +145,7 @@ const CHALLENGES: Challenge[] = [
         instruction: "View a summary of the commit log (one line per commit)",
         correctAnswer: "git log --oneline",
         options: ["git log --oneline", "git show --summary", "git list --short", "git commit --list"],
-        difficulty: "advanced",    
+        difficulty: "advanced",
     },
 
     // Pro questions
@@ -205,7 +204,7 @@ const CHALLENGES: Challenge[] = [
         ],
         difficulty: "pro",
     },
-    
+
     {
         instruction: "Search for the string 'bug' in the commit history",
         correctAnswer: "git log -S 'bug'",
@@ -286,7 +285,7 @@ export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: B
                 break;
         }
 
-       /**
+        /**
          * Selects 8 random challenges and shuffles their options.
          *
          * Uses the Fisher–Yates algorithm to ensure an unbiased shuffle.
@@ -296,13 +295,13 @@ export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: B
          * 1. Shuffle all challenges.
          * 2. Take the first 8.
          * 3. Shuffle options within each challenge.
-         * 
+         *
          */
         const selected = shuffleArray(filteredChallenges).slice(0, 8);
 
         return selected.map(challenge => ({
             ...challenge,
-            options: shuffleArray(challenge.options)
+            options: shuffleArray(challenge.options),
         }));
     };
 
@@ -357,143 +356,165 @@ export function BranchMaster({ onComplete, onClose, difficulty = "beginner" }: B
     };
 
     const challenge = selectedChallenges[currentChallenge];
+    // The clock only turns coral once it is genuinely about to run out.
+    const timeCritical = timeLeft <= 10;
+    const answeredCorrectly = selectedAnswer === challenge?.correctAnswer;
 
     if (!gameStarted) {
         return (
-            <Card className="mx-auto max-w-md border-green-600 bg-green-900/20">
-                <CardHeader className="text-center">
-                    <CardTitle className="flex items-center justify-center text-xl text-green-400">
-                        <GitBranch className="mr-2 h-6 w-6" />
+            <div className="mx-auto flex w-full max-w-md flex-col gap-5">
+                <div className="flex items-start justify-between gap-3">
+                    <h2 className="font-display text-gm-ink flex min-w-0 items-center gap-2.5 text-2xl [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                        <GitBranch className="text-gm-cyan h-6 w-6 shrink-0" aria-hidden="true" />
                         Branch Master
-                    </CardTitle>
-                    <div className="absolute right-2 top-2">
-                        <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
-                            <X className="h-4 w-4" />
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-4 text-center">
-                    <p className="text-purple-200">Answer Git branching questions as fast as possible!</p>
-                    <p className="text-sm text-purple-300">
+                    </h2>
+                    <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+                        <X className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                </div>
+                <p className="text-gm-ink-soft">Answer Git branching questions as fast as possible!</p>
+                <div className="gm-inset flex flex-col gap-1.5 p-4">
+                    <p className="text-gm-ink-dim text-sm">
                         • Difficulty: {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
                     </p>
-                    <p className="text-sm text-purple-300">• 8 questions • 60 seconds • Bonus points for speed</p>
-                    <Button onClick={startGame} className="w-full bg-green-600 text-white hover:bg-green-700">
-                        Start Game
-                    </Button>
-                </CardContent>
-            </Card>
+                    <p className="text-gm-ink-dim text-sm">• 8 questions • 60 seconds • Bonus points for speed</p>
+                </div>
+                <Button onClick={startGame} size="lg" className="w-full">
+                    Start Game
+                </Button>
+            </div>
         );
     }
 
     if (gameEnded) {
         const finalScore = Math.max(0, score * 2 + timeLeft);
         return (
-            <Card className="mx-auto max-w-md border-yellow-600 bg-yellow-900/20">
-                <CardHeader className="text-center">
-                    <CardTitle className="flex items-center justify-center text-xl text-yellow-400">
-                        <Trophy className="mr-2 h-6 w-6" />
-                        Game Complete!
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 text-center">
-                    <div className="space-y-2">
-                        <p className="text-lg text-white">Final Score: {finalScore}</p>
-                        <p className="text-sm text-purple-200">
-                            Correct Answers: {score / 10} / {selectedChallenges.length}
-                        </p>
-                        <p className="text-sm text-purple-200">Time Bonus: {timeLeft} points</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <Button
-                            onClick={startGame}
-                            variant="outline"
-                            className="flex-1 border-green-600 text-green-300 hover:bg-green-900/50">
-                            Play Again
-                        </Button>
-                        <Button onClick={onClose} className="flex-1 bg-purple-600 text-white hover:bg-purple-700">
-                            Close
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="mx-auto flex w-full max-w-md flex-col gap-5">
+                <h2 className="font-display text-gm-ink flex items-center justify-center gap-2.5 text-center text-2xl">
+                    <Trophy className="text-gm-gold h-6 w-6 shrink-0" aria-hidden="true" />
+                    Game Complete!
+                </h2>
+                <div className="gm-inset flex flex-col gap-2 p-5 text-center">
+                    <p className="text-gm-ink text-lg">
+                        Final Score:{" "}
+                        <span className="font-display text-gm-gold text-2xl tabular-nums">{finalScore}</span>
+                    </p>
+                    <p className="text-gm-ink-soft text-sm">
+                        Correct Answers: {score / 10} / {selectedChallenges.length}
+                    </p>
+                    <p className="text-gm-ink-soft text-sm">Time Bonus: {timeLeft} points</p>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                    <Button onClick={startGame} className="flex-1">
+                        Play Again
+                    </Button>
+                    <Button onClick={onClose} variant="outline" className="flex-1">
+                        Close
+                    </Button>
+                </div>
+            </div>
         );
     }
 
     return (
-        <Card className="mx-auto max-w-2xl border-green-600 bg-green-900/20">
-            <CardHeader>
-                <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center text-lg text-green-400">
-                        <GitBranch className="mr-2 h-5 w-5" />
-                        Branch Master - Playing
-                    </CardTitle>
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center text-purple-300">
-                            <Timer className="mr-1 h-4 w-4" />
-                            {timeLeft}s
-                        </div>
-                        <div className="text-purple-300">Score: {score}</div>
-                        <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-white">
-                            <X className="h-4 w-4" />
-                        </Button>
-                    </div>
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
+            {/* HUD: name, clock, score — inset so it never reads as a card inside the dialog */}
+            <div className="gm-inset flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 py-2.5">
+                <h2 className="text-gm-ink flex min-w-0 items-center gap-2 font-bold">
+                    <GitBranch className="text-gm-cyan h-5 w-5 shrink-0" aria-hidden="true" />
+                    <span className="truncate">Branch Master - Playing</span>
+                </h2>
+                <div className="flex items-center gap-3">
+                    <span
+                        className={`flex items-center gap-1.5 text-sm tabular-nums ${
+                            timeCritical ? "text-gm-coral" : "text-gm-ink-soft"
+                        }`}>
+                        <Timer className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        {timeLeft}s
+                    </span>
+                    <span className="text-gm-gold flex items-center gap-1.5 text-sm font-semibold tabular-nums">
+                        <Trophy className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        Score: {score}
+                    </span>
+                    <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+                        <X className="h-4 w-4" aria-hidden="true" />
+                    </Button>
                 </div>
-                <div className="mt-2">
-                    <div className="flex text-sm text-purple-400">
-                        Question {currentChallenge + 1} of {selectedChallenges.length}
-                    </div>
-                    <div className="mt-1 h-2 w-full rounded-full bg-purple-900/30">
-                        <div
-                            className="h-full rounded-full bg-green-600 transition-all duration-300"
-                            style={{ width: `${((currentChallenge + 1) / selectedChallenges.length) * 100}%` }}
-                        />
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div className="text-center">
-                    <h3 className="mb-4 text-lg text-white">{challenge?.instruction}</h3>
-                </div>
+            </div>
 
-                <div className="grid grid-cols-1 gap-3">
-                    {challenge?.options.map((option, index) => (
+            <div>
+                <p className="text-gm-ink-dim text-sm">
+                    Question {currentChallenge + 1} of {selectedChallenges.length}
+                </p>
+                <div className="border-gm-line bg-gm-void mt-1.5 h-2.5 w-full overflow-hidden rounded-full border-2">
+                    <div
+                        className="bg-gm-lime h-full transition-[width] duration-300 ease-[var(--ease-out-expo)] motion-reduce:transition-none"
+                        style={{ width: `${((currentChallenge + 1) / selectedChallenges.length) * 100}%` }}
+                    />
+                </div>
+            </div>
+
+            <h3 className="text-gm-ink text-lg [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                {challenge?.instruction}
+            </h3>
+
+            {/* Answer keycaps: real buttons that sink onto their edge when pressed. */}
+            <div className="grid grid-cols-1 gap-3">
+                {challenge?.options.map((option, index) => {
+                    const isAnswer = showResult && option === challenge.correctAnswer;
+                    const isWrongPick = showResult && !isAnswer && option === selectedAnswer;
+
+                    return (
                         <Button
                             key={index}
                             onClick={() => handleAnswer(option)}
                             disabled={showResult}
-                            className={`p-4 text-left transition-all duration-200 ${
-                                showResult
-                                    ? option === challenge.correctAnswer
-                                        ? "border-green-500 bg-green-600 text-white"
-                                        : option === selectedAnswer
-                                          ? "border-red-500 bg-red-600 text-white"
-                                          : "border-gray-500 bg-gray-600 text-gray-300"
-                                    : "border-purple-700 bg-purple-900/30 text-purple-100 hover:border-purple-600 hover:bg-purple-900/50"
-                            }`}
-                            variant="outline">
-                            <code className="font-mono text-sm">{option}</code>
+                            variant={isAnswer ? "default" : isWrongPick ? "destructive" : "outline"}
+                            className={`h-auto min-h-[3.25rem] w-full justify-start gap-3 rounded-2xl px-4 py-3 text-start whitespace-normal ${
+                                isAnswer
+                                    ? "disabled:border-gm-lime-edge disabled:bg-gm-lime disabled:text-gm-void"
+                                    : isWrongPick
+                                      ? "disabled:border-gm-coral-edge disabled:bg-gm-coral disabled:text-gm-void"
+                                      : ""
+                            }`}>
+                            {isAnswer && <CheckCircle className="h-5 w-5 shrink-0" aria-hidden="true" />}
+                            {isWrongPick && <XCircle className="h-5 w-5 shrink-0" aria-hidden="true" />}
+                            <code className="[font-family:var(--font-code)] text-sm [overflow-wrap:anywhere]">
+                                {option}
+                            </code>
                         </Button>
-                    ))}
-                </div>
+                    );
+                })}
+            </div>
 
-                {showResult && (
-                    <div className="text-center">
-                        <p
-                            className={`text-lg ${selectedAnswer === challenge?.correctAnswer ? "text-green-400" : "text-red-400"}`}>
-                            {selectedAnswer === challenge?.correctAnswer ? "✓ Correct!" : "✗ Wrong!"}
-                        </p>
-                        {selectedAnswer !== challenge?.correctAnswer && (
-                            <p className="mt-1 text-sm text-purple-300">
-                                Correct answer:{" "}
-                                <code className="rounded bg-purple-900/50 px-2 py-1 font-mono">
-                                    {challenge?.correctAnswer}
-                                </code>
-                            </p>
+            {showResult && (
+                <div
+                    role="status"
+                    aria-live="polite"
+                    className={`flex flex-col items-center gap-1.5 rounded-[0.85rem] border-2 p-3 text-center ${
+                        answeredCorrectly ? "border-gm-lime-edge bg-gm-lime/12" : "border-gm-coral-edge bg-gm-coral/12"
+                    }`}>
+                    <p
+                        className={`flex items-center gap-2 text-lg font-semibold ${
+                            answeredCorrectly ? "text-gm-lime" : "text-gm-coral"
+                        }`}>
+                        {answeredCorrectly ? (
+                            <CheckCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+                        ) : (
+                            <XCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
                         )}
-                    </div>
-                )}
-            </CardContent>
-        </Card>
+                        {answeredCorrectly ? "Correct!" : "Wrong!"}
+                    </p>
+                    {!answeredCorrectly && (
+                        <p className="text-gm-ink-soft text-sm">
+                            Correct answer:{" "}
+                            <code className="border-gm-line bg-gm-void text-gm-ink rounded-[0.5rem] border-2 px-2 py-0.5 [font-family:var(--font-code)] [overflow-wrap:anywhere]">
+                                {challenge?.correctAnswer}
+                            </code>
+                        </p>
+                    )}
+                </div>
+            )}
+        </div>
     );
 }

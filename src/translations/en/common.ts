@@ -108,7 +108,8 @@ const common = {
     "shop.item.darkTerminal.name": "Dark Terminal Theme",
     "shop.item.darkTerminal.description": "A sleek dark terminal theme with blue accents - classic and professional",
     "shop.item.matrixTerminal.name": "Matrix Terminal Theme",
-    "shop.item.matrixTerminal.description": "Green-on-black terminal theme like the Matrix movies - for the ultimate hacker feel",
+    "shop.item.matrixTerminal.description":
+        "Green-on-black terminal theme like the Matrix movies - for the ultimate hacker feel",
     "shop.item.goldenTerminal.name": "Golden Terminal Theme",
     "shop.item.goldenTerminal.description": "A shiny gold terminal theme that shows your Git mastery to everyone",
     "shop.item.gitMascot.name": "Git Mascot Pet",
@@ -122,7 +123,8 @@ const common = {
     "shop.item.proTips.name": "Pro Git Tips",
     "shop.item.proTips.description": "Unlock useful Git commands and tricks - hidden knowledge from Git experts",
     "shop.item.gitLegend.name": "Git Legend Badge",
-    "shop.item.gitLegend.description": "Exclusive badge showing you've mastered advanced Git - unlock special recognition",
+    "shop.item.gitLegend.description":
+        "Exclusive badge showing you've mastered advanced Git - unlock special recognition",
 
     // Pro Tip Dialog
     "shop.proTip.title": "Pro Git Tip",
@@ -144,6 +146,8 @@ const common = {
     "shop.rarity.rare": "Rare",
     "shop.rarity.epic": "Epic",
     "shop.rarity.legendary": "Legendary",
+    "common.copy": "Copy",
+    "common.copied": "Copied",
 };
 
 export default common;

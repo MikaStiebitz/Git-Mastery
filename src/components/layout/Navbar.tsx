@@ -4,6 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import {
+    Coins,
+    Trophy,
     GitBranch,
     Terminal,
     BookCopy,
@@ -26,6 +28,8 @@ import { ClientOnly } from "~/components/ClientOnly";
 import { allStages } from "~/levels";
 import { BadgeDisplay } from "~/components/BadgeDisplay";
 import { DebugModal } from "~/components/DebugModal";
+import { cn } from "~/lib/utils";
+import { ProgressManager } from "~/models/ProgressManager";
 import { env } from "~/env";
 
 interface NavbarProps {
@@ -50,6 +54,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const [repoStars, setRepoStars] = useState<number | null>(null);
     const [debugModalOpen, setDebugModalOpen] = useState(false);
     const [languageDialogOpen, setLanguageDialogOpen] = useState(false);
+    const [purse, setPurse] = useState({ score: 0, coins: 0 });
 
     // Determine which page we're on
     const normalizedPathname = pathname === "/" ? "/" : pathname.replace(/\/+$/, "");
@@ -87,6 +92,34 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const toggleMobileMenu = () => {
         setMobileMenuOpen(!mobileMenuOpen);
     };
+
+    // The arcade readout: points earned and coins left to spend. ProgressManager announces
+    // every write, so clearing a level or buying in the shop updates the bar immediately.
+    useEffect(() => {
+        const read = () => setPurse({ score: progressManager.getProgress().score, coins: progressManager.getCoins() });
+        read();
+        window.addEventListener(ProgressManager.CHANGE_EVENT, read);
+        window.addEventListener("storage", read);
+        return () => {
+            window.removeEventListener(ProgressManager.CHANGE_EVENT, read);
+            window.removeEventListener("storage", read);
+        };
+    }, [progressManager, pathname]);
+
+    // A route change always closes the drawer; otherwise it stays open over the new page.
+    useEffect(() => {
+        setMobileMenuOpen(false);
+    }, [pathname]);
+
+    // Escape closes the drawer, like every other dismissible surface in the app.
+    useEffect(() => {
+        if (!mobileMenuOpen) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setMobileMenuOpen(false);
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [mobileMenuOpen]);
 
     // Navigate to learning - use localStorage for current level
     const navigateToLearning = () => {
@@ -179,279 +212,234 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
             ? "--"
             : new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(repoStars);
 
+    const pageLabel = isPlaygroundPage
+        ? t("nav.playground")
+        : isInstallationPage
+          ? t("nav.installation")
+          : isFaqPage
+            ? t("nav.faq")
+            : isArcadePage
+              ? t("nav.arcade")
+              : null;
+
+    // One definition per destination, so the desktop bar and the mobile drawer can never
+    // drift apart.
+    const navLinks = [
+        { href: "/", label: t("nav.home"), icon: Home, current: isHomePage },
+        { href: "/playground", label: t("nav.playground"), icon: BookCopy, current: isPlaygroundPage },
+        { href: "/arcade", label: t("nav.arcade"), icon: Gamepad2, current: isArcadePage },
+        { href: "/installation", label: t("nav.installation"), icon: Download, current: isInstallationPage },
+        { href: "/faq", label: t("nav.faq"), icon: HelpCircle, current: isFaqPage },
+    ];
+
+    const starChip = (className = "") => (
+        <a
+            href="https://github.com/MikaStiebitz/Git-Mastery"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+                "group border-gm-line bg-gm-night text-gm-ink hover:border-gm-grape-hi inline-flex h-10 shrink-0 items-center gap-2 rounded-full border-2 px-3 transition-colors duration-150",
+                className,
+            )}
+            aria-label={t("nav.starOnGithub")}>
+            <Github
+                className="text-gm-ink-soft group-hover:text-gm-ink h-4 w-4 transition-colors duration-150"
+                aria-hidden="true"
+            />
+            <span className="flex items-center gap-1 text-xs font-bold tabular-nums">
+                {formattedRepoStars}
+                <Star className="fill-gm-gold text-gm-gold h-3.5 w-3.5" aria-hidden="true" />
+            </span>
+        </a>
+    );
+
+    /**
+     * The cabinet readout: coins are the spendable currency and carry the gold, points are
+     * the running total and stay quiet. It states facts, so it is not a control.
+     */
+    const purseChip = (className = "") => (
+        <ClientOnly
+            fallback={<div className={cn("h-10 w-[76px] shrink-0 sm:w-[124px]", className)} aria-hidden="true" />}>
+            <div
+                className={cn(
+                    "border-gm-gold-edge bg-gm-night flex h-10 shrink-0 items-center gap-2 rounded-full border-2 px-3",
+                    className,
+                )}>
+                <span className="text-gm-gold flex items-center gap-1.5 text-xs font-bold tabular-nums">
+                    <Coins className="h-4 w-4" aria-hidden="true" />
+                    {purse.coins}
+                    <span className="sr-only">{t("shop.coins")}</span>
+                </span>
+                {/* Coins are the actionable number, so they stay on a phone; the running
+                    total joins them once there is room. */}
+                <span className="bg-gm-line hidden h-4 w-px shrink-0 sm:block" aria-hidden="true"></span>
+                <span className="text-gm-ink-soft hidden items-center gap-1 text-xs font-semibold sm:flex">
+                    <Trophy className="text-gm-ink-dim h-3.5 w-3.5" aria-hidden="true" />
+                    <span className="tabular-nums">{purse.score}</span>
+                    <span className="text-gm-ink-dim" aria-hidden="true">
+                        XP
+                    </span>
+                    <span className="sr-only">{t("home.points")}</span>
+                </span>
+            </div>
+        </ClientOnly>
+    );
+
     return (
-        <header className="border-b border-purple-900/20 bg-[#1a1625]">
-            <nav className="container mx-auto flex min-h-16 items-center px-4">
-                <div className="flex w-full items-center justify-between gap-2">
-                    {/* Logo and brand */}
-                    <Link href="/" className="flex shrink-0 items-center space-x-2">
-                        <GitBranch className="h-6 w-6 text-purple-400" />
-                        <span className="text-xl font-bold text-white">GitMastery</span>
-                    </Link>
+        <header className="border-gm-line bg-gm-void sticky top-0 z-(--z-sticky) border-b-2">
+            <nav className="container mx-auto flex min-h-16 items-center gap-3 px-4" aria-label={t("nav.home")}>
+                {/* Logo and brand */}
+                <Link
+                    href="/"
+                    className="group focus-visible:outline-gm-cyan flex shrink-0 items-center gap-2 rounded-lg focus-visible:outline-3 focus-visible:outline-offset-4">
+                    <span className="border-gm-grape-edge bg-gm-grape text-gm-ink group-hover:border-gm-lime-edge group-hover:bg-gm-lime group-hover:text-gm-void flex h-9 w-9 items-center justify-center rounded-[0.7rem] border-2 transition-colors duration-150">
+                        <GitBranch className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <span className="font-display text-gm-ink hidden text-lg sm:inline">GitMastery</span>
+                </Link>
 
-                    {/* Current level info - responsive display */}
-                    {showLevelInfo && (
-                        <ClientOnly>
-                            <div className="ml-4 hidden max-w-[280px] shrink-0 truncate text-purple-300 2xl:block">
-                                {t("level.level")} {currentLevel} - {stageName}
-                            </div>
-                            <div className="ml-4 hidden max-w-[160px] shrink-0 truncate text-purple-300 xl:block 2xl:hidden">
-                                L{currentLevel} - {stageName}
-                            </div>
-                        </ClientOnly>
-                    )}
+                {/* Where you are: the level you're playing, or the page you're on */}
+                {showLevelInfo ? (
+                    <ClientOnly>
+                        <span className="border-gm-line bg-gm-night text-gm-ink-soft hidden h-8 max-w-[240px] shrink items-center gap-1.5 truncate rounded-full border-2 px-3 text-xs font-semibold md:flex">
+                            <span className="text-gm-lime [font-family:var(--font-code)]">L{currentLevel}</span>
+                            <span className="truncate">{stageName}</span>
+                        </span>
+                    </ClientOnly>
+                ) : (
+                    pageLabel && (
+                        <span className="text-gm-ink-soft hidden shrink truncate text-sm font-semibold md:inline">
+                            {pageLabel}
+                        </span>
+                    )
+                )}
 
-                    {/* Show playground text on relevant pages */}
-                    {isPlaygroundPage && (
-                        <span className={`ml-4 hidden text-purple-300 ${pageLabelClass}`}>{t("nav.playground")}</span>
-                    )}
-
-                    {/* Show installation text on relevant pages */}
-                    {isInstallationPage && (
-                        <span className={`ml-4 hidden text-purple-300 ${pageLabelClass}`}>{t("nav.installation")}</span>
-                    )}
-
-                    {/* Show FAQ text on relevant pages */}
-                    {isFaqPage && (
-                        <span className={`ml-4 hidden text-purple-300 ${pageLabelClass}`}>{t("nav.faq")}</span>
-                    )}
-
-                    {/* Show Arcade text on relevant pages */}
-                    {isArcadePage && (
-                        <span className={`ml-4 hidden text-purple-300 ${pageLabelClass}`}>{t("nav.arcade")}</span>
-                    )}
-
-                    {/* Badge display - only show on larger screens to avoid overcrowding */}
-                    <div className={`ml-4 hidden ${badgeDesktopClass}`}>
+                <div className="ms-auto flex items-center gap-2">
+                    <div className="hidden xl:block">
                         <BadgeDisplay />
                     </div>
 
-                    {/* Desktop navigation */}
-                    <div className={`ml-auto hidden items-center gap-3 ${desktopNavClass}`}>
-                        {/* GitHub chip with repository stars */}
-                        <a
-                            href="https://github.com/MikaStiebitz/Git-Mastery"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group flex items-center gap-2 rounded-full border border-purple-700/60 bg-purple-900/30 px-3 py-1.5 text-purple-100 transition-all duration-300 hover:border-purple-500 hover:bg-purple-800/40"
-                            aria-label={t("nav.starOnGithub")}>
-                            <Github className="h-4 w-4 text-purple-200 transition-colors duration-300 group-hover:text-white" />
-                            <span className="flex items-center gap-1 text-xs font-semibold text-white">
-                                <span>{formattedRepoStars}</span>
-                                <Star className="h-3.5 w-3.5 fill-yellow-300 text-yellow-300" />
-                            </span>
-                        </a>
-
-                        {/* Language selector */}
-                        <Button
-                            variant="ghost"
-                            onClick={() => setLanguageDialogOpen(true)}
-                            className="flex items-center text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                            <Languages className="mr-2 h-4 w-4" />
-                            {languages.find(l => l.code === language)?.nativeName || language.toUpperCase()}
-                        </Button>
-
-                        {!isHomePage && (
-                            <Link href="/">
+                    {/* Destinations. Icon-only from lg, labelled again from 2xl, and the page
+                        you're on stays in the bar as a pressed key instead of disappearing. */}
+                    <ul className="hidden items-center gap-1 lg:flex">
+                        {navLinks.map(({ href, label, icon: Icon, current }) => (
+                            <li key={href}>
                                 <Button
-                                    variant="ghost"
-                                    className="text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                    <Home className="mr-2 h-4 w-4" />
-                                    {t("nav.home")}
+                                    variant={current ? "secondary" : "ghost"}
+                                    size={current ? "default" : "default"}
+                                    className="px-3 2xl:px-4"
+                                    asChild>
+                                    <Link href={href} aria-current={current ? "page" : undefined} title={label}>
+                                        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                        <span className="hidden 2xl:inline">{label}</span>
+                                        <span className="sr-only 2xl:hidden">{label}</span>
+                                    </Link>
                                 </Button>
-                            </Link>
-                        )}
+                            </li>
+                        ))}
+                    </ul>
 
-                        {/* FAQ link */}
-                        {!isFaqPage && (
-                            <Link href="/faq">
-                                <Button
-                                    variant="ghost"
-                                    className="text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                    <HelpCircle className="mr-2 h-4 w-4" />
-                                    {t("nav.faq")}
-                                </Button>
-                            </Link>
-                        )}
+                    {purseChip()}
+                    {starChip("hidden sm:inline-flex")}
 
-                        {!isInstallationPage && (
-                            <Link href="/installation">
-                                <Button
-                                    variant="ghost"
-                                    className="text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                    <Download className="mr-2 h-4 w-4" />
-                                    {t("nav.installation")}
-                                </Button>
-                            </Link>
-                        )}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="hidden lg:inline-flex"
+                        onClick={() => setLanguageDialogOpen(true)}
+                        title={t("nav.language")}
+                        aria-label={t("nav.language")}>
+                        <Languages className="h-4 w-4" aria-hidden="true" />
+                    </Button>
 
-                        {!isPlaygroundPage && (
-                            <Link href="/playground">
-                                <Button
-                                    variant="ghost"
-                                    className="text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                    <BookCopy className="mr-2 h-4 w-4" />
-                                    {t("nav.playground")}
-                                </Button>
-                            </Link>
-                        )}
-
-                        {!isArcadePage && (
-                            <Link href="/arcade">
-                                <Button
-                                    variant="ghost"
-                                    className="text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                    <Gamepad2 className="mr-2 h-4 w-4" />
-                                    {t("nav.arcade")}
-                                </Button>
-                            </Link>
-                        )}
-
-                        <Button
-                            onClick={navigateToLearning}
-                            className="shrink-0 bg-purple-600 text-white hover:bg-purple-700">
-                            <Code className="mr-2 h-4 w-4" />
-                            {t("nav.startLearning")}
-                        </Button>
-                    </div>
+                    <Button onClick={navigateToLearning} className="hidden px-3 lg:inline-flex 2xl:px-4">
+                        <Code className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span className="hidden 2xl:inline">{t("nav.startLearning")}</span>
+                        <span className="sr-only 2xl:hidden">{t("nav.startLearning")}</span>
+                    </Button>
 
                     {/* Mobile menu button */}
-                    <div className={`ml-auto flex items-center space-x-2 ${mobileNavClass}`}>
-                        {/* Compact GitHub chip for mobile */}
-                        <a
-                            href="https://github.com/MikaStiebitz/Git-Mastery"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 rounded-full border border-purple-700/60 bg-purple-900/30 px-2.5 py-1 text-purple-100 transition-all duration-300 hover:border-purple-500 hover:bg-purple-800/40"
-                            aria-label={t("nav.starOnGithub")}>
-                            <Github className="h-4 w-4 text-purple-200" />
-                            <span className="flex items-center gap-1 text-xs font-semibold text-white">
-                                <span>{formattedRepoStars}</span>
-                                <Star className="h-3 w-3 fill-yellow-300 text-yellow-300" />
-                            </span>
-                        </a>
-
-                        <Button variant="ghost" size="sm" onClick={toggleMobileMenu} className="text-purple-300">
-                            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                        </Button>
-                    </div>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="lg:hidden"
+                        onClick={toggleMobileMenu}
+                        aria-expanded={mobileMenuOpen}
+                        aria-controls="mobile-nav"
+                        aria-label={t("nav.language") && mobileMenuOpen ? "Close menu" : "Menu"}>
+                        {mobileMenuOpen ? (
+                            <X className="h-5 w-5" aria-hidden="true" />
+                        ) : (
+                            <Menu className="h-5 w-5" aria-hidden="true" />
+                        )}
+                    </Button>
                 </div>
             </nav>
 
             {/* Mobile navigation menu */}
             {mobileMenuOpen && (
-                <div className={`border-t border-purple-900/20 bg-[#1a1625] ${mobileNavClass}`}>
-                    <div className="flex flex-col space-y-2 p-4">
+                <div
+                    id="mobile-nav"
+                    className={`gm-scroll border-gm-line bg-gm-void max-h-[calc(100svh-4rem)] overflow-y-auto border-t-2 ${mobileNavClass}`}>
+                    <div className="container mx-auto flex flex-col gap-2 px-4 py-4">
                         {/* Current level info for mobile */}
                         {showLevelInfo && (
                             <ClientOnly>
-                                <div className="mb-2 text-purple-300">
-                                    {t("level.level")} {currentLevel} - {stageName}
-                                </div>
+                                <p className="text-gm-ink-soft text-sm font-semibold">
+                                    {t("level.level")} {currentLevel} · {stageName}
+                                </p>
                             </ClientOnly>
                         )}
 
-                        {/* Badge display for mobile */}
-                        <div className={`mb-4 flex justify-center ${mobileNavClass}`}>
+                        <div className="mb-1 flex flex-wrap items-center justify-center gap-2">
                             <BadgeDisplay className="justify-center" />
+                            {starChip("sm:hidden")}
                         </div>
 
-                        {/* GitHub chip for mobile menu */}
-                        <a
-                            href="https://github.com/MikaStiebitz/Git-Mastery"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex w-full items-center justify-between rounded-md border border-purple-800/40 bg-purple-900/20 px-3 py-2 text-purple-300">
-                            <span className="flex items-center">
-                                <Github className="mr-2 h-4 w-4 text-purple-100" />
-                                <span>GitHub</span>
-                            </span>
-                            <span className="flex items-center gap-1 text-xs font-semibold text-white">
-                                <span>{formattedRepoStars}</span>
-                                <Star className="h-3 w-3 fill-yellow-300 text-yellow-300" />
-                            </span>
-                        </a>
-
-                        {/* Language selector for mobile */}
                         <Button
-                            variant="ghost"
+                            variant="outline"
+                            className="w-full justify-start"
                             onClick={() => {
                                 setLanguageDialogOpen(true);
                                 setMobileMenuOpen(false);
-                            }}
-                            className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                            <Languages className="mr-2 h-4 w-4" />
+                            }}>
+                            <Languages className="text-gm-cyan h-4 w-4" aria-hidden="true" />
                             {t("nav.language")}:{" "}
-                            {languages.find(l => l.code === language)?.nativeName || language.toUpperCase()}
+                            {languages.find(l => l.code === language)?.nativeName ?? language.toUpperCase()}
                         </Button>
 
-                        {/* Navigation links */}
-                        <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                        {navLinks.map(({ href, label, icon: Icon, current: isCurrent }) => (
                             <Button
-                                variant="ghost"
-                                className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <Home className="mr-2 h-4 w-4" />
-                                {t("nav.home")}
+                                key={href}
+                                variant={isCurrent ? "secondary" : "ghost"}
+                                className="w-full justify-start"
+                                asChild>
+                                <Link
+                                    href={href}
+                                    aria-current={isCurrent ? "page" : undefined}
+                                    onClick={() => setMobileMenuOpen(false)}>
+                                    <Icon className="h-4 w-4" aria-hidden="true" />
+                                    {label}
+                                </Link>
                             </Button>
-                        </Link>
+                        ))}
 
-                        {/* FAQ link for mobile */}
-                        <Link href="/faq" onClick={() => setMobileMenuOpen(false)}>
-                            <Button
-                                variant="ghost"
-                                className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <HelpCircle className="mr-2 h-4 w-4" />
-                                {t("nav.faq")}
-                            </Button>
-                        </Link>
-
-                        <Link href="/installation" onClick={() => setMobileMenuOpen(false)}>
-                            <Button
-                                variant="ghost"
-                                className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <Download className="mr-2 h-4 w-4" />
-                                {t("nav.installation")}
-                            </Button>
-                        </Link>
-
-                        <Link href="/level" onClick={() => setMobileMenuOpen(false)}>
-                            <Button
-                                variant="ghost"
-                                className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <Terminal className="mr-2 h-4 w-4" />
+                        <Button variant="ghost" className="w-full justify-start" asChild>
+                            <Link href="/level" onClick={() => setMobileMenuOpen(false)}>
+                                <Terminal className="h-4 w-4" aria-hidden="true" />
                                 {t("nav.terminal")}
-                            </Button>
-                        </Link>
+                            </Link>
+                        </Button>
 
-                        <Link href="/playground" onClick={() => setMobileMenuOpen(false)}>
-                            <Button
-                                variant="ghost"
-                                className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <BookCopy className="mr-2 h-4 w-4" />
-                                {t("nav.playground")}
-                            </Button>
-                        </Link>
-
-                        <Link href="/arcade" onClick={() => setMobileMenuOpen(false)}>
-                            <Button
-                                variant="ghost"
-                                className="flex w-full items-center justify-start text-purple-300 hover:bg-purple-900/50 hover:text-purple-100">
-                                <Gamepad2 className="mr-2 h-4 w-4" />
-                                {t("nav.arcade")}
-                            </Button>
-                        </Link>
-
-                        {isHomePage && (
-                            <Button
-                                onClick={() => {
-                                    navigateToLearning();
-                                    setMobileMenuOpen(false);
-                                }}
-                                className="mt-2 w-full bg-purple-600 text-white hover:bg-purple-700">
-                                <Code className="mr-2 h-4 w-4" />
-                                {t("nav.startLearning")}
-                            </Button>
-                        )}
+                        <Button
+                            className="mt-2 w-full"
+                            onClick={() => {
+                                navigateToLearning();
+                                setMobileMenuOpen(false);
+                            }}>
+                            <Code className="h-4 w-4" aria-hidden="true" />
+                            {t("nav.startLearning")}
+                        </Button>
                     </div>
                 </div>
             )}
@@ -462,9 +450,11 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     {/* Debug Button - fixed position */}
                     <Button
                         onClick={() => setDebugModalOpen(true)}
-                        className="fixed right-4 bottom-4 z-50 border border-purple-500 bg-purple-600 text-white shadow-lg hover:bg-purple-700"
-                        size="sm">
-                        <Settings className="h-4 w-4" />
+                        variant="secondary"
+                        size="icon"
+                        className="fixed end-4 bottom-4 z-(--z-dropdown)"
+                        aria-label="Debug menu">
+                        <Settings className="h-4 w-4" aria-hidden="true" />
                     </Button>
 
                     {/* Debug Modal */}
@@ -511,33 +501,31 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
 
             {/* Language Selection Dialog */}
             <Dialog open={languageDialogOpen} onOpenChange={setLanguageDialogOpen}>
-                <DialogContent className="border-purple-900/20 bg-[#1a1625]">
+                <DialogContent className="max-w-md">
                     <DialogHeader>
-                        <DialogTitle className="text-white">{t("nav.language")}</DialogTitle>
-                        <DialogDescription className="text-purple-300">
-                            {t("nav.selectLanguage")}
-                        </DialogDescription>
+                        <DialogTitle>{t("nav.language")}</DialogTitle>
+                        <DialogDescription>{t("nav.selectLanguage")}</DialogDescription>
                     </DialogHeader>
-                    <div className="mt-4 space-y-2">
-                        {languages.map(lang => (
-                            <Button
-                                key={lang.code}
-                                variant={language === lang.code ? "default" : "ghost"}
-                                onClick={() => handleLanguageSelect(lang.code as "en" | "de" | "es" | "fa" | "hi" | "tr")}
-                                className={`w-full justify-start ${
-                                    language === lang.code
-                                        ? "bg-purple-600 text-white hover:bg-purple-700"
-                                        : "text-purple-300 hover:bg-purple-900/50 hover:text-purple-100"
-                                }`}>
-                                <div className="flex w-full items-center justify-between">
-                                    <div className="flex flex-col items-start">
-                                        <span className="font-medium">{lang.nativeName}</span>
-                                        <span className="text-xs opacity-75">{lang.name}</span>
-                                    </div>
-                                    {language === lang.code && <Check className="h-4 w-4" />}
-                                </div>
-                            </Button>
-                        ))}
+                    <div className="mt-5 flex flex-col gap-2">
+                        {languages.map(lang => {
+                            const isActive = language === lang.code;
+                            return (
+                                <Button
+                                    key={lang.code}
+                                    variant={isActive ? "default" : "outline"}
+                                    onClick={() =>
+                                        handleLanguageSelect(lang.code as "en" | "de" | "es" | "fa" | "hi" | "tr")
+                                    }
+                                    aria-current={isActive}
+                                    className="h-auto w-full justify-between py-3">
+                                    <span className="flex flex-col items-start gap-0.5">
+                                        <span className="font-bold">{lang.nativeName}</span>
+                                        <span className="text-xs font-medium opacity-80">{lang.name}</span>
+                                    </span>
+                                    {isActive && <Check className="h-4 w-4" strokeWidth={3} aria-hidden="true" />}
+                                </Button>
+                            );
+                        })}
                     </div>
                 </DialogContent>
             </Dialog>

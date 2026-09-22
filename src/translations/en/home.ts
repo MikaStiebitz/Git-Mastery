@@ -31,6 +31,9 @@ const home = {
     "home.feature3.title": "Customization",
     "home.feature3.description":
         "Personalize your experience with themes, sounds, and other unlockable items. Make it truly your own learning journey.",
+    "home.continue": "Continue",
+    "home.demoLabel":
+        "Live demo: a commit on a feature branch, a commit on main, then a merge. The commit graph grows with every command.",
 };
 
 export default home;

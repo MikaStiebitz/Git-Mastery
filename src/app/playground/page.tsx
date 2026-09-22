@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
-import { TerminalIcon, Search, BookOpen, Command, ChevronUp, ChevronDown,Printer } from "lucide-react";
+import { TerminalIcon, Search, BookOpen, ChevronUp, ChevronDown, Printer } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { PageLayout } from "~/components/layout/PageLayout";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -366,222 +366,239 @@ export default function Playground() {
 
     return (
         <PageLayout>
-            <div className="bg-[#1a1625] text-purple-100">
-                <div className="container mx-auto p-4">
-                    <h1 className="mb-4 text-center text-2xl font-bold text-white sm:text-3xl">
-                        {t("playground.title")}
-                    </h1>
-                    <p className="mb-6 text-center text-base text-purple-300 sm:text-lg">{t("playground.subtitle")}</p>
+            <div className="container mx-auto px-4 py-6 sm:py-8">
+                <h1 className="font-display text-gm-ink text-center text-2xl [text-wrap:balance] [overflow-wrap:anywhere] sm:text-3xl sm:[overflow-wrap:normal]">
+                    {t("playground.title")}
+                </h1>
+                <p className="text-gm-ink-soft mx-auto mt-3 mb-6 max-w-2xl text-center text-base sm:text-lg">
+                    {t("playground.subtitle")}
+                </p>
 
-                    {/* Mobile section toggles */}
-                    <div className="mb-4 flex flex-col gap-2 md:hidden">
-                        <Button
-                            variant="outline"
-                            onClick={toggleTerminal}
-                            className="flex w-full items-center justify-between border-purple-700 text-purple-200">
-                            <span className="flex items-center">
-                                <TerminalIcon className="mr-2 h-5 w-5 text-purple-400" />
-                                {t("playground.gitTerminal")}
-                            </span>
-                            {terminalCollapsed ? (
-                                <ChevronDown className="h-5 w-5" />
-                            ) : (
-                                <ChevronUp className="h-5 w-5" />
-                            )}
-                        </Button>
+                {/* Mobile section toggles */}
+                <div className="no-print mb-4 flex flex-col gap-2 md:hidden">
+                    <Button
+                        variant="outline"
+                        onClick={toggleTerminal}
+                        aria-expanded={!terminalCollapsed}
+                        aria-controls="playground-terminal"
+                        className="h-auto min-h-11 w-full justify-between gap-3 py-2 text-start whitespace-normal">
+                        <span className="flex min-w-0 items-center gap-2">
+                            <TerminalIcon className="text-gm-grape-hi h-5 w-5 shrink-0" aria-hidden="true" />
+                            {t("playground.gitTerminal")}
+                        </span>
+                        {terminalCollapsed ? (
+                            <ChevronDown className="h-5 w-5 shrink-0" aria-hidden="true" />
+                        ) : (
+                            <ChevronUp className="h-5 w-5 shrink-0" aria-hidden="true" />
+                        )}
+                    </Button>
 
-                        <Button
-                            variant="outline"
-                            onClick={toggleCheatSheet}
-                            className="flex w-full items-center justify-between border-purple-700 text-purple-200">
-                            <span className="flex items-center">
-                                <BookOpen className="mr-2 h-5 w-5 text-purple-400" />
-                                {t("playground.gitCheatSheet")}
-                            </span>
-                            {cheatSheetCollapsed ? (
-                                <ChevronDown className="h-5 w-5" />
-                            ) : (
-                                <ChevronUp className="h-5 w-5" />
-                            )}
-                        </Button>
+                    <Button
+                        variant="outline"
+                        onClick={toggleCheatSheet}
+                        aria-expanded={!cheatSheetCollapsed}
+                        aria-controls="cheat-sheet-print-area"
+                        className="h-auto min-h-11 w-full justify-between gap-3 py-2 text-start whitespace-normal">
+                        <span className="flex min-w-0 items-center gap-2">
+                            <BookOpen className="text-gm-grape-hi h-5 w-5 shrink-0" aria-hidden="true" />
+                            {t("playground.gitCheatSheet")}
+                        </span>
+                        {cheatSheetCollapsed ? (
+                            <ChevronDown className="h-5 w-5 shrink-0" aria-hidden="true" />
+                        ) : (
+                            <ChevronUp className="h-5 w-5 shrink-0" aria-hidden="true" />
+                        )}
+                    </Button>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {/* Terminal Side */}
+                    <div id="playground-terminal" className={`${terminalCollapsed ? "hidden md:block" : ""}`}>
+                        <Terminal
+                            className="h-[580px]"
+                            showHelpButton={true}
+                            showResetButton={false}
+                            isPlaygroundMode={true}
+                        />
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {/* Terminal Side */}
-                        <div className={`${terminalCollapsed ? "hidden md:block" : ""}`}>
-                            <Terminal
-                                className="h-[580px] rounded-md"
-                                showHelpButton={true}
-                                showResetButton={false}
-                                isPlaygroundMode={true}
-                            />
-                        </div>
-
-                        {/* Cheat Sheet Side */}
-                        <Card 
-                            id="cheat-sheet-print-area"
-                            className={`border-purple-900/20 bg-purple-900/10 ${cheatSheetCollapsed ? "hidden md:block" : ""}`}>
-                            <CardHeader>
-                                <CardTitle className="mb-2 flex items-center text-white">
-                                    <span className="flex items-center">
-                                        <BookOpen className="mr-2 h-5 w-5 text-purple-400" />
+                    {/* Cheat Sheet Side. The print stylesheet in globals.css hides everything outside
+                        #cheat-sheet-print-area, so this whole card is what lands on paper. */}
+                    <Card
+                        id="cheat-sheet-print-area"
+                        className={`print:border-0 print:bg-transparent print:text-black print:shadow-none ${
+                            cheatSheetCollapsed ? "hidden md:block" : ""
+                        }`}>
+                        <CardHeader className="gap-3 pb-4">
+                            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                                <CardTitle className="flex min-w-0 items-center gap-2 text-lg print:text-black">
+                                    <BookOpen className="text-gm-grape-hi h-5 w-5 shrink-0" aria-hidden="true" />
+                                    <span className="[overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
                                         {t("playground.gitCheatSheet")}
                                     </span>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="no-print text-purple-300 hover:text-purple-100"
-                                        onClick={() => window.print()}>
-                                        <Printer className="mr-1 h-4 w-4" />
-                                        {t("playground.printCheatSheet")}
-                                    </Button>
                                 </CardTitle>
-                                <div className="relative no-print">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-purple-400" />
-                                    <Input
-                                        placeholder={t("playground.searchCommands")}
-                                        className="border-purple-800 bg-purple-900/30 pl-8 text-purple-200 placeholder:text-purple-500"
-                                        value={searchTerm}
-                                        onChange={e => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="h-[350px] overflow-y-auto pr-2 md:h-[420px] print:h-auto print:overflow-visible">
-                                    {filteredCommands.length === 0 ? (
-                                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                                            <Search className="mb-2 h-8 w-8 text-purple-500" />
-                                            <p className="text-purple-400">
-                                                {t("playground.noCommands")} &quot;{searchTerm}&quot;
-                                            </p>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="mt-2 text-purple-400"
-                                                onClick={() => setSearchTerm("")}>
-                                                {t("playground.resetSearch")}
-                                            </Button>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <Accordion type="single" collapsible className="space-y-4 no-print">
-                                                {filteredCommands.map((category, index) => (
-                                                    <div key={index} className="mb-6">
-                                                        <h3 className="mb-2 font-medium text-purple-300">
-                                                            {category.category}
-                                                        </h3>
-                                                        <div className="space-y-2">
-                                                            {category.commands.map((command, cmdIndex) => (
-                                                                <AccordionItem
-                                                                    key={cmdIndex}
-                                                                    value={`${index}-${cmdIndex}`}
-                                                                    className="overflow-hidden rounded-md border border-purple-800/40">
-                                                                    <AccordionTrigger className="px-3 py-2 hover:bg-purple-800/20 hover:no-underline">
+                                <Button variant="ghost" className="no-print" onClick={() => window.print()}>
+                                    <Printer className="h-4 w-4" aria-hidden="true" />
+                                    {t("playground.printCheatSheet")}
+                                </Button>
+                            </div>
+                            <div className="no-print relative">
+                                <Search
+                                    className="text-gm-ink-dim pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                                    aria-hidden="true"
+                                />
+                                <Input
+                                    placeholder={t("playground.searchCommands")}
+                                    className="ps-9"
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="gm-scroll h-[350px] overflow-y-auto pe-2 md:h-[420px] print:h-auto print:overflow-visible print:pe-0">
+                                {filteredCommands.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+                                        <Search className="text-gm-ink-dim h-8 w-8" aria-hidden="true" />
+                                        <p className="text-gm-ink-soft print:text-black">
+                                            {t("playground.noCommands")} &quot;{searchTerm}&quot;
+                                        </p>
+                                        <Button variant="ghost" className="no-print" onClick={() => setSearchTerm("")}>
+                                            {t("playground.resetSearch")}
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Screen: a dense reference list. One row per command, the row itself
+                                            expands for usage / example / explanation. */}
+                                        <Accordion type="single" collapsible className="no-print space-y-5">
+                                            {filteredCommands.map((category, index) => (
+                                                <div key={index}>
+                                                    <h3 className="text-gm-ink-dim mb-2 text-sm font-semibold">
+                                                        {category.category}
+                                                    </h3>
+                                                    <div className="gm-inset overflow-hidden">
+                                                        {category.commands.map((command, cmdIndex) => (
+                                                            <AccordionItem
+                                                                key={cmdIndex}
+                                                                value={`${index}-${cmdIndex}`}>
+                                                                <AccordionTrigger className="hover:bg-gm-deep min-h-11 gap-3 px-3 py-2.5 text-sm">
+                                                                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                                                                        <span className="[font-family:var(--font-code)] text-sm font-semibold [overflow-wrap:anywhere]">
+                                                                            {command.name}
+                                                                        </span>
+                                                                        <span className="text-gm-ink-soft text-xs leading-snug font-normal">
+                                                                            {command.description}
+                                                                        </span>
+                                                                    </span>
+                                                                </AccordionTrigger>
+                                                                <AccordionContent className="px-3 pb-3">
+                                                                    <dl className="space-y-2">
                                                                         <div>
-                                                                            <div className="flex items-center justify-between">
-                                                                                <span className="flex items-center font-mono text-sm font-semibold text-white">
-                                                                                    <Command className="mr-1.5 h-3.5 w-3.5 text-purple-400" />
-                                                                                    {command.name}
-                                                                                </span>
-                                                                            </div>
-                                                                            <div className="mt-1 text-sm text-purple-300">
-                                                                                {command.description}
-                                                                            </div>
-                                                                        </div>
-                                                                    </AccordionTrigger>
-                                                                    <AccordionContent className="border-t border-purple-800/30 bg-purple-900/20 px-3 py-3">
-                                                                        <div className="mb-2">
-                                                                            <span className="text-xs font-medium text-purple-400">
+                                                                            <dt className="text-gm-ink-dim text-xs font-semibold">
                                                                                 {t("playground.usage")}
-                                                                            </span>
-                                                                            <pre className="mt-1 overflow-x-auto rounded bg-black/20 p-1.5 font-mono text-xs text-green-400">
-                                                                                {command.usage}
-                                                                            </pre>
-                                                                        </div>
-                                                                        <div className="mb-2">
-                                                                            <span className="text-xs font-medium text-purple-400">
-                                                                                {t("playground.example")}
-                                                                            </span>
-                                                                            <pre className="mt-1 overflow-x-auto rounded bg-black/20 p-1.5 font-mono text-xs text-green-400">
-                                                                                {command.example}
-                                                                            </pre>
+                                                                            </dt>
+                                                                            <dd className="mt-1">
+                                                                                <code className="bg-gm-deep text-gm-ink block rounded-[0.7rem] px-2 py-1.5 [font-family:var(--font-code)] text-xs [overflow-wrap:anywhere] whitespace-pre-wrap">
+                                                                                    {command.usage}
+                                                                                </code>
+                                                                            </dd>
                                                                         </div>
                                                                         <div>
-                                                                            <span className="text-xs font-medium text-purple-400">
-                                                                                {t("playground.explanation")}
-                                                                            </span>
-                                                                            <p className="mt-1 text-xs text-purple-200">
-                                                                                {command.explanation}
-                                                                            </p>
+                                                                            <dt className="text-gm-ink-dim text-xs font-semibold">
+                                                                                {t("playground.example")}
+                                                                            </dt>
+                                                                            <dd className="mt-1">
+                                                                                <code className="bg-gm-deep text-gm-ink block rounded-[0.7rem] px-2 py-1.5 [font-family:var(--font-code)] text-xs [overflow-wrap:anywhere] whitespace-pre-wrap">
+                                                                                    {command.example}
+                                                                                </code>
+                                                                            </dd>
                                                                         </div>
-                                                                    </AccordionContent>
-                                                                </AccordionItem>
-                                                            ))}
-                                                        </div>
+                                                                        <div>
+                                                                            <dt className="text-gm-ink-dim text-xs font-semibold">
+                                                                                {t("playground.explanation")}
+                                                                            </dt>
+                                                                            <dd className="text-gm-ink-soft mt-1 text-xs leading-relaxed">
+                                                                                {command.explanation}
+                                                                            </dd>
+                                                                        </div>
+                                                                    </dl>
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+                                                        ))}
                                                     </div>
+                                                </div>
                                             ))}
                                         </Accordion>
-                                        <div className="hidden print:block">
+
+                                        {/* Paper: the screen list is collapsed accordions, so printing renders this
+                                            flat, always-expanded duplicate. It carries its own ink colours because
+                                            the gm-* palette is built for the dark stage and prints invisible. */}
+                                        <div className="hidden text-black print:block">
                                             {filteredCommands.map((category, index) => (
-                                                <div key={index} className="mb-6">
-                                                    <h3 className="mb-2 font-medium text-purple-300">{category.category}</h3>
-                                                    <div className="space-y-2">
+                                                <div key={index} className="mb-4">
+                                                    <h3 className="mb-1 text-sm font-bold text-black">
+                                                        {category.category}
+                                                    </h3>
+                                                    <div className="border border-black/40">
                                                         {category.commands.map((command, cmdIndex) => (
                                                             <div
                                                                 key={cmdIndex}
-                                                                className="overflow-hidden rounded-md border border-purple-800/40">
-                                                                <div className="px-3 py-2">
-                                                                    <span className="flex items-center font-mono text-sm font-semibold text-white">
-                                                                        <Command className="mr-1.5 h-3.5 w-3.5 text-purple-400" />
+                                                                className="break-inside-avoid border-b border-black/20 px-2 py-1.5 last:border-b-0">
+                                                                <div className="flex flex-wrap items-baseline gap-x-2">
+                                                                    <span className="[font-family:var(--font-code)] text-sm font-semibold text-black">
                                                                         {command.name}
                                                                     </span>
-                                                                    <div className="mt-1 text-sm text-purple-300">{command.description}</div>
+                                                                    <span className="text-xs text-black/70">
+                                                                        {command.description}
+                                                                    </span>
                                                                 </div>
-                                                                <div className="border-t border-purple-800/30 bg-purple-900/20 px-3 py-3">
-                                                                    <div className="mb-2">
-                                                                        <span className="text-xs font-medium text-purple-400">
+                                                                <dl className="mt-1 space-y-0.5 text-[11px] leading-snug">
+                                                                    <div className="flex flex-wrap items-baseline gap-x-2">
+                                                                        <dt className="font-semibold text-black/60">
                                                                             {t("playground.usage")}
-                                                                        </span>
-                                                                        <pre className="mt-1 overflow-x-auto rounded bg-black/20 p-1.5 font-mono text-xs text-green-400">
+                                                                        </dt>
+                                                                        <dd className="[font-family:var(--font-code)] text-black">
                                                                             {command.usage}
-                                                                        </pre>
+                                                                        </dd>
                                                                     </div>
-                                                                    <div className="mb-2">
-                                                                        <span className="text-xs font-medium text-purple-400">
+                                                                    <div className="flex flex-wrap items-baseline gap-x-2">
+                                                                        <dt className="font-semibold text-black/60">
                                                                             {t("playground.example")}
-                                                                        </span>
-                                                                        <pre className="mt-1 overflow-x-auto rounded bg-black/20 p-1.5 font-mono text-xs text-green-400">
+                                                                        </dt>
+                                                                        <dd className="[font-family:var(--font-code)] text-black">
                                                                             {command.example}
-                                                                        </pre>
+                                                                        </dd>
                                                                     </div>
-                                                                    <div>
-                                                                        <span className="text-xs font-medium text-purple-400">
+                                                                    <div className="flex flex-wrap items-baseline gap-x-2">
+                                                                        <dt className="font-semibold text-black/60">
                                                                             {t("playground.explanation")}
-                                                                        </span>
-                                                                        <p className="mt-1 text-xs text-purple-200">{command.explanation}</p>
+                                                                        </dt>
+                                                                        <dd className="text-black/80">
+                                                                            {command.explanation}
+                                                                        </dd>
                                                                     </div>
-                                                                </div>
+                                                                </dl>
                                                             </div>
                                                         ))}
                                                     </div>
                                                 </div>
                                             ))}
-                                        </div> 
+                                        </div>
                                     </>
                                 )}
                             </div>
                         </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* File Editor */}
-                    <FileEditor
-                        isOpen={isFileEditorOpen}
-                        onClose={() => setIsFileEditorOpen(false)}
-                        fileName={currentFile.name}
-                        initialContent={currentFile.content}
-                    />
+                    </Card>
                 </div>
+
+                {/* File Editor */}
+                <FileEditor
+                    isOpen={isFileEditorOpen}
+                    onClose={() => setIsFileEditorOpen(false)}
+                    fileName={currentFile.name}
+                    initialContent={currentFile.content}
+                />
             </div>
         </PageLayout>
     );

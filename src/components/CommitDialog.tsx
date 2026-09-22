@@ -93,28 +93,20 @@ export function CommitDialog() {
 
     return (
         <Dialog open={isCommitDialogOpen} onOpenChange={closeCommitDialog}>
-            <DialogContent
-                className="max-w-md border-purple-900/20 bg-[#1a1625] text-purple-100"
-                onKeyDown={handleKeyDown}
-                // Remove the built-in X button by overriding its CSS
-                style={
-                    {
-                        "--close-button-display": "none",
-                    } as React.CSSProperties
-                }>
+            <DialogContent onKeyDown={handleKeyDown}>
                 <DialogHeader>
-                    <DialogTitle className="flex items-center text-white">
-                        <GitCommit className="mr-2 h-5 w-5 text-purple-400" />
+                    <DialogTitle className="flex items-center gap-2">
+                        <GitCommit className="text-gm-lime h-5 w-5 shrink-0" aria-hidden="true" />
                         {t("commit.title") || "Commit Message"}
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="py-4">
+                <div className="mt-4">
                     <Textarea
                         ref={textareaRef}
                         value={message}
                         onChange={e => setMessage(e.target.value)}
-                        className="min-h-[150px] bg-purple-900/10 font-mono text-purple-200 focus-visible:ring-purple-500"
+                        className="font-code min-h-[150px] text-sm"
                         placeholder={t("commit.placeholder") || "Enter a commit message describing your changes..."}
                         autoFocus={!isMobileDevice()}
                     />
@@ -122,29 +114,31 @@ export function CommitDialog() {
                     {/* Emoji suggestions */}
                     {hasEmojiCommits && emojiSuggestions.length > 0 && (
                         <div className="mt-4">
-                            <div className="mb-2 flex items-center justify-between">
-                                <span className="text-sm text-purple-300">Suggested emojis:</span>
+                            <div className="mb-2 flex items-center justify-between gap-2">
+                                <span className="text-gm-ink-soft text-sm font-semibold">Suggested emojis:</span>
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => setShowEmojiSuggestions(!showEmojiSuggestions)}
-                                    className="text-purple-400 hover:text-purple-300">
-                                    <Smile className="mr-1 h-4 w-4" />
+                                    aria-pressed={showEmojiSuggestions}
+                                    onClick={() => setShowEmojiSuggestions(!showEmojiSuggestions)}>
+                                    <Smile className="h-4 w-4" aria-hidden="true" />
                                     {showEmojiSuggestions ? "Hide" : "Show"}
                                 </Button>
                             </div>
 
                             {(showEmojiSuggestions || emojiSuggestions.length <= 3) && (
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                     {emojiSuggestions.slice(0, 6).map((suggestion, index) => (
                                         <Button
                                             key={index}
-                                            variant="ghost"
+                                            variant="outline"
                                             size="sm"
                                             onClick={() => addEmojiToMessage(suggestion.emoji)}
-                                            className="h-auto justify-start border border-purple-800/30 bg-purple-900/10 p-2 text-left hover:bg-purple-900/20">
-                                            <span className="mr-2 text-lg">{suggestion.emoji}</span>
-                                            <span className="text-xs text-purple-300">{suggestion.description}</span>
+                                            className="h-auto w-full justify-start py-2 text-start whitespace-normal">
+                                            <span className="text-lg" aria-hidden="true">
+                                                {suggestion.emoji}
+                                            </span>
+                                            <span className="text-gm-ink-soft text-xs">{suggestion.description}</span>
                                         </Button>
                                     ))}
                                 </div>
@@ -152,27 +146,22 @@ export function CommitDialog() {
                         </div>
                     )}
 
-                    <div className="mt-2 text-xs text-purple-400">
+                    <p className="text-gm-ink-dim mt-3 text-xs leading-relaxed">
                         {t("commit.tip") ||
                             "First line should be a short summary. Leave a blank line then add details if needed."}
-                    </div>
+                    </p>
                 </div>
 
-                <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
-                    <div className="hidden text-xs text-purple-400 md:block">
+                <DialogFooter className="sm:justify-between">
+                    <p className="font-code text-gm-ink-dim hidden text-xs md:block">
                         {t("editor.escToCancel") || "Press ESC to cancel, CTRL+Enter to commit"}
-                    </div>
-                    <div className="flex w-full gap-2 sm:w-auto">
-                        <Button
-                            variant="outline"
-                            onClick={closeCommitDialog}
-                            className="flex-1 border-purple-700 text-purple-400 hover:bg-purple-900/30 sm:flex-auto">
+                    </p>
+                    <div className="flex w-full flex-col-reverse gap-2 sm:w-auto sm:flex-row">
+                        <Button variant="outline" onClick={closeCommitDialog} className="w-full sm:w-auto">
                             {t("editor.cancel") || "Cancel"}
                         </Button>
-                        <Button
-                            onClick={performCommit}
-                            disabled={!message.trim()}
-                            className="flex-1 bg-purple-600 text-white hover:bg-purple-700 sm:flex-auto">
+                        <Button onClick={performCommit} disabled={!message.trim()} className="w-full sm:w-auto">
+                            <GitCommit className="h-4 w-4" aria-hidden="true" />
                             {t("commit.button") || "Commit Changes"}
                         </Button>
                     </div>

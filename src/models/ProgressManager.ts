@@ -181,11 +181,20 @@ export class ProgressManager {
         return [...this.progress.completedMinigames];
     }
 
+    /**
+     * Fired after every write so UI that isn't re-rendered by React state — the navbar's
+     * score and coin readout, for instance — can pick up a purchase or a cleared level.
+     * The browser's own `storage` event only fires in *other* tabs, so this is the same
+     * signal for the tab that made the change.
+     */
+    public static readonly CHANGE_EVENT = "gitmastery:progress";
+
     // Save progress to localStorage
     private saveProgress(): void {
         if (typeof window !== "undefined") {
             try {
                 localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.progress));
+                window.dispatchEvent(new Event(ProgressManager.CHANGE_EVENT));
             } catch (error) {
                 // Handle localStorage quota exceeded or other errors
                 if (error instanceof Error) {

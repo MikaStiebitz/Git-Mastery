@@ -12,7 +12,11 @@ const AccordionItem = React.forwardRef<
     React.ElementRef<typeof AccordionPrimitive.Item>,
     React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 >(({ className, ...props }, ref) => (
-    <AccordionPrimitive.Item ref={ref} className={cn("border-b", className)} {...props} />
+    <AccordionPrimitive.Item
+        ref={ref}
+        className={cn("border-gm-line border-b-2 last:border-b-0", className)}
+        {...props}
+    />
 ));
 AccordionItem.displayName = "AccordionItem";
 
@@ -24,12 +28,15 @@ const AccordionTrigger = React.forwardRef<
         <AccordionPrimitive.Trigger
             ref={ref}
             className={cn(
-                "flex flex-1 items-center justify-between py-4 text-left text-sm font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+                "text-gm-ink hover:text-gm-lime focus-visible:outline-gm-cyan [&[data-state=open]]:text-gm-lime flex flex-1 cursor-pointer items-center justify-between gap-4 py-4 text-start text-base font-semibold transition-colors duration-150 focus-visible:outline-3 focus-visible:outline-offset-2 [&[data-state=open]>svg]:rotate-180",
                 className,
             )}
             {...props}>
             {children}
-            <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform duration-200" />
+            <ChevronDown
+                className="text-gm-ink-dim h-5 w-5 shrink-0 transition-transform duration-200 motion-reduce:transition-none"
+                aria-hidden="true"
+            />
         </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
 ));
@@ -41,9 +48,9 @@ const AccordionContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
     <AccordionPrimitive.Content
         ref={ref}
-        className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
+        className="text-gm-ink-soft data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-base leading-relaxed"
         {...props}>
-        <div className={cn("pb-4 pt-0", className)}>{children}</div>
+        <div className={cn("pt-0 pb-5", className)}>{children}</div>
     </AccordionPrimitive.Content>
 ));
 AccordionContent.displayName = AccordionPrimitive.Content.displayName;
