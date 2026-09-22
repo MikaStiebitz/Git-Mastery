@@ -1003,353 +1003,353 @@ deploy.sh --commit=9a2b3c4
         "पेशेवर रिलीज़ वर्कफ़्लो सीखें: ब्रांच बनाना, तैयार करना, मर्ज करना, और टैग करना। टीमें प्रोडक्शन में स्थिर सॉफ़्टवेयर इसी तरह शिप करती हैं।",
 
     // Teamwork Stage
-    "teamwork.name": "Team Collaboration",
-    "teamwork.description": "Learn to work effectively with teams using Git collaboration techniques",
+    "teamwork.name": "टीम सहयोग",
+    "teamwork.description": "Git सहयोग तकनीकों का उपयोग करके टीम के साथ प्रभावी ढंग से काम करना सीखें",
 
-    "teamwork.level1.name": "Team Collaboration Basics",
-    "teamwork.level1.description": "Learn how to work effectively with a team using Git",
-    "teamwork.level1.objective1": "Pull the latest team code from remote",
-    "teamwork.level1.objective2": "Create a new feature branch for your work",
-    "teamwork.level1.objective3": "Edit team.md and add your name to the team members list",
-    "teamwork.level1.objective4": "Stage your changes",
-    "teamwork.level1.objective5": "Commit your changes",
-    "teamwork.level1.objective6": "Push your changes to the remote repository",
-    "teamwork.level1.hint1": "Use 'git pull origin main' to get the latest team code",
-    "teamwork.level1.hint2": "Create a new branch with 'git switch -c feature/YOUR-NAME'",
-    "teamwork.level1.hint3": "Edit the team.md file to add your name and role",
-    "teamwork.level1.hint4": "Stage all changes with 'git add .'",
-    "teamwork.level1.hint5": "Commit with a clear message: 'git commit -m \"Add my profile\"'",
-    "teamwork.level1.hint6": "Push your branch with 'git push origin feature/YOUR-NAME'",
-    "teamwork.level1.requirement1.description": "Pull the latest changes from the team repository",
-    "teamwork.level1.requirement1.success": "Latest changes pulled successfully!",
-    "teamwork.level1.requirement2.description": "Create your feature branch for team profile",
-    "teamwork.level1.requirement2.success": "Feature branch created!",
-    "teamwork.level1.requirement3.description": "Edit team.md and add your name to the list",
-    "teamwork.level1.requirement3.success": "File modified! Your name has been added.",
-    "teamwork.level1.requirement4.description": "Stage your team profile changes",
-    "teamwork.level1.requirement4.success": "Changes staged!",
-    "teamwork.level1.requirement5.description": "Commit your team profile with a descriptive message",
-    "teamwork.level1.requirement5.success": "Team profile committed!",
-    "teamwork.level1.requirement6.description": "Push your changes to the remote repository",
-    "teamwork.level1.requirement6.success": "Changes pushed to remote!",
-    "teamwork.level1.story.title": "Welcome to the Dev Team",
-    "teamwork.level1.story.narrative": `🎉 Congratulations! You've just been hired as a developer at InnovateCorp, a fast-growing tech startup.
+    "teamwork.level1.name": "टीम सहयोग की बुनियादी बातें",
+    "teamwork.level1.description": "Git का उपयोग करके टीम के साथ प्रभावी ढंग से काम करना सीखें",
+    "teamwork.level1.objective1": "रिमोट से टीम का सबसे नया कोड पुल करें",
+    "teamwork.level1.objective2": "अपने काम के लिए एक नई फ़ीचर ब्रांच बनाएं",
+    "teamwork.level1.objective3": "team.md एडिट करें और टीम सदस्यों की लिस्ट में अपना नाम जोड़ें",
+    "teamwork.level1.objective4": "अपने बदलाव स्टेज करें",
+    "teamwork.level1.objective5": "अपने बदलाव कमिट करें",
+    "teamwork.level1.objective6": "अपने बदलाव रिमोट रिपॉजिटरी पर पुश करें",
+    "teamwork.level1.hint1": "टीम का सबसे नया कोड पाने के लिए 'git pull origin main' का उपयोग करें",
+    "teamwork.level1.hint2": "'git switch -c feature/YOUR-NAME' से एक नई ब्रांच बनाएं",
+    "teamwork.level1.hint3": "अपना नाम और भूमिका जोड़ने के लिए team.md फ़ाइल एडिट करें",
+    "teamwork.level1.hint4": "'git add .' से सभी बदलाव स्टेज करें",
+    "teamwork.level1.hint5": "एक स्पष्ट संदेश के साथ कमिट करें: 'git commit -m \"Add my profile\"'",
+    "teamwork.level1.hint6": "अपनी ब्रांच को 'git push origin feature/YOUR-NAME' से पुश करें",
+    "teamwork.level1.requirement1.description": "टीम रिपॉजिटरी से सबसे नए बदलाव पुल करें",
+    "teamwork.level1.requirement1.success": "सबसे नए बदलाव सफलतापूर्वक पुल हो गए!",
+    "teamwork.level1.requirement2.description": "टीम प्रोफ़ाइल के लिए अपनी फ़ीचर ब्रांच बनाएं",
+    "teamwork.level1.requirement2.success": "फ़ीचर ब्रांच बन गई!",
+    "teamwork.level1.requirement3.description": "team.md एडिट करें और लिस्ट में अपना नाम जोड़ें",
+    "teamwork.level1.requirement3.success": "फ़ाइल बदल गई! आपका नाम जोड़ दिया गया है।",
+    "teamwork.level1.requirement4.description": "अपने टीम प्रोफ़ाइल बदलाव स्टेज करें",
+    "teamwork.level1.requirement4.success": "बदलाव स्टेज हो गए!",
+    "teamwork.level1.requirement5.description": "एक विवरणात्मक संदेश के साथ अपना टीम प्रोफ़ाइल कमिट करें",
+    "teamwork.level1.requirement5.success": "टीम प्रोफ़ाइल कमिट हो गई!",
+    "teamwork.level1.requirement6.description": "अपने बदलाव रिमोट रिपॉजिटरी पर पुश करें",
+    "teamwork.level1.requirement6.success": "बदलाव रिमोट पर पुश हो गए!",
+    "teamwork.level1.story.title": "डेव टीम में आपका स्वागत है",
+    "teamwork.level1.story.narrative": `🎉 बधाई हो! आपको अभी-अभी InnovateCorp में डेवलपर के तौर पर नौकरी मिली है, जो एक तेज़ी से बढ़ता हुआ टेक स्टार्टअप है।
 
-Your team lead, Alex, walks you through your first day:
+आपके टीम लीड, Alex, आपको अपने पहले दिन के बारे में बताते हैं:
 
-"Welcome to the team! We use Git for everything here. The codebase is our shared workspace, and everyone contributes to it daily. Your first task is simple but important - add your profile to our team page."
+"टीम में आपका स्वागत है! हम यहां हर काम के लिए Git का उपयोग करते हैं। कोडबेस हमारा साझा वर्कस्पेस है, और हर कोई रोज़ाना इसमें योगदान देता है। आपका पहला काम आसान लेकिन ज़रूरी है - हमारे टीम पेज पर अपनी प्रोफ़ाइल जोड़ना।"
 
-"Remember," Alex continues, "we have 12 developers working on this project. Everyone needs to stay synchronized. Always \`git pull\` before you push, and make sure your commit messages are clear so the rest of us know what you're working on."
+"याद रखिए," Alex आगे कहते हैं, "इस प्रोजेक्ट पर 12 डेवलपर काम कर रहे हैं। सबको सिंक में रहना ज़रूरी है। पुश करने से पहले हमेशा \`git pull\` करें, और सुनिश्चित करें कि आपके कमिट संदेश स्पष्ट हों ताकि बाकी सबको पता चले कि आप किस पर काम कर रहे हैं।"
 
-Your mission:
-1. Get the latest code from the team repository with \`git pull origin main\`
-2. Create your feature branch: \`git switch -c feature/team-profile\`
-3. Add your developer profile to the team page
-4. Stage changes: \`git add .\`
-5. Commit your changes: \`git commit -m "Add my profile"\`
+आपका मिशन:
+1. \`git pull origin main\` से टीम रिपॉजिटरी से सबसे नया कोड लें
+2. अपनी फ़ीचर ब्रांच बनाएं: \`git switch -c feature/team-profile\`
+3. टीम पेज पर अपनी डेवलपर प्रोफ़ाइल जोड़ें
+4. बदलाव स्टेज करें: \`git add .\`
+5. अपने बदलाव कमिट करें: \`git commit -m "Add my profile"\`
 
-This is real-world team development. Let's make your first contribution!`,
+यह असली दुनिया की टीम डेवलपमेंट है। चलिए आपका पहला योगदान करते हैं!`,
     "teamwork.level1.story.realWorldContext":
-        "Team collaboration is the heart of software development. Learning to work with shared repositories is essential for any developer.",
+        "टीम सहयोग सॉफ़्टवेयर डेवलपमेंट की जान है। साझा रिपॉजिटरी के साथ काम करना सीखना किसी भी डेवलपर के लिए ज़रूरी है।",
     "teamwork.level1.story.taskIntroduction":
-        "Learn the fundamentals of team-based Git workflow and make your first collaborative contribution.",
+        "टीम-आधारित Git वर्कफ़्लो की बुनियादी बातें सीखें और अपना पहला सहयोगी योगदान दें।",
 
-    "teamwork.level2.name": "Handling Merge Conflicts in Teams",
-    "teamwork.level2.description": "Resolve merge conflicts that occur when multiple developers work on the same files",
-    "teamwork.level2.objective1": "Stage and commit your local changes",
-    "teamwork.level2.objective2": "Pull remote changes (triggers conflict)",
-    "teamwork.level2.objective3": "Resolve merge conflict markers",
-    "teamwork.level2.objective4": "Stage and commit the merged solution",
-    "teamwork.level2.hint1": "Use 'cat /src/auth/login.js' to see your current uncommitted changes",
-    "teamwork.level2.hint2": "Use 'git status' to confirm the file is modified",
-    "teamwork.level2.hint3": "Commit with 'git add /src/auth/login.js' then 'git commit -m \"message\"'",
-    "teamwork.level2.hint4": "Pull with 'git pull origin main' - this will trigger the conflict!",
-    "teamwork.level2.hint5": "Look for conflict markers: <<<<<<<, =======, >>>>>>>",
-    "teamwork.level2.hint6": "Edit login.js to combine both your and Sarah's improvements",
-    "teamwork.level2.hint7": "The best solution keeps BOTH: Sarah's email check AND your stricter lengths",
-    "teamwork.level2.hint8": "After resolving: 'git add .' then 'git commit -m \"Resolve merge conflict\"'",
-    "teamwork.level2.requirement1.description": "Stage your local changes to login.js",
-    "teamwork.level2.requirement1.success": "Local changes staged!",
-    "teamwork.level2.requirement2.description": "Commit your local changes first",
-    "teamwork.level2.requirement2.success": "Local changes committed!",
-    "teamwork.level2.requirement3.description": "Pull Sarah's changes to trigger the conflict",
-    "teamwork.level2.requirement3.success": "Conflicting changes pulled! Check login.js for conflict markers.",
-    "teamwork.level2.requirement4.description": "Stage the resolved conflict",
-    "teamwork.level2.requirement4.success": "Conflict resolution staged!",
-    "teamwork.level2.requirement5.description": "Commit the merge resolution",
-    "teamwork.level2.requirement5.success": "Merge conflict resolved!",
-    "teamwork.level2.story.title": "The Great Merge Conflict Crisis",
-    "teamwork.level2.story.narrative": `⚠️ Welcome to your first merge conflict!
+    "teamwork.level2.name": "टीमों में मर्ज कॉन्फ्लिक्ट संभालना",
+    "teamwork.level2.description": "मर्ज कॉन्फ्लिक्ट सुलझाएं जो तब होते हैं जब कई डेवलपर एक ही फ़ाइलों पर काम करते हैं",
+    "teamwork.level2.objective1": "अपने लोकल बदलाव स्टेज करें और कमिट करें",
+    "teamwork.level2.objective2": "रिमोट बदलाव पुल करें (कॉन्फ्लिक्ट ट्रिगर करता है)",
+    "teamwork.level2.objective3": "मर्ज कॉन्फ्लिक्ट मार्कर सुलझाएं",
+    "teamwork.level2.objective4": "मर्ज किए गए समाधान को स्टेज करें और कमिट करें",
+    "teamwork.level2.hint1": "अपने मौजूदा uncommitted बदलाव देखने के लिए 'cat /src/auth/login.js' का उपयोग करें",
+    "teamwork.level2.hint2": "यह पुष्टि करने के लिए कि फ़ाइल बदली गई है, 'git status' का उपयोग करें",
+    "teamwork.level2.hint3": "'git add /src/auth/login.js' से स्टेज करें फिर 'git commit -m \"message\"' से कमिट करें",
+    "teamwork.level2.hint4": "'git pull origin main' से पुल करें - इससे कॉन्फ्लिक्ट ट्रिगर होगा!",
+    "teamwork.level2.hint5": "कॉन्फ्लिक्ट मार्कर ढूंढें: <<<<<<<, =======, >>>>>>>",
+    "teamwork.level2.hint6": "अपनी और Sarah की, दोनों की सुधार मिलाने के लिए login.js एडिट करें",
+    "teamwork.level2.hint7": "सबसे अच्छा समाधान दोनों को रखता है: Sarah की email जांच AND आपकी सख़्त लंबाई सीमाएं",
+    "teamwork.level2.hint8": "सुलझाने के बाद: 'git add .' फिर 'git commit -m \"Resolve merge conflict\"'",
+    "teamwork.level2.requirement1.description": "login.js में अपने लोकल बदलाव स्टेज करें",
+    "teamwork.level2.requirement1.success": "लोकल बदलाव स्टेज हो गए!",
+    "teamwork.level2.requirement2.description": "पहले अपने लोकल बदलाव कमिट करें",
+    "teamwork.level2.requirement2.success": "लोकल बदलाव कमिट हो गए!",
+    "teamwork.level2.requirement3.description": "कॉन्फ्लिक्ट ट्रिगर करने के लिए Sarah के बदलाव पुल करें",
+    "teamwork.level2.requirement3.success": "टकराने वाले बदलाव पुल हो गए! login.js में कॉन्फ्लिक्ट मार्कर देखें।",
+    "teamwork.level2.requirement4.description": "सुलझाया गया कॉन्फ्लिक्ट स्टेज करें",
+    "teamwork.level2.requirement4.success": "कॉन्फ्लिक्ट रिज़ॉल्यूशन स्टेज हो गया!",
+    "teamwork.level2.requirement5.description": "मर्ज रिज़ॉल्यूशन कमिट करें",
+    "teamwork.level2.requirement5.success": "मर्ज कॉन्फ्लिक्ट सुलझ गया!",
+    "teamwork.level2.story.title": "बड़ा मर्ज कॉन्फ्लिक्ट संकट",
+    "teamwork.level2.story.narrative": `⚠️ आपके पहले मर्ज कॉन्फ्लिक्ट में आपका स्वागत है!
 
-**The Situation:**
-You've been working on \`/src/auth/login.js\` this morning. You've improved the password validation to be stricter (minimum 5 chars for username, 10 for password). Great work!
+**स्थिति:**
+आप आज सुबह से \`/src/auth/login.js\` पर काम कर रहे हैं। आपने पासवर्ड वैलिडेशन को सख़्त बना दिया है (username के लिए कम से कम 5 अक्षर, password के लिए 10)। बहुत बढ़िया काम!
 
-But while you were coding, your teammate Sarah also pushed changes to the SAME FILE! She added email validation logic. Now you both have different versions of the same lines of code.
+लेकिन जब आप कोड लिख रहे थे, आपकी साथी Sarah ने भी उसी फ़ाइल में बदलाव पुश कर दिए! उन्होंने email वैलिडेशन लॉजिक जोड़ा। अब आप दोनों के पास कोड की उन्हीं लाइनों के अलग-अलग वर्ज़न हैं।
 
-**Your Mission:**
+**आपका मिशन:**
 
-**1. Check your local changes:** Run \`cat /src/auth/login.js\` to see YOUR improvements (already done, but not committed yet!)
+**1. अपने लोकल बदलाव जांचें:** अपने सुधार देखने के लिए \`cat /src/auth/login.js\` चलाएं (पहले ही हो चुके हैं, पर अभी कमिट नहीं हुए!)
 
-**2. Commit YOUR changes first:**
+**2. पहले अपने बदलाव कमिट करें:**
 \` git add /src/auth/login.js
 git commit -m "Improve password validation requirements"
 \`
 
-**3. Now try to pull Sarah's changes:**
+**3. अब Sarah के बदलाव पुल करने की कोशिश करें:**
 \` git pull origin main \`
 
-**4. 💥 MERGE CONFLICT!** Git can't automatically merge because you and Sarah both modified the same lines! You'll see conflict markers in the file:
+**4. 💥 मर्ज कॉन्फ्लिक्ट!** Git अपने-आप मर्ज नहीं कर सकता क्योंकि आपने और Sarah दोनों ने वही लाइनें बदली हैं! आपको फ़ाइल में कॉन्फ्लिक्ट मार्कर दिखेंगे:
 \`<<<<<<< HEAD
-(your changes)
+(आपके बदलाव)
 =======
-(Sarah's changes)
+(Sarah के बदलाव)
 >>>>>>> abc1234\`
 
-**5. Resolve the conflict:**
-- Edit \`/src/auth/login.js\` to combine the best of both versions
-- Remove the conflict markers (\`<<<<<<<\`, \`=======\`, \`>>>>>>>\`)
-- Keep both your stricter password length AND Sarah's email validation!
+**5. कॉन्फ्लिक्ट सुलझाएं:**
+- दोनों वर्ज़न का सबसे अच्छा हिस्सा मिलाने के लिए \`/src/auth/login.js\` एडिट करें
+- कॉन्फ्लिक्ट मार्कर हटाएं (\`<<<<<<<\`, \`=======\`, \`>>>>>>>\`)
+- अपना सख़्त पासवर्ड लंबाई नियम AND Sarah का email वैलिडेशन, दोनों रखें!
 
-**6. Complete the merge:**
+**6. मर्ज पूरा करें:**
 \`git add .
 git commit -m "Merge Sarah's email validation with my password improvements"\`
 
-**Pro Tip:** The best resolution often combines both changes! In this case, keep:
-- Sarah's email validation logic (\`username.includes('@')\`)
-- Your stricter length requirements (\`username.length >= 5\` and \`password.length >= 10\`)
+**प्रो टिप:** सबसे अच्छा समाधान अक्सर दोनों बदलावों को मिलाता है! इस मामले में, रखें:
+- Sarah का email वैलिडेशन लॉजिक (\`username.includes('@')\`)
+- आपकी सख़्त लंबाई की शर्तें (\`username.length >= 5\` और \`password.length >= 10\`)
 
-This is completely normal in team development! Merge conflicts happen when multiple developers work on the same code. The key is resolving them thoughtfully.`,
+टीम डेवलपमेंट में यह बिल्कुल सामान्य है! जब कई डेवलपर एक ही कोड पर काम करते हैं तो मर्ज कॉन्फ्लिक्ट होते हैं। असली बात है उन्हें सोच-समझकर सुलझाना।`,
     "teamwork.level2.story.realWorldContext":
-        "Merge conflicts are inevitable in team development. Learning to resolve them quickly and correctly is a crucial skill.",
+        "टीम डेवलपमेंट में मर्ज कॉन्फ्लिक्ट होना तय है। उन्हें जल्दी और सही तरीके से सुलझाना सीखना एक अहम हुनर है।",
     "teamwork.level2.story.taskIntroduction":
-        "Master merge conflict resolution to become a confident team collaborator.",
+        "एक भरोसेमंद टीम सहयोगी बनने के लिए मर्ज कॉन्फ्लिक्ट सुलझाने में महारत हासिल करें।",
 
-    "teamwork.level3.name": "Code Review Workflow",
-    "teamwork.level3.description": "Learn to participate in code reviews and collaborate through pull requests",
-    "teamwork.level3.objective1": "Create a new feature branch",
-    "teamwork.level3.objective2": "Stage your completed work",
-    "teamwork.level3.objective3": "Commit with a clear message",
-    "teamwork.level3.objective4": "Push your branch for team review",
-    "teamwork.level3.hint1": "Create a feature branch: git switch -c feature/password-reset",
-    "teamwork.level3.hint2": "Alternative (classic): git checkout -b feature/password-reset",
-    "teamwork.level3.hint3": "Stage all changes: git add .",
-    "teamwork.level3.hint4": 'Commit with a descriptive message: git commit -m "Add password reset functionality"',
-    "teamwork.level3.hint5": "Push to remote: git push origin feature/password-reset",
-    "teamwork.level3.hint6": "Alternative with shorthand: git push -u origin feature/password-reset",
+    "teamwork.level3.name": "कोड रिव्यू वर्कफ़्लो",
+    "teamwork.level3.description": "कोड रिव्यू में हिस्सा लेना और पुल रिक्वेस्ट के ज़रिए सहयोग करना सीखें",
+    "teamwork.level3.objective1": "एक नई फ़ीचर ब्रांच बनाएं",
+    "teamwork.level3.objective2": "अपना पूरा किया हुआ काम स्टेज करें",
+    "teamwork.level3.objective3": "एक स्पष्ट संदेश के साथ कमिट करें",
+    "teamwork.level3.objective4": "टीम रिव्यू के लिए अपनी ब्रांच पुश करें",
+    "teamwork.level3.hint1": "एक फ़ीचर ब्रांच बनाएं: git switch -c feature/password-reset",
+    "teamwork.level3.hint2": "विकल्प (क्लासिक): git checkout -b feature/password-reset",
+    "teamwork.level3.hint3": "सभी बदलाव स्टेज करें: git add .",
+    "teamwork.level3.hint4": 'एक विवरणात्मक संदेश के साथ कमिट करें: git commit -m "Add password reset functionality"',
+    "teamwork.level3.hint5": "रिमोट पर पुश करें: git push origin feature/password-reset",
+    "teamwork.level3.hint6": "शॉर्टहैंड विकल्प: git push -u origin feature/password-reset",
     "teamwork.level3.hint7":
-        "Note: Use the branch name you created (not 'feature/password-reset' if you chose a different name)",
-    "teamwork.level3.requirement1.description": "Create a branch for code review demonstration",
-    "teamwork.level3.requirement1.success": "Feature branch created! ✨",
-    "teamwork.level3.requirement2.description": "Stage your code for review",
-    "teamwork.level3.requirement2.success": "Code staged for review! 📦",
-    "teamwork.level3.requirement3.description": "Commit with a clear, reviewable message",
-    "teamwork.level3.requirement3.success": "Code committed with clear message! 💬",
-    "teamwork.level3.requirement4.description": "Push your branch for code review",
+        "ध्यान दें: वही ब्रांच नाम उपयोग करें जो आपने बनाया है (अगर आपने अलग नाम चुना है तो 'feature/password-reset' नहीं)",
+    "teamwork.level3.requirement1.description": "कोड रिव्यू डेमो के लिए एक ब्रांच बनाएं",
+    "teamwork.level3.requirement1.success": "फ़ीचर ब्रांच बन गई! ✨",
+    "teamwork.level3.requirement2.description": "रिव्यू के लिए अपना कोड स्टेज करें",
+    "teamwork.level3.requirement2.success": "कोड रिव्यू के लिए स्टेज हो गया! 📦",
+    "teamwork.level3.requirement3.description": "एक स्पष्ट, रिव्यू करने लायक संदेश के साथ कमिट करें",
+    "teamwork.level3.requirement3.success": "कोड एक स्पष्ट संदेश के साथ कमिट हो गया! 💬",
+    "teamwork.level3.requirement4.description": "कोड रिव्यू के लिए अपनी ब्रांच पुश करें",
     "teamwork.level3.requirement4.success":
-        "Code pushed for team review! 🚀 In real teams, you'd now create a Pull Request!",
-    "teamwork.level3.story.title": "The Code Review Culture",
-    "teamwork.level3.story.narrative": `📝 Welcome to InnovateCorp's Code Review Process!
+        "कोड टीम रिव्यू के लिए पुश हो गया! 🚀 असली टीमों में, अब आप एक Pull Request बनाते!",
+    "teamwork.level3.story.title": "कोड रिव्यू की संस्कृति",
+    "teamwork.level3.story.narrative": `📝 InnovateCorp की कोड रिव्यू प्रोसेस में आपका स्वागत है!
 
-**The Situation:**
-You've just finished implementing the password reset feature. The code works perfectly in your local tests! 🎉
+**स्थिति:**
+आपने अभी-अभी password reset फ़ीचर लागू करना पूरा किया है। कोड आपके लोकल टेस्ट में बिल्कुल सही काम करता है! 🎉
 
-But wait - at InnovateCorp, no code goes to production without a code review. It's not about trust - it's about quality, knowledge sharing, and catching bugs before customers see them.
+लेकिन रुकिए - InnovateCorp में, कोई भी कोड बिना कोड रिव्यू के प्रोडक्शन में नहीं जाता। यह भरोसे की बात नहीं है - यह गुणवत्ता, नॉलेज शेयरिंग, और ग्राहकों तक पहुंचने से पहले बग पकड़ने की बात है।
 
-**Why Code Reviews Matter:**
-- **Quality:** Sarah might catch a security issue you missed
-- **Knowledge Sharing:** Mike learns from your clever solution
-- **Better Code:** Multiple perspectives make better software
-- **Team Growth:** Everyone becomes a better developer
+**कोड रिव्यू क्यों ज़रूरी हैं:**
+- **गुणवत्ता:** Sarah शायद वह सुरक्षा समस्या पकड़ ले जो आपसे छूट गई
+- **नॉलेज शेयरिंग:** Mike आपके चतुर समाधान से सीखता है
+- **बेहतर कोड:** कई नज़रिए बेहतर सॉफ़्टवेयर बनाते हैं
+- **टीम की ग्रोथ:** हर कोई एक बेहतर डेवलपर बनता है
 
-**Your Task:**
-You need to prepare your password reset feature for team review. Follow the professional workflow:
+**आपका काम:**
+आपको अपना password reset फ़ीचर टीम रिव्यू के लिए तैयार करना है। पेशेवर वर्कफ़्लो का पालन करें:
 
-**Step 1: Create a Feature Branch**
-Never work directly on \`main\`! Create a dedicated branch for your feature.
+**चरण 1: एक फ़ीचर ब्रांच बनाएं**
+कभी सीधे \`main\` पर काम न करें! अपने फ़ीचर के लिए एक समर्पित ब्रांच बनाएं।
 
-**Step 2: Stage Your Work**
-Add your completed files to the staging area.
+**चरण 2: अपना काम स्टेज करें**
+अपनी पूरी की हुई फ़ाइलों को स्टेजिंग एरिया में जोड़ें।
 
-**Step 3: Commit with a Clear Message**
-Write a commit message that explains what you built. Your teammates should understand your changes without reading every line of code.
+**चरण 3: एक स्पष्ट संदेश के साथ कमिट करें**
+एक कमिट संदेश लिखें जो बताए कि आपने क्या बनाया। आपके साथियों को हर लाइन कोड पढ़े बिना आपके बदलाव समझ आने चाहिए।
 
-**Step 4: Push to Remote**
-Upload your feature branch so your team can review it. In real teams, you'd then create a Pull Request on GitHub/GitLab.
+**चरण 4: रिमोट पर पुश करें**
+अपनी फ़ीचर ब्रांच अपलोड करें ताकि आपकी टीम इसे रिव्यू कर सके। असली टीमों में, फिर आप GitHub/GitLab पर एक Pull Request बनाते।
 
-**Remember:** The key to great code reviews is clear communication. Your branch name, commit messages, and code should tell a story!
+**याद रखें:** बेहतरीन कोड रिव्यू की कुंजी स्पष्ट संवाद है। आपके ब्रांच का नाम, कमिट संदेश, और कोड को एक कहानी बतानी चाहिए!
 
-Let's get your code ready for the team! 🚀`,
+चलिए आपका कोड टीम के लिए तैयार करते हैं! 🚀`,
     "teamwork.level3.story.realWorldContext":
-        "Code reviews are standard practice in professional development. They improve code quality, catch bugs early, and help teams learn from each other. Most companies use Pull Requests (GitHub) or Merge Requests (GitLab) for this process.",
+        "पेशेवर डेवलपमेंट में कोड रिव्यू एक मानक प्रथा है। ये कोड की गुणवत्ता सुधारते हैं, बग जल्दी पकड़ते हैं, और टीमों को एक-दूसरे से सीखने में मदद करते हैं। ज़्यादातर कंपनियां इसके लिए Pull Requests (GitHub) या Merge Requests (GitLab) का उपयोग करती हैं।",
     "teamwork.level3.story.taskIntroduction":
-        "Learn the professional workflow for preparing code for team review through branches, commits, and push operations.",
+        "ब्रांच, कमिट, और पुश ऑपरेशंस के ज़रिए कोड को टीम रिव्यू के लिए तैयार करने का पेशेवर वर्कफ़्लो सीखें।",
 
     // Archaeology Stage
-    "archaeology.name": "Git Archaeology",
-    "archaeology.description": "Investigate code history and perform Git forensics like a detective",
+    "archaeology.name": "Git आर्कियोलॉजी",
+    "archaeology.description": "किसी जासूस की तरह कोड इतिहास की जांच करें और Git फ़ॉरेंसिक्स करें",
 
     // Mastery Stage
-    "mastery.name": "Git Mastery",
-    "mastery.description": "The ultimate Git challenges for true masters",
+    "mastery.name": "Git महारत",
+    "mastery.description": "सच्चे मास्टर्स के लिए बेहतरीन Git चुनौतियां",
 
-    "mastery.level1.name": "Multi-Branch Merge Challenge",
-    "mastery.level1.description": "Master complex merges across multiple branches with conflicts",
-    "mastery.level1.objective1": "Merge multiple feature branches simultaneously",
-    "mastery.level1.objective2": "Resolve complex merge conflicts",
-    "mastery.level1.objective3": "Stage the resolved conflicts",
-    "mastery.level1.objective4": "Complete the multi-way merge",
-    "mastery.level1.hint1": "Use git merge to merge multiple branches at once",
-    "mastery.level1.hint2": "Analyze each conflict carefully - they may interact",
-    "mastery.level1.hint3": "The best solution often combines elements from all branches",
-    "mastery.level1.hint4": "Test your merged code before committing",
-    "mastery.level1.requirement1.description": "Merge all feature branches into main",
-    "mastery.level1.requirement1.success": "Complex merge initiated! Now resolve the conflicts.",
-    "mastery.level1.requirement2.description": "Stage all resolved files",
-    "mastery.level1.requirement2.success": "Conflicts resolved and staged!",
-    "mastery.level1.requirement3.description": "Complete the merge with a commit",
-    "mastery.level1.requirement3.success": "Master-level merge completed! You've conquered multi-way merges!",
-    "mastery.level1.story.title": "The Integration Challenge",
+    "mastery.level1.name": "मल्टी-ब्रांच मर्ज चुनौती",
+    "mastery.level1.description": "कॉन्फ्लिक्ट के साथ कई ब्रांचों में जटिल मर्ज में महारत हासिल करें",
+    "mastery.level1.objective1": "एक साथ कई फ़ीचर ब्रांच मर्ज करें",
+    "mastery.level1.objective2": "जटिल मर्ज कॉन्फ्लिक्ट सुलझाएं",
+    "mastery.level1.objective3": "सुलझाए गए कॉन्फ्लिक्ट स्टेज करें",
+    "mastery.level1.objective4": "मल्टी-वे मर्ज पूरा करें",
+    "mastery.level1.hint1": "एक साथ कई ब्रांच मर्ज करने के लिए git merge का उपयोग करें",
+    "mastery.level1.hint2": "हर कॉन्फ्लिक्ट को ध्यान से देखें - वे एक-दूसरे को प्रभावित कर सकते हैं",
+    "mastery.level1.hint3": "सबसे अच्छा समाधान अक्सर सभी ब्रांचों के तत्वों को मिलाता है",
+    "mastery.level1.hint4": "कमिट करने से पहले अपने मर्ज किए गए कोड को टेस्ट करें",
+    "mastery.level1.requirement1.description": "सभी फ़ीचर ब्रांच को main में मर्ज करें",
+    "mastery.level1.requirement1.success": "जटिल मर्ज शुरू हो गया! अब कॉन्फ्लिक्ट सुलझाएं।",
+    "mastery.level1.requirement2.description": "सभी सुलझाई गई फ़ाइलें स्टेज करें",
+    "mastery.level1.requirement2.success": "कॉन्फ्लिक्ट सुलझ गए और स्टेज हो गए!",
+    "mastery.level1.requirement3.description": "एक कमिट के साथ मर्ज पूरा करें",
+    "mastery.level1.requirement3.success": "मास्टर-स्तर का मर्ज पूरा हुआ! आपने मल्टी-वे मर्ज पर विजय पा ली!",
+    "mastery.level1.story.title": "इंटीग्रेशन चुनौती",
     "mastery.level1.story.narrative":
-        "Three teams have been working in parallel for the quarterly release. Each team developed critical features on separate branches. Now it's integration day, and you're the lead developer responsible for merging everything together. The challenge: all three branches modified shared utility files. You must merge all branches and resolve the conflicts to create a coherent, working system.",
+        "तिमाही रिलीज़ के लिए तीन टीमें समानांतर काम कर रही थीं। हर टीम ने अलग-अलग ब्रांचों पर ज़रूरी फ़ीचर डेवलप किए। अब इंटीग्रेशन का दिन है, और आप वह लीड डेवलपर हैं जो सब कुछ एक साथ मर्ज करने के ज़िम्मेदार हैं। चुनौती यह है: तीनों ब्रांचों ने साझा यूटिलिटी फ़ाइलों में बदलाव किए हैं। आपको सभी ब्रांच मर्ज करके और कॉन्फ्लिक्ट सुलझाकर एक सुसंगत, काम करने वाला सिस्टम बनाना है।",
     "mastery.level1.story.realWorldContext":
-        "Complex multi-branch merges are common in large projects with multiple parallel development streams. Mastering this skill is essential for senior developers and technical leads.",
+        "बड़े प्रोजेक्ट्स में जहां कई समानांतर डेवलपमेंट स्ट्रीम चलती हैं, वहां जटिल मल्टी-ब्रांच मर्ज आम बात है। सीनियर डेवलपर्स और टेक्निकल लीड के लिए इस हुनर में महारत हासिल करना ज़रूरी है।",
     "mastery.level1.story.taskIntroduction":
-        "Merge three feature branches with overlapping changes and resolve all conflicts to create a unified codebase.",
+        "ओवरलैप करने वाले बदलावों के साथ तीन फ़ीचर ब्रांच मर्ज करें और एक एकीकृत कोडबेस बनाने के लिए सभी कॉन्फ्लिक्ट सुलझाएं।",
 
-    "mastery.level2.name": "Git Hooks and Automation",
-    "mastery.level2.description": "Implement Git hooks to automate workflows and enforce quality standards",
-    "mastery.level2.objective1": "Create pre-commit hooks for code quality",
-    "mastery.level2.objective2": "Set up post-commit hooks for notifications",
-    "mastery.level2.objective3": "Implement server-side hooks",
-    "mastery.level2.objective4": "Build automated workflow pipelines",
-    "mastery.level2.hint1": "Pre-commit hooks run before commits are created",
-    "mastery.level2.hint2": "Post-commit hooks run after successful commits",
-    "mastery.level2.hint3": "Use exit codes to prevent commits in pre-commit hooks",
-    "mastery.level2.hint4": "Server-side hooks control what can be pushed",
-    "mastery.level2.requirement1.description": "Make the pre-commit hook executable",
-    "mastery.level2.requirement1.success": "Pre-commit hook activated!",
-    "mastery.level2.requirement2.description": "Stage files to test the pre-commit hook",
-    "mastery.level2.requirement2.success": "Files staged!",
-    "mastery.level2.requirement3.description": "Attempt a commit to trigger the quality checks",
-    "mastery.level2.requirement3.success": "Quality checks passed!",
-    "mastery.level2.story.title": "The Quality Guardian",
-    "mastery.level2.story.narrative": `⚡ You've been promoted to DevOps Engineer, and your first mission is to implement the "Quality Guardian" - an automated system that prevents bad code from entering the repository.
+    "mastery.level2.name": "Git हुक्स और ऑटोमेशन",
+    "mastery.level2.description": "वर्कफ़्लो को ऑटोमेट करने और गुणवत्ता मानकों को लागू करने के लिए Git हुक्स लागू करें",
+    "mastery.level2.objective1": "कोड क्वालिटी के लिए pre-commit हुक्स बनाएं",
+    "mastery.level2.objective2": "नोटिफ़िकेशन के लिए post-commit हुक्स सेट करें",
+    "mastery.level2.objective3": "सर्वर-साइड हुक्स लागू करें",
+    "mastery.level2.objective4": "ऑटोमेटेड वर्कफ़्लो पाइपलाइन बनाएं",
+    "mastery.level2.hint1": "Pre-commit हुक्स कमिट बनने से पहले चलते हैं",
+    "mastery.level2.hint2": "Post-commit हुक्स सफल कमिट के बाद चलते हैं",
+    "mastery.level2.hint3": "pre-commit हुक्स में कमिट रोकने के लिए exit code का उपयोग करें",
+    "mastery.level2.hint4": "सर्वर-साइड हुक्स नियंत्रित करते हैं कि क्या पुश किया जा सकता है",
+    "mastery.level2.requirement1.description": "pre-commit हुक को एक्ज़ीक्यूटेबल बनाएं",
+    "mastery.level2.requirement1.success": "Pre-commit हुक सक्रिय हो गया!",
+    "mastery.level2.requirement2.description": "pre-commit हुक टेस्ट करने के लिए फ़ाइलें स्टेज करें",
+    "mastery.level2.requirement2.success": "फ़ाइलें स्टेज हो गईं!",
+    "mastery.level2.requirement3.description": "क्वालिटी चेक ट्रिगर करने के लिए एक कमिट की कोशिश करें",
+    "mastery.level2.requirement3.success": "क्वालिटी चेक पास हो गए!",
+    "mastery.level2.story.title": "क्वालिटी गार्डियन",
+    "mastery.level2.story.narrative": `⚡ आपको DevOps इंजीनियर के पद पर प्रमोट कर दिया गया है, और आपका पहला मिशन है "Quality Guardian" लागू करना - एक ऑटोमेटेड सिस्टम जो ख़राब कोड को रिपॉजिटरी में आने से रोकता है।
 
-The development team has been growing rapidly, and with growth comes inconsistency:
-- Commits without proper testing
-- Code style violations
-- Secrets accidentally committed
-- Broken builds pushed to main
+डेवलपमेंट टीम तेज़ी से बढ़ रही है, और बढ़त के साथ असंगति भी आती है:
+- बिना सही टेस्टिंग के कमिट
+- कोड स्टाइल का उल्लंघन
+- गलती से कमिट हुए सीक्रेट्स
+- main में पुश हुए टूटे हुए बिल्ड
 
-Your team lead, Sarah, explains the vision:
+आपकी टीम लीड, Sarah, अपना विज़न समझाती हैं:
 
-"We need automation to enforce our quality standards. Every commit should be automatically checked for:
-- Linting and code style
-- Unit test passage
-- Security vulnerabilities
-- Commit message standards"
+"हमें अपने क्वालिटी मानकों को लागू करने के लिए ऑटोमेशन चाहिए। हर कमिट अपने-आप इन चीज़ों के लिए जांचा जाना चाहिए:
+- Linting और कोड स्टाइल
+- यूनिट टेस्ट का पास होना
+- सुरक्षा कमज़ोरियां
+- कमिट संदेश मानक"
 
-"Git hooks are perfect for this. They're scripts that run at specific points in the Git workflow. Think of them as quality gates that code must pass through."
+"इसके लिए Git हुक्स बिल्कुल सही हैं। ये ऐसी स्क्रिप्ट होती हैं जो Git वर्कफ़्लो के विशेष बिंदुओं पर चलती हैं। इन्हें क्वालिटी गेट्स समझें जिनसे कोड को गुज़रना ही होता है।"
 
-The hook ecosystem:
-- pre-commit: Run checks before commits are created
-- pre-push: Validate before pushing to remote
-- post-commit: Send notifications or trigger builds
-- Server-side hooks: Control what can be pushed
+हुक इकोसिस्टम:
+- pre-commit: कमिट बनने से पहले जांच चलाता है
+- pre-push: रिमोट पर पुश करने से पहले वैलिडेट करता है
+- post-commit: नोटिफ़िकेशन भेजता है या बिल्ड ट्रिगर करता है
+- सर्वर-साइड हुक्स: नियंत्रित करते हैं कि क्या पुश किया जा सकता है
 
-Your mission:
-1. Implement a pre-commit hook for quality checks
-2. Set up automated testing and linting
-3. Create notification systems
-4. Build a comprehensive quality pipeline
+आपका मिशन:
+1. क्वालिटी चेक के लिए एक pre-commit हुक लागू करें
+2. ऑटोमेटेड टेस्टिंग और लिंटिंग सेट करें
+3. नोटिफ़िकेशन सिस्टम बनाएं
+4. एक व्यापक क्वालिटी पाइपलाइन बनाएं
 
-This is infrastructure work that will benefit every developer on your team. You're not just writing code - you're building the foundation for code quality.`,
+यह इंफ़्रास्ट्रक्चर का काम है जिससे आपकी टीम का हर डेवलपर फ़ायदा उठाएगा। आप सिर्फ़ कोड नहीं लिख रहे हैं - आप कोड क्वालिटी की नींव बना रहे हैं।`,
     "mastery.level2.story.realWorldContext":
-        "Git hooks are essential for implementing automated quality assurance and workflow automation in professional development environments.",
+        "पेशेवर डेवलपमेंट माहौल में ऑटोमेटेड क्वालिटी एश्योरेंस और वर्कफ़्लो ऑटोमेशन लागू करने के लिए Git हुक्स बेहद ज़रूरी हैं।",
     "mastery.level2.story.taskIntroduction":
-        "Master Git hooks to build automated quality systems that enforce standards and improve team productivity.",
+        "ऑटोमेटेड क्वालिटी सिस्टम बनाने के लिए Git हुक्स में महारत हासिल करें जो मानकों को लागू करें और टीम की उत्पादकता बढ़ाएं।",
 
-    "mastery.level3.name": "Git Mastery: The Final Challenge",
-    "mastery.level3.description": "Combine all advanced Git techniques to solve a complex real-world scenario",
-    "mastery.level3.objective1": "Orchestrate a complex release with multiple hotfixes",
-    "mastery.level3.objective2": "Handle emergency rollbacks and recovery",
-    "mastery.level3.objective3": "Coordinate with multiple teams simultaneously",
-    "mastery.level3.objective4": "Demonstrate mastery of all techniques",
-    "mastery.level3.hint1": "This challenge combines everything you've learned",
-    "mastery.level3.hint2": "Think strategically about branch management",
-    "mastery.level3.hint3": "Communication is as important as technical skills",
-    "mastery.level3.hint4": "Document your decisions for the team",
-    "mastery.level3.requirement1.description": "Create an emergency rollback branch",
-    "mastery.level3.requirement1.success": "Emergency procedures initiated!",
-    "mastery.level3.requirement2.description": "Cherry-pick critical fixes",
-    "mastery.level3.requirement2.success": "Critical fixes applied!",
-    "mastery.level3.requirement3.description": "Tag the emergency release",
-    "mastery.level3.requirement3.success": "Emergency release tagged!",
-    "mastery.level3.requirement4.description": "Push the emergency release tags",
-    "mastery.level3.requirement4.success": "🎉 MASTERY ACHIEVED! You are now a Git Master!",
-    "mastery.level3.story.title": "The Ultimate Git Challenge: Black Friday Crisis",
-    "mastery.level3.story.narrative": `🚨 BLACK FRIDAY, 2:00 AM - THE ULTIMATE TEST
+    "mastery.level3.name": "Git महारत: अंतिम चुनौती",
+    "mastery.level3.description": "एक जटिल असल-दुनिया परिदृश्य हल करने के लिए सारी एडवांस्ड Git तकनीकें मिलाएं",
+    "mastery.level3.objective1": "कई hotfix के साथ एक जटिल रिलीज़ को व्यवस्थित करें",
+    "mastery.level3.objective2": "इमरजेंसी rollback और रिकवरी संभालें",
+    "mastery.level3.objective3": "एक साथ कई टीमों के साथ समन्वय करें",
+    "mastery.level3.objective4": "सभी तकनीकों में अपनी महारत दिखाएं",
+    "mastery.level3.hint1": "यह चुनौती वह सब कुछ मिलाती है जो आपने सीखा है",
+    "mastery.level3.hint2": "ब्रांच मैनेजमेंट के बारे में रणनीतिक रूप से सोचें",
+    "mastery.level3.hint3": "संवाद उतना ही ज़रूरी है जितना तकनीकी हुनर",
+    "mastery.level3.hint4": "टीम के लिए अपने फ़ैसले दर्ज करें",
+    "mastery.level3.requirement1.description": "एक इमरजेंसी rollback ब्रांच बनाएं",
+    "mastery.level3.requirement1.success": "इमरजेंसी प्रक्रिया शुरू हो गई!",
+    "mastery.level3.requirement2.description": "गंभीर फ़िक्स को cherry-pick करें",
+    "mastery.level3.requirement2.success": "गंभीर फ़िक्स लागू हो गए!",
+    "mastery.level3.requirement3.description": "इमरजेंसी रिलीज़ को टैग करें",
+    "mastery.level3.requirement3.success": "इमरजेंसी रिलीज़ टैग हो गई!",
+    "mastery.level3.requirement4.description": "इमरजेंसी रिलीज़ टैग को पुश करें",
+    "mastery.level3.requirement4.success": "🎉 महारत हासिल हुई! अब आप एक Git मास्टर हैं!",
+    "mastery.level3.story.title": "बेहतरीन Git चुनौती: ब्लैक फ़्राइडे संकट",
+    "mastery.level3.story.narrative": `🚨 ब्लैक फ़्राइडे, रात 2:00 बजे - सबसे बड़ी परीक्षा
 
-You are the Senior DevOps Engineer at MegaCorp, and you're facing the perfect storm of Git challenges on the biggest shopping day of the year.
+आप MegaCorp में Senior DevOps Engineer हैं, और साल के सबसे बड़े शॉपिंग दिन पर आप Git चुनौतियों के सबसे भयानक तूफ़ान का सामना कर रहे हैं।
 
-The situation:
-- Production is partially broken due to a bad deployment
-- Three different teams pushed hotfixes simultaneously
-- The payment system is failing intermittently
-- Customer support is overwhelmed
-- The CEO is asking for hourly updates
-- Black Friday traffic is 50x normal levels
+स्थिति:
+- एक ख़राब डिप्लॉयमेंट की वजह से प्रोडक्शन आंशिक रूप से टूटा हुआ है
+- तीन अलग-अलग टीमों ने एक साथ hotfix पुश किए
+- पेमेंट सिस्टम रुक-रुक कर फ़ेल हो रहा है
+- कस्टमर सपोर्ट पर दबाव बहुत ज़्यादा है
+- CEO हर घंटे अपडेट मांग रहे हैं
+- ब्लैक फ़्राइडे का ट्रैफ़िक सामान्य से 50 गुना ज़्यादा है
 
-Your CTO calls an emergency meeting:
+आपके CTO एक इमरजेंसी मीटिंग बुलाते हैं:
 
-"This is why we hired you. Everything we've built, everything we've learned, comes down to this moment. We need someone who can navigate complex Git operations under extreme pressure."
+"इसीलिए हमने आपको नियुक्त किया था। हमने जो कुछ भी बनाया है, जो कुछ भी सीखा है, वह सब इसी पल पर टिका है। हमें ऐसे किसी की ज़रूरत है जो भारी दबाव में जटिल Git ऑपरेशंस संभाल सके।"
 
-The challenge involves:
-1. **Emergency Rollback**: Quickly revert the problematic deployment
-2. **Selective Recovery**: Cherry-pick only the good changes
-3. **Hotfix Coordination**: Merge critical fixes from multiple teams
-4. **Release Management**: Create and deploy emergency patches
-5. **Team Communication**: Coordinate across development, QA, and operations
+चुनौती में शामिल है:
+1. **इमरजेंसी Rollback**: समस्याग्रस्त डिप्लॉयमेंट को तुरंत वापस लें
+2. **चुनिंदा रिकवरी**: सिर्फ़ अच्छे बदलावों को cherry-pick करें
+3. **Hotfix समन्वय**: कई टीमों के गंभीर फ़िक्स मर्ज करें
+4. **रिलीज़ मैनेजमेंट**: इमरजेंसी पैच बनाएं और डिप्लॉय करें
+5. **टीम संवाद**: डेवलपमेंट, QA, और ऑपरेशंस के बीच समन्वय करें
 
-You must use every Git technique in your arsenal:
-- \`git rebase -i\` to clean up messy commits
-- \`git cherry-pick <commit-hash>\` to select only working features (copies specific commits from one branch to another)
-- Advanced merging with \`git merge\` to combine team efforts
-- \`git bisect\` to find the exact problem commit (binary search through history to find bugs)
-- \`git reflog\` to recover from mistakes
-- \`git tag\` and branches for release management
-- \`git mv <old> <new>\` to rename files while preserving Git history
+आपको अपने भंडार का हर Git तकनीक इस्तेमाल करनी होगी:
+- गड़बड़ कमिट साफ़ करने के लिए \`git rebase -i\`
+- सिर्फ़ काम करने वाले फ़ीचर चुनने के लिए \`git cherry-pick <commit-hash>\` (एक ब्रांच से दूसरी ब्रांच में विशेष कमिट कॉपी करता है)
+- टीम के काम को मिलाने के लिए \`git merge\` से एडवांस्ड मर्जिंग
+- ठीक-ठीक समस्या वाला कमिट खोजने के लिए \`git bisect\` (बग खोजने के लिए इतिहास में बाइनरी सर्च)
+- ग़लतियों से उबरने के लिए \`git reflog\`
+- रिलीज़ मैनेजमेंट के लिए \`git tag\` और ब्रांच
+- Git इतिहास बनाए रखते हुए फ़ाइलों का नाम बदलने के लिए \`git mv <old> <new>\`
 
-**What is git cherry-pick?**
-Cherry-picking allows you to copy specific commits from one branch to another. Instead of merging entire branches, you can pick and choose individual commits. Perfect for applying hotfixes from one branch to another!
+**git cherry-pick क्या है?**
+Cherry-picking से आप एक ब्रांच से दूसरी ब्रांच में विशेष कमिट कॉपी कर सकते हैं। पूरी ब्रांच मर्ज करने के बजाय, आप अलग-अलग कमिट चुन सकते हैं। एक ब्रांच से दूसरी में hotfix लागू करने के लिए बिल्कुल सही!
 
-Example: \`git cherry-pick abc123\` - applies commit abc123 to your current branch
+उदाहरण: \`git cherry-pick abc123\` - कमिट abc123 को आपकी मौजूदा ब्रांच पर लागू करता है
 
-**What is git bisect?**
-Bisect helps you find which commit introduced a bug using binary search. Git will checkout commits for you to test, and you tell it "good" or "bad" until it finds the problematic commit.
+**git bisect क्या है?**
+Bisect बाइनरी सर्च का उपयोग करके यह पता लगाने में मदद करता है कि किस कमिट ने बग पैदा किया। Git आपके लिए टेस्ट करने को कमिट checkout करता रहता है, और आप उसे "good" या "bad" बताते रहते हैं जब तक कि वह समस्याग्रस्त कमिट न खोज ले।
 
-Example:
+उदाहरण:
 \`git bisect start\`
-\`git bisect bad\` (current commit is broken)
-\`git bisect good abc123\` (this old commit worked)
-Git will then guide you through testing commits until it finds the first bad one!
+\`git bisect bad\` (मौजूदा कमिट टूटा हुआ है)
+\`git bisect good abc123\` (यह पुराना कमिट ठीक काम करता था)
+इसके बाद Git आपको तब तक कमिट टेस्ट करने में मार्गदर्शन देगा जब तक कि उसे पहला ख़राब कमिट न मिल जाए!
 
-**What is git mv?**
-Move or rename files while keeping Git history intact. Better than manually renaming files because Git tracks the rename.
+**git mv क्या है?**
+Git इतिहास बरकरार रखते हुए फ़ाइलों को मूव या रीनेम करें। फ़ाइलों को मैन्युअली रीनेम करने से बेहतर, क्योंकि Git रीनेम को ट्रैक करता है।
 
-Example: \`git mv old-name.js new-name.js\`
+उदाहरण: \`git mv old-name.js new-name.js\`
 
-This isn't just about Git commands - it's about leadership, decision-making under pressure, and the ability to think systematically when everything is on fire.
+यह सिर्फ़ Git कमांड की बात नहीं है - यह नेतृत्व, दबाव में फ़ैसले लेने, और जब सब कुछ जल रहा हो तब व्यवस्थित तरीके से सोचने की काबिलियत की बात है।
 
-The company's Black Friday revenue depends on you. Millions of customers are waiting. Your team is looking to you for guidance.
+कंपनी का ब्लैक फ़्राइडे रेवेन्यू आप पर निर्भर है। लाखों ग्राहक इंतज़ार कर रहे हैं। आपकी टीम आपकी तरफ़ मार्गदर्शन के लिए देख रही है।
 
-This is your moment. Show them what a Git Master can do.
+यह आपका पल है। उन्हें दिखाइए कि एक Git मास्टर क्या कर सकता है।
 
-Ready to prove your mastery? The clock is ticking...`,
+अपनी महारत साबित करने के लिए तैयार हैं? घड़ी टिक-टिक कर रही है...`,
     "mastery.level3.story.realWorldContext":
-        "Real-world Git mastery involves orchestrating complex operations under pressure, managing multiple stakeholders, and making critical decisions that affect business operations.",
+        "असल दुनिया की Git महारत में भारी दबाव में जटिल ऑपरेशंस को व्यवस्थित करना, कई स्टेकहोल्डर्स को संभालना, और ऐसे अहम फ़ैसले लेना शामिल है जो बिज़नेस ऑपरेशंस को प्रभावित करते हैं।",
     "mastery.level3.story.taskIntroduction":
-        "This is the ultimate Git challenge - combine all your skills to handle a complex, high-pressure emergency scenario.",
+        "यह सबसे बड़ी Git चुनौती है - एक जटिल, भारी दबाव वाली इमरजेंसी स्थिति संभालने के लिए अपने सारे हुनर मिलाएं।",
 
     // Archaeology Stage Levels
     "archaeology.level1.name": "Git Blame - Code Archaeology",

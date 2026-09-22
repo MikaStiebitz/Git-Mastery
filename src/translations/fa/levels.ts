@@ -1003,186 +1003,186 @@ deploy.sh --commit=9a2b3c4
         "گردش‌کار حرفه‌ای انتشار را بیاموزید: شاخه‌سازی، آماده‌سازی، ادغام و تگ زدن. این‌گونه است که تیم‌ها نرم‌افزار پایدار را در تولید منتشر می‌کنند.",
 
     // Teamwork Stage
-    "teamwork.name": "Team Collaboration",
-    "teamwork.description": "Learn to work effectively with teams using Git collaboration techniques",
+    "teamwork.name": "همکاری تیمی",
+    "teamwork.description": "یاد بگیرید چگونه با استفاده از تکنیک‌های همکاری Git به‌طور مؤثر با تیم‌ها کار کنید",
 
-    "teamwork.level1.name": "Team Collaboration Basics",
-    "teamwork.level1.description": "Learn how to work effectively with a team using Git",
-    "teamwork.level1.objective1": "Pull the latest team code from remote",
-    "teamwork.level1.objective2": "Create a new feature branch for your work",
-    "teamwork.level1.objective3": "Edit team.md and add your name to the team members list",
-    "teamwork.level1.objective4": "Stage your changes",
-    "teamwork.level1.objective5": "Commit your changes",
-    "teamwork.level1.objective6": "Push your changes to the remote repository",
-    "teamwork.level1.hint1": "Use 'git pull origin main' to get the latest team code",
-    "teamwork.level1.hint2": "Create a new branch with 'git switch -c feature/YOUR-NAME'",
-    "teamwork.level1.hint3": "Edit the team.md file to add your name and role",
-    "teamwork.level1.hint4": "Stage all changes with 'git add .'",
-    "teamwork.level1.hint5": "Commit with a clear message: 'git commit -m \"Add my profile\"'",
-    "teamwork.level1.hint6": "Push your branch with 'git push origin feature/YOUR-NAME'",
-    "teamwork.level1.requirement1.description": "Pull the latest changes from the team repository",
-    "teamwork.level1.requirement1.success": "Latest changes pulled successfully!",
-    "teamwork.level1.requirement2.description": "Create your feature branch for team profile",
-    "teamwork.level1.requirement2.success": "Feature branch created!",
-    "teamwork.level1.requirement3.description": "Edit team.md and add your name to the list",
-    "teamwork.level1.requirement3.success": "File modified! Your name has been added.",
-    "teamwork.level1.requirement4.description": "Stage your team profile changes",
-    "teamwork.level1.requirement4.success": "Changes staged!",
-    "teamwork.level1.requirement5.description": "Commit your team profile with a descriptive message",
-    "teamwork.level1.requirement5.success": "Team profile committed!",
-    "teamwork.level1.requirement6.description": "Push your changes to the remote repository",
-    "teamwork.level1.requirement6.success": "Changes pushed to remote!",
-    "teamwork.level1.story.title": "Welcome to the Dev Team",
-    "teamwork.level1.story.narrative": `🎉 Congratulations! You've just been hired as a developer at InnovateCorp, a fast-growing tech startup.
+    "teamwork.level1.name": "مبانی همکاری تیمی",
+    "teamwork.level1.description": "یاد بگیرید چگونه با استفاده از Git به‌طور مؤثر با یک تیم کار کنید",
+    "teamwork.level1.objective1": "آخرین کد تیم را از remote پول کنید",
+    "teamwork.level1.objective2": "یک شاخه ویژگی جدید برای کار خود ایجاد کنید",
+    "teamwork.level1.objective3": "فایل team.md را ویرایش کرده و نام خود را به لیست اعضای تیم اضافه کنید",
+    "teamwork.level1.objective4": "تغییرات خود را استیج کنید",
+    "teamwork.level1.objective5": "تغییرات خود را کامیت کنید",
+    "teamwork.level1.objective6": "تغییرات خود را به مخزن راه‌دور پوش کنید",
+    "teamwork.level1.hint1": "از 'git pull origin main' برای دریافت آخرین کد تیم استفاده کنید",
+    "teamwork.level1.hint2": "یک شاخه جدید با 'git switch -c feature/YOUR-NAME' ایجاد کنید",
+    "teamwork.level1.hint3": "فایل team.md را ویرایش کنید تا نام و نقش خود را اضافه کنید",
+    "teamwork.level1.hint4": "تمام تغییرات را با 'git add .' استیج کنید",
+    "teamwork.level1.hint5": "با یک پیام واضح کامیت کنید: 'git commit -m \"Add my profile\"'",
+    "teamwork.level1.hint6": "شاخه خود را با 'git push origin feature/YOUR-NAME' پوش کنید",
+    "teamwork.level1.requirement1.description": "آخرین تغییرات را از مخزن تیم پول کنید",
+    "teamwork.level1.requirement1.success": "آخرین تغییرات با موفقیت پول شدند!",
+    "teamwork.level1.requirement2.description": "شاخه ویژگی خود را برای پروفایل تیم ایجاد کنید",
+    "teamwork.level1.requirement2.success": "شاخه ویژگی ایجاد شد!",
+    "teamwork.level1.requirement3.description": "team.md را ویرایش کرده و نام خود را به لیست اضافه کنید",
+    "teamwork.level1.requirement3.success": "فایل تغییر کرد! نام شما اضافه شد.",
+    "teamwork.level1.requirement4.description": "تغییرات پروفایل تیم خود را استیج کنید",
+    "teamwork.level1.requirement4.success": "تغییرات استیج شدند!",
+    "teamwork.level1.requirement5.description": "پروفایل تیم خود را با یک پیام توصیفی کامیت کنید",
+    "teamwork.level1.requirement5.success": "پروفایل تیم کامیت شد!",
+    "teamwork.level1.requirement6.description": "تغییرات خود را به مخزن راه‌دور پوش کنید",
+    "teamwork.level1.requirement6.success": "تغییرات به remote پوش شدند!",
+    "teamwork.level1.story.title": "به تیم توسعه خوش آمدید",
+    "teamwork.level1.story.narrative": `🎉 تبریک می‌گویم! شما به‌تازگی به‌عنوان توسعه‌دهنده در InnovateCorp، یک استارتاپ فناوری در حال رشد سریع، استخدام شده‌اید.
 
-Your team lead, Alex, walks you through your first day:
+سرپرست تیم شما، Alex، شما را در اولین روزتان راهنمایی می‌کند:
 
-"Welcome to the team! We use Git for everything here. The codebase is our shared workspace, and everyone contributes to it daily. Your first task is simple but important - add your profile to our team page."
+"به تیم خوش آمدید! ما اینجا برای همه‌چیز از Git استفاده می‌کنیم. کدبیس فضای کاری مشترک ماست و همه هر روز در آن مشارکت می‌کنند. اولین وظیفه شما ساده اما مهم است - پروفایل خود را به صفحه تیم ما اضافه کنید."
 
-"Remember," Alex continues, "we have 12 developers working on this project. Everyone needs to stay synchronized. Always \`git pull\` before you push, and make sure your commit messages are clear so the rest of us know what you're working on."
+"یادت باشد،" Alex ادامه می‌دهد، "ما 12 توسعه‌دهنده روی این پروژه کار می‌کنند. همه باید همگام بمانند. همیشه قبل از پوش کردن \`git pull\` بزن، و مطمئن شو پیام‌های کامیتت واضح هستند تا بقیه ما بدانیم روی چه چیزی کار می‌کنی."
 
-Your mission:
-1. Get the latest code from the team repository with \`git pull origin main\`
-2. Create your feature branch: \`git switch -c feature/team-profile\`
-3. Add your developer profile to the team page
-4. Stage changes: \`git add .\`
-5. Commit your changes: \`git commit -m "Add my profile"\`
+مأموریت شما:
+1. آخرین کد را از مخزن تیم با \`git pull origin main\` دریافت کنید
+2. شاخه ویژگی خود را ایجاد کنید: \`git switch -c feature/team-profile\`
+3. پروفایل توسعه‌دهنده خود را به صفحه تیم اضافه کنید
+4. تغییرات را استیج کنید: \`git add .\`
+5. تغییرات خود را کامیت کنید: \`git commit -m "Add my profile"\`
 
-This is real-world team development. Let's make your first contribution!`,
+این توسعه تیمی در دنیای واقعی است. بیایید اولین مشارکت شما را انجام دهیم!`,
     "teamwork.level1.story.realWorldContext":
-        "Team collaboration is the heart of software development. Learning to work with shared repositories is essential for any developer.",
+        "همکاری تیمی قلب توسعه نرم‌افزار است. یادگیری کار با مخازن مشترک برای هر توسعه‌دهنده‌ای ضروری است.",
     "teamwork.level1.story.taskIntroduction":
-        "Learn the fundamentals of team-based Git workflow and make your first collaborative contribution.",
+        "مبانی گردش‌کار تیمی Git را بیاموزید و اولین مشارکت گروهی خود را انجام دهید.",
 
-    "teamwork.level2.name": "Handling Merge Conflicts in Teams",
-    "teamwork.level2.description": "Resolve merge conflicts that occur when multiple developers work on the same files",
-    "teamwork.level2.objective1": "Stage and commit your local changes",
-    "teamwork.level2.objective2": "Pull remote changes (triggers conflict)",
-    "teamwork.level2.objective3": "Resolve merge conflict markers",
-    "teamwork.level2.objective4": "Stage and commit the merged solution",
-    "teamwork.level2.hint1": "Use 'cat /src/auth/login.js' to see your current uncommitted changes",
-    "teamwork.level2.hint2": "Use 'git status' to confirm the file is modified",
-    "teamwork.level2.hint3": "Commit with 'git add /src/auth/login.js' then 'git commit -m \"message\"'",
-    "teamwork.level2.hint4": "Pull with 'git pull origin main' - this will trigger the conflict!",
-    "teamwork.level2.hint5": "Look for conflict markers: <<<<<<<, =======, >>>>>>>",
-    "teamwork.level2.hint6": "Edit login.js to combine both your and Sarah's improvements",
-    "teamwork.level2.hint7": "The best solution keeps BOTH: Sarah's email check AND your stricter lengths",
-    "teamwork.level2.hint8": "After resolving: 'git add .' then 'git commit -m \"Resolve merge conflict\"'",
-    "teamwork.level2.requirement1.description": "Stage your local changes to login.js",
-    "teamwork.level2.requirement1.success": "Local changes staged!",
-    "teamwork.level2.requirement2.description": "Commit your local changes first",
-    "teamwork.level2.requirement2.success": "Local changes committed!",
-    "teamwork.level2.requirement3.description": "Pull Sarah's changes to trigger the conflict",
-    "teamwork.level2.requirement3.success": "Conflicting changes pulled! Check login.js for conflict markers.",
-    "teamwork.level2.requirement4.description": "Stage the resolved conflict",
-    "teamwork.level2.requirement4.success": "Conflict resolution staged!",
-    "teamwork.level2.requirement5.description": "Commit the merge resolution",
-    "teamwork.level2.requirement5.success": "Merge conflict resolved!",
-    "teamwork.level2.story.title": "The Great Merge Conflict Crisis",
-    "teamwork.level2.story.narrative": `⚠️ Welcome to your first merge conflict!
+    "teamwork.level2.name": "مدیریت تعارض‌های ادغام در تیم‌ها",
+    "teamwork.level2.description": "تعارض‌های ادغامی را که هنگام کار چند توسعه‌دهنده روی فایل‌های یکسان رخ می‌دهند حل کنید",
+    "teamwork.level2.objective1": "تغییرات محلی خود را استیج و کامیت کنید",
+    "teamwork.level2.objective2": "تغییرات remote را پول کنید (باعث بروز تعارض می‌شود)",
+    "teamwork.level2.objective3": "نشانگرهای تعارض ادغام را حل کنید",
+    "teamwork.level2.objective4": "راه‌حل ادغام‌شده را استیج و کامیت کنید",
+    "teamwork.level2.hint1": "از 'cat /src/auth/login.js' برای دیدن تغییرات کامیت‌نشده فعلی خود استفاده کنید",
+    "teamwork.level2.hint2": "از 'git status' برای تأیید تغییر فایل استفاده کنید",
+    "teamwork.level2.hint3": "کامیت کنید با 'git add /src/auth/login.js' سپس 'git commit -m \"message\"'",
+    "teamwork.level2.hint4": "پول کنید با 'git pull origin main' - این کار تعارض را ایجاد می‌کند!",
+    "teamwork.level2.hint5": "به دنبال نشانگرهای تعارض بگردید: <<<<<<<، =======، >>>>>>>",
+    "teamwork.level2.hint6": "login.js را ویرایش کنید تا بهبودهای شما و Sarah را ترکیب کنید",
+    "teamwork.level2.hint7": "بهترین راه‌حل هر دو را حفظ می‌کند: بررسی ایمیل Sarah و طول‌های سخت‌گیرانه‌تر شما",
+    "teamwork.level2.hint8": "بعد از حل تعارض: 'git add .' سپس 'git commit -m \"Resolve merge conflict\"'",
+    "teamwork.level2.requirement1.description": "تغییرات محلی خود در login.js را استیج کنید",
+    "teamwork.level2.requirement1.success": "تغییرات محلی استیج شدند!",
+    "teamwork.level2.requirement2.description": "ابتدا تغییرات محلی خود را کامیت کنید",
+    "teamwork.level2.requirement2.success": "تغییرات محلی کامیت شدند!",
+    "teamwork.level2.requirement3.description": "تغییرات Sarah را پول کنید تا تعارض ایجاد شود",
+    "teamwork.level2.requirement3.success": "تغییرات دارای تعارض پول شدند! login.js را برای نشانگرهای تعارض بررسی کنید.",
+    "teamwork.level2.requirement4.description": "تعارض حل‌شده را استیج کنید",
+    "teamwork.level2.requirement4.success": "راه‌حل تعارض استیج شد!",
+    "teamwork.level2.requirement5.description": "راه‌حل ادغام را کامیت کنید",
+    "teamwork.level2.requirement5.success": "تعارض ادغام حل شد!",
+    "teamwork.level2.story.title": "بحران بزرگ تعارض ادغام",
+    "teamwork.level2.story.narrative": `⚠️ به اولین تعارض ادغام خود خوش آمدید!
 
-**The Situation:**
-You've been working on \`/src/auth/login.js\` this morning. You've improved the password validation to be stricter (minimum 5 chars for username, 10 for password). Great work!
+**وضعیت:**
+شما امروز صبح روی \`/src/auth/login.js\` کار می‌کرده‌اید. اعتبارسنجی رمز عبور را سخت‌گیرانه‌تر کرده‌اید (حداقل 5 کاراکتر برای نام کاربری، 10 برای رمز عبور). کار خوبی بود!
 
-But while you were coding, your teammate Sarah also pushed changes to the SAME FILE! She added email validation logic. Now you both have different versions of the same lines of code.
+اما در همان حین که کدنویسی می‌کردید، هم‌تیمی شما Sarah هم تغییراتی را به همان فایل پوش کرد! او منطق اعتبارسنجی ایمیل را اضافه کرد. حالا هر دوی شما نسخه‌های متفاوتی از همان خطوط کد دارید.
 
-**Your Mission:**
+**مأموریت شما:**
 
-**1. Check your local changes:** Run \`cat /src/auth/login.js\` to see YOUR improvements (already done, but not committed yet!)
+**1. تغییرات محلی خود را بررسی کنید:** \`cat /src/auth/login.js\` را اجرا کنید تا بهبودهای خودتان را ببینید (قبلاً انجام شده، اما هنوز کامیت نشده!)
 
-**2. Commit YOUR changes first:**
+**2. ابتدا تغییرات خودتان را کامیت کنید:**
 \` git add /src/auth/login.js
 git commit -m "Improve password validation requirements"
 \`
 
-**3. Now try to pull Sarah's changes:**
+**3. حالا سعی کنید تغییرات Sarah را پول کنید:**
 \` git pull origin main \`
 
-**4. 💥 MERGE CONFLICT!** Git can't automatically merge because you and Sarah both modified the same lines! You'll see conflict markers in the file:
+**4. 💥 تعارض ادغام!** Git نمی‌تواند به‌طور خودکار ادغام کند چون هم شما و هم Sarah همان خطوط را تغییر داده‌اید! نشانگرهای تعارض را در فایل خواهید دید:
 \`<<<<<<< HEAD
-(your changes)
+(تغییرات شما)
 =======
-(Sarah's changes)
+(تغییرات Sarah)
 >>>>>>> abc1234\`
 
-**5. Resolve the conflict:**
-- Edit \`/src/auth/login.js\` to combine the best of both versions
-- Remove the conflict markers (\`<<<<<<<\`, \`=======\`, \`>>>>>>>\`)
-- Keep both your stricter password length AND Sarah's email validation!
+**5. تعارض را حل کنید:**
+- \`/src/auth/login.js\` را ویرایش کنید تا بهترین بخش هر دو نسخه را ترکیب کنید
+- نشانگرهای تعارض را حذف کنید (\`<<<<<<<\`، \`=======\`، \`>>>>>>>\`)
+- هم طول سخت‌گیرانه‌تر رمز عبور شما و هم اعتبارسنجی ایمیل Sarah را حفظ کنید!
 
-**6. Complete the merge:**
+**6. ادغام را کامل کنید:**
 \`git add .
 git commit -m "Merge Sarah's email validation with my password improvements"\`
 
-**Pro Tip:** The best resolution often combines both changes! In this case, keep:
-- Sarah's email validation logic (\`username.includes('@')\`)
-- Your stricter length requirements (\`username.length >= 5\` and \`password.length >= 10\`)
+**نکته حرفه‌ای:** بهترین راه‌حل اغلب هر دو تغییر را ترکیب می‌کند! در این مورد، این‌ها را حفظ کنید:
+- منطق اعتبارسنجی ایمیل Sarah (\`username.includes('@')\`)
+- الزامات طول سخت‌گیرانه‌تر شما (\`username.length >= 5\` و \`password.length >= 10\`)
 
-This is completely normal in team development! Merge conflicts happen when multiple developers work on the same code. The key is resolving them thoughtfully.`,
+این کاملاً در توسعه تیمی طبیعی است! تعارض‌های ادغام زمانی رخ می‌دهند که چند توسعه‌دهنده روی کد یکسانی کار می‌کنند. نکته کلیدی حل کردن آن‌ها با دقت و تفکر است.`,
     "teamwork.level2.story.realWorldContext":
-        "Merge conflicts are inevitable in team development. Learning to resolve them quickly and correctly is a crucial skill.",
+        "تعارض‌های ادغام در توسعه تیمی اجتناب‌ناپذیرند. یادگیری حل سریع و صحیح آن‌ها یک مهارت حیاتی است.",
     "teamwork.level2.story.taskIntroduction":
-        "Master merge conflict resolution to become a confident team collaborator.",
+        "بر حل تعارض‌های ادغام مسلط شوید تا یک همکار تیمی با اعتماد به‌نفس شوید.",
 
-    "teamwork.level3.name": "Code Review Workflow",
-    "teamwork.level3.description": "Learn to participate in code reviews and collaborate through pull requests",
-    "teamwork.level3.objective1": "Create a new feature branch",
-    "teamwork.level3.objective2": "Stage your completed work",
-    "teamwork.level3.objective3": "Commit with a clear message",
-    "teamwork.level3.objective4": "Push your branch for team review",
-    "teamwork.level3.hint1": "Create a feature branch: git switch -c feature/password-reset",
-    "teamwork.level3.hint2": "Alternative (classic): git checkout -b feature/password-reset",
-    "teamwork.level3.hint3": "Stage all changes: git add .",
-    "teamwork.level3.hint4": 'Commit with a descriptive message: git commit -m "Add password reset functionality"',
-    "teamwork.level3.hint5": "Push to remote: git push origin feature/password-reset",
-    "teamwork.level3.hint6": "Alternative with shorthand: git push -u origin feature/password-reset",
+    "teamwork.level3.name": "گردش‌کار بازبینی کد",
+    "teamwork.level3.description": "یاد بگیرید چگونه در بازبینی‌های کد شرکت کنید و از طریق pull request همکاری کنید",
+    "teamwork.level3.objective1": "یک شاخه ویژگی جدید ایجاد کنید",
+    "teamwork.level3.objective2": "کار تکمیل‌شده خود را استیج کنید",
+    "teamwork.level3.objective3": "با یک پیام واضح کامیت کنید",
+    "teamwork.level3.objective4": "شاخه خود را برای بازبینی تیم پوش کنید",
+    "teamwork.level3.hint1": "یک شاخه ویژگی ایجاد کنید: git switch -c feature/password-reset",
+    "teamwork.level3.hint2": "جایگزین (کلاسیک): git checkout -b feature/password-reset",
+    "teamwork.level3.hint3": "تمام تغییرات را استیج کنید: git add .",
+    "teamwork.level3.hint4": 'با یک پیام توصیفی کامیت کنید: git commit -m "Add password reset functionality"',
+    "teamwork.level3.hint5": "به remote پوش کنید: git push origin feature/password-reset",
+    "teamwork.level3.hint6": "جایگزین با میان‌بر: git push -u origin feature/password-reset",
     "teamwork.level3.hint7":
-        "Note: Use the branch name you created (not 'feature/password-reset' if you chose a different name)",
-    "teamwork.level3.requirement1.description": "Create a branch for code review demonstration",
-    "teamwork.level3.requirement1.success": "Feature branch created! ✨",
-    "teamwork.level3.requirement2.description": "Stage your code for review",
-    "teamwork.level3.requirement2.success": "Code staged for review! 📦",
-    "teamwork.level3.requirement3.description": "Commit with a clear, reviewable message",
-    "teamwork.level3.requirement3.success": "Code committed with clear message! 💬",
-    "teamwork.level3.requirement4.description": "Push your branch for code review",
+        "توجه: از نام شاخه‌ای که ساخته‌اید استفاده کنید (نه 'feature/password-reset' اگر نام دیگری انتخاب کرده‌اید)",
+    "teamwork.level3.requirement1.description": "یک شاخه برای نمایش بازبینی کد ایجاد کنید",
+    "teamwork.level3.requirement1.success": "شاخه ویژگی ایجاد شد! ✨",
+    "teamwork.level3.requirement2.description": "کد خود را برای بازبینی استیج کنید",
+    "teamwork.level3.requirement2.success": "کد برای بازبینی استیج شد! 📦",
+    "teamwork.level3.requirement3.description": "با یک پیام واضح و قابل بازبینی کامیت کنید",
+    "teamwork.level3.requirement3.success": "کد با پیام واضح کامیت شد! 💬",
+    "teamwork.level3.requirement4.description": "شاخه خود را برای بازبینی کد پوش کنید",
     "teamwork.level3.requirement4.success":
-        "Code pushed for team review! 🚀 In real teams, you'd now create a Pull Request!",
-    "teamwork.level3.story.title": "The Code Review Culture",
-    "teamwork.level3.story.narrative": `📝 Welcome to InnovateCorp's Code Review Process!
+        "کد برای بازبینی تیم پوش شد! 🚀 در تیم‌های واقعی، اکنون یک Pull Request ایجاد می‌کردید!",
+    "teamwork.level3.story.title": "فرهنگ بازبینی کد",
+    "teamwork.level3.story.narrative": `📝 به فرآیند بازبینی کد InnovateCorp خوش آمدید!
 
-**The Situation:**
-You've just finished implementing the password reset feature. The code works perfectly in your local tests! 🎉
+**وضعیت:**
+شما تازه پیاده‌سازی ویژگی بازنشانی رمز عبور را تمام کرده‌اید. کد در تست‌های محلی شما بی‌نقص کار می‌کند! 🎉
 
-But wait - at InnovateCorp, no code goes to production without a code review. It's not about trust - it's about quality, knowledge sharing, and catching bugs before customers see them.
+اما صبر کنید - در InnovateCorp، هیچ کدی بدون بازبینی به تولید نمی‌رود. این موضوع درباره اعتماد نیست - درباره کیفیت، اشتراک دانش و پیدا کردن باگ‌ها پیش از دیدن مشتریان است.
 
-**Why Code Reviews Matter:**
-- **Quality:** Sarah might catch a security issue you missed
-- **Knowledge Sharing:** Mike learns from your clever solution
-- **Better Code:** Multiple perspectives make better software
-- **Team Growth:** Everyone becomes a better developer
+**چرا بازبینی کد اهمیت دارد:**
+- **کیفیت:** ممکن است Sarah یک مشکل امنیتی را که از قلم انداخته‌اید پیدا کند
+- **اشتراک دانش:** Mike از راه‌حل هوشمندانه شما یاد می‌گیرد
+- **کد بهتر:** دیدگاه‌های متعدد نرم‌افزار بهتری می‌سازند
+- **رشد تیم:** همه به توسعه‌دهنده بهتری تبدیل می‌شوند
 
-**Your Task:**
-You need to prepare your password reset feature for team review. Follow the professional workflow:
+**وظیفه شما:**
+باید ویژگی بازنشانی رمز عبور خود را برای بازبینی تیم آماده کنید. گردش‌کار حرفه‌ای را دنبال کنید:
 
-**Step 1: Create a Feature Branch**
-Never work directly on \`main\`! Create a dedicated branch for your feature.
+**قدم 1: یک شاخه ویژگی ایجاد کنید**
+هرگز مستقیماً روی \`main\` کار نکنید! یک شاخه اختصاصی برای ویژگی خود ایجاد کنید.
 
-**Step 2: Stage Your Work**
-Add your completed files to the staging area.
+**قدم 2: کار خود را استیج کنید**
+فایل‌های تکمیل‌شده خود را به ناحیه استیجینگ اضافه کنید.
 
-**Step 3: Commit with a Clear Message**
-Write a commit message that explains what you built. Your teammates should understand your changes without reading every line of code.
+**قدم 3: با یک پیام واضح کامیت کنید**
+پیام کامیتی بنویسید که توضیح دهد چه چیزی ساخته‌اید. هم‌تیمی‌های شما باید بدون خواندن تک‌تک خطوط کد، تغییرات شما را درک کنند.
 
-**Step 4: Push to Remote**
-Upload your feature branch so your team can review it. In real teams, you'd then create a Pull Request on GitHub/GitLab.
+**قدم 4: به Remote پوش کنید**
+شاخه ویژگی خود را آپلود کنید تا تیم شما بتواند آن را بازبینی کند. در تیم‌های واقعی، سپس یک Pull Request روی GitHub/GitLab ایجاد می‌کردید.
 
-**Remember:** The key to great code reviews is clear communication. Your branch name, commit messages, and code should tell a story!
+**به یاد داشته باشید:** کلید بازبینی‌های کد عالی، ارتباط واضح است. نام شاخه، پیام‌های کامیت و کد شما باید یک داستان را روایت کنند!
 
-Let's get your code ready for the team! 🚀`,
+بیایید کد شما را برای تیم آماده کنیم! 🚀`,
     "teamwork.level3.story.realWorldContext":
-        "Code reviews are standard practice in professional development. They improve code quality, catch bugs early, and help teams learn from each other. Most companies use Pull Requests (GitHub) or Merge Requests (GitLab) for this process.",
+        "بازبینی کد یک رویه استاندارد در توسعه حرفه‌ای است. این کار کیفیت کد را بهبود می‌بخشد، باگ‌ها را زود پیدا می‌کند و به تیم‌ها کمک می‌کند از یکدیگر یاد بگیرند. بیشتر شرکت‌ها از Pull Request (GitHub) یا Merge Request (GitLab) برای این فرآیند استفاده می‌کنند.",
     "teamwork.level3.story.taskIntroduction":
-        "Learn the professional workflow for preparing code for team review through branches, commits, and push operations.",
+        "گردش‌کار حرفه‌ای آماده‌سازی کد برای بازبینی تیم از طریق شاخه‌ها، کامیت‌ها و عملیات پوش را بیاموزید.",
 
     // Archaeology Stage
     "archaeology.name": "Git Archaeology",
