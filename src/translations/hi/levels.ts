@@ -862,145 +862,145 @@ deploy.sh --commit=9a2b3c4
 
 "याद रखो," Sarah कहती हैं, "हम कभी सीधे main में कमिट नहीं करते। हमेशा फ़ीचर ब्रांच का उपयोग करो, और सुनिश्चित करो कि तुम्हारे कमिट एक कहानी बताएं।"
 
-**What's a Feature Branch?**
-A feature branch is a separate branch where you develop a new feature in isolation. This allows you to:
-- Work without affecting the stable main branch
-- Get code reviewed before merging
-- Easily abandon or modify work without impacting others
+**फ़ीचर ब्रांच क्या है?**
+फ़ीचर ब्रांच एक अलग ब्रांच है जहां आप किसी नए फ़ीचर को अलग से डेवलप करते हैं। इससे आप:
+- स्थिर main ब्रांच को प्रभावित किए बिना काम कर सकते हैं
+- मर्ज करने से पहले कोड रिव्यू करा सकते हैं
+- दूसरों को प्रभावित किए बिना आसानी से काम छोड़ या बदल सकते हैं
 
-**The Complete Workflow:**
-1. Create a feature branch from main: \`git switch -c feature/user-auth\`
-2. Make changes to files and stage them with \`git add\`
-3. Commit changes with descriptive messages
-4. Push your branch to remote: \`git push origin feature/user-auth\`
-5. Switch back to main: \`git switch main\`
-6. Merge the feature: \`git merge feature/user-auth\`
+**पूरा वर्कफ़्लो:**
+1. main से एक फ़ीचर ब्रांच बनाएं: \`git switch -c feature/user-auth\`
+2. फ़ाइलों में बदलाव करें और उन्हें \`git add\` से स्टेज करें
+3. विवरणात्मक संदेशों के साथ बदलाव कमिट करें
+4. अपनी ब्रांच को रिमोट पर पुश करें: \`git push origin feature/user-auth\`
+5. वापस main पर स्विच करें: \`git switch main\`
+6. फ़ीचर को मर्ज करें: \`git merge feature/user-auth\`
 
-**What are Pull Requests (PRs)?**
-In real teams, after step 4 (pushing your branch), you'd create a **Pull Request** on GitHub/GitLab instead of merging directly:
+**पुल रिक्वेस्ट (PR) क्या हैं?**
+असली टीमों में, चरण 4 (आपकी ब्रांच पुश करने) के बाद, आप सीधे मर्ज करने के बजाय GitHub/GitLab पर एक **Pull Request** बनाते हैं:
 
-**Pull Request Workflow:**
-1. You push your feature branch to the remote repository
-2. On GitHub/GitLab, you open a Pull Request from \`feature/user-auth\` to \`main\`
-3. Your teammates receive a notification
-4. They review your code, leave comments, and suggest improvements
-5. You make changes based on feedback and push again
-6. Once approved, someone merges the PR into main
-7. Your feature is now part of the main codebase!
+**पुल रिक्वेस्ट वर्कफ़्लो:**
+1. आप अपनी फ़ीचर ब्रांच को रिमोट रिपॉजिटरी पर पुश करते हैं
+2. GitHub/GitLab पर, आप \`feature/user-auth\` से \`main\` तक एक Pull Request खोलते हैं
+3. आपके साथियों को एक नोटिफ़िकेशन मिलता है
+4. वे आपका कोड रिव्यू करते हैं, कमेंट छोड़ते हैं, और सुधार सुझाते हैं
+5. आप फ़ीडबैक के आधार पर बदलाव करते हैं और फिर से पुश करते हैं
+6. अप्रूव होने के बाद, कोई PR को main में मर्ज करता है
+7. अब आपका फ़ीचर मुख्य कोडबेस का हिस्सा है!
 
-**Why Pull Requests Matter:**
-- **Code Quality**: Multiple eyes catch bugs and suggest improvements
-- **Knowledge Sharing**: Team learns about changes before they go live
-- **Documentation**: PR descriptions explain WHY changes were made
-- **Discussion**: Complex decisions are discussed and recorded
-- **Safety**: Prevents broken code from reaching production
+**पुल रिक्वेस्ट क्यों ज़रूरी हैं:**
+- **कोड क्वालिटी**: कई निगाहें बग पकड़ती हैं और सुधार सुझाती हैं
+- **नॉलेज शेयरिंग**: टीम लाइव होने से पहले बदलावों के बारे में जानती है
+- **डॉक्यूमेंटेशन**: PR डिस्क्रिप्शन बताते हैं कि बदलाव क्यों किए गए
+- **चर्चा**: जटिल फ़ैसलों पर चर्चा होती है और उन्हें रिकॉर्ड किया जाता है
+- **सुरक्षा**: टूटे हुए कोड को प्रोडक्शन तक पहुंचने से रोकता है
 
-In this level, we're simulating the workflow by having you push and merge directly to learn the Git commands. In real projects, you'd always use Pull Requests for team collaboration!`,
+इस स्तर में, हम Git कमांड सिखाने के लिए आपसे सीधे पुश और मर्ज कराकर वर्कफ़्लो का सिमुलेशन कर रहे हैं। असली प्रोजेक्ट्स में, टीम सहयोग के लिए आप हमेशा Pull Requests का उपयोग करेंगे!`,
     "workflow.level1.story.realWorldContext":
-        "Feature branch workflow is the industry standard. Developers create isolated branches, push them to remote repos (GitHub/GitLab), create Pull Requests for code review, and merge after approval. This collaborative approach prevents unstable code from reaching production and improves code quality through peer review.",
+        "फ़ीचर ब्रांच वर्कफ़्लो इंडस्ट्री स्टैंडर्ड है। डेवलपर अलग-अलग ब्रांच बनाते हैं, उन्हें रिमोट रिपॉज़ (GitHub/GitLab) पर पुश करते हैं, कोड रिव्यू के लिए Pull Requests बनाते हैं, और अप्रूवल के बाद मर्ज करते हैं। यह सहयोगी तरीका अस्थिर कोड को प्रोडक्शन तक पहुंचने से रोकता है और पीयर रिव्यू के ज़रिए कोड की गुणवत्ता सुधारता है।",
     "workflow.level1.story.taskIntroduction":
-        "Master the complete feature branch workflow: create, commit, push, and merge. This is how professional teams ship features every day.",
+        "पूरा फ़ीचर ब्रांच वर्कफ़्लो सीखें: बनाना, कमिट करना, पुश करना और मर्ज करना। पेशेवर टीमें हर दिन फ़ीचर इसी तरह शिप करती हैं।",
 
-    "workflow.level2.name": "Hotfix Workflow",
-    "workflow.level2.description": "Handle urgent production fixes with the hotfix workflow",
-    "workflow.level2.objective1": "Create a hotfix branch from main",
-    "workflow.level2.objective2": "Stage and commit the fix",
-    "workflow.level2.objective3": "Switch back to main",
-    "workflow.level2.objective4": "Merge the hotfix branch",
-    "workflow.level2.hint1": "Hotfixes branch directly from main/master",
-    "workflow.level2.hint2": "Use descriptive hotfix names like 'hotfix/critical-security-patch'",
-    "workflow.level2.hint3": "Hotfixes should be merged back to both main and develop branches",
-    "workflow.level2.hint4": "Always tag hotfix releases for tracking",
-    "workflow.level2.requirement1.description": "Create a hotfix branch for the security issue",
-    "workflow.level2.requirement1.success": "Hotfix branch created!",
-    "workflow.level2.requirement2.description": "Stage your security fixes",
-    "workflow.level2.requirement2.success": "Security fixes staged!",
-    "workflow.level2.requirement3.description": "Commit the critical security patch",
-    "workflow.level2.requirement3.success": "Security patch committed!",
-    "workflow.level2.requirement4.description": "Switch back to main branch",
-    "workflow.level2.requirement4.success": "Switched to main branch!",
-    "workflow.level2.requirement5.description": "Merge the hotfix into main",
-    "workflow.level2.requirement5.success": "Hotfix merged successfully!",
-    "workflow.level2.story.title": "Code Red: Production Emergency",
-    "workflow.level2.story.narrative": `🚨 URGENT: Production is down! 🚨
+    "workflow.level2.name": "हॉटफिक्स वर्कफ़्लो",
+    "workflow.level2.description": "hotfix वर्कफ़्लो के साथ अर्जेंट प्रोडक्शन फ़िक्स संभालें",
+    "workflow.level2.objective1": "main से एक hotfix ब्रांच बनाएं",
+    "workflow.level2.objective2": "फ़िक्स को स्टेज करें और कमिट करें",
+    "workflow.level2.objective3": "वापस main पर स्विच करें",
+    "workflow.level2.objective4": "hotfix ब्रांच को मर्ज करें",
+    "workflow.level2.hint1": "Hotfix सीधे main/master से ब्रांच होते हैं",
+    "workflow.level2.hint2": "'hotfix/critical-security-patch' जैसे विवरणात्मक hotfix नाम उपयोग करें",
+    "workflow.level2.hint3": "Hotfix को main और develop, दोनों ब्रांचों में वापस मर्ज किया जाना चाहिए",
+    "workflow.level2.hint4": "ट्रैकिंग के लिए हमेशा hotfix रिलीज़ को टैग करें",
+    "workflow.level2.requirement1.description": "सुरक्षा समस्या के लिए एक hotfix ब्रांच बनाएं",
+    "workflow.level2.requirement1.success": "Hotfix ब्रांच बन गई!",
+    "workflow.level2.requirement2.description": "अपने सुरक्षा फ़िक्स स्टेज करें",
+    "workflow.level2.requirement2.success": "सुरक्षा फ़िक्स स्टेज हो गए!",
+    "workflow.level2.requirement3.description": "गंभीर सुरक्षा पैच कमिट करें",
+    "workflow.level2.requirement3.success": "सुरक्षा पैच कमिट हो गया!",
+    "workflow.level2.requirement4.description": "वापस main ब्रांच पर स्विच करें",
+    "workflow.level2.requirement4.success": "main ब्रांच पर स्विच हो गए!",
+    "workflow.level2.requirement5.description": "hotfix को main में मर्ज करें",
+    "workflow.level2.requirement5.success": "Hotfix सफलतापूर्वक मर्ज हो गया!",
+    "workflow.level2.story.title": "कोड रेड: प्रोडक्शन इमरजेंसी",
+    "workflow.level2.story.narrative": `🚨 अर्जेंट: प्रोडक्शन डाउन है! 🚨
 
-At 2:47 AM, your phone buzzes with alerts. The payment system is failing, and customers can't complete purchases. The bug tracker shows a critical security vulnerability was introduced in the latest release.
+रात 2:47 बजे, आपके फ़ोन पर अलर्ट आता है। पेमेंट सिस्टम फ़ेल हो रहा है, और ग्राहक ख़रीदारी पूरी नहीं कर पा रहे। बग ट्रैकर दिखाता है कि सबसे नई रिलीज़ में एक गंभीर सुरक्षा कमज़ोरी आ गई है।
 
-As the on-call developer, you need to:
-1. Immediately create a hotfix branch: \`git switch -c hotfix/security-patch\`
-2. Fix the critical security issue in the code
-3. Stage and commit your fixes
-4. Switch back to main: \`git switch main\`
-5. Merge the hotfix: \`git merge hotfix/security-patch\`
+ऑन-कॉल डेवलपर के तौर पर, आपको यह करना है:
+1. तुरंत एक hotfix ब्रांच बनाएं: \`git switch -c hotfix/security-patch\`
+2. कोड में गंभीर सुरक्षा समस्या ठीक करें
+3. अपने फ़िक्स स्टेज करें और कमिट करें
+4. वापस main पर स्विच करें: \`git switch main\`
+5. hotfix को मर्ज करें: \`git merge hotfix/security-patch\`
 
-Every minute costs the company thousands. This is what separates junior developers from senior ones - grace under pressure and knowing the right Git workflows.
+हर मिनट कंपनी को हज़ारों डॉलर का नुक़सान पहुंचाता है। यही चीज़ जूनियर डेवलपरों को सीनियर डेवलपरों से अलग करती है - दबाव में शांत रहना और सही Git वर्कफ़्लो जानना।
 
-Time is money. Let's fix this!`,
+समय ही पैसा है। चलिए इसे ठीक करते हैं!`,
     "workflow.level2.story.realWorldContext":
-        "Production hotfixes are critical for maintaining system stability and require immediate, focused workflow execution.",
-    "workflow.level2.story.taskIntroduction": "Master the hotfix workflow for emergency production fixes.",
+        "प्रोडक्शन hotfix सिस्टम की स्थिरता बनाए रखने के लिए बेहद ज़रूरी होते हैं और तुरंत, केंद्रित वर्कफ़्लो निष्पादन की मांग करते हैं।",
+    "workflow.level2.story.taskIntroduction": "इमरजेंसी प्रोडक्शन फ़िक्स के लिए hotfix वर्कफ़्लो में महारत हासिल करें।",
 
-    "workflow.level3.name": "Git Flow Mastery",
-    "workflow.level3.description": "Master the complete Git Flow workflow with release branches",
-    "workflow.level3.objective1": "Create a release branch from develop",
-    "workflow.level3.objective2": "Prepare and commit release changes",
-    "workflow.level3.objective3": "Merge release to main",
-    "workflow.level3.objective4": "Tag the release version",
-    "workflow.level3.hint1": "Start on develop and create release branch: 'git switch -c release/2.0.0'",
-    "workflow.level3.hint2": "Make final adjustments and commit your release preparation",
-    "workflow.level3.hint3": "Switch to main: 'git switch main'",
-    "workflow.level3.hint4": "Merge the release: 'git merge release/2.0.0'",
-    "workflow.level3.hint5": "Tag the release: 'git tag v2.0.0'",
-    "workflow.level3.hint6": "In real projects, you'd also merge back to develop",
-    "workflow.level3.requirement1.description": "Create a release branch (e.g., 'release/2.0.0')",
-    "workflow.level3.requirement1.success": "Release branch created!",
-    "workflow.level3.requirement2.description": "Stage your release preparation changes",
-    "workflow.level3.requirement2.success": "Release changes staged!",
-    "workflow.level3.requirement3.description": "Commit release preparation with a clear message",
-    "workflow.level3.requirement3.success": "Release preparation committed!",
-    "workflow.level3.requirement4.description": "Switch to main branch to prepare for release merge",
-    "workflow.level3.requirement4.success": "Switched to main!",
-    "workflow.level3.requirement5.description": "Merge your release branch into main",
-    "workflow.level3.requirement5.success": "Release merged to main!",
-    "workflow.level3.requirement6.description": "Tag the release with version number (e.g., 'v2.0.0')",
-    "workflow.level3.requirement6.success": "Release tagged! Version 2.0.0 is now live in production!",
-    "workflow.level3.story.title": "The Release Manager",
-    "workflow.level3.story.narrative": `Congratulations! You've been promoted to Release Manager at GitFlow Inc., a company that ships software every two weeks like clockwork.
+    "workflow.level3.name": "Git Flow में महारत",
+    "workflow.level3.description": "रिलीज़ ब्रांच के साथ पूरे Git Flow वर्कफ़्लो में महारत हासिल करें",
+    "workflow.level3.objective1": "develop से एक रिलीज़ ब्रांच बनाएं",
+    "workflow.level3.objective2": "रिलीज़ बदलाव तैयार करें और कमिट करें",
+    "workflow.level3.objective3": "रिलीज़ को main में मर्ज करें",
+    "workflow.level3.objective4": "रिलीज़ वर्ज़न को टैग करें",
+    "workflow.level3.hint1": "develop पर शुरू करें और रिलीज़ ब्रांच बनाएं: 'git switch -c release/2.0.0'",
+    "workflow.level3.hint2": "अंतिम समायोजन करें और अपनी रिलीज़ तैयारी कमिट करें",
+    "workflow.level3.hint3": "main पर स्विच करें: 'git switch main'",
+    "workflow.level3.hint4": "रिलीज़ को मर्ज करें: 'git merge release/2.0.0'",
+    "workflow.level3.hint5": "रिलीज़ को टैग करें: 'git tag v2.0.0'",
+    "workflow.level3.hint6": "असली प्रोजेक्ट्स में, आप इसे develop में भी वापस मर्ज करेंगे",
+    "workflow.level3.requirement1.description": "एक रिलीज़ ब्रांच बनाएं (जैसे, 'release/2.0.0')",
+    "workflow.level3.requirement1.success": "रिलीज़ ब्रांच बन गई!",
+    "workflow.level3.requirement2.description": "अपने रिलीज़ तैयारी बदलाव स्टेज करें",
+    "workflow.level3.requirement2.success": "रिलीज़ बदलाव स्टेज हो गए!",
+    "workflow.level3.requirement3.description": "एक स्पष्ट संदेश के साथ रिलीज़ तैयारी कमिट करें",
+    "workflow.level3.requirement3.success": "रिलीज़ तैयारी कमिट हो गई!",
+    "workflow.level3.requirement4.description": "रिलीज़ मर्ज की तैयारी के लिए main ब्रांच पर स्विच करें",
+    "workflow.level3.requirement4.success": "main पर स्विच हो गए!",
+    "workflow.level3.requirement5.description": "अपनी रिलीज़ ब्रांच को main में मर्ज करें",
+    "workflow.level3.requirement5.success": "रिलीज़ main में मर्ज हो गई!",
+    "workflow.level3.requirement6.description": "रिलीज़ को वर्ज़न नंबर से टैग करें (जैसे, 'v2.0.0')",
+    "workflow.level3.requirement6.success": "रिलीज़ टैग हो गई! वर्ज़न 2.0.0 अब प्रोडक्शन में लाइव है!",
+    "workflow.level3.story.title": "रिलीज़ मैनेजर",
+    "workflow.level3.story.narrative": `बधाई हो! आपको GitFlow Inc. में Release Manager के पद पर प्रमोट कर दिया गया है, एक ऐसी कंपनी जो हर दो हफ़्ते में घड़ी की सुई की तरह सटीक रूप से सॉफ़्टवेयर शिप करती है।
 
-Your job is to orchestrate the release of version 2.0, which includes:
-- Three new features from different teams
-- Two critical bug fixes
-- Performance improvements
-- Updated documentation
+आपका काम वर्ज़न 2.0 की रिलीज़ को व्यवस्थित करना है, जिसमें शामिल हैं:
+- अलग-अलग टीमों के तीन नए फ़ीचर
+- दो गंभीर बग फ़िक्स
+- परफ़ॉर्मेंस सुधार
+- अपडेटेड डॉक्यूमेंटेशन
 
-**The Release Workflow:**
+**रिलीज़ वर्कफ़्लो:**
 
-1. **Create Release Branch**: Start from develop and create a release branch
+1. **रिलीज़ ब्रांच बनाएं**: develop से शुरू करें और एक रिलीज़ ब्रांच बनाएं
    \`git switch -c release/2.0.0\`
 
-2. **Final Preparations**: Update version numbers, CHANGELOG, etc.
-   - Edit files as needed
+2. **अंतिम तैयारियां**: वर्ज़न नंबर, CHANGELOG, आदि अपडेट करें
+   - ज़रूरत के अनुसार फ़ाइलें एडिट करें
    - \`git add .\`
    - \`git commit -m "Prepare release 2.0.0"\`
 
-3. **Merge to Main**: Deploy to production
+3. **Main में मर्ज करें**: प्रोडक्शन में डिप्लॉय करें
    - \`git switch main\`
    - \`git merge release/2.0.0\`
 
-4. **Tag the Release**: Mark this version in history
+4. **रिलीज़ को टैग करें**: इस वर्ज़न को इतिहास में चिह्नित करें
    \`git tag v2.0.0\`
 
-This creates a permanent marker for this release. In real projects, you'd also:
-- Merge back to develop to keep it in sync
-- Delete the release branch
-- Push everything to remote
-- Deploy to production
+इससे इस रिलीज़ के लिए एक स्थायी निशान बन जाता है। असली प्रोजेक्ट्स में, आप यह भी करेंगे:
+- सिंक बनाए रखने के लिए develop में वापस मर्ज करना
+- रिलीज़ ब्रांच डिलीट करना
+- सब कुछ रिमोट पर पुश करना
+- प्रोडक्शन में डिप्लॉय करना
 
-This is enterprise-level Git management. Welcome to the big leagues!`,
+यह एंटरप्राइज़-स्तर का Git मैनेजमेंट है। बड़ी लीग में आपका स्वागत है!`,
     "workflow.level3.story.realWorldContext":
-        "Release branches are used in Git Flow to prepare production releases. They allow final bug fixes and documentation updates without blocking ongoing development. The release is tagged for easy reference and rollback if needed.",
+        "Git Flow में रिलीज़ ब्रांच का उपयोग प्रोडक्शन रिलीज़ तैयार करने के लिए किया जाता है। ये चल रहे डेवलपमेंट को रोके बिना अंतिम बग फ़िक्स और डॉक्यूमेंटेशन अपडेट की सुविधा देते हैं। ज़रूरत पड़ने पर आसान संदर्भ और rollback के लिए रिलीज़ को टैग किया जाता है।",
     "workflow.level3.story.taskIntroduction":
-        "Learn the professional release workflow: branch, prepare, merge, and tag. This is how teams ship stable software to production.",
+        "पेशेवर रिलीज़ वर्कफ़्लो सीखें: ब्रांच बनाना, तैयार करना, मर्ज करना, और टैग करना। टीमें प्रोडक्शन में स्थिर सॉफ़्टवेयर इसी तरह शिप करती हैं।",
 
     // Teamwork Stage
     "teamwork.name": "Team Collaboration",
