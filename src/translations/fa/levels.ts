@@ -1185,244 +1185,241 @@ git commit -m "Merge Sarah's email validation with my password improvements"\`
         "گردش‌کار حرفه‌ای آماده‌سازی کد برای بازبینی تیم از طریق شاخه‌ها، کامیت‌ها و عملیات پوش را بیاموزید.",
 
     // Archaeology Stage
-    "archaeology.name": "Git Archaeology",
-    "archaeology.description": "Investigate code history and perform Git forensics like a detective",
+    "archaeology.name": "باستان‌شناسی Git",
+    "archaeology.description": "تاریخچه کد را بررسی کنید و مانند یک کارآگاه، پزشکی قانونی Git انجام دهید",
 
     // Mastery Stage
-    "mastery.name": "Git Mastery",
-    "mastery.description": "The ultimate Git challenges for true masters",
+    "mastery.name": "تسلط بر Git",
+    "mastery.description": "چالش‌های نهایی Git برای استادان واقعی",
 
-    "mastery.level1.name": "Multi-Branch Merge Challenge",
-    "mastery.level1.description": "Master complex merges across multiple branches with conflicts",
-    "mastery.level1.objective1": "Merge multiple feature branches simultaneously",
-    "mastery.level1.objective2": "Resolve complex merge conflicts",
-    "mastery.level1.objective3": "Stage the resolved conflicts",
-    "mastery.level1.objective4": "Complete the multi-way merge",
-    "mastery.level1.hint1": "Use git merge to merge multiple branches at once",
-    "mastery.level1.hint2": "Analyze each conflict carefully - they may interact",
-    "mastery.level1.hint3": "The best solution often combines elements from all branches",
-    "mastery.level1.hint4": "Test your merged code before committing",
-    "mastery.level1.requirement1.description": "Merge all feature branches into main",
-    "mastery.level1.requirement1.success": "Complex merge initiated! Now resolve the conflicts.",
-    "mastery.level1.requirement2.description": "Stage all resolved files",
-    "mastery.level1.requirement2.success": "Conflicts resolved and staged!",
-    "mastery.level1.requirement3.description": "Complete the merge with a commit",
-    "mastery.level1.requirement3.success": "Master-level merge completed! You've conquered multi-way merges!",
-    "mastery.level1.story.title": "The Integration Challenge",
+    "mastery.level1.name": "چالش ادغام چندشاخه‌ای",
+    "mastery.level1.description": "بر ادغام‌های پیچیده بین چند شاخه دارای تعارض مسلط شوید",
+    "mastery.level1.objective1": "چند شاخه ویژگی را به‌طور هم‌زمان ادغام کنید",
+    "mastery.level1.objective2": "تعارض‌های پیچیده ادغام را حل کنید",
+    "mastery.level1.objective3": "تعارض‌های حل‌شده را استیج کنید",
+    "mastery.level1.objective4": "ادغام چندجانبه را کامل کنید",
+    "mastery.level1.hint1": "از git merge برای ادغام چند شاخه به‌طور هم‌زمان استفاده کنید",
+    "mastery.level1.hint2": "هر تعارض را با دقت بررسی کنید - ممکن است با هم تعامل داشته باشند",
+    "mastery.level1.hint3": "بهترین راه‌حل اغلب عناصری از تمام شاخه‌ها را ترکیب می‌کند",
+    "mastery.level1.hint4": "کد ادغام‌شده خود را پیش از کامیت تست کنید",
+    "mastery.level1.requirement1.description": "تمام شاخه‌های ویژگی را در main ادغام کنید",
+    "mastery.level1.requirement1.success": "ادغام پیچیده آغاز شد! حالا تعارض‌ها را حل کنید.",
+    "mastery.level1.requirement2.description": "تمام فایل‌های حل‌شده را استیج کنید",
+    "mastery.level1.requirement2.success": "تعارض‌ها حل و استیج شدند!",
+    "mastery.level1.requirement3.description": "ادغام را با یک کامیت کامل کنید",
+    "mastery.level1.requirement3.success": "ادغام در سطح استادانه تکمیل شد! شما بر ادغام‌های چندجانبه غلبه کردید!",
+    "mastery.level1.story.title": "چالش یکپارچه‌سازی",
     "mastery.level1.story.narrative":
-        "Three teams have been working in parallel for the quarterly release. Each team developed critical features on separate branches. Now it's integration day, and you're the lead developer responsible for merging everything together. The challenge: all three branches modified shared utility files. You must merge all branches and resolve the conflicts to create a coherent, working system.",
+        "سه تیم به‌طور موازی برای انتشار فصلی کار می‌کرده‌اند. هر تیم ویژگی‌های حیاتی را روی شاخه‌های جداگانه توسعه داده است. حالا روز یکپارچه‌سازی است و شما توسعه‌دهنده ارشد مسئول ادغام همه‌چیز هستید. چالش: هر سه شاخه فایل‌های ابزار مشترک را تغییر داده‌اند. باید تمام شاخه‌ها را ادغام کرده و تعارض‌ها را حل کنید تا یک سیستم منسجم و کارآمد بسازید.",
     "mastery.level1.story.realWorldContext":
-        "Complex multi-branch merges are common in large projects with multiple parallel development streams. Mastering this skill is essential for senior developers and technical leads.",
+        "ادغام‌های پیچیده چندشاخه‌ای در پروژه‌های بزرگ با چندین جریان توسعه موازی رایج هستند. تسلط بر این مهارت برای توسعه‌دهندگان ارشد و سرپرستان فنی ضروری است.",
     "mastery.level1.story.taskIntroduction":
-        "Merge three feature branches with overlapping changes and resolve all conflicts to create a unified codebase.",
+        "سه شاخه ویژگی با تغییرات همپوشان را ادغام کرده و تمام تعارض‌ها را حل کنید تا یک کدبیس یکپارچه بسازید.",
 
-    "mastery.level2.name": "Git Hooks and Automation",
-    "mastery.level2.description": "Implement Git hooks to automate workflows and enforce quality standards",
-    "mastery.level2.objective1": "Create pre-commit hooks for code quality",
-    "mastery.level2.objective2": "Set up post-commit hooks for notifications",
-    "mastery.level2.objective3": "Implement server-side hooks",
-    "mastery.level2.objective4": "Build automated workflow pipelines",
-    "mastery.level2.hint1": "Pre-commit hooks run before commits are created",
-    "mastery.level2.hint2": "Post-commit hooks run after successful commits",
-    "mastery.level2.hint3": "Use exit codes to prevent commits in pre-commit hooks",
-    "mastery.level2.hint4": "Server-side hooks control what can be pushed",
-    "mastery.level2.requirement1.description": "Make the pre-commit hook executable",
-    "mastery.level2.requirement1.success": "Pre-commit hook activated!",
-    "mastery.level2.requirement2.description": "Stage files to test the pre-commit hook",
-    "mastery.level2.requirement2.success": "Files staged!",
-    "mastery.level2.requirement3.description": "Attempt a commit to trigger the quality checks",
-    "mastery.level2.requirement3.success": "Quality checks passed!",
-    "mastery.level2.story.title": "The Quality Guardian",
-    "mastery.level2.story.narrative": `⚡ You've been promoted to DevOps Engineer, and your first mission is to implement the "Quality Guardian" - an automated system that prevents bad code from entering the repository.
+    "mastery.level2.name": "هوک‌های Git و خودکارسازی",
+    "mastery.level2.description": "هوک‌های Git را پیاده‌سازی کنید تا گردش‌کارها را خودکار کرده و استانداردهای کیفیت را اعمال کنید",
+    "mastery.level2.objective1": "هوک‌های pre-commit برای کیفیت کد ایجاد کنید",
+    "mastery.level2.objective2": "هوک‌های post-commit را برای اعلان‌ها تنظیم کنید",
+    "mastery.level2.objective3": "هوک‌های سمت سرور را پیاده‌سازی کنید",
+    "mastery.level2.objective4": "خط لوله‌های گردش‌کار خودکار بسازید",
+    "mastery.level2.hint1": "هوک‌های pre-commit پیش از ایجاد کامیت‌ها اجرا می‌شوند",
+    "mastery.level2.hint2": "هوک‌های post-commit پس از کامیت‌های موفق اجرا می‌شوند",
+    "mastery.level2.hint3": "از exit codeها برای جلوگیری از کامیت در هوک‌های pre-commit استفاده کنید",
+    "mastery.level2.hint4": "هوک‌های سمت سرور کنترل می‌کنند چه چیزی می‌تواند پوش شود",
+    "mastery.level2.requirement1.description": "هوک pre-commit را قابل اجرا کنید",
+    "mastery.level2.requirement1.success": "هوک pre-commit فعال شد!",
+    "mastery.level2.requirement2.description": "فایل‌ها را برای تست هوک pre-commit استیج کنید",
+    "mastery.level2.requirement2.success": "فایل‌ها استیج شدند!",
+    "mastery.level2.requirement3.description": "برای فعال کردن بررسی‌های کیفیت، یک کامیت امتحان کنید",
+    "mastery.level2.requirement3.success": "بررسی‌های کیفیت با موفقیت انجام شدند!",
+    "mastery.level2.story.title": "نگهبان کیفیت",
+    "mastery.level2.story.narrative": `⚡ شما به سمت مهندس DevOps ارتقا یافته‌اید، و اولین مأموریت شما پیاده‌سازی «نگهبان کیفیت» است - سیستمی خودکار که از ورود کد بد به مخزن جلوگیری می‌کند.
 
-The development team has been growing rapidly, and with growth comes inconsistency:
-- Commits without proper testing
-- Code style violations
-- Secrets accidentally committed
-- Broken builds pushed to main
+تیم توسعه به‌سرعت در حال رشد بوده و با رشد، ناهماهنگی هم می‌آید:
+- کامیت‌ها بدون تست مناسب
+- نقض سبک کد
+- اطلاعات محرمانه که تصادفاً کامیت شده‌اند
+- بیلدهای خراب که به main پوش شده‌اند
 
-Your team lead, Sarah, explains the vision:
+سرپرست تیم شما، Sarah، این چشم‌انداز را توضیح می‌دهد:
 
-"We need automation to enforce our quality standards. Every commit should be automatically checked for:
-- Linting and code style
-- Unit test passage
-- Security vulnerabilities
-- Commit message standards"
+"ما به خودکارسازی نیاز داریم تا استانداردهای کیفیت خود را اعمال کنیم. هر کامیت باید به‌طور خودکار برای موارد زیر بررسی شود:
+- Linting و سبک کد
+- موفقیت تست‌های واحد
+- آسیب‌پذیری‌های امنیتی
+- استانداردهای پیام کامیت"
 
-"Git hooks are perfect for this. They're scripts that run at specific points in the Git workflow. Think of them as quality gates that code must pass through."
+"هوک‌های Git برای این کار عالی هستند. آن‌ها اسکریپت‌هایی هستند که در نقاط مشخصی از گردش‌کار Git اجرا می‌شوند. آن‌ها را مثل دروازه‌های کیفیتی در نظر بگیر که کد باید از آن‌ها عبور کند."
 
-The hook ecosystem:
-- pre-commit: Run checks before commits are created
-- pre-push: Validate before pushing to remote
-- post-commit: Send notifications or trigger builds
-- Server-side hooks: Control what can be pushed
+اکوسیستم هوک‌ها:
+- pre-commit: بررسی‌ها را پیش از ایجاد کامیت‌ها اجرا می‌کند
+- pre-push: پیش از پوش کردن به remote اعتبارسنجی می‌کند
+- post-commit: اعلان می‌فرستد یا بیلدها را فعال می‌کند
+- هوک‌های سمت سرور: کنترل می‌کنند چه چیزی می‌تواند پوش شود
 
-Your mission:
-1. Implement a pre-commit hook for quality checks
-2. Set up automated testing and linting
-3. Create notification systems
-4. Build a comprehensive quality pipeline
+مأموریت شما:
+1. یک هوک pre-commit برای بررسی‌های کیفیت پیاده‌سازی کنید
+2. تست و linting خودکار را راه‌اندازی کنید
+3. سیستم‌های اعلان ایجاد کنید
+4. یک خط لوله کیفیت جامع بسازید
 
-This is infrastructure work that will benefit every developer on your team. You're not just writing code - you're building the foundation for code quality.`,
+این کار زیرساختی است که به نفع هر توسعه‌دهنده تیم شما خواهد بود. شما فقط کد نمی‌نویسید - دارید پایه کیفیت کد را می‌سازید.`,
     "mastery.level2.story.realWorldContext":
-        "Git hooks are essential for implementing automated quality assurance and workflow automation in professional development environments.",
+        "هوک‌های Git برای پیاده‌سازی تضمین کیفیت خودکار و خودکارسازی گردش‌کار در محیط‌های توسعه حرفه‌ای ضروری هستند.",
     "mastery.level2.story.taskIntroduction":
-        "Master Git hooks to build automated quality systems that enforce standards and improve team productivity.",
+        "بر هوک‌های Git مسلط شوید تا سیستم‌های کیفیت خودکاری بسازید که استانداردها را اعمال کرده و بهره‌وری تیم را بهبود می‌بخشند.",
 
-    "mastery.level3.name": "Git Mastery: The Final Challenge",
-    "mastery.level3.description": "Combine all advanced Git techniques to solve a complex real-world scenario",
-    "mastery.level3.objective1": "Orchestrate a complex release with multiple hotfixes",
-    "mastery.level3.objective2": "Handle emergency rollbacks and recovery",
-    "mastery.level3.objective3": "Coordinate with multiple teams simultaneously",
-    "mastery.level3.objective4": "Demonstrate mastery of all techniques",
-    "mastery.level3.hint1": "This challenge combines everything you've learned",
-    "mastery.level3.hint2": "Think strategically about branch management",
-    "mastery.level3.hint3": "Communication is as important as technical skills",
-    "mastery.level3.hint4": "Document your decisions for the team",
-    "mastery.level3.requirement1.description": "Create an emergency rollback branch",
-    "mastery.level3.requirement1.success": "Emergency procedures initiated!",
-    "mastery.level3.requirement2.description": "Cherry-pick critical fixes",
-    "mastery.level3.requirement2.success": "Critical fixes applied!",
-    "mastery.level3.requirement3.description": "Tag the emergency release",
-    "mastery.level3.requirement3.success": "Emergency release tagged!",
-    "mastery.level3.requirement4.description": "Push the emergency release tags",
-    "mastery.level3.requirement4.success": "🎉 MASTERY ACHIEVED! You are now a Git Master!",
-    "mastery.level3.story.title": "The Ultimate Git Challenge: Black Friday Crisis",
-    "mastery.level3.story.narrative": `🚨 BLACK FRIDAY, 2:00 AM - THE ULTIMATE TEST
+    "mastery.level3.name": "تسلط بر Git: چالش نهایی",
+    "mastery.level3.description": "تمام تکنیک‌های پیشرفته Git را ترکیب کنید تا یک سناریوی پیچیده دنیای واقعی را حل کنید",
+    "mastery.level3.objective1": "یک انتشار پیچیده همراه با چند hotfix را هماهنگ کنید",
+    "mastery.level3.objective2": "بازگشت‌های اضطراری و بازیابی را مدیریت کنید",
+    "mastery.level3.objective3": "به‌طور هم‌زمان با چند تیم هماهنگ شوید",
+    "mastery.level3.objective4": "تسلط بر تمام تکنیک‌ها را نشان دهید",
+    "mastery.level3.hint1": "این چالش تمام آنچه یاد گرفته‌اید را ترکیب می‌کند",
+    "mastery.level3.hint2": "درباره مدیریت شاخه‌ها استراتژیک فکر کنید",
+    "mastery.level3.hint3": "ارتباطات به‌اندازه مهارت‌های فنی مهم است",
+    "mastery.level3.hint4": "تصمیمات خود را برای تیم مستند کنید",
+    "mastery.level3.requirement1.description": "یک شاخه بازگشت اضطراری ایجاد کنید",
+    "mastery.level3.requirement1.success": "رویه‌های اضطراری آغاز شدند!",
+    "mastery.level3.requirement2.description": "رفع‌های حیاتی را cherry-pick کنید",
+    "mastery.level3.requirement2.success": "رفع‌های حیاتی اعمال شدند!",
+    "mastery.level3.requirement3.description": "انتشار اضطراری را تگ بزنید",
+    "mastery.level3.requirement3.success": "انتشار اضطراری تگ خورد!",
+    "mastery.level3.requirement4.description": "تگ‌های انتشار اضطراری را پوش کنید",
+    "mastery.level3.requirement4.success": "🎉 تسلط به‌دست آمد! شما اکنون یک استاد Git هستید!",
+    "mastery.level3.story.title": "نهایی‌ترین چالش Git: بحران جمعه سیاه",
+    "mastery.level3.story.narrative": `🚨 جمعه سیاه، ساعت 2:00 بامداد - آزمون نهایی
 
-You are the Senior DevOps Engineer at MegaCorp, and you're facing the perfect storm of Git challenges on the biggest shopping day of the year.
+شما مهندس ارشد DevOps در MegaCorp هستید و در بزرگ‌ترین روز خرید سال، با طوفانی کامل از چالش‌های Git روبه‌رو شده‌اید.
 
-The situation:
-- Production is partially broken due to a bad deployment
-- Three different teams pushed hotfixes simultaneously
-- The payment system is failing intermittently
-- Customer support is overwhelmed
-- The CEO is asking for hourly updates
-- Black Friday traffic is 50x normal levels
+وضعیت:
+- تولید به دلیل یک استقرار بد تا حدی خراب شده است
+- سه تیم مختلف به‌طور هم‌زمان hotfix پوش کرده‌اند
+- سیستم پرداخت به‌طور متناوب خراب می‌شود
+- پشتیبانی مشتری تحت فشار زیادی است
+- مدیرعامل خواستار به‌روزرسانی‌های ساعتی است
+- ترافیک جمعه سیاه 50 برابر سطح عادی است
 
-Your CTO calls an emergency meeting:
+مدیر ارشد فناوری شما یک جلسه اضطراری تشکیل می‌دهد:
 
-"This is why we hired you. Everything we've built, everything we've learned, comes down to this moment. We need someone who can navigate complex Git operations under extreme pressure."
+"دقیقاً به همین دلیل تو را استخدام کردیم. هر چیزی که ساخته‌ایم، هر چیزی که یاد گرفته‌ایم، به این لحظه ختم می‌شود. ما به کسی نیاز داریم که بتواند عملیات پیچیده Git را تحت فشار شدید هدایت کند."
 
-The challenge involves:
-1. **Emergency Rollback**: Quickly revert the problematic deployment
-2. **Selective Recovery**: Cherry-pick only the good changes
-3. **Hotfix Coordination**: Merge critical fixes from multiple teams
-4. **Release Management**: Create and deploy emergency patches
-5. **Team Communication**: Coordinate across development, QA, and operations
+این چالش شامل موارد زیر است:
+1. **بازگشت اضطراری**: به‌سرعت استقرار مشکل‌دار را برگردانید
+2. **بازیابی انتخابی**: فقط تغییرات درست را cherry-pick کنید
+3. **هماهنگی Hotfix**: رفع‌های حیاتی چند تیم را ادغام کنید
+4. **مدیریت انتشار**: پچ‌های اضطراری را ایجاد و مستقر کنید
+5. **ارتباط تیمی**: بین توسعه، QA و عملیات هماهنگ شوید
 
-You must use every Git technique in your arsenal:
-- \`git rebase -i\` to clean up messy commits
-- \`git cherry-pick <commit-hash>\` to select only working features (copies specific commits from one branch to another)
-- Advanced merging with \`git merge\` to combine team efforts
-- \`git bisect\` to find the exact problem commit (binary search through history to find bugs)
-- \`git reflog\` to recover from mistakes
-- \`git tag\` and branches for release management
-- \`git mv <old> <new>\` to rename files while preserving Git history
+باید از تمام تکنیک‌های Git موجود در زرادخانه خود استفاده کنید:
+- \`git rebase -i\` برای پاکسازی کامیت‌های درهم‌ریخته
+- \`git cherry-pick <commit-hash>\` برای انتخاب فقط ویژگی‌های کارآمد (کامیت‌های مشخصی را از یک شاخه به شاخه دیگر کپی می‌کند)
+- ادغام پیشرفته با \`git merge\` برای ترکیب تلاش‌های تیم‌ها
+- \`git bisect\` برای پیدا کردن دقیق کامیت مشکل‌دار (جستجوی دودویی در تاریخچه برای پیدا کردن باگ‌ها)
+- \`git reflog\` برای بازیابی از اشتباهات
+- \`git tag\` و شاخه‌ها برای مدیریت انتشار
+- \`git mv <old> <new>\` برای تغییر نام فایل‌ها با حفظ تاریخچه Git
 
-**What is git cherry-pick?**
-Cherry-picking allows you to copy specific commits from one branch to another. Instead of merging entire branches, you can pick and choose individual commits. Perfect for applying hotfixes from one branch to another!
+**git cherry-pick چیست؟**
+Cherry-picking به شما اجازه می‌دهد کامیت‌های مشخصی را از یک شاخه به شاخه دیگر کپی کنید. به‌جای ادغام کل شاخه‌ها، می‌توانید کامیت‌های تکی را انتخاب کنید. عالی برای اعمال hotfixها از یک شاخه به شاخه دیگر!
 
-Example: \`git cherry-pick abc123\` - applies commit abc123 to your current branch
+مثال: \`git cherry-pick abc123\` - کامیت abc123 را روی شاخه فعلی شما اعمال می‌کند
 
-**What is git bisect?**
-Bisect helps you find which commit introduced a bug using binary search. Git will checkout commits for you to test, and you tell it "good" or "bad" until it finds the problematic commit.
+**git bisect چیست؟**
+Bisect به شما کمک می‌کند با استفاده از جستجوی دودویی پیدا کنید کدام کامیت باعث بروز یک باگ شده است. Git کامیت‌ها را برای تست شما checkout می‌کند و شما به آن می‌گویید "خوب" یا "بد" تا کامیت مشکل‌دار را پیدا کند.
 
-Example:
+مثال:
 \`git bisect start\`
-\`git bisect bad\` (current commit is broken)
-\`git bisect good abc123\` (this old commit worked)
-Git will then guide you through testing commits until it finds the first bad one!
+\`git bisect bad\` (کامیت فعلی خراب است)
+\`git bisect good abc123\` (این کامیت قدیمی کار می‌کرد)
+سپس Git شما را در تست کامیت‌ها راهنمایی می‌کند تا اولین کامیت بد را پیدا کند!
 
-**What is git mv?**
-Move or rename files while keeping Git history intact. Better than manually renaming files because Git tracks the rename.
+**git mv چیست؟**
+فایل‌ها را جابجا یا تغییر نام دهید در حالی که تاریخچه Git دست‌نخورده می‌ماند. بهتر از تغییر نام دستی فایل‌ها، چون Git تغییر نام را ردیابی می‌کند.
 
-Example: \`git mv old-name.js new-name.js\`
+مثال: \`git mv old-name.js new-name.js\`
 
-This isn't just about Git commands - it's about leadership, decision-making under pressure, and the ability to think systematically when everything is on fire.
+این فقط درباره دستورات Git نیست - درباره رهبری، تصمیم‌گیری تحت فشار و توانایی فکر کردن سیستماتیک زمانی است که همه‌چیز در حال سوختن است.
 
-The company's Black Friday revenue depends on you. Millions of customers are waiting. Your team is looking to you for guidance.
+درآمد جمعه سیاه شرکت به شما بستگی دارد. میلیون‌ها مشتری منتظرند. تیم شما به دنبال راهنمایی شماست.
 
-This is your moment. Show them what a Git Master can do.
+این لحظه شماست. به آن‌ها نشان دهید یک استاد Git چه کاری می‌تواند انجام دهد.
 
-Ready to prove your mastery? The clock is ticking...`,
+آماده‌اید تسلط خود را ثابت کنید؟ ساعت در حال تیک‌تاک است...`,
     "mastery.level3.story.realWorldContext":
-        "Real-world Git mastery involves orchestrating complex operations under pressure, managing multiple stakeholders, and making critical decisions that affect business operations.",
+        "تسلط بر Git در دنیای واقعی شامل هماهنگی عملیات پیچیده تحت فشار، مدیریت ذی‌نفعان متعدد و تصمیم‌گیری‌های حیاتی است که بر عملیات کسب‌وکار تأثیر می‌گذارند.",
     "mastery.level3.story.taskIntroduction":
-        "This is the ultimate Git challenge - combine all your skills to handle a complex, high-pressure emergency scenario.",
+        "این نهایی‌ترین چالش Git است - تمام مهارت‌های خود را ترکیب کنید تا یک سناریوی اضطراری پیچیده و پرفشار را مدیریت کنید.",
 
     // Archaeology Stage Levels
-    "archaeology.level1.name": "Git Blame - Code Archaeology",
-    "archaeology.level1.description": "Investigate code history to understand changes and find the origin of bugs",
-    "archaeology.level1.objective1": "Find who wrote specific lines",
-    "archaeology.level1.objective2": "Track down the history of a bug",
-    "archaeology.level1.objective3": "Understand the context of code changes",
-    "archaeology.level1.objective4": "Find related commits and changes",
-    "archaeology.level1.hint1": "git blame shows who last modified each line",
-    "archaeology.level1.hint2": "Use -L option to blame specific line ranges",
-    "archaeology.level1.hint3": "Combine blame with log to understand context",
-    "archaeology.level1.hint4": "Look for patterns in commit messages",
-    "archaeology.level1.requirement1.description": "Investigate who wrote the validation logic",
-    "archaeology.level1.requirement1.success": "Code authorship revealed!",
-    "archaeology.level1.requirement2.description": "Check recent commit history for context",
-    "archaeology.level1.requirement2.success": "Recent history examined!",
-    "archaeology.level1.requirement3.description": "Examine the details of a specific commit",
-    "archaeology.level1.requirement3.success": "Commit details analyzed!",
-    "archaeology.level1.story.title": "The Case of the Mysterious Bug",
+    "archaeology.level1.name": "Git Blame - باستان‌شناسی کد",
+    "archaeology.level1.description": "تاریخچه کد را بررسی کنید تا تغییرات را درک کرده و منشأ باگ‌ها را پیدا کنید",
+    "archaeology.level1.objective1": "از git blame استفاده کنید تا ببینید کدام کامیت آخرین بار هر خط از src/utils/validator.js را تغییر داده است",
+    "archaeology.level1.objective2": "از git log --oneline برای دریافت مروری فشرده از تاریخچه کامیت‌ها استفاده کنید",
+    "archaeology.level1.objective3": "از git show برای بررسی جزئیات کامل یک کامیت مشخص استفاده کنید",
+    "archaeology.level1.hint1": "`git blame src/utils/validator.js` را اجرا کنید تا ببینید کدام کامیت آخرین بار هر خط را تغییر داده است",
+    "archaeology.level1.hint2": "یک بازه خط مانند `git blame -L 10,20 src/utils/validator.js` اضافه کنید تا روی یک بخش از فایل تمرکز کنید",
+    "archaeology.level1.hint3": "`git log --oneline` را اجرا کنید تا تاریخچه فشرده تمام کامیت‌ها را با هش کوتاه هر کدام ببینید",
+    "archaeology.level1.hint4": "یک هش کامیت را از لاگ کپی کنید و `git show <hash>` (یا `git show HEAD`) را اجرا کنید تا دقیقاً ببینید چه چیزی تغییر کرده است",
+    "archaeology.level1.requirement1.description": "git blame را روی src/utils/validator.js اجرا کنید تا ببینید کدام کامیت آخرین بار هر خط را تغییر داده است",
+    "archaeology.level1.requirement1.success": "نویسندگی کد آشکار شد!",
+    "archaeology.level1.requirement2.description": "git log --oneline را اجرا کنید تا تاریخچه فشرده کامیت‌ها را ببینید",
+    "archaeology.level1.requirement2.success": "تاریخچه اخیر بررسی شد!",
+    "archaeology.level1.requirement3.description": "git show را روی یک کامیت اجرا کنید، مثلاً git show HEAD، تا جزئیات کامل آن را ببینید",
+    "archaeology.level1.requirement3.success": "جزئیات کامیت تحلیل شد!",
+    "archaeology.level1.story.title": "پرونده باگ مرموز",
     "archaeology.level1.story.narrative":
-        "A critical bug in the validation code is affecting 23% of European customers. The code was written by 4 different developers over 18 months. Your senior developer explains: 'Welcome to code archaeology! Git isn't just version control - it's your time machine. Every line has a story.' Use git blame, git log, and git show to investigate the bug and understand why the code was written this way.",
+        "یک باگ حیاتی در کد اعتبارسنجی، 23 درصد از مشتریان اروپایی را تحت تأثیر قرار داده است. این کد توسط 4 توسعه‌دهنده مختلف در طول 18 ماه نوشته شده. توسعه‌دهنده ارشد شما توضیح می‌دهد: «به باستان‌شناسی کد خوش آمدی! Git فقط کنترل نسخه نیست - ماشین زمان توست. هر خط یک داستان دارد.» با `git blame src/utils/validator.js` شروع کن تا ببینی کدام کامیت آخرین بار هر خط را تغییر داده، سپس از `git log --oneline` و `git show` استفاده کن تا بفهمی چرا کد این‌طور نوشته شده است.",
     "archaeology.level1.story.realWorldContext":
-        "Code archaeology skills are essential for maintaining large, long-lived codebases with multiple contributors over time.",
+        "مهارت‌های باستان‌شناسی کد برای نگهداری کدبیس‌های بزرگ و طولانی‌مدت با مشارکت‌کنندگان متعدد در طول زمان ضروری هستند.",
     "archaeology.level1.story.taskIntroduction":
-        "Learn to investigate code history and track down the source of bugs using Git forensic tools.",
+        "یاد بگیرید چگونه تاریخچه کد را بررسی کرده و با استفاده از ابزارهای پزشکی قانونی Git - یعنی git blame، git log و git show - منشأ باگ‌ها را پیدا کنید.",
 
-    "archaeology.level2.name": "Commit Forensics with Git Log",
-    "archaeology.level2.description": "Master advanced techniques to investigate complex code history",
-    "archaeology.level2.objective1": "Use advanced log filtering to find specific changes",
-    "archaeology.level2.objective2": "Track file renames and moves",
-    "archaeology.level2.objective3": "Find commits by content changes",
-    "archaeology.level2.objective4": "Analyze commit patterns and trends",
-    "archaeology.level2.hint1": "Use --grep to search commit messages",
-    "archaeology.level2.hint2": "Use -S to find when specific text was added/removed",
-    "archaeology.level2.hint3": "Use --follow to track files through renames",
-    "archaeology.level2.hint4": "Combine filters for powerful searches",
-    "archaeology.level2.requirement1.description": "Find all commits related to security",
-    "archaeology.level2.requirement1.success": "Security-related commits found!",
-    "archaeology.level2.requirement2.description": "Find commits that added or removed 'password' text",
-    "archaeology.level2.requirement2.success": "Password-related changes tracked!",
-    "archaeology.level2.requirement3.description": "Find all commits by Sarah to understand her contributions",
-    "archaeology.level2.requirement3.success": "Sarah's contribution history analyzed!",
-    "archaeology.level2.story.title": "The Security Audit Trail",
+    "archaeology.level2.name": "پزشکی قانونی کامیت با Git Log",
+    "archaeology.level2.description": "بر تکنیک‌های پیشرفته بررسی تاریخچه پیچیده کد مسلط شوید",
+    "archaeology.level2.objective1": "از git log --grep برای جستجوی یک کلیدواژه در پیام‌های کامیت استفاده کنید",
+    "archaeology.level2.objective2": "از git log -S برای پیدا کردن کامیت‌هایی که یک متن را اضافه یا حذف کرده‌اند استفاده کنید",
+    "archaeology.level2.objective3": "از git log --author برای فیلتر کردن کامیت‌ها بر اساس یک فرد مشخص استفاده کنید",
+    "archaeology.level2.hint1": "`git log --grep=security` را اجرا کنید تا در پیام‌های کامیت به دنبال 'security' بگردید",
+    "archaeology.level2.hint2": "`git log -S password` را اجرا کنید تا کامیت‌هایی که کلمه 'password' را در کد اضافه یا حذف کرده‌اند پیدا کنید",
+    "archaeology.level2.hint3": "`git log --author=Sarah` را اجرا کنید تا فقط کامیت‌های ساخته‌شده توسط Sarah را ببینید",
+    "archaeology.level2.hint4": "می‌توانید این‌ها را با `--oneline` ترکیب کنید تا خروجی فشرده‌تری داشته باشید",
+    "archaeology.level2.requirement1.description": "با git log --grep=security در پیام‌های کامیت به دنبال 'security' بگردید",
+    "archaeology.level2.requirement1.success": "کامیت‌های مرتبط با امنیت پیدا شدند!",
+    "archaeology.level2.requirement2.description": "با git log -S password کامیت‌هایی که کلمه 'password' را اضافه یا حذف کرده‌اند پیدا کنید",
+    "archaeology.level2.requirement2.success": "تغییرات مرتبط با password ردیابی شدند!",
+    "archaeology.level2.requirement3.description": "با git log --author=Sarah تمام کامیت‌های Sarah را پیدا کنید",
+    "archaeology.level2.requirement3.success": "تاریخچه مشارکت Sarah تحلیل شد!",
+    "archaeology.level2.story.title": "مسیر ممیزی امنیتی",
     "archaeology.level2.story.narrative":
-        "Your company received a security audit. The auditors want a complete history of all security-related changes: authentication, password handling, encryption. The codebase has 2,847 commits over 3 years. Your security lead explains Git's search capabilities: --grep for messages, -S for code content, --author for contributors. Build a comprehensive audit trail using advanced git log techniques.",
+        "شرکت شما یک ممیزی امنیتی دریافت کرده است. ممیزان تاریخچه کاملی از تمام تغییرات مرتبط با امنیت می‌خواهند: احراز هویت، مدیریت رمز عبور، رمزنگاری. کدبیس در طول 3 سال دارای 2,847 کامیت است. سرپرست امنیت شما قابلیت‌های جستجوی Git را توضیح می‌دهد: --grep برای پیام‌ها، -S برای محتوای کد، --author برای مشارکت‌کنندگان. یک مسیر ممیزی جامع با استفاده از تکنیک‌های پیشرفته git log بسازید.",
     "archaeology.level2.story.realWorldContext":
-        "Advanced Git log techniques are essential for security audits, code reviews, and understanding complex project histories.",
+        "تکنیک‌های پیشرفته git log برای ممیزی‌های امنیتی، بازبینی کد و درک تاریخچه‌های پیچیده پروژه ضروری هستند.",
     "archaeology.level2.story.taskIntroduction":
-        "Master advanced Git log techniques for comprehensive code history investigation and forensic analysis.",
+        "بر تکنیک‌های پیشرفته git log برای بررسی جامع تاریخچه کد و تحلیل پزشکی قانونی مسلط شوید.",
 
-    "archaeology.level3.name": "Git Reflog - The Time Machine",
-    "archaeology.level3.description": "Use Git reflog to recover lost commits and understand repository state changes",
-    "archaeology.level3.objective1": "Understand what reflog tracks",
-    "archaeology.level3.objective2": "Recover accidentally deleted commits",
-    "archaeology.level3.objective3": "Find lost branch references",
-    "archaeology.level3.objective4": "Restore previous repository states",
-    "archaeology.level3.hint1": "Reflog tracks all HEAD movements",
-    "archaeology.level3.hint2": "Use git reflog to see recent actions",
-    "archaeology.level3.hint3": "git reset --hard can use reflog references",
-    "archaeology.level3.hint4": "Reflog entries expire after 90 days by default",
-    "archaeology.level3.requirement1.description": "Check the reflog to see recent HEAD movements",
-    "archaeology.level3.requirement1.success": "Reflog history examined!",
-    "archaeology.level3.requirement2.description": "Reset to a previous state using reflog reference",
-    "archaeology.level3.requirement2.success": "Repository state restored!",
-    "archaeology.level3.requirement3.description": "Create a recovery branch from a reflog entry",
-    "archaeology.level3.requirement3.success": "Recovery branch created!",
-    "archaeology.level3.story.title": "The Great Git Disaster Recovery",
+    "archaeology.level3.name": "Git Reflog - ماشین زمان",
+    "archaeology.level3.description": "از Git reflog برای بازیابی کامیت‌های ازدست‌رفته و درک تغییرات وضعیت مخزن استفاده کنید",
+    "archaeology.level3.objective1": "از git reflog برای دیدن هر حرکت HEAD، از جمله کامیت‌های 'ازدست‌رفته'، استفاده کنید",
+    "archaeology.level3.objective2": "از git reset --hard همراه با یک مرجع reflog (مثلاً HEAD@{0}) برای بازیابی کار ازدست‌رفته استفاده کنید",
+    "archaeology.level3.objective3": "یک شاخه ایجاد کنید که به یک ورودی reflog اشاره کند تا کامیت‌های بازیابی‌شده را ذخیره کنید",
+    "archaeology.level3.hint1": "`git reflog` تمام کامیت‌هایی را که HEAD به آن‌ها اشاره کرده فهرست می‌کند، حتی آن‌هایی که 'حذف‌شده' به نظر می‌رسند",
+    "archaeology.level3.hint2": "هر ورودی reflog یک مرجع مانند `HEAD@{0}`، `HEAD@{1}` دارد - اخیرترین عملیات `HEAD@{0}` است",
+    "archaeology.level3.hint3": "از `git reset --hard <reflog-reference>` استفاده کنید تا شاخه را به آن کامیت بازگردانید",
+    "archaeology.level3.hint4": "همچنین می‌توانید یک شاخه جدید را به یک ورودی reflog اشاره دهید: `git branch <name> <reflog-reference>`",
+    "archaeology.level3.requirement1.description": "git reflog را اجرا کنید تا حرکت‌های اخیر HEAD را ببینید",
+    "archaeology.level3.requirement1.success": "تاریخچه reflog بررسی شد!",
+    "archaeology.level3.requirement2.description": "کامیت ازدست‌رفته را با git reset --hard و یک مرجع reflog بازیابی کنید، مثلاً git reset --hard HEAD@{0}",
+    "archaeology.level3.requirement2.success": "وضعیت مخزن بازیابی شد!",
+    "archaeology.level3.requirement3.description": "یک شاخه بازیابی ایجاد کنید که به یک ورودی reflog اشاره کند، مثلاً git branch recovery HEAD@{1}",
+    "archaeology.level3.requirement3.success": "شاخه بازیابی ایجاد شد!",
+    "archaeology.level3.story.title": "بازیابی بزرگ فاجعه Git",
     "archaeology.level3.story.narrative":
-        "It's Friday 4:30 PM. Your teammate Jake panics: 'I accidentally ran git reset --hard and lost two weeks of work! The authentication system, UI components, tests - all gone!' But you remember: Git never forgets. Git reflog tracks every commit, branch switch, merge, and reset. Even 'deleted' commits exist in reflog for 90 days. Your mission: examine the reflog, find the lost commits, and recover Jake's work. Time to be the hero!",
+        "ساعت 4:30 بعدازظهر جمعه است. هم‌تیمی شما Jake وحشت‌زده می‌گوید: «تصادفاً git reset --hard را اجرا کردم و دو هفته کار را از دست دادم! سیستم احراز هویت، کامپوننت‌های رابط کاربری، تست‌ها - همه رفتند!» اما شما به یاد می‌آورید: Git هرگز فراموش نمی‌کند. Git reflog هر کامیت، تعویض شاخه، ادغام و ریست را ردیابی می‌کند. حتی کامیت‌های 'حذف‌شده' به مدت 90 روز در reflog باقی می‌مانند. مأموریت شما: `git reflog` را اجرا کنید، کامیت‌های ازدست‌رفته را پیدا کنید و کار Jake را با `git reset --hard` و یک شاخه بازیابی، بازیابی کنید. وقت قهرمان شدن است!",
     "archaeology.level3.story.realWorldContext":
-        "Git reflog is a powerful recovery tool that can save developers from catastrophic data loss scenarios.",
+        "Git reflog ابزاری قدرتمند برای بازیابی است که می‌تواند توسعه‌دهندگان را از سناریوهای فاجعه‌بار از دست دادن داده نجات دهد.",
     "archaeology.level3.story.taskIntroduction":
-        "Master Git reflog to become the hero who can recover 'lost' work and save the day for your teammates.",
+        "بر Git reflog مسلط شوید تا قهرمانی شوید که می‌تواند کار 'ازدست‌رفته' را بازیابی کرده و روز را برای هم‌تیمی‌های خود نجات دهد.",
 
     // Intro Level 4
     "intro.level4.name": "بررسی تغییرات",
