@@ -406,292 +406,292 @@ const levels = {
     "remote.level3.story.taskIntroduction": "شاخه ویژگی خود را به مخزن راه‌دور پوش کنید تا دیگران بتوانند آن را ببینند.",
 
     // Reset Stage
-    "reset.name": "Undoing Commits",
-    "reset.description": "Learn how to undo commits and go back in history",
+    "reset.name": "لغو کامیت‌ها",
+    "reset.description": "یاد بگیرید چگونه کامیت‌ها را لغو کنید و در تاریخچه به عقب برگردید",
 
-    "reset.level1.name": "Soft Reset - Keep Changes",
-    "reset.level1.description": "Go back to a previous commit but keep your changes",
-    "reset.level1.objective1": "Undo the last commit while keeping changes staged",
-    "reset.level1.objective2": "Reset to HEAD (current commit) to understand the concept",
-    "reset.level1.objective3": "Reset to a specific previous commit using HEAD~n notation",
-    "reset.level1.hint1": "Start simple: git reset --soft HEAD~1 (undo last commit)",
-    "reset.level1.hint2": "View commit history first: git log --oneline",
-    "reset.level1.hint3": "git reset --soft HEAD keeps everything as is (no change)",
-    "reset.level1.hint4": "git reset --soft HEAD~2 goes back 2 commits",
-    "reset.level1.hint5": "Files stay staged after --soft reset - perfect for fixing commit messages!",
-    "reset.level1.hint6": "Use git status to see what's staged after reset",
-    "reset.level1.requirement1.description": "Undo the last commit using --soft",
-    "reset.level1.requirement1.success": "✅ Good! The commit is gone but files are still staged!",
-    "reset.level1.requirement2.description": "Reset to HEAD to understand the concept",
-    "reset.level1.requirement2.success": "✅ Perfect! Reset to HEAD means 'stay where you are' - no changes!",
-    "reset.level1.requirement3.description": "Reset to an earlier commit using HEAD~n",
-    "reset.level1.requirement3.success": "✅ Excellent! You've mastered HEAD~n notation for soft resets!",
-    "reset.level1.story.title": "Understanding git reset --soft",
-    "reset.level1.story.narrative": `🔄 **Understanding git reset --soft**
+    "reset.level1.name": "ریست نرم - حفظ تغییرات",
+    "reset.level1.description": "به یک کامیت قبلی برگردید اما تغییرات خود را حفظ کنید",
+    "reset.level1.objective1": "آخرین کامیت را لغو کنید و تغییرات را استیج‌شده نگه دارید",
+    "reset.level1.objective2": "برای درک این مفهوم، به HEAD (کامیت فعلی) ریست کنید",
+    "reset.level1.objective3": "با استفاده از نماد HEAD~n به یک کامیت قبلی مشخص ریست کنید",
+    "reset.level1.hint1": "با یک مورد ساده شروع کنید: git reset --soft HEAD~1 (لغو آخرین کامیت)",
+    "reset.level1.hint2": "ابتدا تاریخچه کامیت‌ها را ببینید: git log --oneline",
+    "reset.level1.hint3": "git reset --soft HEAD همه‌چیز را همان‌طور که هست نگه می‌دارد (بدون تغییر)",
+    "reset.level1.hint4": "git reset --soft HEAD~2 دو کامیت به عقب می‌رود",
+    "reset.level1.hint5": "فایل‌ها پس از ریست --soft استیج‌شده باقی می‌مانند - عالی برای اصلاح پیام‌های کامیت!",
+    "reset.level1.hint6": "از git status برای دیدن اینکه بعد از ریست چه چیزی استیج شده استفاده کنید",
+    "reset.level1.requirement1.description": "آخرین کامیت را با استفاده از --soft لغو کنید",
+    "reset.level1.requirement1.success": "✅ خوب! کامیت از بین رفت اما فایل‌ها هنوز استیج‌شده هستند!",
+    "reset.level1.requirement2.description": "برای درک این مفهوم به HEAD ریست کنید",
+    "reset.level1.requirement2.success": "✅ عالی! ریست به HEAD یعنی 'همان‌جا که هستید بمانید' - بدون تغییر!",
+    "reset.level1.requirement3.description": "با استفاده از HEAD~n به یک کامیت قبلی‌تر ریست کنید",
+    "reset.level1.requirement3.success": "✅ عالی! شما بر نماد HEAD~n برای ریست‌های نرم مسلط شدید!",
+    "reset.level1.story.title": "درک git reset --soft",
+    "reset.level1.story.narrative": `🔄 **درک git reset --soft**
 
-**The Situation:**
-You're working on a feature and made 5 commits. But looking back, you realize:
-- Commit 5: "Add database config" - Oops! This has sensitive credentials! 🔐
-- Commit 4: "Update API endpoints" - This is good ✅
-- Commit 3: "Add authentication" - Good ✅
-- Commit 2: "Setup routing" - Good ✅
-- Commit 1: "Initial project setup" - Good ✅
+**وضعیت:**
+شما روی یک ویژگی کار می‌کنید و 5 کامیت ساخته‌اید. اما وقتی به عقب نگاه می‌کنید، متوجه می‌شوید:
+- کامیت 5: "Add database config" - وای! این یکی اطلاعات محرمانه دارد! 🔐
+- کامیت 4: "Update API endpoints" - این خوب است ✅
+- کامیت 3: "Add authentication" - خوب ✅
+- کامیت 2: "Setup routing" - خوب ✅
+- کامیت 1: "Initial project setup" - خوب ✅
 
-You need to undo commit 5, fix it, and commit again properly!
+باید کامیت 5 را لغو کنید، آن را اصلاح کنید و دوباره درست کامیت کنید!
 
-**What is git reset --soft?**
-Think of Git commits like a stack of boxes 📦📦📦. Each box is a commit.
+**git reset --soft چیست؟**
+کامیت‌های Git را مثل یک پشته از جعبه‌ها 📦📦📦 تصور کنید. هر جعبه یک کامیت است.
 
-\`git reset --soft\` removes boxes from the top of the stack, BUT keeps all the items (your changes) on a staging table, ready to be packed into a new box!
+\`git reset --soft\` جعبه‌ها را از بالای پشته برمی‌دارد، اما تمام اقلام (تغییرات شما) را روی یک میز استیجینگ نگه می‌دارد، آماده برای بسته‌بندی در یک جعبه جدید!
 
-**Three Ways to Use git reset --soft:**
+**سه روش استفاده از git reset --soft:**
 
-**1. Reset to the previous commit (most common):**
+**1. ریست به کامیت قبلی (رایج‌ترین حالت):**
 \`git reset --soft HEAD~1\`
-- HEAD = "where you are now" (the top box)
-- ~1 = "go back 1 box"
-- Result: Last commit removed, but changes stay staged!
+- HEAD = "جایی که الان هستید" (جعبه بالایی)
+- ~1 = "یک جعبه به عقب برو"
+- نتیجه: آخرین کامیت حذف می‌شود، اما تغییرات استیج‌شده باقی می‌مانند!
 
-**2. Reset to HEAD (educational - does nothing):**
+**2. ریست به HEAD (آموزشی - هیچ کاری نمی‌کند):**
 \`git reset --soft HEAD\`
-- This means "reset to where I already am"
-- Nothing happens! Good for understanding the concept.
+- این یعنی "ریست به همان‌جایی که الان هستم"
+- هیچ اتفاقی نمی‌افتد! برای درک این مفهوم مفید است.
 
-**3. Reset to an older commit:**
+**3. ریست به یک کامیت قدیمی‌تر:**
 \`git reset --soft HEAD~3\`
-- Goes back 3 commits
-- All changes from those 3 commits stay staged
-- Perfect for combining multiple commits into one!
+- 3 کامیت به عقب می‌رود
+- تمام تغییرات آن 3 کامیت استیج‌شده باقی می‌مانند
+- عالی برای ترکیب چند کامیت در یکی!
 
-**Your Mission:**
+**مأموریت شما:**
 
-**Step 1:** Remove the last commit (the one with credentials)
+**قدم 1:** آخرین کامیت (همان که اطلاعات محرمانه دارد) را حذف کنید
 \`git reset --soft HEAD~1\`
-Check with \`git status\` - your files are still staged! ✨
+با \`git status\` بررسی کنید - فایل‌های شما هنوز استیج‌شده‌اند! ✨
 
-**Step 2:** Try resetting to HEAD (educational)
+**قدم 2:** ریست به HEAD را امتحان کنید (آموزشی)
 \`git reset --soft HEAD\`
-Notice: Nothing changed! You're already at HEAD.
+توجه کنید: هیچ چیز تغییر نکرد! شما از قبل در HEAD هستید.
 
-**Step 3:** Go back further to practice
+**قدم 3:** برای تمرین بیشتر عقب‌تر بروید
 \`git reset --soft HEAD~2\`
-Now you've removed 2 commits, but files are still staged!
+حالا 2 کامیت را حذف کرده‌اید، اما فایل‌ها هنوز استیج‌شده هستند!
 
-**Remember:**
-- 📦 Commits are removed from history
-- ✅ Files stay in staging area
-- 🎯 Perfect for fixing commit messages or combining commits
-- ⚠️  Only use on commits you haven't pushed yet!
+**به یاد داشته باشید:**
+- 📦 کامیت‌ها از تاریخچه حذف می‌شوند
+- ✅ فایل‌ها در ناحیه استیجینگ باقی می‌مانند
+- 🎯 عالی برای اصلاح پیام‌های کامیت یا ترکیب کامیت‌ها
+- ⚠️  فقط روی کامیت‌هایی استفاده کنید که هنوز پوش نکرده‌اید!
 
-Let's practice these three techniques! 🚀`,
+بیایید این سه تکنیک را تمرین کنیم! 🚀`,
     "reset.level1.story.realWorldContext":
-        "git reset --soft is super useful when you want to fix your last commit without losing the work. You can edit the changes and then commit again.",
+        "git reset --soft زمانی که می‌خواهید آخرین کامیت خود را بدون از دست دادن کار اصلاح کنید، بسیار مفید است. می‌توانید تغییرات را ویرایش کرده و دوباره کامیت کنید.",
     "reset.level1.story.taskIntroduction":
-        "Practice using git reset --soft with different targets: HEAD~1, HEAD, and HEAD~2.",
+        "تمرین کنید که git reset --soft را با اهداف مختلف استفاده کنید: HEAD~1، HEAD و HEAD~2.",
 
-    "reset.level2.name": "Hard Reset - Discard Everything",
-    "reset.level2.description": "Go back to a previous commit and discard all changes",
-    "reset.level2.objective1": "Completely discard the last buggy commit",
-    "reset.level2.objective2": "Reset to HEAD to understand it does nothing",
-    "reset.level2.objective3": "Jump back multiple commits and discard everything",
-    "reset.level2.hint1": "⚠️  WARNING: --hard is DESTRUCTIVE! All changes are permanently lost!",
-    "reset.level2.hint2": "Check what you'll lose first: git log --oneline",
-    "reset.level2.hint3": "git reset --hard HEAD~1 removes last commit AND all changes",
-    "reset.level2.hint4": "git reset --hard HEAD does nothing (already at HEAD)",
-    "reset.level2.hint5": "git reset --hard HEAD~3 goes back 3 commits, deletes everything",
-    "reset.level2.hint6": "Use this when you want to throw away bad code completely",
-    "reset.level2.hint7": "💡 In real life: Only use --hard on code you haven't pushed!",
-    "reset.level2.requirement1.description": "Discard the last commit using --hard",
-    "reset.level2.requirement1.success": "💥 Commit and all changes destroyed! No going back!",
-    "reset.level2.requirement2.description": "Reset to HEAD (educational - does nothing)",
-    "reset.level2.requirement2.success": "✅ Nothing changed - you're already at HEAD!",
-    "reset.level2.requirement3.description": "Discard multiple commits using --hard",
-    "reset.level2.requirement3.success": "💥 Multiple commits destroyed! Workspace is clean again!",
-    "reset.level2.story.title": "Understanding git reset --hard - THE NUCLEAR OPTION",
-    "reset.level2.story.narrative": `⚠️  **Understanding git reset --hard - THE NUCLEAR OPTION**
+    "reset.level2.name": "ریست سخت - دور انداختن همه‌چیز",
+    "reset.level2.description": "به یک کامیت قبلی برگردید و تمام تغییرات را دور بریزید",
+    "reset.level2.objective1": "آخرین کامیت دارای باگ را کاملاً دور بریزید",
+    "reset.level2.objective2": "به HEAD ریست کنید تا بفهمید هیچ کاری انجام نمی‌دهد",
+    "reset.level2.objective3": "چند کامیت به عقب بپرید و همه‌چیز را دور بریزید",
+    "reset.level2.hint1": "⚠️  هشدار: --hard مخرب است! تمام تغییرات برای همیشه از بین می‌روند!",
+    "reset.level2.hint2": "ابتدا ببینید چه چیزی را از دست می‌دهید: git log --oneline",
+    "reset.level2.hint3": "git reset --hard HEAD~1 آخرین کامیت و تمام تغییرات را حذف می‌کند",
+    "reset.level2.hint4": "git reset --hard HEAD هیچ کاری انجام نمی‌دهد (از قبل در HEAD هستید)",
+    "reset.level2.hint5": "git reset --hard HEAD~3 سه کامیت به عقب می‌رود و همه‌چیز را حذف می‌کند",
+    "reset.level2.hint6": "زمانی از این استفاده کنید که می‌خواهید کد بد را کاملاً دور بریزید",
+    "reset.level2.hint7": "💡 در دنیای واقعی: فقط روی کدی که هنوز پوش نکرده‌اید از --hard استفاده کنید!",
+    "reset.level2.requirement1.description": "آخرین کامیت را با استفاده از --hard دور بریزید",
+    "reset.level2.requirement1.success": "💥 کامیت و تمام تغییرات نابود شدند! راه بازگشتی نیست!",
+    "reset.level2.requirement2.description": "به HEAD ریست کنید (آموزشی - هیچ کاری انجام نمی‌دهد)",
+    "reset.level2.requirement2.success": "✅ هیچ چیز تغییر نکرد - شما از قبل در HEAD هستید!",
+    "reset.level2.requirement3.description": "چند کامیت را با استفاده از --hard دور بریزید",
+    "reset.level2.requirement3.success": "💥 چند کامیت نابود شدند! فضای کاری دوباره تمیز است!",
+    "reset.level2.story.title": "درک git reset --hard - گزینه هسته‌ای",
+    "reset.level2.story.narrative": `⚠️  **درک git reset --hard - گزینه هسته‌ای**
 
-**The Situation:**
-It's Friday evening. You've been experimenting with a new feature all day:
-- Commit 6: "Try experimental algorithm v3" - Completely broken! 💀
-- Commit 5: "Try experimental algorithm v2" - Still broken! 🐛
-- Commit 4: "Try experimental algorithm v1" - Nope! ❌
-- Commit 3: "Add user dashboard" - This was working! ✅
-- Commit 2: "Add user authentication" - Good ✅
-- Commit 1: "Initial project" - Good ✅
+**وضعیت:**
+جمعه عصر است. شما تمام روز را با یک ویژگی جدید آزمایش می‌کرده‌اید:
+- کامیت 6: "Try experimental algorithm v3" - کاملاً خراب! 💀
+- کامیت 5: "Try experimental algorithm v2" - هنوز خراب! 🐛
+- کامیت 4: "Try experimental algorithm v1" - نه! ❌
+- کامیت 3: "Add user dashboard" - این یکی کار می‌کرد! ✅
+- کامیت 2: "Add user authentication" - خوب ✅
+- کامیت 1: "Initial project" - خوب ✅
 
-You realize: These experiments are garbage. You want them GONE. Forever. 💣
+متوجه می‌شوید: این آزمایش‌ها آشغال‌اند. می‌خواهید برای همیشه از بین بروند. 💣
 
-**What is git reset --hard?**
-Remember the boxes metaphor? 📦📦📦
+**git reset --hard چیست؟**
+استعاره جعبه‌ها را یادتان هست؟ 📦📦📦
 
-\`git reset --soft\` removed boxes but kept the items on the staging table.
+\`git reset --soft\` جعبه‌ها را برمی‌داشت اما اقلام را روی میز استیجینگ نگه می‌داشت.
 
-\`git reset --hard\` removes boxes AND throws all items in the trash! 🗑️
+\`git reset --hard\` جعبه‌ها را برمی‌دارد و تمام اقلام را در سطل زباله می‌ریزد! 🗑️
 
-**⚠️  CRITICAL: This is DESTRUCTIVE and PERMANENT!**
-- Commits are deleted from history
-- ALL file changes are deleted
-- Working directory is cleaned
-- Staging area is cleared
-- **THERE IS NO UNDO!**
+**⚠️  بسیار مهم: این کار مخرب و دائمی است!**
+- کامیت‌ها از تاریخچه حذف می‌شوند
+- تمام تغییرات فایل حذف می‌شوند
+- دایرکتوری کاری پاک می‌شود
+- ناحیه استیجینگ خالی می‌شود
+- **هیچ راه بازگشتی وجود ندارد!**
 
-**Three Ways to Use git reset --hard:**
+**سه روش استفاده از git reset --hard:**
 
-**1. Destroy the last commit (most common):**
+**1. نابود کردن آخرین کامیت (رایج‌ترین حالت):**
 \`git reset --hard HEAD~1\`
-- Removes the last commit
-- Deletes all changes in that commit
-- Working directory looks like the previous commit
-- ⚠️  Changes are GONE FOREVER!
+- آخرین کامیت را حذف می‌کند
+- تمام تغییرات آن کامیت را پاک می‌کند
+- دایرکتوری کاری شبیه کامیت قبلی می‌شود
+- ⚠️  تغییرات برای همیشه از بین می‌روند!
 
-**2. Reset to HEAD (educational - does nothing):**
+**2. ریست به HEAD (آموزشی - هیچ کاری نمی‌کند):**
 \`git reset --hard HEAD\`
-- Means "make my workspace look like HEAD"
-- Since you're already at HEAD, nothing changes
-- Good for understanding: HEAD = current position
+- یعنی "فضای کاری‌ام را شبیه HEAD کن"
+- چون از قبل در HEAD هستید، هیچ چیز تغییر نمی‌کند
+- برای درک این مفهوم مفید است: HEAD = موقعیت فعلی
 
-**3. Destroy multiple commits:**
+**3. نابود کردن چند کامیت:**
 \`git reset --hard HEAD~4\`
-- Goes back 4 commits
-- All 4 commits are DELETED from history
-- All changes in those commits are DELETED
-- It's like they never existed! 👻
+- 4 کامیت به عقب می‌رود
+- هر 4 کامیت از تاریخچه حذف می‌شوند
+- تمام تغییرات آن کامیت‌ها حذف می‌شوند
+- انگار هیچ‌وقت وجود نداشته‌اند! 👻
 
-**When to Use --hard:**
-- ✅ Experiment failed, throw it away
-- ✅ Broke everything, need to start over
-- ✅ Committed secrets/passwords by accident
-- ❌ NOT on commits you've already pushed!
-- ❌ NOT if you might need the changes later!
+**چه زمانی از --hard استفاده کنیم:**
+- ✅ آزمایش شکست خورد، دورش بریزید
+- ✅ همه‌چیز خراب شد، باید از نو شروع کنید
+- ✅ اطلاعات محرمانه/رمز عبور را تصادفاً کامیت کرده‌اید
+- ❌ روی کامیت‌هایی که قبلاً پوش کرده‌اید نه!
+- ❌ اگر ممکن است بعداً به تغییرات نیاز داشته باشید نه!
 
-**Your Mission:**
+**مأموریت شما:**
 
-**Step 1:** Destroy the last broken commit
+**قدم 1:** آخرین کامیت خراب را نابود کنید
 \`git reset --hard HEAD~1\`
-Check with \`git status\` - workspace is clean! 🧹
+با \`git status\` بررسی کنید - فضای کاری تمیز است! 🧹
 
-**Step 2:** Try resetting to HEAD (safe practice)
+**قدم 2:** ریست به HEAD را امتحان کنید (تمرین امن)
 \`git reset --hard HEAD\`
-Nothing happens - you're already there!
+هیچ اتفاقی نمی‌افتد - شما از قبل همان‌جا هستید!
 
-**Step 3:** Destroy multiple failed experiments
+**قدم 3:** چند آزمایش شکست‌خورده را نابود کنید
 \`git reset --hard HEAD~3\`
-All 3 bad commits are gone! It's like Friday never happened! 😅
+هر 3 کامیت بد از بین رفتند! انگار آن جمعه هیچ‌وقت اتفاق نیفتاده! 😅
 
-**Remember:**
-- 💥 This is the NUCLEAR OPTION
-- 🗑️  Everything is deleted - commits AND changes
-- ⏪ Can't be undone (unless you have the commit hash)
-- 🎯 Only use when you're 100% sure
-- ⚠️  NEVER use on pushed commits!
+**به یاد داشته باشید:**
+- 💥 این گزینه هسته‌ای است
+- 🗑️  همه‌چیز حذف می‌شود - هم کامیت‌ها و هم تغییرات
+- ⏪ قابل بازگشت نیست (مگر اینکه هش کامیت را داشته باشید)
+- 🎯 فقط زمانی استفاده کنید که 100% مطمئن هستید
+- ⚠️  هرگز روی کامیت‌های پوش‌شده استفاده نکنید!
 
-**Fun Fact:** Professional developers say "I'm going hard reset on this" when they want to start over completely! 🔥
+**نکته جالب:** توسعه‌دهندگان حرفه‌ای وقتی می‌خواهند کاملاً از نو شروع کنند می‌گویند «دارم روی این هارد ریست می‌زنم»! 🔥
 
-Ready to practice safe destruction? Let's go! 💪`,
+آماده‌اید تمرین نابودی امن را انجام دهید؟ بزنیم بریم! 💪`,
     "reset.level2.story.realWorldContext":
-        "--hard reset is a powerful but dangerous tool. It's used when you really need a clean slate. In teams, be careful with reset on pushed commits - it can confuse others.",
+        "ریست --hard ابزاری قدرتمند اما خطرناک است. زمانی استفاده می‌شود که واقعاً به یک شروع تازه نیاز دارید. در تیم‌ها، در استفاده از reset روی کامیت‌های پوش‌شده مراقب باشید - می‌تواند دیگران را گیج کند.",
     "reset.level2.story.taskIntroduction":
-        "Practice the nuclear option: use git reset --hard to completely discard commits and changes.",
+        "گزینه هسته‌ای را تمرین کنید: از git reset --hard برای دور انداختن کامل کامیت‌ها و تغییرات استفاده کنید.",
 
-    "reset.level3.name": "Reset to Specific Commit",
-    "reset.level3.description": "Go back to a specific commit in history",
-    "reset.level3.objective1": "View commit history and identify the good commit",
-    "reset.level3.objective2": "Reset to a specific commit using its hash",
-    "reset.level3.hint1": "First, check your commit history: git log --oneline",
-    "reset.level3.hint2": "Each commit has a unique hash (like 'a1b2c3d')",
-    "reset.level3.hint3": "git reset --soft <commit-hash> keeps changes staged",
-    "reset.level3.hint4": "git reset --hard <commit-hash> destroys everything after that commit",
-    "reset.level3.hint5": "Commit hashes are permanent IDs - HEAD~n is relative",
-    "reset.level3.hint6": "Pro tip: You only need the first 7 characters of the hash!",
-    "reset.level3.hint7": "Find 'Version 2 - Good version' and use its hash",
-    "reset.level3.requirement1.description": "View commit history to identify the good commit",
-    "reset.level3.requirement1.success": "✅ Good! Now you can see all commits and their hashes!",
-    "reset.level3.requirement2.description": "Reset to a specific commit using its hash",
-    "reset.level3.requirement2.success": "🎯 Perfect! You've mastered resetting to specific commit hashes!",
-    "reset.level3.story.title": "Advanced Reset: Using Commit Hashes",
-    "reset.level3.story.narrative": `🎯 **Advanced Reset: Using Commit Hashes**
+    "reset.level3.name": "ریست به یک کامیت مشخص",
+    "reset.level3.description": "به یک کامیت مشخص در تاریخچه برگردید",
+    "reset.level3.objective1": "تاریخچه کامیت‌ها را مشاهده کرده و کامیت خوب را شناسایی کنید",
+    "reset.level3.objective2": "با استفاده از هش آن، به یک کامیت مشخص ریست کنید",
+    "reset.level3.hint1": "ابتدا تاریخچه کامیت‌های خود را بررسی کنید: git log --oneline",
+    "reset.level3.hint2": "هر کامیت یک هش یکتا دارد (مثل 'a1b2c3d')",
+    "reset.level3.hint3": "git reset --soft <commit-hash> تغییرات را استیج‌شده نگه می‌دارد",
+    "reset.level3.hint4": "git reset --hard <commit-hash> همه‌چیز بعد از آن کامیت را نابود می‌کند",
+    "reset.level3.hint5": "هش‌های کامیت شناسه‌های دائمی هستند - HEAD~n نسبی است",
+    "reset.level3.hint6": "نکته حرفه‌ای: فقط به 7 کاراکتر اول هش نیاز دارید!",
+    "reset.level3.hint7": "'Version 2 - Good version' را پیدا کرده و از هش آن استفاده کنید",
+    "reset.level3.requirement1.description": "تاریخچه کامیت‌ها را برای شناسایی کامیت خوب مشاهده کنید",
+    "reset.level3.requirement1.success": "✅ خوب! حالا می‌توانید تمام کامیت‌ها و هش‌های آن‌ها را ببینید!",
+    "reset.level3.requirement2.description": "با استفاده از هش آن به یک کامیت مشخص ریست کنید",
+    "reset.level3.requirement2.success": "🎯 عالی! شما بر ریست کردن به هش کامیت‌های مشخص مسلط شدید!",
+    "reset.level3.story.title": "ریست پیشرفته: استفاده از هش کامیت‌ها",
+    "reset.level3.story.narrative": `🎯 **ریست پیشرفته: استفاده از هش کامیت‌ها**
 
-**The Situation:**
-Your project has grown. You're now at commit 8, but you need to go back to commit 3.
+**وضعیت:**
+پروژه شما بزرگ شده است. حالا در کامیت 8 هستید، اما باید به کامیت 3 برگردید.
 
-Using \`HEAD~5\` to count back 5 commits is annoying and error-prone. What if someone adds a commit while you're working? The count changes!
+استفاده از \`HEAD~5\` برای شمردن 5 کامیت به عقب، کاری آزاردهنده و مستعد خطاست. اگر کسی در حین کار شما یک کامیت اضافه کند چه؟ شمارش تغییر می‌کند!
 
-**The Professional Solution: Commit Hashes**
+**راه‌حل حرفه‌ای: هش کامیت‌ها**
 
-Every commit has a unique ID (hash), like a fingerprint:
+هر کامیت یک شناسه یکتا (هش) دارد، مثل اثر انگشت:
 \`a1b2c3d - "Version 2 - Good version"\`
 
-This hash NEVER changes! It's permanent and unique.
+این هش هرگز تغییر نمی‌کند! دائمی و یکتاست.
 
-**Current Situation:**
-- Commit 8: "Attempted fix v3" - Still broken! 💔
-- Commit 7: "Attempted fix v2" - Nope! 🐛
-- Commit 6: "Attempted fix v1" - Failed! ❌
-- Commit 5: "Add broken feature" - Started the mess 🔥
-- Commit 4: "Update styling" - Cosmetic ✨
-- Commit 3: "Version 2 - GOOD VERSION" - Last known good state! ✅
-- Commit 2: "Version 1" - Initial version ✅
-- Commit 1: "Initial commit" - Foundation ✅
+**وضعیت فعلی:**
+- کامیت 8: "Attempted fix v3" - هنوز خراب! 💔
+- کامیت 7: "Attempted fix v2" - نه! 🐛
+- کامیت 6: "Attempted fix v1" - شکست خورد! ❌
+- کامیت 5: "Add broken feature" - شروع آشفتگی 🔥
+- کامیت 4: "Update styling" - ظاهری ✨
+- کامیت 3: "Version 2 - GOOD VERSION" - آخرین وضعیت شناخته‌شده سالم! ✅
+- کامیت 2: "Version 1" - نسخه اولیه ✅
+- کامیت 1: "Initial commit" - پایه‌گذاری ✅
 
-**Your Mission:**
+**مأموریت شما:**
 
-**Step 1: Find the Good Commit**
-Run: \`git log --oneline\`
+**قدم 1: کامیت خوب را پیدا کنید**
+اجرا کنید: \`git log --oneline\`
 
-You'll see something like:
+چیزی شبیه این می‌بینید:
 \`\`\`
 f7e8a9b Attempted fix v3
 d6c7b8a Attempted fix v2
 c5b6a7f Attempted fix v1
 b4a5c6e Add broken feature
 a3b4c5d Update styling
-9a2b3c4 Version 2 - Good version  ← THIS ONE!
+9a2b3c4 Version 2 - Good version  ← همین یکی!
 8a1b2c3 Version 1
 7a0b1c2 Initial commit
 \`\`\`
 
-**Step 2: Reset to That Commit**
+**قدم 2: به آن کامیت ریست کنید**
 \`git reset --soft 9a2b3c4\`
-(Use the actual hash you see!)
+(از هش واقعی که می‌بینید استفاده کنید!)
 
-OR (more destructive):
+یا (مخرب‌تر):
 \`git reset --hard 9a2b3c4\`
 
-**HEAD~n vs Commit Hash:**
+**HEAD~n در مقابل هش کامیت:**
 
-**Relative (HEAD~n):**
-- \`HEAD~1\` = "previous commit"
-- \`HEAD~5\` = "5 commits ago"
-- ❌ Changes if new commits are added
-- ✅ Quick for recent commits
+**نسبی (HEAD~n):**
+- \`HEAD~1\` = "کامیت قبلی"
+- \`HEAD~5\` = "5 کامیت پیش"
+- ❌ اگر کامیت جدید اضافه شود تغییر می‌کند
+- ✅ برای کامیت‌های اخیر سریع است
 
-**Absolute (Commit Hash):**
+**مطلق (هش کامیت):**
 - \`git reset --soft a1b2c3d\`
-- ✅ Permanent reference
-- ✅ Never changes
-- ✅ Professional approach
-- 🎯 Best for going back to specific known-good states
+- ✅ مرجع دائمی
+- ✅ هرگز تغییر نمی‌کند
+- ✅ رویکرد حرفه‌ای
+- 🎯 بهترین گزینه برای بازگشت به وضعیت‌های شناخته‌شده سالم
 
-**Pro Tips:**
-- Only need first 7 characters: \`9a2b3c4\` instead of full hash
-- You can copy hashes from \`git log\`
-- Hashes work with ANY git command: \`git show a1b2c3d\`
-- Save important commit hashes in notes for easy rollback!
+**نکات حرفه‌ای:**
+- فقط به 7 کاراکتر اول نیاز دارید: \`9a2b3c4\` به‌جای هش کامل
+- می‌توانید هش‌ها را از \`git log\` کپی کنید
+- هش‌ها با هر دستور git کار می‌کنند: \`git show a1b2c3d\`
+- هش کامیت‌های مهم را برای بازگشت آسان یادداشت کنید!
 
-**Real-World Scenario:**
-"Hey team, if the deploy breaks, rollback to commit 9a2b3c4 - that's our last stable version!"
+**سناریوی دنیای واقعی:**
+"سلام تیم، اگر دیپلوی خراب شد، به کامیت 9a2b3c4 برگردید - این آخرین نسخه پایدار ماست!"
 
-**In CI/CD Systems:**
-Production deploys often use commit hashes for precise version control:
+**در سیستم‌های CI/CD:**
+دیپلوی‌های تولید اغلب از هش کامیت برای کنترل نسخه دقیق استفاده می‌کنند:
 \`\`\`
 deploy.sh --commit=9a2b3c4
 \`\`\`
 
-Let's practice professional-grade Git! 🚀`,
+بیایید Git را در سطح حرفه‌ای تمرین کنیم! 🚀`,
     "reset.level3.story.realWorldContext":
-        "Using commit hashes is the professional way to reference specific points in history. They're permanent, unambiguous, and work across all team members' repositories.",
+        "استفاده از هش کامیت‌ها روش حرفه‌ای برای اشاره به نقاط مشخص در تاریخچه است. آن‌ها دائمی، بدون ابهام هستند و در مخازن تمام اعضای تیم کار می‌کنند.",
     "reset.level3.story.taskIntroduction":
-        "Use git log to find commit hashes, then use git reset with a specific hash.",
+        "از git log برای پیدا کردن هش کامیت‌ها استفاده کنید، سپس از git reset با یک هش مشخص استفاده کنید.",
 
     // Rebase Stage
     "rebase.name": "Rebasing",
