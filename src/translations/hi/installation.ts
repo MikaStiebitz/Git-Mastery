@@ -89,6 +89,69 @@ const installation = {
     "installation.troubleshooting.lineEndingIssuesSolution": "मिश्रित ऑपरेटिंग सिस्टम टीमों में:\n• Windows: 'git config --global core.autocrlf true'\n• macOS/Linux: 'git config --global core.autocrlf input'\n• वैकल्पिक: सटीक नियंत्रण के लिए .gitattributes फ़ाइल का उपयोग करें",
     "installation.troubleshooting.mergeConflicts": "मर्ज कॉन्फ्लिक्ट के लिए प्राथमिक चिकित्सा",
     "installation.troubleshooting.mergeConflictsSolution": "• प्रभावित फ़ाइलों को देखने के लिए 'git status' का उपयोग करें\n• फ़ाइलों को मैन्युअल रूप से संपादित करें या मर्ज टूल का उपयोग करें\n• संपादन के बाद: 'git add .' और 'git commit'\n• अनिश्चित होने पर: मर्ज रद्द करने के लिए 'git merge --abort'",
+
+    // Enhanced Platform Details
+    "installation.windows.enhanced.title": "Windows पर विस्तृत स्थापना",
+    "installation.windows.enhanced.prereq": "पूर्वापेक्षाएं (Prerequisites)",
+    "installation.windows.enhanced.prereqDesc":
+        "• Windows 7 या नया\n• स्थापना के लिए एडमिनिस्ट्रेटर अधिकार\n• डाउनलोड के लिए इंटरनेट एक्सेस",
+    "installation.windows.enhanced.installerOptions": "ज़रूरी इंस्टॉलर विकल्प",
+    "installation.windows.enhanced.installerOptionsDesc":
+        "स्थापना के दौरान, ये विकल्प चुनें:\n• 'Git from the command line and also from 3rd-party software'\n• 'Use bundled OpenSSH'\n• 'Use the OpenSSL library'\n• 'Checkout Windows-style, commit Unix-style line endings'\n• 'Use Windows' default console window'",
+    "installation.windows.enhanced.postInstall": "स्थापना के बाद",
+    "installation.windows.enhanced.postInstallDesc":
+        "• Git Bash कॉन्टेक्स्ट मेन्यू में उपलब्ध है (फ़ोल्डरों में राइट-क्लिक करें)\n• Git GUI एक ग्राफ़िकल इंटरफ़ेस देता है\n• Windows Terminal या PowerShell का भी उपयोग किया जा सकता है",
+
+    "installation.linux.enhanced.title": "Linux पर विस्तृत स्थापना",
+    "installation.linux.enhanced.package": "पैकेज मैनेजर का उपयोग करना",
+    "installation.linux.enhanced.packageDesc": "Linux के लिए पैकेज मैनेजर के ज़रिए स्थापना करने की सलाह दी जाती है:",
+    "installation.linux.enhanced.source": "सोर्स से कंपाइल करें (एडवांस्ड)",
+    "installation.linux.enhanced.sourceDesc": "सबसे नए वर्ज़न या विशेष कॉन्फ़िगरेशन के लिए:",
+    "installation.linux.enhanced.sourceSteps":
+        "# Install dependencies (Ubuntu/Debian)\nsudo apt-get install make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libncurses5-dev autoconf build-essential\n\n# Download Git source\nwget https://github.com/git/git/archive/v2.43.0.tar.gz\ntar -zxf v2.43.0.tar.gz\ncd git-2.43.0\n\n# Compile and install\nmake configure\n./configure --prefix=/usr/local\nmake all\nsudo make install",
+
+    "installation.mac.enhanced.title": "macOS पर विस्तृत स्थापना",
+    "installation.mac.enhanced.xcode": "Xcode Command Line Tools",
+    "installation.mac.enhanced.xcodeDesc":
+        "macOS उपयोगकर्ताओं के लिए सबसे आसान तरीका:\n• Terminal खोलें (Applications → Utilities → Terminal)\n• 'git --version' टाइप करें\n• अगर Git स्थापित नहीं है, तो आपको स्थापित करने के लिए कहा जाएगा\n• Command Line Tools स्थापित करने के लिए 'Install' पर क्लिक करें",
+    "installation.mac.enhanced.homebrew": "Homebrew (अनुशंसित)",
+    "installation.mac.enhanced.homebrewDesc":
+        "Homebrew macOS के लिए एक पैकेज मैनेजर है जो डेवलपर टूल्स के प्रबंधन को आसान बनाता है:",
+    "installation.mac.enhanced.homebrewSteps":
+        "# Install Homebrew (if not already present)\n/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n\n# Install Git\nbrew install git\n\n# Update Git (later)\nbrew upgrade git",
+    "installation.mac.enhanced.macports": "MacPorts (विकल्प)",
+    "installation.mac.enhanced.macportsDesc":
+        "अगर आप MacPorts उपयोग करते हैं:\n• sudo port install git +universal\n• sudo port install git-flow (वैकल्पिक)",
+
+    // Additional Settings
+    "installation.additionalSettings.title": "अतिरिक्त कॉन्फ़िगरेशन",
+    "installation.additionalSettings.intro":
+        "बेहतरीन उपयोग के लिए Git कॉन्फ़िगर करने के लिए यहां कुछ अनुशंसित अतिरिक्त सेटिंग्स दी गई हैं:",
+    "installation.additionalSettings.lineEndings": "लाइन एंडिंग कॉन्फ़िगर करें",
+    "installation.additionalSettings.lineEndingsDesc":
+        "अलग-अलग ऑपरेटिंग सिस्टम लाइन एंडिंग को अलग तरीके से संभालते हैं। इन्हें सही तरीके से संभालने के लिए Git को कॉन्फ़िगर करें:",
+    "installation.additionalSettings.defaultBranch": "डिफ़ॉल्ट ब्रांच नाम सेट करें",
+    "installation.additionalSettings.defaultBranchDesc":
+        "आधुनिक Git वर्कफ़्लो आमतौर पर 'master' की बजाय 'main' को डिफ़ॉल्ट ब्रांच नाम के रूप में उपयोग करते हैं:",
+    "installation.additionalSettings.editor": "डिफ़ॉल्ट एडिटर कॉन्फ़िगर करें",
+    "installation.additionalSettings.editorDesc":
+        "Git कमिट संदेशों और अन्य ऑपरेशंस के लिए अपना पसंदीदा टेक्स्ट एडिटर सेट करें:",
+
+    // Resources
+    "installation.resources.title": "अतिरिक्त संसाधन",
+    "installation.resources.download": "डाउनलोड",
+    "installation.resources.gui": "Git GUI क्लाइंट",
+    "installation.resources.githubDesktop": "GitHub का सरल और उपयोगकर्ता-अनुकूल Git क्लाइंट",
+    "installation.resources.gitkraken": "विज़ुअल कमिट इतिहास वाला शक्तिशाली Git क्लाइंट",
+    "installation.resources.sourcetree": "Windows और Mac के लिए मुफ़्त Git क्लाइंट",
+    "installation.resources.editors": "Git-फ़्रेंडली कोड एडिटर",
+    "installation.resources.vscode": "built-in Git सपोर्ट वाला मुफ़्त कोड एडिटर",
+    "installation.resources.atom": "Git इंटीग्रेशन वाला मुफ़्त कोड एडिटर",
+    "installation.resources.sublime": "Git प्लगइन वाला लोकप्रिय टेक्स्ट एडिटर",
+    "installation.resources.docs": "डॉक्यूमेंटेशन",
+    "installation.resources.officialDocs": "आधिकारिक Git डॉक्यूमेंटेशन",
+    "installation.resources.proGitBook": "Pro Git किताब (मुफ़्त)",
+    "installation.resources.githubGuide": "Git सेट अप करने के लिए GitHub की गाइड",
 };
 
 export default installation;
