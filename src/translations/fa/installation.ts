@@ -89,6 +89,57 @@ const installation = {
     "installation.troubleshooting.lineEndingIssuesSolution": "در تیم‌های با سیستم عامل‌های مختلط:\n• ویندوز: 'git config --global core.autocrlf true'\n• macOS/Linux: 'git config --global core.autocrlf input'\n• جایگزین: از فایل .gitattributes برای کنترل دقیق استفاده کنید",
     "installation.troubleshooting.mergeConflicts": "کمک اولیه برای تعارض‌های ادغام",
     "installation.troubleshooting.mergeConflictsSolution": "• از 'git status' برای دیدن فایل‌های تحت تاثیر استفاده کنید\n• فایل‌ها را به صورت دستی ویرایش کنید یا از یک ابزار ادغام استفاده کنید\n• پس از ویرایش: 'git add .' و 'git commit'\n• در صورت عدم اطمینان: 'git merge --abort' برای لغو ادغام",
+
+    // Enhanced Platform Details
+    "installation.windows.enhanced.title": "نصب دقیق Git در ویندوز",
+    "installation.windows.enhanced.prereq": "پیش‌نیازها",
+    "installation.windows.enhanced.prereqDesc": "• ویندوز 7 یا جدیدتر\n• دسترسی مدیر (Administrator) برای نصب\n• دسترسی به اینترنت برای دانلود",
+    "installation.windows.enhanced.installerOptions": "گزینه‌های مهم نصب‌کننده",
+    "installation.windows.enhanced.installerOptionsDesc": "در طول نصب، این گزینه‌ها را انتخاب کنید:\n• 'Git from the command line and also from 3rd-party software'\n• 'Use bundled OpenSSH'\n• 'Use the OpenSSL library'\n• 'Checkout Windows-style, commit Unix-style line endings'\n• 'Use Windows' default console window'",
+    "installation.windows.enhanced.postInstall": "پس از نصب",
+    "installation.windows.enhanced.postInstallDesc": "• Git Bash در منوی راست‌کلیک (کلیک راست در پوشه‌ها) در دسترس است\n• Git GUI یک رابط گرافیکی فراهم می‌کند\n• همچنین می‌توان از Windows Terminal یا PowerShell استفاده کرد",
+
+    "installation.linux.enhanced.title": "نصب دقیق Git در لینوکس",
+    "installation.linux.enhanced.package": "استفاده از مدیر بسته (Package Manager)",
+    "installation.linux.enhanced.packageDesc": "نصب از طریق مدیر بسته، روش توصیه‌شده برای لینوکس است:",
+    "installation.linux.enhanced.source": "کامپایل از سورس (پیشرفته)",
+    "installation.linux.enhanced.sourceDesc": "برای آخرین نسخه یا پیکربندی‌های خاص:",
+    "installation.linux.enhanced.sourceSteps": "# Install dependencies (Ubuntu/Debian)\nsudo apt-get install make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libncurses5-dev autoconf build-essential\n\n# Download Git source\nwget https://github.com/git/git/archive/v2.43.0.tar.gz\ntar -zxf v2.43.0.tar.gz\ncd git-2.43.0\n\n# Compile and install\nmake configure\n./configure --prefix=/usr/local\nmake all\nsudo make install",
+
+    "installation.mac.enhanced.title": "نصب دقیق Git در macOS",
+    "installation.mac.enhanced.xcode": "Xcode Command Line Tools",
+    "installation.mac.enhanced.xcodeDesc": "ساده‌ترین روش برای کاربران macOS:\n• Terminal را باز کنید (Applications → Utilities → Terminal)\n• 'git --version' را تایپ کنید\n• اگر Git نصب نباشد، از شما خواسته می‌شود آن را نصب کنید\n• برای نصب Command Line Tools روی 'Install' کلیک کنید",
+    "installation.mac.enhanced.homebrew": "Homebrew (توصیه‌شده)",
+    "installation.mac.enhanced.homebrewDesc": "Homebrew یک مدیر بسته برای macOS است که مدیریت ابزارهای توسعه‌دهنده را ساده می‌کند:",
+    "installation.mac.enhanced.homebrewSteps": "# Install Homebrew (if not already present)\n/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n\n# Install Git\nbrew install git\n\n# Update Git (later)\nbrew upgrade git",
+    "installation.mac.enhanced.macports": "MacPorts (جایگزین)",
+    "installation.mac.enhanced.macportsDesc": "اگر از MacPorts استفاده می‌کنید:\n• sudo port install git +universal\n• sudo port install git-flow (اختیاری)",
+
+    // Additional Settings
+    "installation.additionalSettings.title": "پیکربندی‌های اضافی",
+    "installation.additionalSettings.intro": "در اینجا برخی تنظیمات اضافی توصیه‌شده برای پیکربندی بهینه Git آمده است:",
+    "installation.additionalSettings.lineEndings": "پیکربندی پایان خط‌ها (Line Endings)",
+    "installation.additionalSettings.lineEndingsDesc": "سیستم‌عامل‌های مختلف پایان خط‌ها را متفاوت مدیریت می‌کنند. Git را برای مدیریت صحیح آن‌ها پیکربندی کنید:",
+    "installation.additionalSettings.defaultBranch": "تنظیم نام شاخه پیش‌فرض",
+    "installation.additionalSettings.defaultBranchDesc": "گردش‌کارهای مدرن Git معمولاً به‌جای 'master' از 'main' به‌عنوان نام شاخه پیش‌فرض استفاده می‌کنند:",
+    "installation.additionalSettings.editor": "پیکربندی ویرایشگر پیش‌فرض",
+    "installation.additionalSettings.editorDesc": "ویرایشگر متن مورد نظر خود را برای پیام‌های کامیت Git و سایر عملیات تنظیم کنید:",
+
+    // Resources
+    "installation.resources.title": "منابع اضافی",
+    "installation.resources.download": "دانلود",
+    "installation.resources.gui": "کلاینت‌های گرافیکی (GUI) Git",
+    "installation.resources.githubDesktop": "کلاینت Git ساده و کاربرپسند از GitHub",
+    "installation.resources.gitkraken": "کلاینت قدرتمند Git با تاریخچه کامیت بصری",
+    "installation.resources.sourcetree": "کلاینت رایگان Git برای Windows و Mac",
+    "installation.resources.editors": "ویرایشگرهای کد سازگار با Git",
+    "installation.resources.vscode": "ویرایشگر کد رایگان با پشتیبانی داخلی از Git",
+    "installation.resources.atom": "ویرایشگر کد رایگان با یکپارچگی Git",
+    "installation.resources.sublime": "ویرایشگر متن محبوب با افزونه‌های Git",
+    "installation.resources.docs": "مستندات",
+    "installation.resources.officialDocs": "مستندات رسمی Git",
+    "installation.resources.proGitBook": "کتاب Pro Git (رایگان)",
+    "installation.resources.githubGuide": "راهنمای GitHub برای راه‌اندازی Git",
 };
 
 export default installation;

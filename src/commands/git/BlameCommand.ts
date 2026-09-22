@@ -8,7 +8,7 @@ export class BlameCommand implements Command {
         "git blame file.txt",
         "git blame -L 10,20 file.txt",
         "git blame --show-email file.txt",
-        "git blame -l file.txt"
+        "git blame -l file.txt",
     ];
     includeInTabCompletion = true;
     supportsFileCompletion = true;
@@ -55,11 +55,18 @@ export class BlameCommand implements Command {
         }
 
         // Get file content
-        const lines = fileContent.split('\n');
+        const lines = fileContent.split("\n");
         const startLine = lineRange ? lineRange[0] - 1 : 0;
         const endLine = lineRange ? lineRange[1] : lines.length;
 
         const result: string[] = [];
+
+        // Deterministic pseudo-author assignment for simulation purposes (mirrors LogCommand)
+        const pseudoAuthors = ["Sam", "Alex", "Taylor", "Lee"];
+        const getPseudoAuthor = (id: string): string => {
+            const idx = Math.abs(id.charCodeAt(0) || 0) % pseudoAuthors.length;
+            return pseudoAuthors[idx] ?? "Unknown";
+        };
 
         // Find commits that modified this file
         const commits = gitRepository.getCommits();
@@ -74,7 +81,7 @@ export class BlameCommand implements Command {
         // For each line, find the last commit that modified it
         for (let i = startLine; i < Math.min(endLine, lines.length); i++) {
             const line = lines[i];
-            if (!line || line.trim() === '') continue;
+            if (!line || line.trim() === "") continue;
 
             // Find the most recent commit that could have modified this line
             const firstCommit = fileCommits[0];
@@ -82,8 +89,8 @@ export class BlameCommand implements Command {
 
             const [commitId, commit] = firstCommit; // Most recent commit that touched this file
             const commitHash = showAbbrev ? commitId.substring(0, 8) : commitId;
-            const author = "Unknown Author"; // We don't store author in our model
-            const email = showEmail ? ` <${author.toLowerCase().replace(' ', '.')}@example.com>` : "";
+            const author = getPseudoAuthor(commitId);
+            const email = showEmail ? ` <${author.toLowerCase().replace(" ", ".")}@example.com>` : "";
             const timestamp = new Date(commit.timestamp).toISOString();
             const lineNum = showLineNumbers ? ` ${i + 1}` : "";
 

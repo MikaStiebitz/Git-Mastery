@@ -25,6 +25,7 @@ const home = {
     "home.feature1.title": "Aprendizaje Interactivo",
     "home.feature1.description":
         "Aprende de forma práctica con comandos reales de Git en un entorno de pruebas seguro. Practica sin miedo a causar daños.",
+    "home.feature2.title": "Mini Juegos",
     "home.feature2.description":
         "Practica tus habilidades con Git a través de retos divertidos y gana puntos para desbloquear recompensas. Haz que el aprendizaje sea adictivo y divertido.",
     "home.feature3.title": "Personalización",
