@@ -75,9 +75,10 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
         { code: "es", name: "Spanish", nativeName: "Español" },
         { code: "fa", name: "Persian", nativeName: "فارسی" },
         { code: "hi", name: "Hindi", nativeName: "हिन्दी" },
+        { code: "tr", name: "Turkish", nativeName: "Türkçe" },
     ];
 
-    const handleLanguageSelect = (langCode: "en" | "de" | "es" | "fa" | "hi") => {
+    const handleLanguageSelect = (langCode: "en" | "de" | "es" | "fa" | "hi" | "tr") => {
         setLanguage(langCode);
         setLanguageDialogOpen(false);
     };
@@ -522,7 +523,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             <Button
                                 key={lang.code}
                                 variant={language === lang.code ? "default" : "ghost"}
-                                onClick={() => handleLanguageSelect(lang.code as "en" | "de" | "es" | "fa" | "hi")}
+                                onClick={() => handleLanguageSelect(lang.code as "en" | "de" | "es" | "fa" | "hi" | "tr")}
                                 className={`w-full justify-start ${
                                     language === lang.code
                                         ? "bg-purple-600 text-white hover:bg-purple-700"

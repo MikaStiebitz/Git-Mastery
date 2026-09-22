@@ -30,6 +30,14 @@ import playgroundHi from "./hi/playground";
 import installationHi from "./hi/installation";
 import faqHi from "./hi/faq";
 
+import commonTr from "./tr/common";
+import levelsTr from "./tr/levels";
+import terminalTr from "./tr/terminal";
+import homeTr from "./tr/home";
+import playgroundTr from "./tr/playground";
+import installationTr from "./tr/installation";
+import faqTr from "./tr/faq";
+
 import commonEs from "./es/common";
 import levelsEs from "./es/levels";
 import terminalEs from "./es/terminal";
@@ -75,6 +83,15 @@ export const translations = {
         ...installationHi,
         ...faqHi,
     },
+    tr: {
+        ...commonTr,
+        ...levelsTr,
+        ...terminalTr,
+        ...homeTr,
+        ...playgroundTr,
+        ...installationTr,
+        ...faqTr,
+    },
     es: {
         ...commonEs,
         ...levelsEs,
@@ -83,5 +100,5 @@ export const translations = {
         ...playgroundEs,
         ...installationEs,
         ...faqEs,
-    },
+    }
 };
