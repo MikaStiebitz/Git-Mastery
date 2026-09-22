@@ -3,12 +3,6 @@
     <img src="./public/og-cover.jpg" alt="GitMastery — Master Git through play" width="100%" />
   </a>
 
-<br/><br/>
-
-  <a href="https://gitmastery.me">
-    <img src="./public/logo.svg" alt="GitMastery" width="96" height="96" />
-  </a>
-
   <h1>GitMastery</h1>
 
   <p><b>Master Git through play.</b><br/>
