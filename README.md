@@ -1,182 +1,185 @@
 <div align="center">
   <a href="https://gitmastery.me">
-    <img src="./public/readme-banner.webp" alt="GitMastery — Master Git through play" width="100%" />
+    <img src="./public/hero-rails.webp" alt="GitMastery — Master Git through play" width="100%" />
   </a>
-</div>
 
-# GitMastery: Master Git Through Play
+<br/><br/>
 
-<div align="center">
   <a href="https://gitmastery.me">
-    <img src="./public/logo.svg" alt="GitMastery Logo" width="140" height="140" />
+    <img src="./public/logo.svg" alt="GitMastery" width="96" height="96" />
   </a>
 
-  <h3 align="center">An interactive Git learning platform that makes mastering Git fun</h3>
+  <h1>GitMastery</h1>
 
-  <p align="center">
-    <a href="https://gitmastery.me">Try It Live</a>
-    ·
-    <a href="#features">Features</a>
-    ·
-    <a href="#getting-started">Getting Started</a>
-    ·
-    <a href="#contributing">Contributing</a>
+  <p><b>Master Git through play.</b><br/>
+  A browser game where you type real Git commands and watch the commit graph react.</p>
+
+  <p>
+    <a href="https://gitmastery.me"><b>Play now</b></a> ·
+    <a href="#features">Features</a> ·
+    <a href="#getting-started">Getting started</a> ·
+    <a href="#contributing">Contributing</a> ·
+    <a href="#support-this-project">Sponsor</a>
   </p>
 
-  <p align="center">
-    <a href="https://github.com/MikaStiebitz/Git-Mastery" target="_blank">
-      <img src="https://img.shields.io/github/stars/MikaStiebitz/Git-Mastery?style=social" alt="GitHub stars" />
-    </a>
-    <br/>
-    <b>If you find this project helpful, please consider giving it a star 🌟</b>
+  <p>
+    <img src="https://img.shields.io/badge/play-gitmastery.me-B7F652?style=for-the-badge&labelColor=0C091F" alt="Play at gitmastery.me" />
+    <img src="https://img.shields.io/badge/no%20account-needed-9455EF?style=for-the-badge&labelColor=0C091F" alt="No account needed" />
+    <img src="https://img.shields.io/github/stars/MikaStiebitz/Git-Mastery?style=for-the-badge&labelColor=0C091F&color=FDC94B" alt="GitHub stars" />
   </p>
 
-  <p align="center">
-    <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js" alt="Next.js 15" />
-    <img src="https://img.shields.io/badge/TypeScript-blue?style=for-the-badge&logo=typescript" alt="TypeScript" />
-    <img src="https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS" />
+  <p>
+    <img src="https://img.shields.io/badge/Next.js%2016-0C091F?style=flat-square&logo=next.js&logoColor=F5F4FD" alt="Next.js 16" />
+    <img src="https://img.shields.io/badge/TypeScript-0C091F?style=flat-square&logo=typescript&logoColor=44DDFB" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Tailwind%20CSS%204-0C091F?style=flat-square&logo=tailwindcss&logoColor=44DDFB" alt="Tailwind CSS 4" />
+    <img src="https://img.shields.io/badge/GSAP-0C091F?style=flat-square&logo=greensock&logoColor=B7F652" alt="GSAP" />
   </p>
 </div>
 
-## 🚀 About The Project
+---
 
-**GitMastery** is an interactive learning platform designed to help developers master Git through hands-on practice. While traditional tutorials often rely on passive learning, GitMastery provides a fully simulated Git environment where you can:
+## 🎮 What it is
 
-- Execute real Git commands in a safe sandbox
-- See immediate visual feedback
-- Progress through structured, bite-sized challenges
-- Learn Git intuitively through gamification
+Most Git tutorials are something you read. GitMastery is something you **play**.
 
-Whether you're a complete beginner or looking to level up your Git skills, GitMastery offers an engaging, interactive approach to learning this essential developer tool.
+```console
+$ git switch -c feature
+Switched to a new branch 'feature'
+$ git commit -am "add cat gifs"
+[feature 7b2d410] add cat gifs        ★ +50 XP
+```
 
-**🌐 Visit GitMastery at [gitmastery.me](https://gitmastery.me) to start your journey!**
+Every level runs a full Git simulation in your browser: you type real commands into a real
+terminal, the commit graph grows as you go, and nothing you break is ever real. No install, no
+account, no ads — just `git init` and go.
 
-###### No registration needed!
+**[→ Start at gitmastery.me](https://gitmastery.me)**
+
+## 📣 Creators found it on their own
+
+Nobody was paid for these. They just liked the game.
+
+| Creator                                                                  | Reel                                                                                                                |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| [@softwarewithnick](https://www.instagram.com/softwarewithnick/)         | ["Master git easily 😎"](https://www.instagram.com/reel/DWoi-4RDliT/)                                               |
+| [@softwarewithnick](https://www.instagram.com/softwarewithnick/)         | ["Master git easily 😎" — second reel](https://www.instagram.com/reel/DWojk9kgqUC/)                                 |
+| [@staxx_ai](https://www.instagram.com/staxx_ai/)                         | ["Website no one really talks about… but should 👀"](https://www.instagram.com/reel/DXMVbNOEmWh/)                   |
+| [@shivaconceptsolution](https://www.instagram.com/shivaconceptsolution/) | ["Want to master Git without crying over lost commits ever again? 😭"](https://www.instagram.com/reel/DRcloKUDRAd/) |
+
+Posted about it somewhere? [Open an issue](https://github.com/MikaStiebitz/Git-Mastery/issues/new)
+and it goes on the list.
+
+<a id="features"></a>
 
 ## ✨ Features
 
-### 🎓 Core Learning Experience
+### Learn by doing
 
-- **🖥️ Interactive Terminal**: Practice Git commands in a realistic simulated environment
-- **🎯 Structured Learning Path**: Progress through carefully designed levels of increasing complexity
-- **🌳 Interactive Commit Graph**: Every level includes a live, animated visualization of your repository — watch commits, branches and merges appear as you type, tap nodes for details, and highlight any branch's history
-- **📊 Visual Git Status**: See your repository status visually update as you work
-- **🎮 Playground Mode**: Freely experiment with Git commands without level requirements
-- **📝 Command Cheat Sheet**: Quick reference for Git commands with explanations
-- **📈 Progress Tracking**: Track your learning journey with a visual progress system
-- **🌍 Multi-language Support**: Available in English, German, Persian and Hindi
+|                          |                                                                           |
+| ------------------------ | ------------------------------------------------------------------------- |
+| 🖥️ **Real terminal**     | A simulated Git environment that answers like the real thing              |
+| 🌳 **Live commit graph** | Every level draws your repository as you type — tap a node for details    |
+| 🎯 **Structured path**   | Stages that build on each other, from `git init` to `rebase` and `bisect` |
+| 🎮 **Playground**        | A free sandbox with no level goals, plus a printable cheat sheet          |
+| 📈 **Progress tracking** | Points, completed levels and your current stage, saved locally            |
+| 🌍 **Six languages**     | English, German, Spanish, Persian, Hindi and Turkish                      |
 
-### 🎮 Gamification & Rewards
+### Play for it
 
-- **🏪 In-Game Shop**: Earn points and purchase customization items and power-ups
-- **🎨 Terminal Themes**: Unlock beautiful terminal themes including Matrix, Golden, and Dark themes
-- **🐱 Git Mascot Pet**: Purchase an animated mascot that cheers you on during challenging levels
-- **🔊 Victory Sound Pack**: Satisfying sound effects when completing levels and achieving milestones
-- **⚡ Double XP Weekends**: Boost your point earning with 2x multiplier for 7 days
-- **😊 Emoji Commit Messages**: Smart emoji suggestions for better commit messages
-- **🏆 Achievement Badges**: Visual recognition system with special badges and legendary status
-- **🎲 Mini Games**: Practice Git skills through fun interactive challenges
+|                        |                                                                             |
+| ---------------------- | --------------------------------------------------------------------------- |
+| 🏪 **Shop**            | Spend earned coins on terminal themes, a mascot and power-ups               |
+| 🎨 **Terminal themes** | Matrix green, Golden luxury and Dark blue — they repaint the whole terminal |
+| 🎲 **Mini games**      | Branch Master, Graph Puzzle, Commit Champion and Merge Master               |
+| 🏆 **Badges**          | Achievement tokens that show up in the navbar                               |
+| ⚡ **Double XP**       | A weekend multiplier, if you buy it                                         |
 
-## 🛠️ Tech Stack
+## 🛠️ Tech stack
 
-GitMastery is built with modern web technologies to provide the best learning experience:
+**Next.js 16** (App Router, static export) · **TypeScript** · **Tailwind CSS 4** · **GSAP** ·
+**Radix UI** · **Lucide** — with a full Git simulation, level engine and progress system written
+from scratch, and React Context plus `localStorage` holding the state. No backend, no database,
+no tracking beyond privacy-friendly analytics.
 
-### Frontend Framework
+The visual system is documented in [DESIGN.md](./DESIGN.md); the product decisions behind it
+live in [PRODUCT.md](./PRODUCT.md).
 
-- **Next.js 16** - React framework with server-side rendering, App Router, and performance optimizations
-- **TypeScript** - Type-safe development with enhanced IDE support and error catching
-- **Tailwind CSS** - Utility-first CSS framework for rapid, responsive design
+<a id="getting-started"></a>
 
-### UI & UX
-
-- **GSAP** - Production-grade animation engine powering the landing page and the interactive commit-graph visualizer
-- **Lucide React** - Customizable SVG icon library
-- **shadcn/ui** - Re-usable component system built on Radix UI and Tailwind CSS
-
-### Game Engine & State Management
-
-- **Custom Git Simulation** - Full Git repository simulation in the browser
-- **React Context API** - Global state management for game progress, themes, and user data
-- **LocalStorage** - Client-side persistence for progress, purchases, and preferences
-
-## 🚦 Getting Started
-
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm (v8 or higher)
-
-### Installation
-
-1. **Clone the repository**
+## 🚦 Getting started
 
 ```bash
 git clone https://github.com/MikaStiebitz/Git-Mastery
 cd Git-Mastery
-```
-
-2. **Install dependencies**
-
-```bash
 npm install
-```
-
-3. **Start the development server**
-
-```bash
 npm run dev
 ```
 
-4. **Open your browser**
+Then open <http://localhost:3000>. Node 20 or newer.
 
-Navigate to `http://localhost:3000` to start learning Git!
+| Command            | What it does                       |
+| ------------------ | ---------------------------------- |
+| `npm run dev`      | Dev server with hot reload         |
+| `npm run build`    | Static export to `out/`            |
+| `npm run test`     | Vitest in watch mode               |
+| `npm run test:run` | The suite once, the way CI runs it |
+| `npm run format`   | Prettier over the repo             |
 
 ## 📚 Documentation
 
-For developers and contributors, detailed documentation is available to help you understand the codebase:
+- [Commands](./src/commands/COMMANDS.md) — how Git commands are implemented and how to add one
+- [Levels](./src/levels/LEVELS.md) — how stages and levels work, and how to write a new one
+- [Translations](./src/translations/TRANSLATIONS.md) — how to add or fix a language
+- [Design system](./DESIGN.md) — tokens, components and the rules they follow
 
-- [Commands Implementation](./src/commands/COMMANDS.md) - How Git commands are implemented and how to add new ones
-- [Levels System](./src/levels/LEVELS.md) - How levels and stages work and how to create new levels
-- [Translation System](./src/translations/TRANSLATIONS.md) - How to add or modify translations
+<a id="contributing"></a>
 
 ## 🤝 Contributing
 
-We welcome contributions to GitMastery! Whether you're fixing bugs, improving the documentation, or adding new features, please follow these steps:
+Pull requests are welcome — new levels and translations especially.
 
 1. Fork the repository
-2. Create a new branch for your feature (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Commit your changes (`git commit -m 'Add some amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
+2. Branch off: `git checkout -b feature/amazing-feature`
+3. Make your changes, then `npm run test:run` and `npm run build`
+4. Commit and push, then open a pull request
 
-For more details on the project structure, check the documentation linked above.
+CI has to stay green: build, typecheck and the full test suite run on every pull request. The
+translation parity test will fail if a language is missing a key, so add new strings to all six.
 
-## ⭐ Support This Project
+<a id="support-this-project"></a>
 
-If you find GitMastery helpful in your Git learning journey, please consider:
+## ⭐ Support this project
 
-- **Giving it a star on GitHub**: Visit [github.com/MikaStiebitz/Git-Mastery](https://github.com/MikaStiebitz/Git-Mastery) and click the star button
-- **Sharing it** with friends and colleagues who are learning Git
-- **Contributing** to make it even better
+GitMastery is free, has no ads and needs no account. Sponsors pay for the domain, the hosting
+and the time that goes into new levels — and keep the whole thing open source.
 
-Your support helps this educational tool reach more developers!
+<p align="center">
+  <a href="https://github.com/sponsors/MikaStiebitz">
+    <img src="https://img.shields.io/badge/Sponsor%20on%20GitHub-FDC94B?style=for-the-badge&logo=github&logoColor=0C091F&labelColor=FDC94B" alt="Sponsor on GitHub" />
+  </a>
+  <a href="https://buymeacoffee.com/mika.stiebitz">
+    <img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-0C091F?style=for-the-badge&logo=buymeacoffee&logoColor=FDC94B" alt="Buy me a coffee" />
+  </a>
+</p>
 
-## 📈 Star History
+Not in a position to sponsor? A star helps just as much, and sharing it with someone who is
+fighting their first merge conflict helps even more.
+
+## 📈 Star history
 
 <div align="center">
   <a href="https://star-history.dera.page/#MikaStiebitz/Git-Mastery&Date">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=MikaStiebitz/Git-Mastery&type=Date&theme=dark" />
       <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=MikaStiebitz/Git-Mastery&type=Date" />
-      <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=MikaStiebitz/Git-Mastery&type=Date" width="600" />
+      <img alt="Star history chart" src="https://star-history.dera.page/svg?repos=MikaStiebitz/Git-Mastery&type=Date" width="600" />
     </picture>
   </a>
 </div>
 
 ## 📜 License
 
-This project is licensed under the Restricted Use License - see the LICENSE file for details.
+Restricted Use License — see [LICENSE](./LICENSE).
 
 ---
 

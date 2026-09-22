@@ -34,6 +34,9 @@ const home = {
     "home.continue": "ادامه",
     "home.demoLabel":
         "دموی زنده: یک commit روی شاخه feature، یک commit روی main و سپس merge. گراف commitها با هر دستور رشد می‌کند.",
+    "home.featured.title": "سازندگان محتوا خودشان پیدایش کردند",
+    "home.featured.note": "به کسی پولی پرداخت نشده — آن‌ها فقط از بازی خوششان آمد.",
+    "home.featured.watch": "تماشای ریل در اینستاگرام",
 };
 
 export default home;

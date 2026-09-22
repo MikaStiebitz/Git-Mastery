@@ -34,6 +34,9 @@ const home = {
     "home.continue": "Continue",
     "home.demoLabel":
         "Live demo: a commit on a feature branch, a commit on main, then a merge. The commit graph grows with every command.",
+    "home.featured.title": "Creators found it on their own",
+    "home.featured.note": "Nobody was paid for these — they just liked the game.",
+    "home.featured.watch": "Watch the reel on Instagram",
 };
 
 export default home;

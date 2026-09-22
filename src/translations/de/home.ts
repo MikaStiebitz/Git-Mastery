@@ -34,6 +34,9 @@ const home = {
     "home.continue": "Weiterspielen",
     "home.demoLabel":
         "Live-Demo: ein Commit auf einem Feature-Branch, ein Commit auf main, dann ein Merge. Der Commit-Graph wächst mit jedem Befehl.",
+    "home.featured.title": "Creator haben es selbst entdeckt",
+    "home.featured.note": "Niemand wurde dafür bezahlt — sie mochten das Spiel einfach.",
+    "home.featured.watch": "Reel auf Instagram ansehen",
 };
 
 export default home;

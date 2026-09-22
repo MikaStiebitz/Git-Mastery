@@ -33,6 +33,7 @@ import { DifficultySelector } from "~/components/DifficultySelector";
 import { Shop } from "~/components/Shop";
 import { Minigames } from "~/components/Minigames";
 import { HeroDemo } from "~/components/home/HeroDemo";
+import { FeaturedReels } from "~/components/home/FeaturedReels";
 import { useSponsor } from "~/components/SponsorDialog";
 import { MINIGAMES } from "~/components/minigames/registry";
 import { getAvailableStagesForDifficulty } from "~/config/difficulties";
@@ -214,6 +215,10 @@ export default function Home() {
     // only exists after hydration.
     useEffect(() => {
         if (!isMounted || !rootRef.current) return;
+        // Scroll reveals hide their target until the trigger fires. On a tab that is hidden at
+        // mount the ticker never runs, so the sections would ship blank — in that case the page
+        // simply stays static and fully visible.
+        if (document.visibilityState !== "visible") return;
         gsap.registerPlugin(ScrollTrigger);
 
         const ctx = gsap.context(() => {
@@ -946,6 +951,20 @@ export default function Home() {
                                 </div>
                             </article>
                         ))}
+                    </div>
+                </section>
+
+                {/* ── Creators who posted about it ─────────────────────────── */}
+                <section className="container mx-auto px-4 pb-24 sm:pb-32">
+                    <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3" data-reveal>
+                        <h2 className="font-display text-gm-ink max-w-2xl text-[clamp(1.6rem,3.6vw,2.6rem)] leading-[1.05] [overflow-wrap:anywhere] sm:[overflow-wrap:normal]">
+                            {t("home.featured.title")}
+                        </h2>
+                        <p className="text-gm-ink-dim max-w-sm text-sm">{t("home.featured.note")}</p>
+                    </div>
+
+                    <div className="mt-8 sm:mt-10" data-reveal>
+                        <FeaturedReels />
                     </div>
                 </section>
 

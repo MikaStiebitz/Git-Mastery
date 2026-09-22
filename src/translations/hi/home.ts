@@ -34,6 +34,9 @@ const home = {
     "home.continue": "जारी रखें",
     "home.demoLabel":
         "लाइव डेमो: feature ब्रांच पर एक commit, main पर एक commit, फिर merge. हर कमांड के साथ commit ग्राफ़ बढ़ता है।",
+    "home.featured.title": "क्रिएटर्स ने इसे खुद खोजा",
+    "home.featured.note": "इसके लिए किसी को पैसे नहीं दिए गए — उन्हें बस यह गेम पसंद आया।",
+    "home.featured.watch": "Instagram पर रील देखें",
 };
 
 export default home;

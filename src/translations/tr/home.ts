@@ -34,6 +34,9 @@ const home = {
     "home.continue": "Devam et",
     "home.demoLabel":
         "Canlı demo: bir feature dalında commit, main üzerinde commit, ardından merge. Commit grafiği her komutla büyür.",
+    "home.featured.title": "İçerik üreticileri kendileri keşfetti",
+    "home.featured.note": "Kimseye ödeme yapılmadı — oyunu sevdiler, o kadar.",
+    "home.featured.watch": "Reel'i Instagram'da izle",
 };
 
 export default home;
