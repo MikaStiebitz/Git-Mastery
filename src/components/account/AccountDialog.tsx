@@ -14,6 +14,7 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { PasswordInput } from "~/components/ui/password-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useAuth } from "~/contexts/AuthContext";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -110,9 +111,8 @@ function SignInForm({ mode, onDone }: { mode: "signIn" | "register"; onDone: () 
 
             <div className="space-y-2">
                 <Label htmlFor={`${mode}-password`}>{t("account.password")}</Label>
-                <Input
+                <PasswordInput
                     id={`${mode}-password`}
-                    type="password"
                     value={password}
                     onChange={event => setPassword(event.target.value)}
                     autoComplete={mode === "register" ? "new-password" : "current-password"}
@@ -151,7 +151,6 @@ function ManageAccount({ onClose }: { onClose: () => void }) {
     const [confirmingDelete, setConfirmingDelete] = useState(false);
 
     const [newUsername, setNewUsername] = useState("");
-    const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [deletePassword, setDeletePassword] = useState("");
 
@@ -231,28 +230,13 @@ function ManageAccount({ onClose }: { onClose: () => void }) {
                 className="space-y-3"
                 onSubmit={async event => {
                     event.preventDefault();
-                    const ok = await run(
-                        () => auth.changePassword(currentPassword, newPassword),
-                        "account.passwordChanged",
-                    );
-                    if (ok) {
-                        setCurrentPassword("");
-                        setNewPassword("");
-                    }
+                    const ok = await run(() => auth.changePassword(newPassword), "account.passwordChanged");
+                    if (ok) setNewPassword("");
                 }}>
-                <Label htmlFor="current-password">{t("account.changePassword")}</Label>
-                <Input
-                    id="current-password"
-                    type="password"
-                    value={currentPassword}
-                    onChange={event => setCurrentPassword(event.target.value)}
-                    placeholder={t("account.currentPassword")}
-                    autoComplete="current-password"
-                    required
-                />
+                <Label htmlFor="new-password">{t("account.changePassword")}</Label>
                 <div className="flex gap-2">
-                    <Input
-                        type="password"
+                    <PasswordInput
+                        id="new-password"
                         value={newPassword}
                         onChange={event => setNewPassword(event.target.value)}
                         placeholder={t("account.newPassword")}
@@ -290,8 +274,7 @@ function ManageAccount({ onClose }: { onClose: () => void }) {
                             if (ok) onClose();
                         }}>
                         <p className="text-gm-ink text-sm">{t("account.deleteConfirm")}</p>
-                        <Input
-                            type="password"
+                        <PasswordInput
                             value={deletePassword}
                             onChange={event => setDeletePassword(event.target.value)}
                             placeholder={t("account.password")}

@@ -146,12 +146,8 @@ export function sync(token: string, payload: SyncPayload): Promise<ApiResult<Syn
     return call<SyncSuccess>("/v1/sync", { method: "POST", token, body: payload });
 }
 
-export function changePassword(
-    token: string,
-    currentPassword: string,
-    newPassword: string,
-): Promise<ApiResult<Record<string, never>>> {
-    return call("/v1/account/password", { method: "POST", token, body: { currentPassword, newPassword } });
+export function changePassword(token: string, newPassword: string): Promise<ApiResult<Record<string, never>>> {
+    return call("/v1/account/password", { method: "POST", token, body: { newPassword } });
 }
 
 export function changeUsername(token: string, newUsername: string): Promise<ApiResult<{ username: string }>> {

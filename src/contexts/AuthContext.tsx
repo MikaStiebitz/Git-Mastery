@@ -49,7 +49,7 @@ export interface AuthContextValue {
     signOut: () => Promise<void>;
     syncNow: () => Promise<void>;
 
-    changePassword: (currentPassword: string, newPassword: string) => Promise<api.ApiResult<Record<string, never>>>;
+    changePassword: (newPassword: string) => Promise<api.ApiResult<Record<string, never>>>;
     changeUsername: (newUsername: string) => Promise<api.ApiResult<{ username: string }>>;
     resetCloudProgress: () => Promise<api.ApiResult<{ state: api.ServerState }>>;
     deleteAccount: (password: string) => Promise<api.ApiResult<Record<string, never>>>;
@@ -386,11 +386,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (token) await api.logout(token);
     }, []);
 
-    const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    const changePassword = useCallback(async (newPassword: string) => {
         const token = tokenRef.current;
         if (!token) return { ok: false as const, code: "unauthorized", status: 401, retryable: false };
 
-        const result = await api.changePassword(token, currentPassword, newPassword);
+        const result = await api.changePassword(token, newPassword);
         if (result.ok) {
             // The server revoked every session, including this one, so the client signs itself
             // straight back in with the new password rather than dropping the player out.
