@@ -136,6 +136,7 @@ export type LevelRequirement = {
     checkRemoteExists?: string; // A specific remote name, or "*" for "any remote exists"
     checkCurrentBranch?: string; // HEAD must be on this branch
     checkCurrentBranchNot?: string; // HEAD must have moved off this branch
+    checkAllFilesStaged?: boolean; // Nothing in the working tree may be left unstaged
 };
 
 export type StoryContext = {

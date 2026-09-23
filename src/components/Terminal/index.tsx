@@ -15,6 +15,9 @@ import { AutocompleteService } from "./services/Autocomplete";
 import { OutputFormatterService } from "./services/OutputFormatter";
 import type { TerminalProps } from "./types";
 
+/** Offered when someone types `git clone`, so nobody has to go and find a repository address. */
+const SAMPLE_CLONE_URL = "https://github.com/octocat/Hello-World.git";
+
 export function Terminal({
     className,
     showHelpButton = true,
@@ -66,6 +69,8 @@ export function Terminal({
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const outputContainerRef = useRef<HTMLDivElement>(null);
+    /** Whether the sample clone address has already been offered for the line being typed. */
+    const cloneAutofilled = useRef(false);
 
     // Auto-scroll to bottom when terminal output changes
     useEffect(() => {
@@ -138,6 +143,31 @@ export function Terminal({
     // Handle input changes and update command suggestions
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = e.target.value;
+
+        // `git clone ` fills in a real repository address and selects it.
+        //
+        // Every other command in this game operates on things already on screen; clone is the one
+        // that needs a value from outside it, and "go and find a repository URL" is a detour out of
+        // the lesson. The text is selected rather than merely inserted, so typing replaces it and
+        // anyone who wants their own address is not trapped by the help.
+        if (newValue === "git clone " && !cloneAutofilled.current) {
+            cloneAutofilled.current = true;
+            const filled = `git clone ${SAMPLE_CLONE_URL}`;
+            setInput(filled);
+            setShowCommandSuggestion(false);
+            setShowAutocomplete(false);
+            requestAnimationFrame(() => {
+                inputRef.current?.setSelectionRange("git clone ".length, filled.length);
+            });
+            return;
+        }
+
+        // Deleting the address back down to "git clone " is a clear "no thanks", so it is not
+        // offered again until the line has moved on to something else.
+        if (!newValue.startsWith("git clone")) {
+            cloneAutofilled.current = false;
+        }
+
         setInput(newValue);
 
         // Get command suggestion if applicable

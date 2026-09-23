@@ -182,6 +182,46 @@ describe("beginner course integrity", () => {
         });
     });
 
+    describe("'add all files' means all files", () => {
+        // Reported from a real run: `git add README.md` completed the objective while src/index.js
+        // and src/app.js were still untracked — the very next `git status` listed them.
+        it("does not complete after staging only one of several files", () => {
+            enter("files", 1);
+
+            const { completed } = play("files", 1, "git add README.md");
+
+            expect(completed).toBe(false);
+        });
+
+        it("completes once every file is staged", () => {
+            enter("files", 1);
+
+            const { completed } = play("files", 1, "git add .");
+
+            expect(completed).toBe(true);
+        });
+
+        // The old check read the status map, which only listed files some command had already
+        // touched. Untracked files only appeared there after `git status` was run.
+        it("sees untracked files without git status having been run first", () => {
+            enter("files", 1);
+
+            const tree = gitRepository.getWorkingTreeStatus();
+            const untracked = Object.entries(tree).filter(([, state]) => state === "untracked");
+
+            expect(untracked.length).toBeGreaterThan(0);
+        });
+
+        it("still does not complete when a later file is added but an earlier one is not", () => {
+            enter("files", 1);
+
+            play("files", 1, "git add src/index.js");
+            const { completed } = play("files", 1, "git add src/app.js");
+
+            expect(completed).toBe(false);
+        });
+    });
+
     describe("no state leaks between levels", () => {
         it("drops files a previous level created dynamically", () => {
             enter("intro", 3);

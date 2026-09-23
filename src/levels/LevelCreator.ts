@@ -80,6 +80,7 @@ export function createRequirement(params: {
     checkRemoteExists?: string;
     checkCurrentBranch?: string;
     checkCurrentBranchNot?: string;
+    checkAllFilesStaged?: boolean;
 }): LevelRequirement {
     return {
         command: params.command,
@@ -98,6 +99,7 @@ export function createRequirement(params: {
         checkRemoteExists: params.checkRemoteExists,
         checkCurrentBranch: params.checkCurrentBranch,
         checkCurrentBranchNot: params.checkCurrentBranchNot,
+        checkAllFilesStaged: params.checkAllFilesStaged,
     };
 }
 

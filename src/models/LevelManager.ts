@@ -334,6 +334,10 @@ export class LevelManager {
             if (gitRepository.getCurrentBranch() === requirement.checkCurrentBranchNot) return false;
         }
 
+        if (requirement.checkAllFilesStaged) {
+            if (!this.areAllFilesStaged(gitRepository)) return false;
+        }
+
         return true;
     }
 
@@ -349,7 +353,10 @@ export class LevelManager {
 
     // Check if all changed files are staged (for git add level)
     private areAllFilesStaged(gitRepository: GitRepository): boolean {
-        const status = gitRepository.getStatus();
+        // The working tree, not the status map: a file Git has never been told about has no status
+        // entry, so reading the map directly made untracked files invisible and let "add all files"
+        // pass on the first `git add <one-file>`.
+        const status = gitRepository.getWorkingTreeStatus();
 
         let hasStaged = false;
         let hasUnstaged = false;
@@ -636,40 +643,6 @@ export class LevelManager {
                 // Result guards verify what the command actually did to the repository.
                 if (!this.passesResultGuards(requirement, gitRepository)) {
                     continue;
-                }
-
-                // Special case for git add level
-                if (requirement.command === "git add" && gitCommand === "add") {
-                    // Check if all files are staged after the command
-                    if (this.areAllFilesStaged(gitRepository)) {
-                        if (requirement.id) {
-                            level.completedRequirements.push(requirement.id);
-                        }
-
-                        // Check if this completes an objective
-                        if (requirement.objectiveId !== undefined) {
-                            // Get all requirements with the same objectiveId
-                            const objectiveRequirements = level.requirements.filter(
-                                req => req.objectiveId === requirement.objectiveId,
-                            );
-
-                            // Check if all requirements for this objective are completed
-                            const allObjectiveRequirementsCompleted = objectiveRequirements.every(
-                                req => !req.id || level.completedRequirements?.includes(req.id),
-                            );
-
-                            // If all requirements for this objective are completed, mark objective as complete
-                            if (
-                                allObjectiveRequirementsCompleted &&
-                                !level.completedObjectives?.includes(requirement.objectiveId)
-                            ) {
-                                level.completedObjectives?.push(requirement.objectiveId);
-                            }
-                        }
-
-                        requirementSatisfied = true;
-                        break; // Only one requirement per command
-                    }
                 }
 
                 // Check if command matches (including alternative commands)

@@ -847,6 +847,33 @@ export class GitRepository {
         return [...this.branches];
     }
 
+    /**
+     * The working tree as Git would see it right now, including files it has never been told about.
+     *
+     * `status` only ever contained files that some command had already touched: untracked files were
+     * discovered by `git status` and written in as a side effect of running it. So anything reading
+     * `status` directly saw a stale tree until the player happened to ask for status — which is how
+     * "add all files to the staging area" completed after a single `git add README.md`, with two
+     * files still untracked and invisible to the check.
+     *
+     * This derives the answer instead of waiting for it to be materialised, and does not mutate.
+     */
+    public getWorkingTreeStatus(): GitStatus {
+        if (!this.initialized) return {};
+
+        const tree: GitStatus = { ...this.status };
+
+        for (const path of this.getAllFilesFromFileSystem()) {
+            const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+            if (normalizedPath.startsWith(".git") || normalizedPath.includes("/.git/")) continue;
+            if (!(normalizedPath in tree)) {
+                tree[normalizedPath] = "untracked";
+            }
+        }
+
+        return tree;
+    }
+
     public updateFileStatus(path: string, status: FileStatus): void {
         const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
         this.status[normalizedPath] = status;
