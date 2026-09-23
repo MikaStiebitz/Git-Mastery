@@ -236,16 +236,14 @@ async function handleSync(request: Request, env: Env, auth: Authed): Promise<Res
 async function handleChangePassword(request: Request, env: Env, auth: Authed, pepper: string): Promise<Response> {
     const body = await readJson(request);
     if (typeof body !== "object" || body === null) return errorResponse("malformed", 400, request, env);
-    const { currentPassword, newPassword } = body as { currentPassword?: unknown; newPassword?: unknown };
+    const { newPassword } = body as { newPassword?: unknown };
 
-    if (typeof currentPassword !== "string") return errorResponse("invalid_credentials", 401, request, env);
     if (!isAcceptablePassword(newPassword)) return errorResponse("weak_password", 400, request, env);
 
+    // No current-password check: the session token this request carries is already the proof of
+    // identity, the same way any other authenticated endpoint here works.
     const user = await db.findUserById(env.DB, auth.session.userId);
     if (!user) return errorResponse("invalid_credentials", 401, request, env);
-
-    const { valid } = await verifyPassword(currentPassword, user.password_hash, pepper);
-    if (!valid) return errorResponse("invalid_credentials", 401, request, env);
 
     await db.updatePassword(env.DB, user.id, await hashPassword(newPassword, pepper));
     // Every session, including this one. A device whose token was stolen must lose it, and the

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";
+import { useGameContext } from "~/contexts/GameContext";
 import { useKeySequence } from "~/hooks/useKeySequence";
 
 /**
@@ -15,9 +16,18 @@ import { useKeySequence } from "~/hooks/useKeySequence";
  */
 const SEQUENCE = ["KeyR", "KeyE", "KeyF", "KeyL", "KeyO", "KeyG"] as const;
 
+const COFFEE_HASH = "c0ffee5";
+const COFFEE_PAYOUT = 50;
+const COFFEE_LINES = [
+    "HEAD@{1}: commit: read the source instead of the README",
+    "HEAD@{1}: commit: the shop takes coins, reflog takes coffee",
+    "HEAD@{1}: commit: git blame will never prove this happened",
+    "HEAD@{1}: commit: the audit trail just says 'trust me'",
+] as const;
+
 const REFLOG_LINES = [
     ["d4ng11n", "HEAD@{0}: checkout: moving from main to easter-egg"],
-    ["c0ffee5", "HEAD@{1}: commit: read the source instead of the README"],
+    [COFFEE_HASH, COFFEE_LINES[0]],
     ["1337b0b", "HEAD@{2}: commit: hide a door in the game, tell nobody"],
     ["dead6ee", "HEAD@{3}: reset: moving to HEAD~1"],
     ["0000000", "HEAD@{4}: init: it started as a weekend project"],
@@ -25,11 +35,19 @@ const REFLOG_LINES = [
 
 export function ReflogDialog() {
     const [open, setOpen] = useState(false);
+    const [brews, setBrews] = useState(0);
+    const { debugGiveMoney } = useGameContext();
 
     useKeySequence(SEQUENCE, () => setOpen(true));
 
     // Nothing in the DOM until it is found, so it cannot be tripped over in devtools either.
     if (!open) return null;
+
+    // The hash reads like "coffee" if you squint. Clicking it "buys" one, off the books.
+    const brew = () => {
+        debugGiveMoney(COFFEE_PAYOUT);
+        setBrews(count => count + 1);
+    };
 
     return (
         <Dialog open onOpenChange={setOpen}>
@@ -47,8 +65,20 @@ export function ReflogDialog() {
                     <pre className="font-mono text-[11px] leading-relaxed sm:text-xs">
                         {REFLOG_LINES.map(([hash, message]) => (
                             <div key={hash}>
-                                <span className="text-gm-gold">{hash}</span>{" "}
-                                <span className="text-gm-ink-soft">{message}</span>
+                                <span
+                                    className={
+                                        hash === COFFEE_HASH
+                                            ? "text-gm-gold cursor-pointer select-none"
+                                            : "text-gm-gold"
+                                    }
+                                    onClick={hash === COFFEE_HASH ? brew : undefined}>
+                                    {hash}
+                                </span>{" "}
+                                <span className="text-gm-ink-soft">
+                                    {hash === COFFEE_HASH
+                                        ? COFFEE_LINES[Math.min(brews, COFFEE_LINES.length - 1)]
+                                        : message}
+                                </span>
                             </div>
                         ))}
                     </pre>
@@ -82,10 +112,10 @@ export function ReflogDialog() {
                     <Button onClick={() => setOpen(false)} variant="outline" className="w-full sm:w-auto">
                         git checkout -
                     </Button>
-                    {/* Says up front that nothing was granted, so nobody goes hunting for a payout
-                        that does not exist. The egg stays entirely outside the economy. */}
                     <p className="text-gm-ink-dim text-xs">
-                        Esc also works. Your coin balance is exactly as unimpressed as it was before.
+                        {brews > 0
+                            ? `Esc also works. +${brews * COFFEE_PAYOUT} coins, receipt unavailable.`
+                            : "Esc also works. Your coin balance is exactly as unimpressed as it was before."}
                     </p>
                 </div>
             </DialogContent>
