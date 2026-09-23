@@ -1,4 +1,4 @@
-import type { Command, CommandArgs } from "../base/Command";
+import type { Command, CommandArgs, FlagSpec } from "../base/Command";
 
 export class GitHelpCommand implements Command {
     name = "git help";
@@ -8,6 +8,11 @@ export class GitHelpCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["a", "all", "g", "guides", "i", "info", "m", "man", "w", "web"],
+        value: [],
+    };
     execute(args: CommandArgs): string[] {
         // If a specific command is requested
         if (args.positionalArgs.length > 0) {

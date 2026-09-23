@@ -17,6 +17,8 @@ const filesLevel1 = createLevel({
         createRequirement({
             command: "git add",
             requiresArgs: ["any"],
+            // The objective is "add ALL files": staging one of three must not finish the level.
+            checkAllFilesStaged: true,
             description: "files.level1.requirement1.description",
             successMessage: "files.level1.requirement1.success",
             id: "git-add",

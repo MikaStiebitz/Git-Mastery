@@ -201,7 +201,10 @@ export class ProgressManager {
                     if (error.name === "QuotaExceededError" || error.name === "NS_ERROR_DOM_QUOTA_REACHED") {
                         console.warn("localStorage quota exceeded. Game progress may not persist.", error);
                     } else if (error.name === "SecurityError") {
-                        console.warn("localStorage access denied (possibly private browsing). Game progress will not persist.", error);
+                        console.warn(
+                            "localStorage access denied (possibly private browsing). Game progress will not persist.",
+                            error,
+                        );
                     } else {
                         console.error("Failed to save progress:", error);
                     }

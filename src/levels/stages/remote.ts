@@ -17,6 +17,8 @@ const remoteLevel1 = createLevel({
         createRequirement({
             command: "git remote",
             requiresArgs: ["add"],
+            // Typing the command is not the objective; ending up with a remote is.
+            checkRemoteExists: "*",
             description: "remote.level1.requirement1.description",
             successMessage: "remote.level1.requirement1.success",
             id: "git-remote-add",
@@ -42,6 +44,9 @@ const remoteLevel1 = createLevel({
                     files: ["/README.md", "/src/index.js"],
                 },
             ],
+            // This level's task is to add "origin". Starting with one already configured made the
+            // command the level asks for fail as "remote origin already exists".
+            remotes: {},
         }),
     }),
 });

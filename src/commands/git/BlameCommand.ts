@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class BlameCommand implements Command {
     name = "git blame";
@@ -13,6 +13,11 @@ export class BlameCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["s", "e", "w", "f", "n", "l", "show-name", "show-number", "p", "porcelain", "line-porcelain"],
+        value: ["L", "C", "M"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, fileSystem, currentDirectory } = context;
 

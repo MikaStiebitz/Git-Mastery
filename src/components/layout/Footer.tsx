@@ -11,7 +11,6 @@ interface FooterProps {
 /**
  * The footer is the second door into the app, not a legal afterthought: every destination
  * that the top bar collapses on a phone is reachable here, next to the repository link.
- * The `git gud` line is the real hidden command from the terminal, used as a sign-off.
  */
 export function Footer({ className = "" }: FooterProps) {
     const { t } = useLanguage();
@@ -42,13 +41,6 @@ export function Footer({ className = "" }: FooterProps) {
                             </span>
                             <span className="font-display text-gm-ink text-lg">GitMastery</span>
                         </Link>
-
-                        <p
-                            className="border-gm-line bg-gm-night text-gm-ink-dim mt-4 inline-flex items-center gap-2 rounded-[0.7rem] border-2 px-3 py-1.5 [font-family:var(--font-code)] text-xs"
-                            aria-hidden="true">
-                            <span className="text-gm-lime font-bold">$</span>
-                            git gud
-                        </p>
                     </div>
 
                     {/* Destinations */}

@@ -66,7 +66,10 @@ export interface TerminalInputProps {
     commandSuggestion: string;
     showCommandSuggestion: boolean;
     showAutocomplete: boolean;
-    fileAutocomplete: string[];
+    fileAutocomplete: CompletionItem[];
+    activeCompletion: number;
+    setActiveCompletion: (index: number) => void;
+    completionPrefix: string;
     selectAutocompleteOption: (file: string) => void;
     theme: TerminalThemeColors;
     t: (key: string) => string;
@@ -77,9 +80,27 @@ export interface HistoryState {
     index: number;
 }
 
+/** What a completion candidate is, so the menu can show it as what it is. */
+export type CompletionKind = "file" | "directory" | "branch";
+
+export interface CompletionItem {
+    value: string;
+    kind: CompletionKind;
+}
+
 export interface AutocompleteState {
-    fileMatches: string[];
+    fileMatches: CompletionItem[];
     showMenu: boolean;
     commandSuggestion: string;
     showCommandSuggestion: boolean;
+    /**
+     * The longest prefix every candidate shares, when it is longer than what has been typed.
+     *
+     * This is what a real shell inserts on the first Tab before it shows you anything: with
+     * `src/a` and `src/b` present, Tab gets you to `src/` and only then offers the choice. Without
+     * it the first Tab dumps the whole directory, which is the behaviour being complained about.
+     */
+    commonPrefix?: string;
+    /** What was typed so far for the argument being completed — used to highlight the match. */
+    typedPrefix: string;
 }

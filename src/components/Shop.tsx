@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import {
@@ -347,5 +347,38 @@ export function Shop({ isOpen, onClose }: ShopProps) {
                 </DialogContent>
             </Dialog>
         </>
+    );
+}
+
+interface ShopContextValue {
+    openShop: () => void;
+}
+
+const ShopContext = createContext<ShopContextValue | null>(null);
+
+/** Opens the shop from anywhere inside the layout (navbar purse, landing page, level pages). */
+export function useShop(): ShopContextValue {
+    const context = useContext(ShopContext);
+    if (!context) {
+        throw new Error("useShop must be used inside <ShopProvider>");
+    }
+    return context;
+}
+
+/**
+ * Mounts the shop once for the whole app.
+ *
+ * It used to live only on the landing page, so the coin balance in the navbar was a dead end on
+ * every other route: the number told you what you could spend without offering anywhere to spend
+ * it. One provider keeps a single dialog instance no matter who opens it.
+ */
+export function ShopProvider({ children }: { children: ReactNode }) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <ShopContext.Provider value={{ openShop: () => setIsOpen(true) }}>
+            {children}
+            <Shop isOpen={isOpen} onClose={() => setIsOpen(false)} />
+        </ShopContext.Provider>
     );
 }

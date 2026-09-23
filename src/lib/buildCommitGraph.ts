@@ -94,7 +94,9 @@ export function buildCommitGraph(
 
     // Assign rows
     const rowOf: Record<string, number> = {};
-    sorted.forEach((id, i) => { rowOf[id] = i; });
+    sorted.forEach((id, i) => {
+        rowOf[id] = i;
+    });
 
     // Assign columns (lane allocation)
     // mainBranch always gets col 0
@@ -102,8 +104,11 @@ export function buildCommitGraph(
     const freeCols: number[] = [];
     let nextCol = 0;
 
-    const allocateCol = (): number => freeCols.length > 0 ? freeCols.shift()! : nextCol++;
-    const freeCol = (col: number) => { freeCols.push(col); freeCols.sort((a, b) => a - b); };
+    const allocateCol = (): number => (freeCols.length > 0 ? freeCols.shift()! : nextCol++);
+    const freeCol = (col: number) => {
+        freeCols.push(col);
+        freeCols.sort((a, b) => a - b);
+    };
 
     // Track which column each "active lane" is on
     // A lane is active from a commit's row until its parent's row

@@ -11,30 +11,30 @@ const maxPointsForStages = (stages: string[]): number =>
     ) * POINTS_PER_LEVEL;
 
 const difficultyDefinitions: Omit<DifficultyConfig, "maxPoints">[] = [
-  {
-    id: "beginner",
-    name: "Beginner",
-    description: "Learn Git basics",
-    icon: "🌱",
-    color: "green",
-    stages: ["Intro", "Files", "Branches", "Remote"],
-  },
-  {
-    id: "advanced",
-    name: "Advanced",
-    description: "Master advanced Git workflows",
-    icon: "⚡",
-    color: "yellow",
-    stages: ["Merge", "Workflow", "TeamWork", "Reset", "Stash"],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    description: "Expert Git techniques",
-    icon: "🚀",
-    color: "blue",
-    stages: ["Rebase", "Advanced", "Archaeology", "Mastery"],
-  },
+    {
+        id: "beginner",
+        name: "Beginner",
+        description: "Learn Git basics",
+        icon: "🌱",
+        color: "green",
+        stages: ["Intro", "Files", "Branches", "Remote"],
+    },
+    {
+        id: "advanced",
+        name: "Advanced",
+        description: "Master advanced Git workflows",
+        icon: "⚡",
+        color: "yellow",
+        stages: ["Merge", "Workflow", "TeamWork", "Reset", "Stash"],
+    },
+    {
+        id: "pro",
+        name: "Pro",
+        description: "Expert Git techniques",
+        icon: "🚀",
+        color: "blue",
+        stages: ["Rebase", "Advanced", "Archaeology", "Mastery"],
+    },
 ];
 
 // Max points are derived from the actual number of levels per difficulty

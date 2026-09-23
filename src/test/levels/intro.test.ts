@@ -114,7 +114,9 @@ describe("Intro Stage Levels", () => {
 
         it("should have sequential level IDs", () => {
             const introStage = allStages.Intro;
-            const levelIds = Object.keys(introStage.levels).map(Number).sort((a, b) => a - b);
+            const levelIds = Object.keys(introStage.levels)
+                .map(Number)
+                .sort((a, b) => a - b);
 
             for (let i = 0; i < levelIds.length; i++) {
                 expect(levelIds[i]).toBe(i + 1);

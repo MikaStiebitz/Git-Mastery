@@ -1,4 +1,5 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { notARepository, unknownFlagError } from "../base/GitErrors";
 
 export class RemoteCommand implements Command {
     name = "git remote";
@@ -8,11 +9,22 @@ export class RemoteCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["v", "verbose"],
+        value: [],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
+        }
+
+        // A mistyped flag is an error, not something to ignore.
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) {
+            return unknownFlagError(unknownFlag, this.usage);
         }
 
         // Handle different subcommands
@@ -27,7 +39,7 @@ export class RemoteCommand implements Command {
             if (args.flags.v || args.flags.verbose) {
                 return remoteNames.flatMap(name => [
                     `${name}\t${remotes[name]} (fetch)`,
-                    `${name}\t${remotes[name]} (push)`
+                    `${name}\t${remotes[name]} (push)`,
                 ]);
             }
 
@@ -77,6 +89,8 @@ export class RemoteCommand implements Command {
             return output;
         }
 
-        return ["error: Unknown subcommand. Supported: git remote, git remote add <name> <url>, git remote remove <name>, git remote -v"];
+        return [
+            "error: Unknown subcommand. Supported: git remote, git remote add <name> <url>, git remote remove <name>, git remote -v",
+        ];
     }
 }

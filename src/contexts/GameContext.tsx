@@ -1,14 +1,16 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { CommandProcessor } from "~/models/CommandProcessor";
 import { FileSystem } from "~/models/FileSystem";
 import { LevelManager } from "~/models/LevelManager";
 import { ProgressManager } from "~/models/ProgressManager";
 import { GitRepository } from "~/models/GitRepository";
-import { splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
+import { parseCommand, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import { resolvePath } from "~/lib/utils";
+import { didCommandFail } from "~/models/commandOutcome";
+import { cueMascot } from "~/components/GitMascot";
 import type { GameContextProps, DifficultyLevel } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { useSoundManager } from "~/lib/SoundManager";
@@ -50,6 +52,15 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         t("terminal.levelStarted").replace("{level}", currentLevel.toString()).replace("{stage}", currentStage),
     ]);
     const [isCommitDialogOpen, setIsCommitDialogOpen] = useState<boolean>(false);
+
+    /**
+     * Consecutive failed commands on the current level.
+     *
+     * The mascot's shop copy promises encouragement "during difficult levels", but nothing in the
+     * app ever measured difficulty — it only ever fired on success, which is the moment you need
+     * encouragement least. A ref, not state: it must not re-render the terminal on every keystroke.
+     */
+    const failStreak = useRef(0);
 
     // Advanced mode state - initialize with false to avoid hydration mismatch
     const [isAdvancedMode, setIsAdvancedMode] = useState<boolean>(false);
@@ -138,13 +149,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Close the dialog after committing
         closeCommitDialog();
 
-        // Check for level completion after dialog commit (only if not in playground mode)
-        // Skip the check if the commit did not actually happen (e.g. empty message)
-        const commitFailed = output.some(
-            line => line.toLowerCase().includes("aborting commit") || line.toLowerCase().includes("nothing to commit"),
-        );
+        // Check for level completion after dialog commit (only if not in playground mode).
+        // Skip the check if the commit did not actually happen (e.g. empty message, nothing staged).
         if (
-            !commitFailed &&
+            !didCommandFail(output) &&
             typeof window !== "undefined" &&
             !window.location.pathname.includes("/playground")
         ) {
@@ -171,12 +179,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 const stage = levelManager.getStage(currentStage);
                 if (!stage) {
                     console.warn(`Invalid stage: ${currentStage}`);
-                    return;  // Don't update URL if stage is invalid
+                    return; // Don't update URL if stage is invalid
                 }
 
                 if (currentLevel < 1) {
                     console.warn(`Invalid level: ${currentLevel}`);
-                    return;  // Don't update URL if level is invalid
+                    return; // Don't update URL if level is invalid
                 }
 
                 const currentParams = new URLSearchParams(window.location.search);
@@ -290,53 +298,40 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         }
 
-        // Special case for git commit (with no -m flag)
-        if (command.trim() === "git commit") {
-            // Process the command first to check if there are staged changes
-            const output = commandProcessor.processCommand(command);
-            setTerminalOutput(prev => [...prev, ...output]);
-
-            // Only open commit dialog if there are staged changes (output is empty)
-            // Level completion check will happen in handleCommit() after user provides the message
-            if (output.length === 0 || !output[0]?.includes("Nothing to commit")) {
-                openCommitDialog();
-            }
-            return;
-        }
-
         // Process the command and get output
         const output = commandProcessor.processCommand(command);
         setTerminalOutput(prev => [...prev, ...output]);
+
+        // `git commit` with no message opens the message editor, the way real Git opens $EDITOR.
+        //
+        // CommitCommand signals "I need a message" by returning no output at all, which it does only
+        // when something is staged and no -m was given. Keying off that signal rather than matching
+        // the typed string means every spelling routes correctly — `git commit`, `git commit -a`,
+        // `git commit --amend` — and an error or a status report never opens an editor, because those
+        // return lines. Level completion is checked in handleCommit() once the message exists.
+        if (parseCommand(command).command === "git commit" && output.length === 0) {
+            openCommitDialog();
+            return;
+        }
 
         // Skip level completion checks if in playground mode
         if (isPlaygroundMode) {
             return;
         }
 
-        // Check if the command was successful by looking for error messages in the output
-        // Note: "merge failed" due to conflicts is NOT a command failure - it's a normal workflow state
-        const commandFailed = output.some(line => {
-            const lowerLine = line.toLowerCase();
-            // Merge conflicts are not failures - they're normal workflow states
-            if (lowerLine.includes("merge") && lowerLine.includes("failed")) {
-                return false;
-            }
-            if (lowerLine.includes("automatic merge failed")) {
-                return false;
-            }
-            return (
-                lowerLine.includes("error:") ||
-                lowerLine.includes("fatal:") ||
-                lowerLine.includes("failed") ||
-                lowerLine.includes("aborting commit") ||
-                lowerLine.includes("not a git repository") ||
-                lowerLine.includes("nothing specified") ||
-                lowerLine.includes("did not match any files") ||
-                (lowerLine.includes("pathspec") && lowerLine.includes("did not match"))
-            );
-        });
+        // Tell the mascot what happened. A streak of failures is the only signal the app has that
+        // a player is stuck, and it is the one the shop already promised the mascot would notice.
+        if (didCommandFail(output)) {
+            failStreak.current += 1;
+            if (failStreak.current === 3) cueMascot({ cue: "struggle3" });
+            if (failStreak.current === 7) cueMascot({ cue: "struggle7" });
+        } else {
+            failStreak.current = 0;
+            cueMascot({ cue: "command", command });
+        }
 
-        if (commandFailed) {
+        // Only a command that worked can complete a level.
+        if (didCommandFail(output)) {
             return; // Don't mark level as completed if command failed
         }
 
@@ -369,17 +364,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 playSound("levelComplete");
             }
 
-            // Trigger mascot success animation if purchased
-            if (progressManager.getPurchasedItems().includes("git-mascot")) {
-                // This will trigger the mascot success animation
-                interface WindowWithMascot extends Window {
-                    triggerMascotSuccess?: () => void;
-                }
-                if (typeof window !== "undefined") {
-                    const windowWithMascot = window as WindowWithMascot;
-                    windowWithMascot.triggerMascotSuccess?.();
-                }
-            }
+            // The mascot reacts to the landing. It filters on ownership itself, so this stays a
+            // plain announcement of what happened rather than a check of what the player bought.
+            failStreak.current = 0;
+            cueMascot({ cue: "levelComplete" });
         }
     };
 

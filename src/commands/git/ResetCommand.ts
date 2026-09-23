@@ -1,5 +1,6 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import type { GitRepository } from "~/models/GitRepository";
+import { notARepository } from "../base/GitErrors";
 
 export class ResetCommand implements Command {
     name = "git reset";
@@ -16,11 +17,16 @@ export class ResetCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["soft", "hard", "mixed", "merge", "keep", "q", "quiet", "p", "patch"],
+        value: [],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         // Parse options: --soft, --mixed (default), --hard

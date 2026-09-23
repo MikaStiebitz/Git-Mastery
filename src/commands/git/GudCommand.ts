@@ -1,5 +1,5 @@
 // src/commands/git/GudCommand.ts
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class GudCommand implements Command {
     name = "git gud";
@@ -9,6 +9,11 @@ export class GudCommand implements Command {
     includeInTabCompletion = false; // Keep it secret!
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [],
+        value: [],
+    };
     execute(_args: CommandArgs, context: CommandContext): string[] {
         const { progressManager } = context;
 

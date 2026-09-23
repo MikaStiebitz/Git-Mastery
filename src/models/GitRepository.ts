@@ -8,14 +8,20 @@ export class GitRepository {
     private currentBranch = "main";
     private HEAD = "main";
     private status: GitStatus = {};
-    private commits: Record<string, { message: string; timestamp: Date; files: string[]; parents: string[]; isMergeCommit?: boolean }> = {};
-    private remoteCommits: Record<string, Array<{
-        id: string;
-        message: string;
-        timestamp: Date;
-        files: string[];
-        fileContents: Record<string, string>; // Store file contents for pull
-    }>> = {}; // Mock remote commits per branch
+    private commits: Record<
+        string,
+        { message: string; timestamp: Date; files: string[]; parents: string[]; isMergeCommit?: boolean }
+    > = {};
+    private remoteCommits: Record<
+        string,
+        Array<{
+            id: string;
+            message: string;
+            timestamp: Date;
+            files: string[];
+            fileContents: Record<string, string>; // Store file contents for pull
+        }>
+    > = {}; // Mock remote commits per branch
     private stash: Array<{ message: string; timestamp: Date; changes: Record<string, string> }> = [];
     private remotes: Record<string, string> = {};
     private fileSystem: FileSystem;
@@ -69,7 +75,7 @@ export class GitRepository {
         let checkDir = this.normalizePath(currentDirectory);
 
         while (true) {
-            const gitPath = checkDir === '/' ? '/.git' : `${checkDir}/.git`;
+            const gitPath = checkDir === "/" ? "/.git" : `${checkDir}/.git`;
             const gitDir = this.fileSystem.getDirectoryContents(gitPath);
             if (gitDir !== null) {
                 // Found .git directory
@@ -78,7 +84,7 @@ export class GitRepository {
             }
 
             // Move to parent directory
-            if (checkDir === '/') break;
+            if (checkDir === "/") break;
             checkDir = this.getParentPath(checkDir);
         }
 
@@ -91,18 +97,18 @@ export class GitRepository {
     }
 
     private normalizePath(path: string): string {
-        if (path !== '/' && path.endsWith('/')) {
+        if (path !== "/" && path.endsWith("/")) {
             return path.slice(0, -1);
         }
-        return path || '/';
+        return path || "/";
     }
 
     private getParentPath(path: string): string {
-        if (path === '/') return '/';
-        const parts = path.split('/').filter(p => p);
-        if (parts.length === 0) return '/';
+        if (path === "/") return "/";
+        const parts = path.split("/").filter(p => p);
+        if (parts.length === 0) return "/";
         parts.pop();
-        return parts.length === 0 ? '/' : '/' + parts.join('/');
+        return parts.length === 0 ? "/" : "/" + parts.join("/");
     }
 
     public partialReset(): void {
@@ -120,7 +126,7 @@ export class GitRepository {
         };
     }
 
-    public init(currentDirectory: string = '/'): boolean {
+    public init(currentDirectory: string = "/"): boolean {
         const normalizedDir = this.normalizePath(currentDirectory);
 
         // If already initialized in this exact directory, reinitialize
@@ -259,7 +265,10 @@ export class GitRepository {
         return branchCommits;
     }
 
-    public getAllCommits(): Record<string, { message: string; timestamp: Date; files: string[]; parents: string[]; isMergeCommit?: boolean }> {
+    public getAllCommits(): Record<
+        string,
+        { message: string; timestamp: Date; files: string[]; parents: string[]; isMergeCommit?: boolean }
+    > {
         return { ...this.commits };
     }
 
@@ -440,6 +449,42 @@ export class GitRepository {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Rename a branch in place, keeping its commits, status and working directory.
+     *
+     * Renaming has to move the state rather than create-then-delete: `git branch -m` most often
+     * renames the branch you are standing on, and deleteBranch refuses the current branch by design.
+     */
+    public renameBranch(oldName: string, newName: string): boolean {
+        if (!this.initialized) return false;
+        if (!this.branches.includes(oldName)) return false;
+        if (this.branches.includes(newName)) return false;
+        if (!this.isValidBranchName(newName)) return false;
+
+        this.branches[this.branches.indexOf(oldName)] = newName;
+
+        const state = this.branchStates[oldName];
+        if (state) {
+            this.branchStates[newName] = state;
+            delete this.branchStates[oldName];
+        }
+
+        const upstream = this.upstreamBranches[oldName];
+        if (upstream) {
+            this.upstreamBranches[newName] = upstream;
+            delete this.upstreamBranches[oldName];
+        }
+
+        if (this.currentBranch === oldName) {
+            this.currentBranch = newName;
+        }
+        if (this.HEAD === oldName) {
+            this.HEAD = newName;
+        }
+
+        return true;
     }
 
     public hasUnmergedCommits(branchName: string, baseBranch?: string): boolean {
@@ -680,7 +725,7 @@ export class GitRepository {
         // Regular merge (create merge commit)
         // Detect conflicts and merge target branch files into current branch
         const conflictFiles: string[] = [];
-        
+
         Object.entries(targetBranchState.files).forEach(([filePath, content]) => {
             const fullPath = filePath.startsWith("/") ? filePath : `/${filePath}`;
 
@@ -696,14 +741,13 @@ export class GitRepository {
                 // File exists but differs in both branches - CONFLICT
                 conflictFiles.push(filePath);
                 filesChanged.push(filePath);
-                
+
                 // Mark file as modified with both versions
                 this.status[filePath] = "modified";
                 currentBranchState.status[filePath] = "modified";
-                
+
                 // Write conflict markers to working directory
-                const conflictContent = 
-                    `<<<<<<< HEAD\n${currentContent}\n=======\n${content}\n>>>>>>> ${branch}`;
+                const conflictContent = `<<<<<<< HEAD\n${currentContent}\n=======\n${content}\n>>>>>>> ${branch}`;
                 this.fileSystem.writeFile(fullPath, conflictContent);
             }
         });
@@ -715,10 +759,10 @@ export class GitRepository {
                 sourceBranch: branch,
                 conflictFiles: conflictFiles,
             };
-            
-            return { 
-                success: false, 
-                isFastForward: false, 
+
+            return {
+                success: false,
+                isFastForward: false,
                 filesChanged,
                 conflictFiles,
             };
@@ -761,7 +805,7 @@ export class GitRepository {
             success: true,
             isFastForward: false,
             filesChanged,
-            mergeCommitId
+            mergeCommitId,
         };
     }
 
@@ -801,6 +845,33 @@ export class GitRepository {
 
     public getBranches(): string[] {
         return [...this.branches];
+    }
+
+    /**
+     * The working tree as Git would see it right now, including files it has never been told about.
+     *
+     * `status` only ever contained files that some command had already touched: untracked files were
+     * discovered by `git status` and written in as a side effect of running it. So anything reading
+     * `status` directly saw a stale tree until the player happened to ask for status — which is how
+     * "add all files to the staging area" completed after a single `git add README.md`, with two
+     * files still untracked and invisible to the check.
+     *
+     * This derives the answer instead of waiting for it to be materialised, and does not mutate.
+     */
+    public getWorkingTreeStatus(): GitStatus {
+        if (!this.initialized) return {};
+
+        const tree: GitStatus = { ...this.status };
+
+        for (const path of this.getAllFilesFromFileSystem()) {
+            const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+            if (normalizedPath.startsWith(".git") || normalizedPath.includes("/.git/")) continue;
+            if (!(normalizedPath in tree)) {
+                tree[normalizedPath] = "untracked";
+            }
+        }
+
+        return tree;
     }
 
     public updateFileStatus(path: string, status: FileStatus): void {
@@ -1152,7 +1223,7 @@ export class GitRepository {
         this.stash = [];
         this.pushedCommits = new Set();
         this.upstreamBranches = {};
-        this.mergeConflictState = null;  // Clear merge conflict state
+        this.mergeConflictState = null; // Clear merge conflict state
         this.branchStates = {
             main: { files: {}, status: {}, commits: [], workingDirectory: {} },
         };
@@ -1174,27 +1245,35 @@ export class GitRepository {
     }
 
     // Mock remote commits for pull simulation
-    public setRemoteCommits(branch: string, commits: Array<{ id: string; message: string; files: Record<string, string> }>): void {
+    public setRemoteCommits(
+        branch: string,
+        commits: Array<{ id: string; message: string; files: Record<string, string> }>,
+    ): void {
         this.remoteCommits[branch] = commits.map(commit => ({
             id: commit.id,
             message: commit.message,
             timestamp: new Date(),
             files: Object.keys(commit.files),
-            fileContents: commit.files
+            fileContents: commit.files,
         }));
     }
 
-    public getRemoteCommits(branch: string): Array<{ id: string; message: string; timestamp: Date; files: string[]; fileContents: Record<string, string> }> {
+    public getRemoteCommits(
+        branch: string,
+    ): Array<{ id: string; message: string; timestamp: Date; files: string[]; fileContents: Record<string, string> }> {
         return this.remoteCommits[branch] || [];
     }
 
-    public pullRemoteCommits(remote: string, branch: string): { success: boolean; pulledCommits: number; output: string[] } {
+    public pullRemoteCommits(
+        remote: string,
+        branch: string,
+    ): { success: boolean; pulledCommits: number; output: string[] } {
         const remoteUrl = this.remotes[remote];
         if (!remoteUrl) {
             return {
                 success: false,
                 pulledCommits: 0,
-                output: [`error: No such remote: '${remote}'`]
+                output: [`error: No such remote: '${remote}'`],
             };
         }
 
@@ -1204,19 +1283,12 @@ export class GitRepository {
             return {
                 success: true,
                 pulledCommits: 0,
-                output: [
-                    `From ${remoteUrl}`,
-                    ` * branch            ${branch} -> FETCH_HEAD`,
-                    "Already up to date."
-                ]
+                output: [`From ${remoteUrl}`, ` * branch            ${branch} -> FETCH_HEAD`, "Already up to date."],
             };
         }
 
         // Apply each remote commit
-        const output: string[] = [
-            `From ${remoteUrl}`,
-            ` * branch            ${branch} -> FETCH_HEAD`
-        ];
+        const output: string[] = [`From ${remoteUrl}`, ` * branch            ${branch} -> FETCH_HEAD`];
 
         let pulledCount = 0;
         const conflictedFiles: string[] = [];
@@ -1247,9 +1319,7 @@ export class GitRepository {
                 // If file is modified/staged locally, use local content
                 // Otherwise use committed content
                 const isModifiedLocally = fileStatus === "modified" || fileStatus === "staged";
-                const currentContent = isModifiedLocally && localContent !== null
-                    ? localContent
-                    : committedContent;
+                const currentContent = isModifiedLocally && localContent !== null ? localContent : committedContent;
 
                 // Conflict detection:
                 // 1. File exists locally (either committed or modified)
@@ -1275,7 +1345,7 @@ ${remoteContent}
                             files: {},
                             status: {},
                             commits: [],
-                            workingDirectory: {}
+                            workingDirectory: {},
                         };
                     }
                     this.branchStates[this.currentBranch]!.status[normalizedPath] = "modified";
@@ -1288,7 +1358,7 @@ ${remoteContent}
                             files: {},
                             status: {},
                             commits: [],
-                            workingDirectory: {}
+                            workingDirectory: {},
                         };
                     }
                     this.branchStates[this.currentBranch]!.files[normalizedPath] = remoteContent;
@@ -1310,7 +1380,9 @@ ${remoteContent}
         // Build output messages
         if (conflictedFiles.length > 0) {
             // Merge conflict occurred
-            output.push(`Updating ${this.HEAD}..${remoteCommitsForBranch[remoteCommitsForBranch.length - 1]?.id.slice(0, 7)}`);
+            output.push(
+                `Updating ${this.HEAD}..${remoteCommitsForBranch[remoteCommitsForBranch.length - 1]?.id.slice(0, 7)}`,
+            );
             output.push(""); // Empty line for readability
             output.push("⚠️  CONFLICT (content): Merge conflict in the following files:");
             conflictedFiles.forEach(file => {
@@ -1323,16 +1395,18 @@ ${remoteContent}
             output.push("   1. Edit the conflicted files to resolve conflicts");
             output.push("   2. Remove the conflict markers (<<<<<<<, =======, >>>>>>>)");
             output.push("   3. Stage resolved files: git add .");
-            output.push("   4. Complete the merge: git commit -m \"Resolve merge conflict\"");
+            output.push('   4. Complete the merge: git commit -m "Resolve merge conflict"');
 
             return {
                 success: false, // Indicate merge conflict
                 pulledCommits: pulledCount,
-                output
+                output,
             };
         } else {
             // Clean pull
-            output.push(`Updating ${this.HEAD}..${remoteCommitsForBranch[remoteCommitsForBranch.length - 1]?.id.slice(0, 7)}`);
+            output.push(
+                `Updating ${this.HEAD}..${remoteCommitsForBranch[remoteCommitsForBranch.length - 1]?.id.slice(0, 7)}`,
+            );
             output.push(`Fast-forward`);
 
             // List changed files
@@ -1345,12 +1419,12 @@ ${remoteContent}
                 output.push(` ${file} | changes`);
             });
 
-            output.push(`${allFiles.size} file${allFiles.size !== 1 ? 's' : ''} changed`);
+            output.push(`${allFiles.size} file${allFiles.size !== 1 ? "s" : ""} changed`);
 
             return {
                 success: true,
                 pulledCommits: pulledCount,
-                output
+                output,
             };
         }
     }
@@ -1362,7 +1436,7 @@ ${remoteContent}
             action,
             message,
             timestamp: new Date(),
-            index: this.reflog.length
+            index: this.reflog.length,
         };
         this.reflog.unshift(entry); // Add to beginning (most recent first)
     }
@@ -1450,7 +1524,7 @@ ${remoteContent}
         if (!this.remotes[remote]) {
             return {
                 success: false,
-                messages: [`error: No such remote: '${remote}'`]
+                messages: [`error: No such remote: '${remote}'`],
             };
         }
 
@@ -1459,7 +1533,7 @@ ${remoteContent}
             if (!this.tags.has(specificTag)) {
                 return {
                     success: false,
-                    messages: [`error: src refspec ${specificTag} does not match any`]
+                    messages: [`error: src refspec ${specificTag} does not match any`],
                 };
             }
 
@@ -1472,7 +1546,7 @@ ${remoteContent}
             if (this.tags.size === 0) {
                 return {
                     success: true,
-                    messages: ["Everything up-to-date"]
+                    messages: ["Everything up-to-date"],
                 };
             }
 
@@ -1481,7 +1555,7 @@ ${remoteContent}
             if (unpushedTags.length === 0) {
                 return {
                     success: true,
-                    messages: ["Everything up-to-date"]
+                    messages: ["Everything up-to-date"],
                 };
             }
 

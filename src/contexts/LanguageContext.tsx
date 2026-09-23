@@ -82,7 +82,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                         detectedLang = "de";
                     }
                     // Spain and Latin America -> Spanish
-                    else if (timezone.includes("Madrid") || timezone.includes("Mexico_City") || timezone.includes("Buenos_Aires")) {
+                    else if (
+                        timezone.includes("Madrid") ||
+                        timezone.includes("Mexico_City") ||
+                        timezone.includes("Buenos_Aires")
+                    ) {
                         detectedLang = "es";
                     }
                 } catch (e) {

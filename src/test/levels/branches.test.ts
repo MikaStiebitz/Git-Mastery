@@ -60,9 +60,11 @@ describe("Branches Stage Levels", () => {
                 if (!level) return;
 
                 level.requirements.forEach(req => {
-                    if (req.command.includes("branch") ||
+                    if (
+                        req.command.includes("branch") ||
                         req.command.includes("checkout") ||
-                        req.command.includes("switch")) {
+                        req.command.includes("switch")
+                    ) {
                         hasBranchCommands = true;
                     }
                 });

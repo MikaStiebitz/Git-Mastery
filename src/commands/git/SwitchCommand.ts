@@ -1,4 +1,5 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { notARepository, unknownFlagError } from "../base/GitErrors";
 
 export class SwitchCommand implements Command {
     name = "git switch";
@@ -8,11 +9,40 @@ export class SwitchCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "c",
+            "C",
+            "d",
+            "f",
+            "m",
+            "q",
+            "t",
+            "create",
+            "force-create",
+            "detach",
+            "force",
+            "discard-changes",
+            "merge",
+            "quiet",
+            "track",
+            "guess",
+            "no-guess",
+        ],
+        value: ["orphan"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
+            return notARepository();
+        }
+
+        // A mistyped flag is an error, not something to ignore.
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) {
+            return unknownFlagError(unknownFlag, this.usage);
         }
 
         const parseResult = this.parseSwitchArgs(args);

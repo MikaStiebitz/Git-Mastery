@@ -50,7 +50,9 @@ describe("All Stages Validation", () => {
                 });
 
                 it("should have sequential level IDs starting from 1", () => {
-                    const levelIds = Object.keys(stage.levels).map(Number).sort((a, b) => a - b);
+                    const levelIds = Object.keys(stage.levels)
+                        .map(Number)
+                        .sort((a, b) => a - b);
 
                     expect(levelIds[0]).toBe(1);
 
@@ -99,7 +101,7 @@ describe("All Stages Validation", () => {
                         const level = stage.levels[levelId];
                         if (!level) return;
 
-                        level.requirements.forEach((req) => {
+                        level.requirements.forEach(req => {
                             expect(req.command).toBeDefined();
                             expect(typeof req.command).toBe("string");
                             expect(req.description).toBeDefined();

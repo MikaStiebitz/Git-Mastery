@@ -48,14 +48,7 @@ describe("Advanced Stage Levels", () => {
             const stage = allStages.Advanced;
             const levelIds = Object.keys(stage.levels).map(Number);
 
-            const advancedCommands = [
-                "cherry-pick",
-                "revert",
-                "bisect",
-                "reflog",
-                "stash",
-                "tag",
-            ];
+            const advancedCommands = ["cherry-pick", "revert", "bisect", "reflog", "stash", "tag"];
 
             let hasAdvancedCommands = false;
 
@@ -79,11 +72,7 @@ describe("Advanced Stage Levels", () => {
             const success = levelManager.setupLevel("advanced", 2, fileSystem, gitRepository);
             expect(success).toBe(true);
 
-            const commands = [
-                "git log --oneline",
-                "git log --author=admin",
-                "git log --grep='feature 2'",
-            ];
+            const commands = ["git log --oneline", "git log --author=admin", "git log --grep='feature 2'"];
 
             commands.forEach(command => {
                 const parts = splitCommandRespectingQuotes(command);

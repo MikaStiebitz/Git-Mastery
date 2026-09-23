@@ -1,5 +1,6 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
+import { notARepository } from "../base/GitErrors";
 
 export class RmCommand implements Command {
     name = "git rm";
@@ -9,11 +10,16 @@ export class RmCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["cached", "r", "f", "force", "q", "quiet", "n", "dry-run", "ignore-unmatch"],
+        value: [],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, fileSystem } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         if (args.positionalArgs.length === 0) {

@@ -178,7 +178,12 @@ const branchesLevel5 = createLevel({
         createRequirement({
             command: "git switch",
             requiresArgs: ["-c"],
-            alternativeCommands: ["git checkout", "git branch"],
+            // "git branch" used to be listed here, which made `git branch -c x` complete this level
+            // without creating or switching to anything. It is not an equivalent: real `git branch -c`
+            // copies a branch and leaves you where you are. The guard below enforces the "and switch"
+            // half of the task, so only a command that actually moved HEAD counts.
+            alternativeCommands: ["git checkout"],
+            checkCurrentBranchNot: "main",
             description: "branches.level5.requirement1.description",
             successMessage: "branches.level5.requirement1.success",
             id: "git-switch-3",

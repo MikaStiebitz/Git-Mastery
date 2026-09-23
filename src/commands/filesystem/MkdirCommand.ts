@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
 
 export class MkdirCommand implements Command {
@@ -9,6 +9,11 @@ export class MkdirCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["p", "parents", "v", "verbose"],
+        value: ["m", "mode"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { fileSystem } = context;
 

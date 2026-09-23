@@ -11,6 +11,7 @@ const levels = {
     "level.staged": "staged",
     "level.modified": "modified",
     "level.untracked": "untracked",
+    "level.deleted": "deleted",
     "level.gitNotInitialized": "Git is not initialized yet",
     "level.branch": "Branch",
     "level.gitStatus": "Git Status",
@@ -64,14 +65,15 @@ const levels = {
     "intro.level1.description": "Create a new Git repository",
     "intro.level1.objective1": "Initialize a new repository",
     "intro.level1.hint1": "Use the `git init` command",
-    "intro.level1.hint2": "This creates a hidden .git directory",
+    "intro.level1.hint2":
+        "This creates a hidden .git folder — that folder *is* the repository, where Git keeps every version",
     "intro.level1.requirement1.description": "Initialize a Git repository",
     "intro.level1.requirement1.success": "Well done! You've created a Git repository.",
     "intro.level1.story.title": "Welcome to the Team",
     "intro.level1.story.narrative":
-        "Welcome to your new job as a developer at TechStart! I'm Alex, your team lead.\n\nIt's your first day and we want to help you become productive quickly. We use Git for our version control - it helps us track changes in code and work together as a team.\n\nThe first thing you need to do is create a new repository for your onboarding project. We use the `git init` command for this.",
+        "Welcome to your new job as a developer at TechStart! I'm Alex, your team lead.\n\nBefore we type a single command: what is Git, and why does every team insist on it?\n\nImagine we both edit the same file today. You send me `login-final.js`, I send back `login-final-v2.js`, and by Friday nobody knows which version works — or what the file looked like on Monday, when it still did.\n\nGit is a version control system, and it solves exactly that. It keeps the complete history of your project: every change, who made it, and a way back to any earlier state. It also lets several people work on the same code without overwriting each other.\n\nGit stores that history in a repository — your normal project folder plus a hidden `.git` folder where every version is kept. Creating one takes a single command: `git init`.",
     "intro.level1.story.realWorldContext":
-        "In real development teams, Git is essential. It's the first tool you set up for a new project.",
+        'Git is the standard for version control: practically every software team uses it, and it is the first tool set up for a new project. Without it, "who changed this, when, and why?" has no answer.',
     "intro.level1.story.taskIntroduction": "Let's create a new repository for your project.",
 
     "intro.level2.name": "Repository Status",
@@ -92,16 +94,18 @@ const levels = {
     "intro.level3.description": "Learn to clone existing repositories",
     "intro.level3.objective1": "Clone a remote repository",
     "intro.level3.objective2": "Navigate into the cloned repository",
-    "intro.level3.hint1": "Use the `git clone <url>` command",
+    "intro.level3.hint1":
+        "Run `git clone` followed by a real address, e.g. `git clone https://github.com/octocat/Hello-World.git`",
     "intro.level3.hint2": "After cloning, use `cd` to navigate into the repository folder",
-    "intro.level3.hint3": "The repository URL can be any valid Git repository URL",
+    "intro.level3.hint3":
+        "It has to be a real address like https://github.com/user/repo.git — a placeholder in angle brackets will be rejected",
     "intro.level3.requirement1.description": "Clone a remote repository",
     "intro.level3.requirement1.success": "Great! You've cloned the repository.",
     "intro.level3.requirement2.description": "Navigate into the cloned repository using cd",
     "intro.level3.requirement2.success": "Perfect! You're now inside the cloned repository.",
     "intro.level3.story.title": "Joining an Existing Project",
     "intro.level3.story.narrative":
-        'Your first week at TechStart is going great! Alex calls you over with exciting news.\n\n"We have a team project that needs your help," he says. "The codebase is already on our Git server. You\'ll need to clone it to your local machine to start working on it."\n\nHe explains: "When you join an existing project, you don\'t start from scratch. Instead, you clone the remote repository, which creates a complete copy on your machine—including all the code, history, and branches."\n\n"Think of it like checking out a book from the library, except you get the entire library\'s records too! Use `git clone <repository-url>` to get started."\n\n"Once cloned, you can navigate into the project folder with `cd <folder-name>` and start working immediately. All the project\'s history and changes are available to you."',
+        'Your first week at TechStart is going great! Alex calls you over with exciting news.\n\n"We have a team project that needs your help," he says. "The codebase is already on our Git server. You\'ll need to clone it to your local machine to start working on it."\n\nHe explains: "When you join an existing project, you don\'t start from scratch. Instead, you clone the remote repository, which creates a complete copy on your machine—including all the code, history, and branches."\n\n"Think of it like checking out a book from the library, except you get the entire library\'s records too! Run `git clone` followed by the repository address — for example `git clone https://github.com/octocat/Hello-World.git`."\n\n"One thing about these instructions: anything written in angle brackets is a placeholder. Replace it, brackets and all — Git has no idea what `<repository-url>` means."\n\n"Once cloned, you can navigate into the project folder with `cd <folder-name>` and start working immediately. All the project\'s history and changes are available to you."',
     "intro.level3.story.realWorldContext":
         "Cloning is how developers join existing projects. Whether contributing to open source or joining a new team, git clone is typically the first command you run.",
     "intro.level3.story.taskIntroduction": "Clone a repository and navigate into it to start working on the project.",
@@ -119,9 +123,9 @@ const levels = {
     "files.level1.requirement1.success": "Great! You've added all files to the staging area.",
     "files.level1.story.title": "Preparing Code Changes",
     "files.level1.story.narrative":
-        '"Hey!" calls Sarah, your colleague, "I see you\'ve already started with Git. Next you should learn how to stage changes."\n\nShe explains: "When you modify files, you need to explicitly tell Git which changes should be included in the next commit. This is called \'staging\' and works with `git add`."',
+        '"Hey!" calls Sarah, your colleague. "Time to learn how Git actually saves your work — because editing a file is not enough."\n\nShe draws three boxes on the whiteboard:\n\n1. **Your folder** — where you edit files. Git watches it, but saves nothing on its own.\n2. **The staging area** — the list of changes you want in your next save.\n3. **The repository** — the permanent history of saves.\n\n"A commit only ever records what is in the staging area," she says. "That is why you cannot just commit after editing something: Git does not assume every change you made belongs together. You decide. `git add <file>` moves one change into staging, and `git add .` takes everything in the current folder."',
     "files.level1.story.realWorldContext":
-        "The staging concept is a powerful feature of Git. It allows you to commit only selected changes while others can remain in progress.",
+        "Staging is the step beginners skip and experienced developers rely on. Fixed two unrelated things? Stage and commit them separately, and the history stays readable — and each change can be undone on its own later.",
     "files.level1.story.taskIntroduction": "Add all files to the staging area with `git add .`.",
 
     "files.level2.name": "Committing Changes",
@@ -133,7 +137,7 @@ const levels = {
     "files.level2.requirement1.success": "Excellent! You've successfully created a commit.",
     "files.level2.story.title": "Your First Commit",
     "files.level2.story.narrative":
-        '"Great job!" says Alex when he sees your progress. "You\'ve added changes to the staging area. Now it\'s time for your first commit."\n\nHe explains: "A commit is like a snapshot of your project at a specific point in time. Each commit needs a message that describes what was changed. This is important for traceability."',
+        '"Great job!" says Alex when he sees your progress. "Your changes are staged. Now make them permanent."\n\nHe explains: "`git commit` takes everything in the staging area and writes it into the history as one snapshot, together with your name, the time, and a message. The staging area is then empty again, ready for the next batch."\n\n"Two things worth knowing. A commit with nothing staged does nothing at all — Git will tell you there is nothing to commit, and that almost always means a `git add` is missing. And the message is not paperwork: `-m \"...\"` is how the next person, usually you in three months, finds out why this change exists."',
     "files.level2.story.realWorldContext":
         "Good commit messages are extremely important in development teams. They help everyone understand why a change was made, not just what was changed.",
     "files.level2.story.taskIntroduction": "Create your first commit with a meaningful message.",

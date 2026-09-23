@@ -11,6 +11,7 @@ const levels = {
     "level.staged": "staged",
     "level.modified": "değiştirilmiş",
     "level.untracked": "izlenmeyen",
+    "level.deleted": "silindi",
     "level.gitNotInitialized": "Git henüz başlatılmadı",
     "level.branch": "Branch",
     "level.gitStatus": "Git Durumu",
@@ -64,14 +65,15 @@ const levels = {
     "intro.level1.description": "Yeni bir Git repository'si oluştur",
     "intro.level1.objective1": "Yeni bir repository başlat",
     "intro.level1.hint1": "`git init` komutunu kullan",
-    "intro.level1.hint2": "Bu komut gizli bir .git dizini oluşturur",
+    "intro.level1.hint2":
+        "Bu komut gizli bir .git klasörü oluşturur — o klasör repository'nin *kendisidir*; Git her sürümü orada saklar",
     "intro.level1.requirement1.description": "Bir Git repository'si başlat",
     "intro.level1.requirement1.success": "Aferin! Bir Git repository'si oluşturdun.",
     "intro.level1.story.title": "Takıma Hoş Geldin",
     "intro.level1.story.narrative":
-        "TechStart'taki yeni geliştirici işine hoş geldin! Ben Alex, takım liderin.\n\nBugün ilk günün ve hızlıca üretken olmana yardımcı olmak istiyoruz. Sürüm kontrolü için Git kullanıyoruz - koddaki değişiklikleri takip etmemizi ve bir takım olarak birlikte çalışmamızı sağlıyor.\n\nYapman gereken ilk şey, oryantasyon projen için yeni bir repository oluşturmak. Bunun için `git init` komutunu kullanıyoruz.",
+        "TechStart'taki yeni geliştirici işine hoş geldin! Ben Alex, takım liderin.\n\nTek bir komut yazmadan önce: Git nedir ve neden her takım onda ısrar ediyor?\n\nDüşün ki bugün ikimiz de aynı dosyayı düzenliyoruz. Sen bana `login-final.js` gönderiyorsun, ben sana `login-final-v2.js` geri gönderiyorum ve cuma günü hangi sürümün çalıştığını kimse bilmiyor — ya da dosyanın, hâlâ çalıştığı pazartesi günü nasıl göründüğünü.\n\nGit bir sürüm kontrol sistemidir ve tam olarak bunu çözer. Projenin eksiksiz geçmişini tutar: her değişikliği, o değişikliği kimin yaptığını ve daha önceki herhangi bir duruma geri dönmenin bir yolunu. Ayrıca birden fazla kişinin birbirinin işini ezmeden aynı kod üzerinde çalışmasına imkân verir.\n\nGit bu geçmişi bir repository'de saklar: alışıldık proje klasörün ve her sürümün saklandığı gizli bir `.git` klasörü. Bir tane oluşturmak tek bir komuta bakar: `git init`.",
     "intro.level1.story.realWorldContext":
-        "Gerçek geliştirme takımlarında Git vazgeçilmezdir. Yeni bir projede kurduğun ilk araç odur.",
+        'Git, sürüm kontrolünün standardıdır: neredeyse her yazılım takımı onu kullanır ve yeni bir projede kurulan ilk araç odur. Git olmadan "bunu kim, ne zaman ve neden değiştirdi?" sorusunun yanıtı yoktur.',
     "intro.level1.story.taskIntroduction": "Hadi projen için yeni bir repository oluşturalım.",
 
     "intro.level2.name": "Repository Durumu",
@@ -92,16 +94,18 @@ const levels = {
     "intro.level3.description": "Mevcut repository'leri clone'lamayı öğren",
     "intro.level3.objective1": "Bir remote repository'yi clone'la",
     "intro.level3.objective2": "Clone'ladığın repository'nin içine gir",
-    "intro.level3.hint1": "`git clone <url>` komutunu kullan",
+    "intro.level3.hint1":
+        "`git clone` komutunu gerçek bir adresle çalıştır, örneğin `git clone https://github.com/octocat/Hello-World.git`",
     "intro.level3.hint2": "Clone'ladıktan sonra repository klasörüne girmek için `cd` kullan",
-    "intro.level3.hint3": "Repository URL'si geçerli herhangi bir Git repository URL'si olabilir",
+    "intro.level3.hint3":
+        "https://github.com/user/repo.git gibi gerçek bir adres olmalı — açılı parantez içindeki bir yer tutucu kabul edilmez",
     "intro.level3.requirement1.description": "Bir remote repository'yi clone'la",
     "intro.level3.requirement1.success": "Harika! Repository'yi clone'ladın.",
     "intro.level3.requirement2.description": "cd kullanarak clone'ladığın repository'nin içine gir",
     "intro.level3.requirement2.success": "Mükemmel! Artık clone'ladığın repository'nin içindesin.",
     "intro.level3.story.title": "Mevcut Bir Projeye Katılmak",
     "intro.level3.story.narrative":
-        'TechStart\'taki ilk haftan harika geçiyor! Alex seni heyecan verici bir haberle yanına çağırıyor.\n\n"Yardımına ihtiyaç duyan bir takım projemiz var," diyor. "Kod tabanı hâlihazırda Git sunucumuzda. Üzerinde çalışmaya başlamak için onu kendi makinene clone\'laman gerekecek."\n\nAçıklıyor: "Mevcut bir projeye katıldığında sıfırdan başlamazsın. Bunun yerine remote repository\'yi clone\'larsın; bu da makinende kodun, geçmişin ve branch\'lerin tamamını içeren eksiksiz bir kopya oluşturur."\n\n"Bunu kütüphaneden kitap ödünç almak gibi düşün; üstelik kütüphanenin tüm kayıtlarını da alıyorsun! Başlamak için `git clone <repository-url>` kullan."\n\n"Clone\'ladıktan sonra `cd <folder-name>` ile proje klasörüne girip hemen çalışmaya başlayabilirsin. Projenin tüm geçmişi ve değişiklikleri emrinde."',
+        'TechStart\'taki ilk haftan harika geçiyor! Alex seni heyecan verici bir haberle yanına çağırıyor.\n\n"Yardımına ihtiyaç duyan bir takım projemiz var," diyor. "Kod tabanı hâlihazırda Git sunucumuzda. Üzerinde çalışmaya başlamak için onu kendi makinene clone\'laman gerekecek."\n\nAçıklıyor: "Mevcut bir projeye katıldığında sıfırdan başlamazsın. Bunun yerine remote repository\'yi clone\'larsın; bu da makinende kodun, geçmişin ve branch\'lerin tamamını içeren eksiksiz bir kopya oluşturur."\n\n"Bunu kütüphaneden kitap ödünç almak gibi düşün; üstelik kütüphanenin tüm kayıtlarını da alıyorsun! `git clone` komutunu repository adresiyle birlikte çalıştır — örneğin `git clone https://github.com/octocat/Hello-World.git`."\n\n"Bu yönergelerle ilgili bir not: açılı parantez içinde yazılan her şey bir yer tutucudur. Parantezleriyle birlikte onu değiştir — Git `<repository-url>` ifadesinin ne anlama geldiğini bilemez."\n\n"Clone\'ladıktan sonra `cd <folder-name>` ile proje klasörüne girip hemen çalışmaya başlayabilirsin. Projenin tüm geçmişi ve değişiklikleri emrinde."',
     "intro.level3.story.realWorldContext":
         "Geliştiriciler mevcut projelere clone'layarak katılır. İster açık kaynağa katkı ver, ister yeni bir takıma katıl; genellikle çalıştıracağın ilk komut git clone olur.",
     "intro.level3.story.taskIntroduction": "Bir repository'yi clone'la ve projede çalışmaya başlamak için içine gir.",
@@ -119,9 +123,9 @@ const levels = {
     "files.level1.requirement1.success": "Harika! Tüm dosyaları staging alanına ekledin.",
     "files.level1.story.title": "Kod Değişikliklerini Hazırlamak",
     "files.level1.story.narrative":
-        "\"Hey!\" diye sesleniyor iş arkadaşın Sarah, \"Bakıyorum Git'e çoktan başlamışsın. Sırada değişiklikleri staging'e almayı öğrenmek var.\"\n\nAçıklıyor: \"Dosyaları değiştirdiğinde, hangi değişikliklerin bir sonraki commit'e dahil edileceğini Git'e açıkça söylemen gerekir. Buna 'staging' denir ve `git add` ile yapılır.\"",
+        '"Hey!" diye sesleniyor iş arkadaşın Sarah. "Git\'in işini gerçekte nasıl kaydettiğini öğrenme vakti — çünkü bir dosyayı düzenlemek yeterli değil."\n\nBeyaz tahtaya üç kutu çiziyor:\n\n1. **Kendi klasörün** — dosyaları burada düzenlersin. Git izler, ama kendi başına hiçbir şey kaydetmez.\n2. **Staging alanı** — bir sonraki kaydına girmesini istediğin değişikliklerin listesi.\n3. **Repository** — kayıtların kalıcı geçmişi.\n\n"Bir commit yalnızca staging alanında olanı kaydeder," diyor. "Bir şeyi değiştirdikten sonra doğrudan commit atayamamanın sebebi tam olarak bu: Git, yaptığın her değişikliğin birbirine ait olduğunu varsaymaz. Buna sen karar verirsin. `git add <file>` tek bir değişikliği staging\'e alır, `git add .` ise geçerli klasördeki her şeyi alır."',
     "files.level1.story.realWorldContext":
-        "Staging kavramı Git'in güçlü özelliklerinden biridir. Yalnızca seçtiğin değişiklikleri commit'lemene imkân verir; diğerleri üzerinde çalışmaya devam edebilirsin.",
+        "Staging, yeni başlayanların atladığı, deneyimli geliştiricilerin ise bilinçle kullandığı adımdır. Birbirinden bağımsız iki şeyi mi düzelttin? Onları ayrı ayrı staging'e al ve ayrı ayrı commit'le; böylece geçmiş okunabilir kalır ve her değişiklik sonradan tek başına geri alınabilir.",
     "files.level1.story.taskIntroduction": "`git add .` ile tüm dosyaları staging alanına ekle.",
 
     "files.level2.name": "Değişiklikleri Commit'leme",
@@ -133,7 +137,7 @@ const levels = {
     "files.level2.requirement1.success": "Harika! Başarıyla bir commit oluşturdun.",
     "files.level2.story.title": "İlk Commit'in",
     "files.level2.story.narrative":
-        '"Çok iyi!" diyor Alex, ilerlemeni görünce. "Değişiklikleri staging alanına ekledin. Şimdi sıra ilk commit\'inde."\n\nAçıklıyor: "Commit, projenin belirli bir andaki anlık görüntüsü gibidir. Her commit\'in, neyin değiştiğini anlatan bir mesaja ihtiyacı vardır. Bu, izlenebilirlik açısından önemlidir."',
+        '"Çok iyi!" diyor Alex, ilerlemeni görünce. "Değişikliklerin staging\'de. Şimdi onları kalıcı hale getir."\n\nAçıklıyor: "`git commit`, staging alanındaki her şeyi alır ve adın, zaman ve bir mesajla birlikte tek bir anlık görüntü olarak geçmişe yazar. Sonrasında staging alanı yeniden boşalır, bir sonraki grup için hazırdır."\n\n"Bilmeye değer iki şey var. Staging\'de hiçbir şey yokken atılan bir commit hiçbir şey yapmaz — Git sana commit\'lenecek bir şey olmadığını söyler ve bu neredeyse her zaman eksik bir `git add` anlamına gelir. Mesaj da bürokrasi değildir: `-m "..."`, bir sonraki kişinin — genellikle üç ay sonraki senin — bu değişikliğin neden var olduğunu öğrenme yoludur."',
     "files.level2.story.realWorldContext":
         "İyi commit mesajları geliştirme takımlarında son derece önemlidir. Herkesin, yalnızca neyin değiştiğini değil, değişikliğin neden yapıldığını da anlamasını sağlar.",
     "files.level2.story.taskIntroduction": "Anlamlı bir mesajla ilk commit'ini oluştur.",

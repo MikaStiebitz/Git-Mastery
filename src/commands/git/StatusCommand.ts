@@ -1,5 +1,6 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { getAllFiles } from "~/lib/utils";
+import { notARepository } from "../base/GitErrors";
 
 export class StatusCommand implements Command {
     name = "git status";
@@ -9,11 +10,16 @@ export class StatusCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["s", "short", "b", "branch", "porcelain", "long", "v", "verbose", "ignored", "no-renames"],
+        value: ["untracked-files", "u"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, fileSystem, currentDirectory } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         // Check if current directory is within the repository

@@ -342,6 +342,8 @@ const teamworkLevel4 = createLevel({
     requirements: [
         createRequirement({
             command: "git diff",
+            // Reviewing the diff must mean there was one to review.
+            checkDiffHasContent: true,
             description: "teamwork.level4.requirement1.description",
             successMessage: "teamwork.level4.requirement1.success",
             id: "review-working-diff",
@@ -356,6 +358,8 @@ const teamworkLevel4 = createLevel({
         createRequirement({
             command: "git diff",
             requiresArgs: ["--staged"],
+            // Same guard, against what is staged rather than what is merely modified.
+            checkDiffHasContent: true,
             description: "teamwork.level4.requirement3.description",
             successMessage: "teamwork.level4.requirement3.success",
             id: "review-staged-diff",

@@ -1,4 +1,5 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { hint, notARepository, refSuggestionHints, unknownFlagError } from "../base/GitErrors";
 
 export class PushCommand implements Command {
     name = "git push";
@@ -10,16 +11,47 @@ export class PushCommand implements Command {
         "git push -u origin feature",
         "git push origin v1.0.0",
         "git push --tags",
-        "git push origin --tags"
+        "git push origin --tags",
     ];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "u",
+            "set-upstream",
+            "f",
+            "force",
+            "force-with-lease",
+            "all",
+            "tags",
+            "follow-tags",
+            "delete",
+            "d",
+            "n",
+            "dry-run",
+            "q",
+            "quiet",
+            "v",
+            "verbose",
+            "atomic",
+            "prune",
+            "mirror",
+        ],
+        value: ["repo", "o", "push-option"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
+        }
+
+        // A mistyped flag is an error, not something to ignore.
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) {
+            return unknownFlagError(unknownFlag, this.usage);
         }
 
         // Check for --tags flag (CommandParser strips -- prefix, so check only 'tags')
@@ -39,20 +71,21 @@ export class PushCommand implements Command {
             branch = args.positionalArgs[1] ?? gitRepository.getCurrentBranch();
         }
 
-        // Validate remote exists
+        // Validate remote exists. Git treats an unknown remote name as a URL and fails to reach it,
+        // so that is the error it prints; the hints explain what a remote is and how to add one.
         const remotes = gitRepository.getRemotes();
         if (!remotes[remote]) {
+            const configured = Object.keys(remotes);
             return [
-                `error: No such remote: '${remote}'`,
+                `fatal: '${remote}' does not appear to be a git repository`,
+                `fatal: Could not read from remote repository.`,
                 ``,
-                `💡 You need to add a remote first:`,
-                `    git remote add ${remote} <repository-url>`,
-                ``,
-                `Example:`,
-                `    git remote add ${remote} https://github.com/user/repo.git`,
-                ``,
-                `Then try pushing again:`,
-                `    git push ${remote} ${branch}`
+                `Please make sure you have the correct access rights`,
+                `and the repository exists.`,
+                ...refSuggestionHints(remote, configured),
+                hint(`A remote is a saved nickname for a repository URL.`),
+                hint(`Add one with: git remote add ${remote} https://github.com/user/repo.git`),
+                ...(configured.length > 0 ? [hint(`Configured remotes: ${configured.join(", ")}`)] : []),
             ];
         }
 
@@ -79,20 +112,21 @@ export class PushCommand implements Command {
                 ``,
                 `    git push --set-upstream origin ${branch}`,
                 ``,
-                `Or use the shorthand:`,
-                ``,
-                `    git push -u origin ${branch}`,
-                ``,
-                `Or simply:`,
-                ``,
-                `    git push origin ${branch}`
+                hint(`An upstream is the remote branch this local branch is paired with.`),
+                hint(`Without it, a bare 'git push' does not know where to send your commits.`),
+                hint(`-u (short for --set-upstream) saves that pairing once, so every later`),
+                hint(`'git push' and 'git pull' on this branch needs no arguments at all.`),
             ];
         }
 
         // Validate branch exists
         const branches = gitRepository.getBranches();
         if (!branches.includes(branch)) {
-            return [`error: src refspec ${branch} does not match any`];
+            return [
+                `error: src refspec ${branch} does not match any`,
+                `error: failed to push some refs to '${remotes[remote]}'`,
+                ...refSuggestionHints(branch, branches),
+            ];
         }
 
         // Check if there are unpushed commits before pushing

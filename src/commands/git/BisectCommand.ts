@@ -1,18 +1,18 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class BisectCommand implements Command {
     name = "git bisect";
     description = "Use binary search to find the commit that introduced a bug";
     usage = "git bisect <subcommand> [options]";
-    examples = [
-        "git bisect start",
-        "git bisect bad",
-        "git bisect good <commit>",
-        "git bisect reset",
-    ];
+    examples = ["git bisect start", "git bisect bad", "git bisect good <commit>", "git bisect reset"];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["no-checkout", "first-parent", "term-old", "term-new"],
+        value: [],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
@@ -67,10 +67,7 @@ export class BisectCommand implements Command {
         const commits = Object.keys(gitRepository.getCommits());
 
         if (commits.length < 2) {
-            return [
-                "error: You need at least 2 commits to start bisecting.",
-                "Create more commits first.",
-            ];
+            return ["error: You need at least 2 commits to start bisecting.", "Create more commits first."];
         }
 
         return [

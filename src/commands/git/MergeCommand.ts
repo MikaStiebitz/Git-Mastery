@@ -1,4 +1,5 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { notARepository, unknownFlagError } from "../base/GitErrors";
 
 export class MergeCommand implements Command {
     name = "git merge";
@@ -14,11 +15,42 @@ export class MergeCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "no-ff",
+            "ff",
+            "ff-only",
+            "abort",
+            "continue",
+            "quit",
+            "squash",
+            "no-squash",
+            "commit",
+            "no-commit",
+            "e",
+            "no-edit",
+            "q",
+            "quiet",
+            "v",
+            "verbose",
+            "stat",
+            "no-stat",
+            "allow-unrelated-histories",
+        ],
+        value: ["m", "message", "s", "strategy", "X", "strategy-option"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
+            return notARepository();
+        }
+
+        // A mistyped flag is an error, not something to ignore.
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) {
+            return unknownFlagError(unknownFlag, this.usage);
         }
 
         const parseResult = this.parseMergeArgs(args);
@@ -87,11 +119,7 @@ export class MergeCommand implements Command {
             // Handle fast-forward merge
             if (mergeResult.isFastForward) {
                 const stats = this.generateFileStats(mergeResult.filesChanged);
-                return [
-                    `Updating ${this.getMockCommitHash()}..${this.getMockCommitHash()}`,
-                    `Fast-forward`,
-                    ...stats,
-                ];
+                return [`Updating ${this.getMockCommitHash()}..${this.getMockCommitHash()}`, `Fast-forward`, ...stats];
             }
 
             // Handle regular merge commit
@@ -99,11 +127,7 @@ export class MergeCommand implements Command {
             const commitId = mergeResult.mergeCommitId ?? this.getMockCommitHash();
             const stats = this.generateFileStats(mergeResult.filesChanged);
 
-            return [
-                `Merge made by the 'ort' strategy.`,
-                ...stats,
-                `[${currentBranch} ${commitId}] ${mergeMessage}`,
-            ];
+            return [`Merge made by the 'ort' strategy.`, ...stats, `[${currentBranch} ${commitId}] ${mergeMessage}`];
         }
 
         // Handle octopus merge (multiple branches)
@@ -160,7 +184,9 @@ export class MergeCommand implements Command {
 
         // Generate summary
         const pluralFiles = files.length === 1 ? "file" : "files";
-        stats.push(` ${files.length} ${pluralFiles} changed, ${files.length} insertion${files.length === 1 ? "" : "s"}(+)`);
+        stats.push(
+            ` ${files.length} ${pluralFiles} changed, ${files.length} insertion${files.length === 1 ? "" : "s"}(+)`,
+        );
 
         return stats;
     }

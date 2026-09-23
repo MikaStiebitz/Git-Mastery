@@ -22,15 +22,16 @@ import {
     Settings,
     Check,
     Gamepad2,
+    ShoppingCart,
 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { ClientOnly } from "~/components/ClientOnly";
-import { allStages } from "~/levels";
 import { BadgeDisplay } from "~/components/BadgeDisplay";
 import { DebugModal } from "~/components/DebugModal";
 import { cn } from "~/lib/utils";
 import { useSponsor } from "~/components/SponsorDialog";
+import { useShop } from "~/components/Shop";
 import { ProgressManager } from "~/models/ProgressManager";
 import { env } from "~/env";
 
@@ -52,7 +53,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     } = useGameContext();
     const { language, setLanguage, t } = useLanguage();
     const { openSponsor } = useSponsor();
-    const stageName = t(allStages[currentStage as keyof typeof allStages]?.name ?? currentStage);
+    const { openShop } = useShop();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [repoStars, setRepoStars] = useState<number | null>(null);
     const [debugModalOpen, setDebugModalOpen] = useState(false);
@@ -66,15 +67,6 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const isInstallationPage = normalizedPathname === "/installation";
     const isFaqPage = normalizedPathname === "/faq";
     const isArcadePage = normalizedPathname === "/arcade";
-    const useCompactResponsiveLayout =
-        showLevelInfo || isPlaygroundPage || isInstallationPage || isFaqPage || isArcadePage;
-    // Bumped one breakpoint tier up (lg->xl / xl->2xl): the Arcade nav item added one more
-    // button to every layout, so the previous breakpoints no longer left enough room and
-    // caused the level-info / page-label text to get squeezed and wrap.
-    const desktopNavClass = useCompactResponsiveLayout ? "2xl:flex 2xl:flex-nowrap" : "xl:flex xl:flex-nowrap";
-    const mobileNavClass = useCompactResponsiveLayout ? "2xl:hidden" : "xl:hidden";
-    const badgeDesktopClass = useCompactResponsiveLayout ? "2xl:block" : "xl:block";
-    const pageLabelClass = useCompactResponsiveLayout ? "2xl:block" : "xl:block";
 
     // Language options
     const languages = [
@@ -227,13 +219,23 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
 
     // One definition per destination, so the desktop bar and the mobile drawer can never
     // drift apart.
-    const navLinks = [
+    //
+    // The split is by kind, not by importance alone: the first three are places you play and carry
+    // labels as soon as they fit, while the last two are reference pages that stay icon-only and sit
+    // with the other utilities. Five equally-weighted icons in a row read as a wall of glyphs with
+    // nothing to tell them apart — which is what this bar used to be between 1024px and 1536px.
+    const primaryLinks = [
         { href: "/", label: t("nav.home"), icon: Home, current: isHomePage },
         { href: "/playground", label: t("nav.playground"), icon: BookCopy, current: isPlaygroundPage },
         { href: "/arcade", label: t("nav.arcade"), icon: Gamepad2, current: isArcadePage },
+    ];
+
+    const referenceLinks = [
         { href: "/installation", label: t("nav.installation"), icon: Download, current: isInstallationPage },
         { href: "/faq", label: t("nav.faq"), icon: HelpCircle, current: isFaqPage },
     ];
+
+    const navLinks = [...primaryLinks, ...referenceLinks];
 
     const starChip = (className = "") => (
         <a
@@ -257,15 +259,23 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     );
 
     /**
-     * The cabinet readout: coins are the spendable currency and carry the gold, points are
-     * the running total and stay quiet. It states facts, so it is not a control.
+     * The cabinet readout, and the way into the shop.
+     *
+     * Coins are the spendable currency and carry the gold; points are the running total and stay
+     * quiet. It used to be an inert div, which made the balance a dead end — the one number telling
+     * you what you can spend was the one thing you could not click. Opening the shop from here is
+     * the obvious next move, so the chip is a button everywhere the bar appears.
      */
     const purseChip = (className = "") => (
         <ClientOnly
-            fallback={<div className={cn("h-10 w-[76px] shrink-0 sm:w-[124px]", className)} aria-hidden="true" />}>
-            <div
+            fallback={<div className={cn("h-10 w-[92px] shrink-0 sm:w-[140px]", className)} aria-hidden="true" />}>
+            <button
+                type="button"
+                onClick={openShop}
+                title={t("shop.title")}
+                aria-label={`${t("shop.title")} — ${purse.coins} ${t("shop.coins")}`}
                 className={cn(
-                    "border-gm-gold-edge bg-gm-night flex h-10 shrink-0 items-center gap-2 rounded-full border-2 px-3",
+                    "border-gm-gold-edge bg-gm-night hover:border-gm-gold hover:bg-gm-deep focus-visible:outline-gm-gold flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full border-2 px-3 transition-colors duration-150 focus-visible:outline-3 focus-visible:outline-offset-2",
                     className,
                 )}>
                 <span className="text-gm-gold flex items-center gap-1.5 text-xs font-bold tabular-nums">
@@ -284,7 +294,10 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     </span>
                     <span className="sr-only">{t("home.points")}</span>
                 </span>
-            </div>
+                {/* The cart is what says "this opens something" — it stays at every width, because
+                    a phone needs the affordance more than a desktop does, not less. */}
+                <ShoppingCart className="text-gm-gold-edge h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            </button>
         </ClientOnly>
     );
 
@@ -301,74 +314,100 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     <span className="font-display text-gm-ink hidden text-lg sm:inline">GitMastery</span>
                 </Link>
 
-                {/* Where you are: the level you're playing, or the page you're on */}
-                {showLevelInfo ? (
-                    <ClientOnly>
-                        <span className="border-gm-line bg-gm-night text-gm-ink-soft hidden h-8 max-w-[240px] shrink items-center gap-1.5 truncate rounded-full border-2 px-3 text-xs font-semibold md:flex">
-                            <span className="text-gm-lime [font-family:var(--font-code)]">L{currentLevel}</span>
-                            <span className="truncate">{stageName}</span>
-                        </span>
-                    </ClientOnly>
-                ) : (
-                    pageLabel && (
-                        <span className="text-gm-ink-soft hidden shrink truncate text-sm font-semibold md:inline">
-                            {pageLabel}
-                        </span>
-                    )
+                {/* Which page you're on. The level you're playing is deliberately NOT repeated here:
+                    the level page's own header already states "Level 4 · Remote Repositories" directly
+                    above the content, and a second truncated copy of it ("L4 Remote Repositori…") only
+                    cost the bar its scarcest resource — width — to say something already on screen. */}
+                {!showLevelInfo && pageLabel && (
+                    <span className="text-gm-ink-soft hidden shrink truncate text-sm font-semibold md:inline">
+                        {pageLabel}
+                    </span>
                 )}
 
-                <div className="ms-auto flex items-center gap-2">
-                    <div className="hidden xl:block">
+                <div className="ms-auto flex items-center gap-2 xl:gap-3">
+                    <div className="hidden 2xl:block">
                         <BadgeDisplay />
                     </div>
 
-                    {/* Destinations. Icon-only from lg, labelled again from 2xl, and the page
-                        you're on stays in the bar as a pressed key instead of disappearing. */}
+                    {/* Where you can go. Labelled as soon as they fit (measured: the full set needs
+                        more room than 1280px leaves, these three fit from xl), and the page you're
+                        on stays in the bar as a pressed key instead of disappearing. */}
                     <ul className="hidden items-center gap-1 lg:flex">
-                        {navLinks.map(({ href, label, icon: Icon, current }) => (
+                        {primaryLinks.map(({ href, label, icon: Icon, current }) => (
                             <li key={href}>
-                                <Button
-                                    variant={current ? "secondary" : "ghost"}
-                                    size={current ? "default" : "default"}
-                                    className="px-3 2xl:px-4"
-                                    asChild>
+                                <Button variant={current ? "secondary" : "ghost"} className="px-3 xl:px-4" asChild>
                                     <Link href={href} aria-current={current ? "page" : undefined} title={label}>
                                         <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                                        <span className="hidden 2xl:inline">{label}</span>
-                                        <span className="sr-only 2xl:hidden">{label}</span>
+                                        <span className="hidden xl:inline">{label}</span>
+                                        <span className="sr-only xl:hidden">{label}</span>
                                     </Link>
                                 </Button>
                             </li>
                         ))}
                     </ul>
 
+                    {/* Reference pages and settings. Deliberately quieter than the destinations
+                        above — same icons, smaller and without labels — so the row reads as two
+                        groups rather than one undifferentiated strip of glyphs. */}
+                    <div className="hidden items-center gap-0.5 lg:flex">
+                        <span className="bg-gm-line me-1.5 h-6 w-px shrink-0" aria-hidden="true" />
+
+                        {referenceLinks.map(({ href, label, icon: Icon, current }) => (
+                            <Button
+                                key={href}
+                                variant={current ? "secondary" : "ghost"}
+                                size="icon"
+                                className="h-9 w-9"
+                                asChild>
+                                <Link href={href} aria-current={current ? "page" : undefined} title={label}>
+                                    <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                    <span className="sr-only">{label}</span>
+                                </Link>
+                            </Button>
+                        ))}
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9"
+                            onClick={() => setLanguageDialogOpen(true)}
+                            title={t("nav.language")}
+                            aria-label={t("nav.language")}>
+                            <Languages className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9"
+                            onClick={openSponsor}
+                            title={t("sponsor.action")}
+                            aria-label={t("sponsor.action")}>
+                            <Heart className="text-gm-gold h-4 w-4" aria-hidden="true" />
+                        </Button>
+
+                        {starChip("hidden 2xl:inline-flex")}
+                    </div>
+
+                    {/* What you have, and what to do next. */}
+                    <span className="bg-gm-line hidden h-6 w-px shrink-0 lg:block" aria-hidden="true" />
+
                     {purseChip()}
-                    {starChip("hidden sm:inline-flex")}
 
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="hidden sm:inline-flex"
+                        className="inline-flex sm:hidden"
                         onClick={openSponsor}
                         title={t("sponsor.action")}
                         aria-label={t("sponsor.action")}>
                         <Heart className="text-gm-gold h-4 w-4" aria-hidden="true" />
                     </Button>
 
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="hidden lg:inline-flex"
-                        onClick={() => setLanguageDialogOpen(true)}
-                        title={t("nav.language")}
-                        aria-label={t("nav.language")}>
-                        <Languages className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-
-                    <Button onClick={navigateToLearning} className="hidden px-3 lg:inline-flex 2xl:px-4">
+                    <Button onClick={navigateToLearning} className="hidden px-3 lg:inline-flex xl:px-4">
                         <Code className="h-4 w-4 shrink-0" aria-hidden="true" />
-                        <span className="hidden 2xl:inline">{t("nav.startLearning")}</span>
-                        <span className="sr-only 2xl:hidden">{t("nav.startLearning")}</span>
+                        <span className="hidden xl:inline">{t("nav.startLearning")}</span>
+                        <span className="sr-only xl:hidden">{t("nav.startLearning")}</span>
                     </Button>
 
                     {/* Mobile menu button */}
@@ -393,17 +432,8 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
             {mobileMenuOpen && (
                 <div
                     id="mobile-nav"
-                    className={`gm-scroll border-gm-line bg-gm-void max-h-[calc(100svh-4rem)] overflow-y-auto border-t-2 ${mobileNavClass}`}>
+                    className={`gm-scroll border-gm-line bg-gm-void max-h-[calc(100svh-4rem)] overflow-y-auto border-t-2 lg:hidden`}>
                     <div className="container mx-auto flex flex-col gap-2 px-4 py-4">
-                        {/* Current level info for mobile */}
-                        {showLevelInfo && (
-                            <ClientOnly>
-                                <p className="text-gm-ink-soft text-sm font-semibold">
-                                    {t("level.level")} {currentLevel} · {stageName}
-                                </p>
-                            </ClientOnly>
-                        )}
-
                         <div className="mb-1 flex flex-wrap items-center justify-center gap-2">
                             <BadgeDisplay className="justify-center" />
                             {starChip("sm:hidden")}

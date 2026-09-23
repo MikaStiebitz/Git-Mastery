@@ -54,22 +54,18 @@ const installation = {
     "installation.ssh.generateDesc":
         "Run the following command to create a new SSH key. Replace the email address with your own:",
     "installation.ssh.saveLocation": "Confirm Save Location",
-    "installation.ssh.saveLocationDesc":
-        "When asked where to save the key, press Enter for the default location:",
+    "installation.ssh.saveLocationDesc": "When asked where to save the key, press Enter for the default location:",
     "installation.ssh.passphrase": "Passphrase (Optional)",
-    "installation.ssh.passphraseDesc":
-        "You can enter a passphrase for additional security or press Enter to continue:",
+    "installation.ssh.passphraseDesc": "You can enter a passphrase for additional security or press Enter to continue:",
     "installation.ssh.copyKey": "Copy Public Key",
-    "installation.ssh.copyKeyDesc":
-        "Copy the contents of your public SSH key to the clipboard:",
+    "installation.ssh.copyKeyDesc": "Copy the contents of your public SSH key to the clipboard:",
     "installation.ssh.windows.copyKey": "For Windows (Git Bash/PowerShell):",
     "installation.ssh.mac.copyKey": "For macOS:",
     "installation.ssh.linux.copyKey": "For Linux:",
 
     // GitHub/GitLab Connection
     "installation.github.title": "Connect to GitHub",
-    "installation.github.intro":
-        "GitHub is the most popular Git hosting service. Here's how to add your SSH key:",
+    "installation.github.intro": "GitHub is the most popular Git hosting service. Here's how to add your SSH key:",
     "installation.github.step1": "Go to GitHub.com and sign in to your account",
     "installation.github.step2": "Click on your profile picture (top right) → Settings",
     "installation.github.step3": "Click on 'SSH and GPG keys' in the left sidebar",
@@ -82,8 +78,7 @@ const installation = {
     "installation.github.testSuccess": "On successful connection, you'll see a welcome message from GitHub.",
 
     "installation.gitlab.title": "Connect to GitLab",
-    "installation.gitlab.intro":
-        "GitLab is another popular Git hosting platform. Here's how to add your SSH key:",
+    "installation.gitlab.intro": "GitLab is another popular Git hosting platform. Here's how to add your SSH key:",
     "installation.gitlab.step1": "Go to GitLab.com and sign in to your account",
     "installation.gitlab.step2": "Click on your profile picture (top right) → Edit profile",
     "installation.gitlab.step3": "Click on 'SSH Keys' in the left sidebar",
@@ -96,8 +91,7 @@ const installation = {
 
     // First Repository Setup
     "installation.firstRepo.title": "Set Up First Repository",
-    "installation.firstRepo.intro":
-        "After Git is configured and SSH connection is set up, you can start working:",
+    "installation.firstRepo.intro": "After Git is configured and SSH connection is set up, you can start working:",
     "installation.firstRepo.clone": "Clone Existing Repository",
     "installation.firstRepo.cloneDesc": "To clone an existing repository from GitHub/GitLab:",
     "installation.firstRepo.create": "Create New Repository",
@@ -142,11 +136,9 @@ const installation = {
 
     "installation.linux.enhanced.title": "Detailed Linux Installation",
     "installation.linux.enhanced.package": "Using Package Manager",
-    "installation.linux.enhanced.packageDesc":
-        "Installation via package manager is the recommended method for Linux:",
+    "installation.linux.enhanced.packageDesc": "Installation via package manager is the recommended method for Linux:",
     "installation.linux.enhanced.source": "Compile from Source (Advanced)",
-    "installation.linux.enhanced.sourceDesc":
-        "For the latest version or special configurations:",
+    "installation.linux.enhanced.sourceDesc": "For the latest version or special configurations:",
     "installation.linux.enhanced.sourceSteps":
         "# Install dependencies (Ubuntu/Debian)\nsudo apt-get install make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libncurses5-dev autoconf build-essential\n\n# Download Git source\nwget https://github.com/git/git/archive/v2.43.0.tar.gz\ntar -zxf v2.43.0.tar.gz\ncd git-2.43.0\n\n# Compile and install\nmake configure\n./configure --prefix=/usr/local\nmake all\nsudo make install",
 
@@ -158,7 +150,7 @@ const installation = {
     "installation.mac.enhanced.homebrewDesc":
         "Homebrew is a package manager for macOS that simplifies developer tool management:",
     "installation.mac.enhanced.homebrewSteps":
-        "# Install Homebrew (if not already present)\n/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\n\n# Install Git\nbrew install git\n\n# Update Git (later)\nbrew upgrade git",
+        '# Install Homebrew (if not already present)\n/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"\n\n# Install Git\nbrew install git\n\n# Update Git (later)\nbrew upgrade git',
     "installation.mac.enhanced.macports": "MacPorts (Alternative)",
     "installation.mac.enhanced.macportsDesc":
         "If you use MacPorts:\n• sudo port install git +universal\n• sudo port install git-flow (optional)",

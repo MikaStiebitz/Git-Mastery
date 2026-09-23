@@ -8,6 +8,7 @@ import { GameProvider } from "~/contexts/GameContext";
 import { LanguageProvider } from "~/contexts/LanguageContext";
 import { TerminalThemeWrapper } from "~/components/TerminalThemeWrapper";
 import { SponsorProvider } from "~/components/SponsorDialog";
+import { ShopProvider } from "~/components/Shop";
 import { env } from "~/env";
 import { getPageUrl, getSiteUrl } from "~/lib/site";
 
@@ -88,9 +89,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <LanguageProvider>
                     <GameProvider>
                         <TerminalThemeWrapper>
-                            {/* One sponsor dialog for the whole app: the navbar, the footer and
-                                the landing page all open this instance. */}
-                            <SponsorProvider>{children}</SponsorProvider>
+                            {/* One sponsor dialog and one shop for the whole app: the navbar, the
+                                footer and the landing page all open these instances. */}
+                            <SponsorProvider>
+                                <ShopProvider>{children}</ShopProvider>
+                            </SponsorProvider>
                         </TerminalThemeWrapper>
                     </GameProvider>
                 </LanguageProvider>

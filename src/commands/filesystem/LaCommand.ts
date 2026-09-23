@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { LsCommand } from "./LsCommand";
 
 export class LaCommand implements Command {
@@ -9,6 +9,11 @@ export class LaCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["a", "all", "l", "long", "h", "R", "recursive", "1"],
+        value: [],
+    };
     private lsCommand = new LsCommand();
 
     execute(args: CommandArgs, context: CommandContext): string[] {

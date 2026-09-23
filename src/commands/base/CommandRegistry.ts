@@ -1,5 +1,6 @@
 import type { Command, CommandContext } from "./Command";
 import { parseCommand } from "./CommandParser";
+import { unknownGitSubcommand, unknownShellCommand } from "./GitErrors";
 
 export class CommandRegistry {
     private commands: Map<string, Command> = new Map<string, Command>();
@@ -21,23 +22,17 @@ export class CommandRegistry {
 
     // Befehl ausführen
     execute(commandStr: string, context: CommandContext): string[] {
-        const { command, args } = parseCommand(commandStr);
+        // First pass resolves only the command name; the arguments are parsed again below with that
+        // command's own flag spec, because flag meanings are per-command (see FlagSpec).
+        const { command } = parseCommand(commandStr);
 
-        // Versuche, einen Befehl direkt zu finden
-        let cmd = this.commands.get(command);
-
-        // Wenn nicht gefunden, versuche Aliase
-        if (!cmd && this.aliases.has(command)) {
-            const mainCommandName = this.aliases.get(command);
-            // Explicitly check for undefined and validate that the resolved command exists
-            if (mainCommandName !== undefined && this.commands.has(mainCommandName)) {
-                cmd = this.commands.get(mainCommandName);
-            }
-        }
+        const cmd = this.resolve(command);
 
         if (!cmd) {
-            return [`Command not found: ${command}`];
+            return this.notFound(command);
         }
+
+        const { args } = parseCommand(commandStr, cmd.flagSpec);
 
         // Validiere den Befehl, falls vorhanden
         if (cmd.validate) {
@@ -49,6 +44,53 @@ export class CommandRegistry {
 
         // Führe den Befehl aus
         return cmd.execute(args, context);
+    }
+
+    /** Look a command up by name, falling back to its aliases. */
+    private resolve(command: string): Command | undefined {
+        const direct = this.commands.get(command);
+        if (direct) return direct;
+
+        const aliasTarget = this.aliases.get(command);
+        if (aliasTarget !== undefined) {
+            return this.commands.get(aliasTarget);
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Report an unrecognised command the way the real tool would.
+     *
+     * A mistyped Git subcommand gets Git's own "is not a git command" error with its suggestion
+     * block; anything else gets the shell's "command not found". Both suggest near-misses, so a
+     * beginner's typo is a signpost instead of a dead end.
+     */
+    private notFound(command: string): string[] {
+        if (command.startsWith("git ")) {
+            const subcommand = command.substring(4);
+            return unknownGitSubcommand(subcommand, this.getGitSubcommands());
+        }
+
+        if (command === "git") {
+            return unknownGitSubcommand("", this.getGitSubcommands());
+        }
+
+        return unknownShellCommand(command, this.getShellCommands());
+    }
+
+    /** Every registered `git <subcommand>`, as bare subcommand names. */
+    getGitSubcommands(): string[] {
+        return [...this.commands.keys()]
+            .filter(name => name.startsWith("git "))
+            .map(name => name.substring(4))
+            .sort();
+    }
+
+    /** Every registered command that is not a Git subcommand, plus aliases. */
+    getShellCommands(): string[] {
+        const names = [...this.commands.keys()].filter(name => !name.startsWith("git "));
+        return [...names, ...this.aliases.keys()].sort();
     }
 
     // Alle Befehle für Tab-Completion abrufen

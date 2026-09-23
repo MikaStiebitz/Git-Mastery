@@ -1,4 +1,5 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { notARepository } from "../base/GitErrors";
 
 export class RevertCommand implements Command {
     name = "git revert";
@@ -8,11 +9,16 @@ export class RevertCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: ["abort", "continue", "quit", "skip", "n", "no-commit", "e", "edit", "no-edit", "s", "signoff"],
+        value: ["m", "mainline"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["Not a git repository. Run 'git init' first."];
+            return notARepository();
         }
 
         if (args.positionalArgs.length === 0) {

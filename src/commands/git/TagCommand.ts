@@ -1,4 +1,4 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 
 export class TagCommand implements Command {
     name = "git tag";
@@ -15,6 +15,27 @@ export class TagCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "a",
+            "annotate",
+            "d",
+            "delete",
+            "l",
+            "list",
+            "f",
+            "force",
+            "n",
+            "s",
+            "sign",
+            "v",
+            "verify",
+            "i",
+            "ignore-case",
+        ],
+        value: ["m", "message", "F", "file", "contains", "points-at", "sort"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository } = context;
 
@@ -77,9 +98,10 @@ export class TagCommand implements Command {
 
         const commits = gitRepository.getCommits();
         const shortHash = result.commitHash ? result.commitHash.substring(0, 7) : "unknown";
-        const commitMessage = result.commitHash && commits[result.commitHash]
-            ? commits[result.commitHash]?.message ?? "unknown"
-            : "unknown";
+        const commitMessage =
+            result.commitHash && commits[result.commitHash]
+                ? (commits[result.commitHash]?.message ?? "unknown")
+                : "unknown";
 
         const output: string[] = [];
 

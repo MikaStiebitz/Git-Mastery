@@ -1,6 +1,7 @@
 import type { GitRepository } from "~/models/GitRepository";
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import type { FileSystem } from "~/models/FileSystem";
+import { notARepository, unknownFlagError } from "../base/GitErrors";
 
 export class CheckoutCommand implements Command {
     name = "git checkout";
@@ -16,14 +17,40 @@ export class CheckoutCommand implements Command {
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "b",
+            "B",
+            "f",
+            "q",
+            "t",
+            "p",
+            "track",
+            "detach",
+            "force",
+            "quiet",
+            "patch",
+            "ours",
+            "theirs",
+            "merge",
+        ],
+        value: ["orphan"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { gitRepository, fileSystem, currentDirectory } = context;
 
         if (!gitRepository.isInitialized()) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
+            return notARepository();
         }
         if (!gitRepository.isInRepository(currentDirectory)) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
+            return notARepository();
+        }
+
+        // A mistyped flag is an error, not something to ignore.
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) {
+            return unknownFlagError(unknownFlag, this.usage);
         }
 
         const parseResult = this.parseCheckoutArgs(args, context);
@@ -86,11 +113,7 @@ export class CheckoutCommand implements Command {
         // Handle branch switching
         if (!branches.includes(branchName)) {
             // More helpful error message with case-sensitive suggestions
-            const similarBranches = branches.filter(
-                b =>
-                    b.includes(branchName) ||
-                    branchName.includes(b),
-            );
+            const similarBranches = branches.filter(b => b.includes(branchName) || branchName.includes(b));
 
             let errorMsg = `error: pathspec '${branchName}' did not match any file(s) known to git`;
 

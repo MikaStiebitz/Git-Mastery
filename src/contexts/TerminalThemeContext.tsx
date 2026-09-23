@@ -5,6 +5,12 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 interface TerminalTheme {
     id: string;
     name: string;
+    /**
+     * Class that gives this theme its material — bezel, glow, motion — defined in globals.css.
+     * The default theme has none: the free terminal is the design system's own panel, and the
+     * material layer is the thing a purchase actually buys.
+     */
+    frameClass?: string;
     colors: {
         background: string;
         text: string;
@@ -38,48 +44,64 @@ const TERMINAL_THEMES: TerminalTheme[] = [
             warning: "var(--color-gm-coral)",
         },
     },
+    // The purchased themes below follow one rule, the same one the default theme follows: the theme's
+    // colour is the frame and the accents, never the body text, and success / error / warning stay
+    // distinguishable from each other and from the accent.
+    //
+    // They used to collapse those roles onto a single literal — Matrix set text, accent, prompt and
+    // success all to #00ff00, Golden set text, accent, prompt and warning to the same amber — so the
+    // whole terminal came out as one flat wash and the colour coding that tells a branch from an
+    // error was lost the moment you bought one. Each theme keeps its identity here; what changed is
+    // that the identity lives in the accents, and long output is readable.
     {
         id: "dark-terminal",
         name: "Dark Blue",
+        frameClass: "gm-term-blue",
         colors: {
             background: "#0f172a",
             text: "#cbd5e1",
-            accent: "#3b82f6",
-            border: "#1e40af",
+            accent: "#38bdf8",
+            border: "#1e3a5f",
             prompt: "#60a5fa",
-            success: "#22c55e",
-            error: "#ef4444",
-            warning: "#f59e0b",
+            success: "#4ade80",
+            error: "#f87171",
+            warning: "#fbbf24",
         },
         locked: true,
     },
     {
         id: "matrix-terminal",
         name: "Matrix Green",
+        frameClass: "gm-term-matrix",
         colors: {
-            background: "#000000",
-            text: "#00ff00",
-            accent: "#00ff00",
-            border: "#008800",
-            prompt: "#00ff00",
-            success: "#00ff00",
-            error: "#ff0000",
-            warning: "#ffff00",
+            // Phosphor on black, but a mint body text instead of pure #00ff00, which is unreadable
+            // over a screen of output. The bright phosphor stays for the prompt and accents.
+            background: "#050b05",
+            text: "#b8f5c0",
+            accent: "#39ff7a",
+            border: "#1c4a28",
+            prompt: "#39ff7a",
+            success: "#39ff7a",
+            error: "#ff5f56",
+            warning: "#ffd166",
         },
         locked: true,
     },
     {
         id: "golden-terminal",
         name: "Golden Luxury",
+        frameClass: "gm-term-gold",
         colors: {
-            background: "#1a1410",
-            text: "#fbbf24",
-            accent: "#f59e0b",
-            border: "#d97706",
-            prompt: "#f59e0b",
-            success: "#22c55e",
-            error: "#ef4444",
-            warning: "#f59e0b",
+            // Gold as the accent on warm near-black, not gold as every character on screen — which
+            // is both what luxury actually looks like and what keeps a long log legible.
+            background: "#16120c",
+            text: "#ece3d4",
+            accent: "#f5c451",
+            border: "#4a3a1c",
+            prompt: "#f0b429",
+            success: "#a3d977",
+            error: "#f07167",
+            warning: "#e8963c",
         },
         locked: true,
     },

@@ -1,6 +1,15 @@
 import type { FileSystem } from "./FileSystem";
 import type { GitRepository } from "./GitRepository";
-import type { StageType, LevelType, LevelRequirement, FileStructure, GitState, FileChange, MergeConflict, DifficultyLevel } from "~/types";
+import type {
+    StageType,
+    LevelType,
+    LevelRequirement,
+    FileStructure,
+    GitState,
+    FileChange,
+    MergeConflict,
+    DifficultyLevel,
+} from "~/types";
 import { allStages } from "../levels";
 import { getAvailableStagesForDifficulty } from "~/config/difficulties";
 
@@ -51,9 +60,16 @@ export class LevelManager {
         }
     }
 
-    // Reset the file system to a clean state
+    /**
+     * Reset the file system to a clean state.
+     *
+     * This has to actually clear the tree, not just ensure "/" exists. Anything a previous level
+     * created dynamically — a directory from `git clone`, a file from `touch` — otherwise survives
+     * into every later level, where it shows up as untracked noise in `git status`, inflates
+     * `git add .`, and can make `git diff` report a file the current level has never mentioned.
+     */
     private resetFileSystem(fileSystem: FileSystem): void {
-        // Create root directory
+        fileSystem.reset();
         fileSystem.mkdir("/");
     }
 
@@ -93,9 +109,14 @@ export class LevelManager {
             if (gitState.initialized) {
                 gitRepository.init();
 
-                // Add a default remote if none specified
-                const remotes = gitRepository.getRemotes();
-                if (Object.keys(remotes).length === 0) {
+                // Set up remotes. A level that declares them gets exactly those — including none at
+                // all, which is what a level teaching `git remote add origin` needs, since an origin
+                // that already exists makes the command the level asks for fail as "already exists".
+                if (gitState.remotes) {
+                    for (const [name, url] of Object.entries(gitState.remotes)) {
+                        gitRepository.addRemote(name, url);
+                    }
+                } else if (Object.keys(gitRepository.getRemotes()).length === 0) {
                     gitRepository.addRemote("origin", "https://github.com/user/repo.git");
                 }
 
@@ -285,6 +306,55 @@ export class LevelManager {
         return true;
     }
 
+    /**
+     * Verify what a command actually did, after it matched a requirement textually.
+     *
+     * Matching the typed command is not enough on its own: `git branch -c feature` and
+     * `git switch -c feature` both look like "create a branch", but only one of them puts you on it,
+     * and `git remote add` only counts if a remote exists afterwards. These guards close that gap, so
+     * a command that ran but achieved nothing no longer completes an objective.
+     *
+     * Returns true when the requirement declares no result guards, so existing levels are unaffected.
+     */
+    private passesResultGuards(requirement: LevelRequirement, gitRepository: GitRepository): boolean {
+        if (requirement.checkRemoteExists !== undefined) {
+            const remotes = Object.keys(gitRepository.getRemotes());
+            if (requirement.checkRemoteExists === "*") {
+                if (remotes.length === 0) return false;
+            } else if (!remotes.includes(requirement.checkRemoteExists)) {
+                return false;
+            }
+        }
+
+        if (requirement.checkCurrentBranch !== undefined) {
+            if (gitRepository.getCurrentBranch() !== requirement.checkCurrentBranch) return false;
+        }
+
+        if (requirement.checkCurrentBranchNot !== undefined) {
+            if (gitRepository.getCurrentBranch() === requirement.checkCurrentBranchNot) return false;
+        }
+
+        if (requirement.checkAllFilesStaged) {
+            if (!this.areAllFilesStaged(gitRepository)) return false;
+        }
+
+        if (requirement.checkDiffHasContent) {
+            // Real `git diff` shows tracked-but-unstaged changes; `--staged` shows staged ones.
+            // Neither ever shows an untracked file, which is exactly the state a stale or leaked
+            // repository can be in — every file untracked, nothing to compare against. Without this,
+            // "inspect the diff" was satisfied by typing the command over an empty result.
+            const wantsStaged = requirement.requiresArgs?.includes("--staged") ?? false;
+            const relevant = wantsStaged ? "staged" : "modified";
+            const secondary = wantsStaged ? undefined : "deleted";
+            const hasContent = Object.values(gitRepository.getWorkingTreeStatus()).some(
+                state => state === relevant || (secondary !== undefined && state === secondary),
+            );
+            if (!hasContent) return false;
+        }
+
+        return true;
+    }
+
     // True if this requirement defines any repository-state guard
     private hasStateGuards(requirement: LevelRequirement): boolean {
         return (
@@ -297,7 +367,10 @@ export class LevelManager {
 
     // Check if all changed files are staged (for git add level)
     private areAllFilesStaged(gitRepository: GitRepository): boolean {
-        const status = gitRepository.getStatus();
+        // The working tree, not the status map: a file Git has never been told about has no status
+        // entry, so reading the map directly made untracked files invisible and let "add all files"
+        // pass on the first `git add <one-file>`.
+        const status = gitRepository.getWorkingTreeStatus();
 
         let hasStaged = false;
         let hasUnstaged = false;
@@ -325,7 +398,7 @@ export class LevelManager {
         stageId: string,
         levelId: number,
         gitRepository: GitRepository,
-        fileSystem: FileSystem
+        fileSystem: FileSystem,
     ): boolean {
         const level = this.getLevel(stageId, levelId);
         if (!level) return false;
@@ -346,14 +419,12 @@ export class LevelManager {
         let requirementsToCheck;
         if (level.requirementLogic === "all") {
             const nextRequirementIndex = level.requirements.findIndex(
-                req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                req => !req.id || !(level.completedRequirements || []).includes(req.id),
             );
-            requirementsToCheck = nextRequirementIndex >= 0
-                ? [level.requirements[nextRequirementIndex]]
-                : [];
+            requirementsToCheck = nextRequirementIndex >= 0 ? [level.requirements[nextRequirementIndex]] : [];
         } else {
             requirementsToCheck = level.requirements.filter(
-                req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                req => !req.id || !(level.completedRequirements || []).includes(req.id),
             );
         }
 
@@ -404,12 +475,15 @@ export class LevelManager {
                 // Check if this completes an objective
                 if (requirement.objectiveId !== undefined) {
                     const objectiveRequirements = level.requirements.filter(
-                        req => req.objectiveId === requirement.objectiveId
+                        req => req.objectiveId === requirement.objectiveId,
                     );
                     const allObjectiveRequirementsCompleted = objectiveRequirements.every(
-                        req => !req.id || level.completedRequirements?.includes(req.id)
+                        req => !req.id || level.completedRequirements?.includes(req.id),
                     );
-                    if (allObjectiveRequirementsCompleted && !level.completedObjectives?.includes(requirement.objectiveId)) {
+                    if (
+                        allObjectiveRequirementsCompleted &&
+                        !level.completedObjectives?.includes(requirement.objectiveId)
+                    ) {
                         level.completedObjectives?.push(requirement.objectiveId);
                     }
                 }
@@ -418,9 +492,7 @@ export class LevelManager {
 
         // For 'all' logic, check if all requirements have been completed
         if (level.requirementLogic === "all") {
-            return level.requirements.every(
-                req => !req.id || level.completedRequirements?.includes(req.id)
-            );
+            return level.requirements.every(req => !req.id || level.completedRequirements?.includes(req.id));
         }
 
         return anyRequirementCompleted;
@@ -468,8 +540,8 @@ export class LevelManager {
     public getLevel(stageId: string, levelId: number, translateFunc?: (key: string) => string): LevelType | null {
         // Find stage by ID (need to search through stages object)
         // Support both lowercase ID (e.g., "intro") and capitalized key (e.g., "Intro")
-        const stageEntry = Object.values(this.stages).find(stage =>
-            stage.id === stageId || stage.id === stageId.toLowerCase()
+        const stageEntry = Object.values(this.stages).find(
+            stage => stage.id === stageId || stage.id === stageId.toLowerCase(),
         );
         if (!stageEntry) return null;
 
@@ -563,15 +635,13 @@ export class LevelManager {
             if (level.requirementLogic === "all") {
                 // Find the first uncompleted requirement (sequential mode)
                 const nextRequirementIndex = level.requirements.findIndex(
-                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id),
                 );
-                requirementsToCheck = nextRequirementIndex >= 0
-                    ? [level.requirements[nextRequirementIndex]]
-                    : [];
+                requirementsToCheck = nextRequirementIndex >= 0 ? [level.requirements[nextRequirementIndex]] : [];
             } else {
                 // For 'any' logic, check all uncompleted requirements
                 requirementsToCheck = level.requirements.filter(
-                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id),
                 );
             }
 
@@ -584,35 +654,9 @@ export class LevelManager {
                     continue;
                 }
 
-                // Special case for git add level
-                if (requirement.command === "git add" && gitCommand === "add") {
-                    // Check if all files are staged after the command
-                    if (this.areAllFilesStaged(gitRepository)) {
-                        if (requirement.id) {
-                            level.completedRequirements.push(requirement.id);
-                        }
-
-                        // Check if this completes an objective
-                        if (requirement.objectiveId !== undefined) {
-                            // Get all requirements with the same objectiveId
-                            const objectiveRequirements = level.requirements.filter(
-                                req => req.objectiveId === requirement.objectiveId
-                            );
-
-                            // Check if all requirements for this objective are completed
-                            const allObjectiveRequirementsCompleted = objectiveRequirements.every(
-                                req => !req.id || level.completedRequirements?.includes(req.id)
-                            );
-
-                            // If all requirements for this objective are completed, mark objective as complete
-                            if (allObjectiveRequirementsCompleted && !level.completedObjectives?.includes(requirement.objectiveId)) {
-                                level.completedObjectives?.push(requirement.objectiveId);
-                            }
-                        }
-
-                        requirementSatisfied = true;
-                        break; // Only one requirement per command
-                    }
+                // Result guards verify what the command actually did to the repository.
+                if (!this.passesResultGuards(requirement, gitRepository)) {
+                    continue;
                 }
 
                 // Check if command matches (including alternative commands)
@@ -620,23 +664,24 @@ export class LevelManager {
                     requirement.command === `git ${gitCommand}` ||
                     requirement.command === command ||
                     requirement.command === gitCommand ||
-                    (requirement.alternativeCommands && requirement.alternativeCommands.some(altCmd => {
-                        // Handle different formats of alternative commands
-                        const altParts = altCmd.split(' ');
+                    (requirement.alternativeCommands &&
+                        requirement.alternativeCommands.some(altCmd => {
+                            // Handle different formats of alternative commands
+                            const altParts = altCmd.split(" ");
 
-                        // Case 1: "git checkout" matches gitCommand "checkout"
-                        if (altParts[0] === 'git' && altParts.length >= 2) {
-                            return altParts[1] === gitCommand;
-                        }
+                            // Case 1: "git checkout" matches gitCommand "checkout"
+                            if (altParts[0] === "git" && altParts.length >= 2) {
+                                return altParts[1] === gitCommand;
+                            }
 
-                        // Case 2: "checkout" matches gitCommand "checkout"
-                        if (altParts.length === 1) {
-                            return altParts[0] === gitCommand;
-                        }
+                            // Case 2: "checkout" matches gitCommand "checkout"
+                            if (altParts.length === 1) {
+                                return altParts[0] === gitCommand;
+                            }
 
-                        // Case 3: Full command match "git checkout" === "git checkout"
-                        return altCmd === `git ${gitCommand}`;
-                    }));
+                            // Case 3: Full command match "git checkout" === "git checkout"
+                            return altCmd === `git ${gitCommand}`;
+                        }));
 
                 if (commandMatches) {
                     console.log("Command matches!");
@@ -699,16 +744,19 @@ export class LevelManager {
                     if (requirement.objectiveId !== undefined) {
                         // Get all requirements with the same objectiveId
                         const objectiveRequirements = level.requirements.filter(
-                            req => req.objectiveId === requirement.objectiveId
+                            req => req.objectiveId === requirement.objectiveId,
                         );
 
                         // Check if all requirements for this objective are completed
                         const allObjectiveRequirementsCompleted = objectiveRequirements.every(
-                            req => !req.id || level.completedRequirements?.includes(req.id)
+                            req => !req.id || level.completedRequirements?.includes(req.id),
                         );
 
                         // If all requirements for this objective are completed, mark objective as complete
-                        if (allObjectiveRequirementsCompleted && !level.completedObjectives?.includes(requirement.objectiveId)) {
+                        if (
+                            allObjectiveRequirementsCompleted &&
+                            !level.completedObjectives?.includes(requirement.objectiveId)
+                        ) {
                             level.completedObjectives?.push(requirement.objectiveId);
                         }
                     }
@@ -727,15 +775,13 @@ export class LevelManager {
             if (level.requirementLogic === "all") {
                 // Find the first uncompleted requirement (sequential mode)
                 const nextRequirementIndex = level.requirements.findIndex(
-                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id),
                 );
-                requirementsToCheck = nextRequirementIndex >= 0
-                    ? [level.requirements[nextRequirementIndex]]
-                    : [];
+                requirementsToCheck = nextRequirementIndex >= 0 ? [level.requirements[nextRequirementIndex]] : [];
             } else {
                 // For 'any' logic, check all uncompleted requirements
                 requirementsToCheck = level.requirements.filter(
-                    req => !req.id || !(level.completedRequirements || []).includes(req.id)
+                    req => !req.id || !(level.completedRequirements || []).includes(req.id),
                 );
             }
 
@@ -745,6 +791,11 @@ export class LevelManager {
                 // Repository-state guards must hold for this requirement to count.
                 // A command may match textually, but the guard verifies the actual result.
                 if (this.hasStateGuards(requirement) && !this.passesStateGuards(requirement, gitRepository)) {
+                    continue;
+                }
+
+                // Result guards verify what the command actually did to the repository.
+                if (!this.passesResultGuards(requirement, gitRepository)) {
                     continue;
                 }
 
@@ -782,16 +833,19 @@ export class LevelManager {
                     if (requirement.objectiveId !== undefined) {
                         // Get all requirements with the same objectiveId
                         const objectiveRequirements = level.requirements.filter(
-                            req => req.objectiveId === requirement.objectiveId
+                            req => req.objectiveId === requirement.objectiveId,
                         );
 
                         // Check if all requirements for this objective are completed
                         const allObjectiveRequirementsCompleted = objectiveRequirements.every(
-                            req => !req.id || level.completedRequirements?.includes(req.id)
+                            req => !req.id || level.completedRequirements?.includes(req.id),
                         );
 
                         // If all requirements for this objective are completed, mark objective as complete
-                        if (allObjectiveRequirementsCompleted && !level.completedObjectives?.includes(requirement.objectiveId)) {
+                        if (
+                            allObjectiveRequirementsCompleted &&
+                            !level.completedObjectives?.includes(requirement.objectiveId)
+                        ) {
                             level.completedObjectives?.push(requirement.objectiveId);
                         }
                     }
@@ -816,7 +870,11 @@ export class LevelManager {
     }
 
     // Get next level information
-    public getNextLevel(stageId: string, levelId: number, difficulty?: DifficultyLevel): { stageId: string | undefined; levelId: number } {
+    public getNextLevel(
+        stageId: string,
+        levelId: number,
+        difficulty?: DifficultyLevel,
+    ): { stageId: string | undefined; levelId: number } {
         const stage = this.getStage(stageId);
         if (!stage) return { stageId, levelId };
 

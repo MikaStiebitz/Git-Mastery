@@ -11,6 +11,67 @@ const GIT_GRAPH_PREFIX = "__GIT_GRAPH__:";
 export class OutputFormatterService {
     constructor(private terminalOutput: string[]) {}
 
+    /**
+     * One line of a unified diff, or null when this is not diff output.
+     *
+     * Added and removed lines get a tinted band as well as a colour: colour alone puts the whole
+     * burden on hue, and a diff is exactly the place where someone red-green colourblind needs the
+     * shape of the block to tell them where a change starts and stops. The leading +/- is kept —
+     * it is what real diffs show, and it is the non-colour signal.
+     */
+    private renderDiffLine(line: string): React.ReactNode | null {
+        // File header: "diff --git a/src/config.js b/src/config.js"
+        if (line.startsWith("diff --git ")) {
+            return <div className="mt-2 font-semibold text-[var(--term-text)]">{line}</div>;
+        }
+
+        // Blob ids — true to real Git, and the least interesting line on screen.
+        if (/^index [0-9a-f]+\.\.[0-9a-f]+/.test(line)) {
+            return <div className="text-[var(--term-text)] opacity-50">{line}</div>;
+        }
+
+        // The two sides of the comparison.
+        if (line.startsWith("--- ")) {
+            return <div className="text-[var(--term-error)] opacity-80">{line}</div>;
+        }
+        if (line.startsWith("+++ ")) {
+            return <div className="text-[var(--term-success)] opacity-80">{line}</div>;
+        }
+
+        // Hunk header: "@@ -1,3 +1,3 @@" — which lines of the file this block covers.
+        if (/^@@ -\d+(,\d+)? \+\d+(,\d+)? @@/.test(line)) {
+            return (
+                <div className="mt-1 bg-[color-mix(in_oklab,var(--term-accent)_14%,transparent)] px-1 font-semibold text-[var(--term-accent)]">
+                    {line}
+                </div>
+            );
+        }
+
+        // The changes themselves. A leading +/- only means "added/removed" inside a diff, so this
+        // needs a diff to actually be on screen — otherwise any other command that happens to print
+        // a dashed list would come out looking like deletions.
+        if (!this.terminalOutput.some(l => l.startsWith("diff --git "))) return null;
+
+        // Guarded against "--" / "++" so the headers above can never reach here, and against a
+        // bare "-" or "+" on its own.
+        if (line.length > 1 && line.startsWith("-") && !line.startsWith("--")) {
+            return (
+                <div className="bg-[color-mix(in_oklab,var(--term-error)_16%,transparent)] px-1 text-[var(--term-error)]">
+                    {line}
+                </div>
+            );
+        }
+        if (line.length > 1 && line.startsWith("+") && !line.startsWith("++")) {
+            return (
+                <div className="bg-[color-mix(in_oklab,var(--term-success)_16%,transparent)] px-1 text-[var(--term-success)]">
+                    {line}
+                </div>
+            );
+        }
+
+        return null;
+    }
+
     renderTerminalOutput(line: string): React.ReactNode {
         // Render inline SVG git graph
         if (line.startsWith(GIT_GRAPH_PREFIX)) {
@@ -50,6 +111,25 @@ export class OutputFormatterService {
                 <div>
                     <span className="text-[var(--term-prompt)] select-none">$</span>{" "}
                     <span className="text-[var(--term-text)]">{cmd}</span>
+                </div>
+            );
+        }
+
+        // A diff, coloured. This has to be tested before anything else, because every other rule
+        // below would claim these lines first: "--- a/file" and "+++ b/file" start with - and +,
+        // "diff --git" contains "git", and a hunk header is mostly punctuation. Unhighlighted, a
+        // diff is the single most opaque thing this terminal prints — the whole point is that you
+        // can see at a glance which line went and which line arrived.
+        const diffLine = this.renderDiffLine(line);
+        if (diffLine) return diffLine;
+
+        // Teaching lines. Git prefixes its own advice with "hint:" and so do we; they are
+        // deliberately quieter than the error they explain, so the error stays the headline.
+        if (line.startsWith("hint:")) {
+            return (
+                <div className="text-[var(--term-text)] opacity-65">
+                    <span className="opacity-70 select-none">hint:</span>
+                    {line.slice(5)}
                 </div>
             );
         }

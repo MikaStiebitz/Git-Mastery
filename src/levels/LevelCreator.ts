@@ -71,6 +71,17 @@ export function createRequirement(params: {
     checkFileChanged?: string; // Check if this file has been modified
     checkFileExists?: string; // Check if this file exists
     checkBranchExists?: string; // Check if this branch exists
+    // Repository-state guards (AND-combined with the command match)
+    checkTagExists?: string;
+    checkMergeExists?: boolean;
+    checkCommitCountAtLeast?: number;
+    checkCommitMessageContains?: string;
+    // Result guards: verify what the command actually did (see LevelRequirement)
+    checkRemoteExists?: string;
+    checkCurrentBranch?: string;
+    checkCurrentBranchNot?: string;
+    checkAllFilesStaged?: boolean;
+    checkDiffHasContent?: boolean;
 }): LevelRequirement {
     return {
         command: params.command,
@@ -82,6 +93,15 @@ export function createRequirement(params: {
         checkFileChanged: params.checkFileChanged,
         checkFileExists: params.checkFileExists,
         checkBranchExists: params.checkBranchExists,
+        checkTagExists: params.checkTagExists,
+        checkMergeExists: params.checkMergeExists,
+        checkCommitCountAtLeast: params.checkCommitCountAtLeast,
+        checkCommitMessageContains: params.checkCommitMessageContains,
+        checkRemoteExists: params.checkRemoteExists,
+        checkCurrentBranch: params.checkCurrentBranch,
+        checkCurrentBranchNot: params.checkCurrentBranchNot,
+        checkAllFilesStaged: params.checkAllFilesStaged,
+        checkDiffHasContent: params.checkDiffHasContent,
     };
 }
 
@@ -123,6 +143,8 @@ export function createGitState(params: {
         branch1?: string;
         branch2?: string;
     }[];
+    /** Omit for the default "origin"; pass {} for a level that must start with no remote. */
+    remotes?: Record<string, string>;
 }): GitState {
     return {
         initialized: params.initialized,
@@ -132,6 +154,7 @@ export function createGitState(params: {
         remoteCommits: params.remoteCommits,
         fileChanges: params.fileChanges,
         mergeConflicts: params.mergeConflicts,
+        remotes: params.remotes,
     };
 }
 

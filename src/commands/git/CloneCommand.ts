@@ -1,16 +1,35 @@
-import type { Command, CommandArgs, CommandContext } from "../base/Command";
+import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { hint } from "../base/GitErrors";
 
 export class CloneCommand implements Command {
     name = "git clone";
     description = "Clone a repository into a new directory";
     usage = "git clone <repository> [directory]";
-    examples = [
-        "git clone https://github.com/user/repo.git",
-        "git clone https://github.com/user/repo.git my-project",
-    ];
+    examples = ["git clone https://github.com/user/repo.git", "git clone https://github.com/user/repo.git my-project"];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
+    /** Flag semantics for this command (see FlagSpec). */
+    flagSpec: FlagSpec = {
+        boolean: [
+            "bare",
+            "mirror",
+            "recursive",
+            "recurse-submodules",
+            "q",
+            "quiet",
+            "v",
+            "verbose",
+            "progress",
+            "single-branch",
+            "no-single-branch",
+            "no-checkout",
+            "n",
+            "shared",
+            "s",
+        ],
+        value: ["b", "branch", "depth", "o", "origin", "c", "config", "j", "jobs", "separate-git-dir"],
+    };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { fileSystem, currentDirectory } = context;
 
@@ -27,19 +46,41 @@ export class CloneCommand implements Command {
         }
 
         const repoUrl = args.positionalArgs[0];
-        let repoName: string;
 
-        // Extract repository name from URL
-        if (repoUrl) {
-            const match = repoUrl.match(/\/([^/]+?)(\.git)?$/);
-            if (match && match[1]) {
-                repoName = match[1];
-            } else {
-                repoName = "repository";
-            }
-        } else {
+        if (!repoUrl) {
             return ["fatal: Invalid repository URL."];
         }
+
+        // Reject anything that is not a repository location. The old check only caught an entirely
+        // missing argument, so `git clone <repository-url>` — the placeholder from the instructions,
+        // copied literally — "succeeded" and cloned into a directory called "repository". Real Git
+        // fails on it, and a beginner has to learn that the angle brackets are theirs to replace.
+        const placeholder = /[<>]/.test(repoUrl);
+        const looksLikeUrl =
+            /^(https?|git|ssh|file):\/\//.test(repoUrl) || // https://host/path, git://, ssh://, file://
+            /^[\w.-]+@[\w.-]+:.+/.test(repoUrl) || // git@github.com:user/repo.git
+            /^(\.{1,2})?\//.test(repoUrl); // a local path
+
+        if (placeholder || !looksLikeUrl) {
+            return [
+                `fatal: repository '${repoUrl}' does not exist`,
+                ...(placeholder
+                    ? [
+                          hint(`'${repoUrl}' is a placeholder — the < > mean "put your own value here".`),
+                          hint(`Try a real address, for example:`),
+                          hint(`  git clone https://github.com/octocat/Hello-World.git`),
+                      ]
+                    : [
+                          hint(`A repository address looks like one of these:`),
+                          hint(`  https://github.com/user/repo.git`),
+                          hint(`  git@github.com:user/repo.git`),
+                      ]),
+            ];
+        }
+
+        // Extract repository name from URL
+        const match = repoUrl.match(/\/([^/]+?)(\.git)?$/) ?? repoUrl.match(/:([^/]+?)(\.git)?$/);
+        const repoName = match?.[1] ?? "repository";
 
         // Use custom directory name if provided
         const targetDir = args.positionalArgs[1] ?? repoName;
@@ -59,7 +100,10 @@ export class CloneCommand implements Command {
         // Create mock repository structure
         fileSystem.writeFile(`${fullPath}/README.md`, `# ${repoName}\n\nCloned from ${repoUrl}\n`);
         fileSystem.mkdir(`${fullPath}/src`);
-        fileSystem.writeFile(`${fullPath}/src/main.js`, `// Main application file\nconsole.log('Hello from ${repoName}!');\n`);
+        fileSystem.writeFile(
+            `${fullPath}/src/main.js`,
+            `// Main application file\nconsole.log('Hello from ${repoName}!');\n`,
+        );
         fileSystem.writeFile(
             `${fullPath}/.gitignore`,
             `# Dependencies\nnode_modules/\n\n# Build output\ndist/\nbuild/\n\n# Environment variables\n.env\n.env.local\n`,
