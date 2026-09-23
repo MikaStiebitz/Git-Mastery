@@ -31,6 +31,7 @@ import { useLanguage } from "~/contexts/LanguageContext";
 import { useRouter } from "next/navigation";
 import { DifficultySelector } from "~/components/DifficultySelector";
 import { useShop } from "~/components/Shop";
+import { getStageProgress } from "~/lib/courseProgress";
 import { Minigames } from "~/components/Minigames";
 import { HeroDemo } from "~/components/home/HeroDemo";
 import { FeaturedReels } from "~/components/home/FeaturedReels";
@@ -424,12 +425,12 @@ export default function Home() {
         return null;
     };
 
-    // Calculate progress percentage
+    // Calculate progress percentage. A stage IS bounded — it has a fixed number of levels — so a
+    // percentage is honest here, unlike the points ratio the level page used to show.
     const calculateProgress = (stageId: string) => {
-        const stageLevels = Object.keys(stages[stageId]?.levels ?? {}).length;
-        const completedLevels = progress.completedLevels[stageId]?.length ?? 0;
+        const { done, total } = getStageProgress(stageId, progress.completedLevels);
 
-        return stageLevels > 0 ? (completedLevels / stageLevels) * 100 : 0;
+        return total > 0 ? (done / total) * 100 : 0;
     };
 
     //Changes learning path heading based on difficulty (and language)
