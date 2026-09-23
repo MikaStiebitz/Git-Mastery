@@ -36,6 +36,10 @@ jobs:
                   SITE_URL: "https://gitmastery.me"
                   GITHUB_PAGES_CUSTOM_DOMAIN: "gitmastery.me"
                   NEXT_PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_ANALYTICS_TOKEN }}
+                  # A repository VARIABLE, not a secret: it is the public address of the account
+                  # Worker, which the browser calls directly. Leave it unset and the site builds
+                  # without the account feature — no sign-in button, no network calls.
+                  NEXT_PUBLIC_ACCOUNT_API_URL: ${{ vars.ACCOUNT_API_URL }}
               run: npm run build
 
             - name: Add .nojekyll

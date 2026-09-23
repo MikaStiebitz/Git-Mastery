@@ -159,6 +159,90 @@ const common = {
     "sponsor.note": "Entirely optional — playing stays free either way.",
     "sponsor.landingLine": "Free, open source, and kept alive by its sponsors.",
     "sponsor.landingCta": "Support the project",
+
+    // Optional account. The game works without one; this only carries progress between devices.
+    "account.signIn": "Sign in",
+    "account.account": "Account",
+    "account.title": "Save your progress",
+    "account.description":
+        "An account is optional. Everything you have played is already saved on this device — an account just lets you pick it up on another one.",
+    "account.tab.signIn": "Sign in",
+    "account.tab.register": "Create account",
+    "account.username": "Username",
+    "account.usernameHint": "3–20 characters: letters, numbers, hyphens and underscores.",
+    "account.password": "Password",
+    "account.passwordHint": "At least 8 characters.",
+    "account.noRecoveryWarning":
+        "There is no email and no password reset. If you forget your password, the account cannot be recovered — so pick something you will remember, or write it down.",
+    "account.signInAction": "Sign in",
+    "account.registerAction": "Create account",
+    "account.continueWithout": "Keep playing without an account",
+
+    "account.manageTitle": "Your account",
+    "account.manageDescription": "Your progress syncs automatically while you play.",
+    "account.syncNow": "Sync now",
+    "account.signOut": "Sign out",
+    "account.signOutHint": "Signing out leaves your progress on this device untouched.",
+    "account.save": "Save",
+    "account.cancel": "Cancel",
+
+    "account.changeUsername": "Change username",
+    "account.usernameChanged": "Username changed.",
+    "account.changePassword": "Change password",
+    "account.currentPassword": "Current password",
+    "account.newPassword": "New password",
+    "account.passwordChanged": "Password changed.",
+    "account.passwordChangeHint": "Changing your password signs out every other device.",
+
+    "account.dangerZone": "Careful from here",
+    "account.resetCloud": "Reset cloud progress",
+    "account.resetCloudHint":
+        "Clears the progress saved to your account so you can play through again. This device keeps what it has until the next sync.",
+    "account.cloudReset": "Cloud progress reset.",
+    "account.deleteAccount": "Delete account",
+    "account.deleteConfirm": "Enter your password to delete this account. This cannot be undone.",
+    "account.deleteForever": "Delete permanently",
+    "account.deleted": "Account deleted.",
+    "account.deleteHint": "Deleting your account removes it from the server. The progress on this device stays.",
+
+    "account.status.idle": "Not syncing",
+    "account.status.syncing": "Saving…",
+    "account.status.synced": "Saved",
+    "account.status.offline": "Offline — will save later",
+    "account.status.paused": "Saving paused, try again later",
+    "account.status.pending": "{count} waiting",
+
+    "account.merge.title": "Two saves, one account",
+    "account.merge.description":
+        "You have progress on this device, and {username} has progress saved in the cloud. Nothing is changed until you choose.",
+    "account.merge.preview":
+        "This device has {levels} levels, {minigames} mini games and {purchases} purchases that your account does not.",
+    "account.merge.coinsWarning":
+        "Coins are recalculated from what you actually earned, so the total may differ from the {coins} shown here.",
+    "account.merge.mergeAction": "Merge both",
+    "account.merge.mergeHint": "Adds this device's progress to your account. Nothing is lost.",
+    "account.merge.keepCloudAction": "Use the cloud save",
+    "account.merge.keepCloudHint": "Replaces this device's progress with your account's.",
+    "account.merge.cancelAction": "Not now",
+    "account.merge.cancelHint": "Stays signed out and changes nothing.",
+    "account.merge.backupNote": "Either way, a copy of this device's progress is kept in your browser first.",
+
+    "account.error.invalid_credentials": "That username and password do not match.",
+    "account.error.username_taken": "That username is already taken.",
+    "account.error.weak_password": "Pick a longer or less common password (at least 8 characters).",
+    "account.error.rate_limited": "Too many attempts. Wait a moment and try again.",
+    "account.error.network_error": "Could not reach the server. Your progress is still saved on this device.",
+    "account.error.storage_quota_exhausted": "Saving is paused for today. Your progress stays on this device.",
+    "account.error.accounts_disabled": "Accounts are not available in this build.",
+    "account.error.server_misconfigured": "The server is not set up correctly yet.",
+    "account.error.unauthorized": "You are signed out. Sign in again to keep saving.",
+    "account.error.unknown": "Something went wrong. Your progress is still saved on this device.",
+    "account.error.username.too_short": "That username is too short (at least 3 characters).",
+    "account.error.username.too_long": "That username is too long (at most 20 characters).",
+    "account.error.username.charset": "Use only letters, numbers, hyphens and underscores.",
+    "account.error.username.inappropriate": "Please pick a different username.",
+    "account.error.username.reserved": "That username is reserved.",
+    "account.error.username.needs_letter_or_digit": "Usernames need at least one letter or number.",
 };
 
 export default common;

@@ -162,6 +162,91 @@ const common = {
     "sponsor.note": "Tamamen isteğe bağlı — oynamak her durumda ücretsiz kalır.",
     "sponsor.landingLine": "Ücretsiz, açık kaynak ve sponsorları sayesinde ayakta.",
     "sponsor.landingCta": "Projeye destek ol",
+
+    // Optional account. The game works without one; this only carries progress between devices.
+    "account.signIn": "Giriş yap",
+    "account.account": "Hesap",
+    "account.title": "İlerlemeni kaydet",
+    "account.description":
+        "Hesap açmak zorunlu değil. Oynadığın her şey zaten bu cihazda kayıtlı — hesap sadece başka bir cihazda kaldığın yerden devam etmeni sağlar.",
+    "account.tab.signIn": "Giriş yap",
+    "account.tab.register": "Hesap oluştur",
+    "account.username": "Kullanıcı adı",
+    "account.usernameHint": "3–20 karakter: harf, rakam, tire ve alt çizgi.",
+    "account.password": "Şifre",
+    "account.passwordHint": "En az 8 karakter.",
+    "account.noRecoveryWarning":
+        "E-posta yok, şifre sıfırlama da yok. Şifreni unutursan hesabı geri getirmenin bir yolu yok — bu yüzden aklında kalacak bir şey seç ya da bir yere not et.",
+    "account.signInAction": "Giriş yap",
+    "account.registerAction": "Hesap oluştur",
+    "account.continueWithout": "Hesapsız oynamaya devam et",
+
+    "account.manageTitle": "Hesabın",
+    "account.manageDescription": "Sen oynarken ilerlemen otomatik olarak eşitlenir.",
+    "account.syncNow": "Şimdi eşitle",
+    "account.signOut": "Çıkış yap",
+    "account.signOutHint": "Çıkış yapman bu cihazdaki ilerlemene dokunmaz.",
+    "account.save": "Kaydet",
+    "account.cancel": "İptal",
+
+    "account.changeUsername": "Kullanıcı adını değiştir",
+    "account.usernameChanged": "Kullanıcı adı değişti.",
+    "account.changePassword": "Şifreni değiştir",
+    "account.currentPassword": "Mevcut şifre",
+    "account.newPassword": "Yeni şifre",
+    "account.passwordChanged": "Şifre değişti.",
+    "account.passwordChangeHint": "Şifreni değiştirdiğinde diğer bütün cihazlardaki oturumların kapanır.",
+
+    "account.dangerZone": "Buradan sonrası dikkat ister",
+    "account.resetCloud": "Bulut ilerlemesini sıfırla",
+    "account.resetCloudHint":
+        "Hesabına kaydedilmiş ilerlemeyi siler, böylece her şeyi baştan oynayabilirsin. Bu cihaz bir sonraki eşitlemeye kadar kendindekini korur.",
+    "account.cloudReset": "Bulut ilerlemesi sıfırlandı.",
+    "account.deleteAccount": "Hesabı sil",
+    "account.deleteConfirm": "Bu hesabı silmek için şifreni gir. Bu işlem geri alınamaz.",
+    "account.deleteForever": "Kalıcı olarak sil",
+    "account.deleted": "Hesap silindi.",
+    "account.deleteHint": "Hesabını silmek onu sunucudan kaldırır. Bu cihazdaki ilerlemen olduğu gibi kalır.",
+
+    "account.status.idle": "Eşitleme yok",
+    "account.status.syncing": "Kaydediliyor…",
+    "account.status.synced": "Kaydedildi",
+    "account.status.offline": "Çevrimdışı — sonra kaydedilecek",
+    "account.status.paused": "Kaydetme duraklatıldı, sonra tekrar dene",
+    "account.status.pending": "{count} bekliyor",
+
+    "account.merge.title": "İki kayıt, tek hesap",
+    "account.merge.description":
+        "Bu cihazda bir ilerlemen var, {username} hesabının da bulutta kayıtlı bir ilerlemesi var. Sen seçim yapana kadar hiçbir şey değişmez.",
+    "account.merge.preview":
+        "Bu cihazda, hesabında bulunmayan {levels} seviye, {minigames} mini oyun ve {purchases} satın alma var.",
+    "account.merge.coinsWarning":
+        "Coin'ler gerçekten kazandıklarına göre yeniden hesaplanır, bu yüzden toplam burada görünen {coins} değerinden farklı olabilir.",
+    "account.merge.mergeAction": "İkisini birleştir",
+    "account.merge.mergeHint": "Bu cihazdaki ilerlemeyi hesabına ekler. Hiçbir şey kaybolmaz.",
+    "account.merge.keepCloudAction": "Buluttaki kaydı kullan",
+    "account.merge.keepCloudHint": "Bu cihazdaki ilerlemenin yerine hesabındakini koyar.",
+    "account.merge.cancelAction": "Şimdi değil",
+    "account.merge.cancelHint": "Oturumun kapalı kalır ve hiçbir şey değişmez.",
+    "account.merge.backupNote":
+        "Hangisini seçersen seç, bu cihazdaki ilerlemenin bir kopyası önce tarayıcına yedeklenir.",
+
+    "account.error.invalid_credentials": "Bu kullanıcı adı ve şifre eşleşmiyor.",
+    "account.error.username_taken": "Bu kullanıcı adı zaten alınmış.",
+    "account.error.weak_password": "Daha uzun ya da daha az kullanılan bir şifre seç (en az 8 karakter).",
+    "account.error.rate_limited": "Çok fazla deneme yapıldı. Biraz bekleyip tekrar dene.",
+    "account.error.network_error": "Sunucuya ulaşılamadı. İlerlemen yine de bu cihazda kayıtlı.",
+    "account.error.storage_quota_exhausted": "Kaydetme bugünlük duraklatıldı. İlerlemen bu cihazda duruyor.",
+    "account.error.accounts_disabled": "Bu sürümde hesaplar kullanılamıyor.",
+    "account.error.server_misconfigured": "Sunucu henüz doğru şekilde kurulmamış.",
+    "account.error.unauthorized": "Oturumun kapandı. Kaydetmeye devam etmek için tekrar giriş yap.",
+    "account.error.unknown": "Bir şeyler ters gitti. İlerlemen yine de bu cihazda kayıtlı.",
+    "account.error.username.too_short": "Bu kullanıcı adı çok kısa (en az 3 karakter).",
+    "account.error.username.too_long": "Bu kullanıcı adı çok uzun (en fazla 20 karakter).",
+    "account.error.username.charset": "Sadece harf, rakam, tire ve alt çizgi kullan.",
+    "account.error.username.inappropriate": "Lütfen başka bir kullanıcı adı seç.",
+    "account.error.username.reserved": "Bu kullanıcı adı ayrılmış.",
+    "account.error.username.needs_letter_or_digit": "Kullanıcı adında en az bir harf ya da rakam olmalı.",
 };
 
 export default common;

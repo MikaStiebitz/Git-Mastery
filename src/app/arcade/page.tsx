@@ -19,7 +19,11 @@ export default function ArcadePage() {
     const activeDef = MINIGAMES.find(game => game.id === activeMinigame) ?? null;
 
     const handleComplete = (gameId: string, score: number) => {
-        progressManager.completeMinigame(gameId, score);
+        // The coins are the arcade's advertised reward from the registry; `score` is what the
+        // player just scored. Passing `score` as the reward — which this used to do — paid out a
+        // time-dependent number many times larger than the "+10" on the card.
+        const reward = MINIGAMES.find(game => game.id === gameId)?.coins ?? 0;
+        progressManager.completeMinigame(gameId, reward, score);
         setActiveMinigame(null);
     };
 

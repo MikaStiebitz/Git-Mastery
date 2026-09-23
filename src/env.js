@@ -18,6 +18,17 @@ export const env = createEnv({
     client: {
         NEXT_PUBLIC_DEBUG_MODE: z.boolean().optional(),
         NEXT_PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN: z.string().optional(),
+        /**
+         * Base URL of the optional account Worker, e.g. https://gitmastery-accounts.<sub>.workers.dev
+         *
+         * Public by nature — it is an API endpoint the browser calls, so it ends up in the static
+         * bundle either way. Leave it unset and the account feature is simply absent: no sign-in
+         * button, no network calls, and the game behaves exactly as it did before accounts existed.
+         *
+         * Nothing secret may ever gain a NEXT_PUBLIC_ prefix. Under `output: "export"` there is no
+         * server at runtime, so every one of these is inlined into files served to the public.
+         */
+        NEXT_PUBLIC_ACCOUNT_API_URL: z.string().url().optional(),
     },
 
     /**
@@ -28,6 +39,7 @@ export const env = createEnv({
         NODE_ENV: process.env.NODE_ENV,
         NEXT_PUBLIC_DEBUG_MODE: process.env.NEXT_PUBLIC_DEBUG_MODE === "true",
         NEXT_PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN: process.env.NEXT_PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN,
+        NEXT_PUBLIC_ACCOUNT_API_URL: process.env.NEXT_PUBLIC_ACCOUNT_API_URL,
     },
     /**
      * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
