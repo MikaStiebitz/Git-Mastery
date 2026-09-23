@@ -1,0 +1,8 @@
+# Copy to `.dev.vars` (gitignored) for local development.
+#
+# The real production value is set with `wrangler secret put PASSWORD_PEPPER` and exists only in
+# Cloudflare's secret store. It must never be written into wrangler.jsonc, into `vars`, or into any
+# file that is committed.
+#
+# Generate one with:  openssl rand -base64 32
+PASSWORD_PEPPER="replace-me-with-a-long-random-string"
