@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { CommandProcessor } from "~/models/CommandProcessor";
 import { FileSystem } from "~/models/FileSystem";
@@ -10,6 +10,7 @@ import { GitRepository } from "~/models/GitRepository";
 import { parseCommand, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import { resolvePath } from "~/lib/utils";
 import { didCommandFail } from "~/models/commandOutcome";
+import { cueMascot } from "~/components/GitMascot";
 import type { GameContextProps, DifficultyLevel } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { useSoundManager } from "~/lib/SoundManager";
@@ -51,6 +52,15 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         t("terminal.levelStarted").replace("{level}", currentLevel.toString()).replace("{stage}", currentStage),
     ]);
     const [isCommitDialogOpen, setIsCommitDialogOpen] = useState<boolean>(false);
+
+    /**
+     * Consecutive failed commands on the current level.
+     *
+     * The mascot's shop copy promises encouragement "during difficult levels", but nothing in the
+     * app ever measured difficulty — it only ever fired on success, which is the moment you need
+     * encouragement least. A ref, not state: it must not re-render the terminal on every keystroke.
+     */
+    const failStreak = useRef(0);
 
     // Advanced mode state - initialize with false to avoid hydration mismatch
     const [isAdvancedMode, setIsAdvancedMode] = useState<boolean>(false);
@@ -309,6 +319,17 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return;
         }
 
+        // Tell the mascot what happened. A streak of failures is the only signal the app has that
+        // a player is stuck, and it is the one the shop already promised the mascot would notice.
+        if (didCommandFail(output)) {
+            failStreak.current += 1;
+            if (failStreak.current === 3) cueMascot({ cue: "struggle3" });
+            if (failStreak.current === 7) cueMascot({ cue: "struggle7" });
+        } else {
+            failStreak.current = 0;
+            cueMascot({ cue: "command", command });
+        }
+
         // Only a command that worked can complete a level.
         if (didCommandFail(output)) {
             return; // Don't mark level as completed if command failed
@@ -343,17 +364,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 playSound("levelComplete");
             }
 
-            // Trigger mascot success animation if purchased
-            if (progressManager.getPurchasedItems().includes("git-mascot")) {
-                // This will trigger the mascot success animation
-                interface WindowWithMascot extends Window {
-                    triggerMascotSuccess?: () => void;
-                }
-                if (typeof window !== "undefined") {
-                    const windowWithMascot = window as WindowWithMascot;
-                    windowWithMascot.triggerMascotSuccess?.();
-                }
-            }
+            // The mascot reacts to the landing. It filters on ownership itself, so this stays a
+            // plain announcement of what happened rather than a check of what the player bought.
+            failStreak.current = 0;
+            cueMascot({ cue: "levelComplete" });
         }
     };
 

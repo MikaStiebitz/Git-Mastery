@@ -459,6 +459,166 @@
     }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   HEAD, detached — the mascot.
+
+   The celebration is the character re-attaching to a branch, not sparks. Sparks
+   are what every mascot in every product does on success and they say nothing;
+   a detached HEAD snapping onto a ref for one second says exactly what just
+   happened, and it is the one animation this character could not borrow.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.gm-mascot__body {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: gm-mascot-float 3.6s ease-in-out infinite;
+}
+
+.gm-mascot__tag {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: gm-mascot-float 3.6s ease-in-out infinite;
+    animation-delay: 0.25s;
+}
+
+.gm-mascot__eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: gm-mascot-blink 5.4s steps(1) infinite;
+}
+
+/* The branch is absent while detached — that is the joke — and draws itself in only
+   when the player lands a level. */
+.gm-mascot__branch {
+    opacity: 0;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+}
+
+.gm-mascot--landed .gm-mascot__branch {
+    animation: gm-mascot-attach 1.5s var(--ease-out-expo) forwards;
+}
+
+.gm-mascot--landed .gm-mascot__body {
+    animation:
+        gm-mascot-land 0.7s var(--ease-out-expo),
+        gm-mascot-float 3.6s ease-in-out 0.7s infinite;
+}
+
+.gm-mascot--landed .gm-mascot__tail {
+    animation: gm-mascot-taut 1.5s var(--ease-out-expo);
+}
+
+/* Stuck: it leans in and peers, rather than looking sad. The player is not an error state. */
+.gm-mascot--stuck .gm-mascot__body {
+    animation: gm-mascot-peer 2.2s ease-in-out infinite;
+}
+.gm-mascot--stuck .gm-mascot__mouth {
+    d: path("M29 36 Q34 34 39 36");
+}
+
+@keyframes gm-mascot-float {
+    0%,
+    100% {
+        transform: translateY(0) rotate(-1.5deg);
+    }
+    50% {
+        transform: translateY(-3px) rotate(1.5deg);
+    }
+}
+
+@keyframes gm-mascot-blink {
+    0%,
+    96%,
+    100% {
+        transform: scaleY(1);
+    }
+    98% {
+        transform: scaleY(0.1);
+    }
+}
+
+@keyframes gm-mascot-attach {
+    0% {
+        opacity: 0;
+        stroke-dashoffset: 1;
+    }
+    25% {
+        opacity: 1;
+        stroke-dashoffset: 0;
+    }
+    70% {
+        opacity: 1;
+        stroke-dashoffset: 0;
+    }
+    100% {
+        opacity: 0;
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes gm-mascot-land {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+    35% {
+        transform: translateY(4px) scale(1.08, 0.92);
+    }
+    70% {
+        transform: translateY(-5px) scale(0.96, 1.04);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes gm-mascot-taut {
+    0%,
+    100% {
+        stroke-width: 3;
+    }
+    30%,
+    60% {
+        stroke-width: 4;
+    }
+}
+
+@keyframes gm-mascot-peer {
+    0%,
+    100% {
+        transform: translateX(0) rotate(0deg);
+    }
+    50% {
+        transform: translateX(2px) rotate(4deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gm-mascot__body,
+    .gm-mascot__tag,
+    .gm-mascot__eyes,
+    .gm-mascot__tail,
+    .gm-mascot--stuck .gm-mascot__body {
+        animation: none;
+    }
+    /* The branch still appears on a landing — it is information, not decoration — it
+       just arrives without being drawn. */
+    .gm-mascot--landed .gm-mascot__branch {
+        animation: gm-mascot-attach-still 1.5s steps(1) forwards;
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes gm-mascot-attach-still {
+    0%,
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 /* Keyboard focus, everywhere, in one place. */
 @layer base {
     :focus-visible {

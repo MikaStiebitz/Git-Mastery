@@ -496,13 +496,24 @@ function LevelPageContent() {
                 {/* Level header: mono metadata for the stage/level coordinates, display face
                         for the level title itself. */}
                 <ClientOnly fallback={<div className="mb-4 h-14 sm:mb-6 sm:h-16" />}>
-                    <header className="mb-4 sm:mb-6">
-                        <p className="text-gm-ink-dim [font-family:var(--font-code)] text-xs sm:text-sm">
-                            {t("level.level")} {currentLevel} · {stageName}
-                        </p>
-                        <h1 className="font-display text-gm-ink mt-1 text-2xl leading-[1.05] [text-wrap:balance] [overflow-wrap:anywhere] sm:text-3xl sm:[overflow-wrap:normal]">
-                            {levelData?.name ?? t("level.notFound")}
-                        </h1>
+                    {/* The mascot is docked here, in flow, rather than floating over the page: the
+                        terminal input is at the bottom and the Next Level button is inside the
+                        challenge card, so an overlay would eventually sit on one of them. In the
+                        header it reserves its own box and can never cover anything. */}
+                    <header className="mb-4 flex items-start justify-between gap-3 sm:mb-6">
+                        <div className="min-w-0">
+                            <p className="text-gm-ink-dim [font-family:var(--font-code)] text-xs sm:text-sm">
+                                {t("level.level")} {currentLevel} · {stageName}
+                            </p>
+                            <h1 className="font-display text-gm-ink mt-1 text-2xl leading-[1.05] [text-wrap:balance] [overflow-wrap:anywhere] sm:text-3xl sm:[overflow-wrap:normal]">
+                                {levelData?.name ?? t("level.notFound")}
+                            </h1>
+                        </div>
+
+                        <GitMascot
+                            isActive={progressManager.getPurchasedItems().includes("git-mascot")}
+                            suppressed={isFileEditorOpen || shouldShowStoryDialog}
+                        />
                     </header>
                 </ClientOnly>
                 <ProgressBar
@@ -624,17 +635,6 @@ function LevelPageContent() {
                 />
 
                 <CommitDialog />
-
-                {/* Git Mascot - only show if purchased */}
-                <ClientOnly>
-                    <GitMascot
-                        isActive={progressManager.getPurchasedItems().includes("git-mascot")}
-                        onEncouragement={() => {
-                            // Could add sound effects here later
-                            console.log("Mascot is encouraging the player!");
-                        }}
-                    />
-                </ClientOnly>
             </div>
             {levelData?.story && (
                 <StoryDialog
