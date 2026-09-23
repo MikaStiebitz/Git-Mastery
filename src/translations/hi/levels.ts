@@ -11,6 +11,7 @@ const levels = {
     "level.staged": "स्टेज्ड",
     "level.modified": "संशोधित",
     "level.untracked": "अनट्रैक्ड",
+    "level.deleted": "हटाया गया",
     "level.gitNotInitialized": "Git अभी शुरू (initialize) नहीं हुआ है",
     "level.branch": "ब्रांच",
     "level.gitStatus": "Git स्टेटस",

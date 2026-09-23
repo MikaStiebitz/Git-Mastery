@@ -8,7 +8,7 @@ import { FileEditor } from "~/components/FileEditor";
 import { ProgressBar } from "~/components/ProgressBar";
 import { RequirementChecklist } from "~/components/RequirementChecklist";
 import { useGameContext } from "~/contexts/GameContext";
-import { type LevelType } from "~/types";
+import { type LevelType, type FileStatus } from "~/types";
 import { highlightGitCommands } from "~/lib/textHighlighting";
 import {
     HelpCircleIcon,
@@ -136,19 +136,56 @@ function LevelPageContent() {
         return root;
     };
 
+    /**
+     * Where a file stands with Git, as a chip on its row.
+     *
+     * The file tree used to say only that a file existed, which is the one thing you can already
+     * see — meanwhile the thing the whole stage is teaching, that a change moves folder -> staged ->
+     * committed, was visible only by typing `git status`. A clean file gets no chip at all: silence
+     * is the honest signal for "nothing to do here", and a row of "committed" badges would drown
+     * the two files that actually need attention.
+     */
+    const FileStatusChip = ({ status }: { status?: FileStatus }) => {
+        if (!status || status === "committed") return null;
+
+        const tone: Record<string, string> = {
+            staged: "border-gm-lime-edge text-gm-lime",
+            "staged+modified": "border-gm-lime-edge text-gm-lime",
+            modified: "border-gm-coral-edge text-gm-coral",
+            untracked: "border-gm-line text-gm-ink-dim",
+            deleted: "border-gm-coral-edge text-gm-coral",
+        };
+
+        const label: Record<string, string> = {
+            staged: t("level.staged"),
+            "staged+modified": t("level.staged"),
+            modified: t("level.modified"),
+            untracked: t("level.untracked"),
+            deleted: t("level.deleted"),
+        };
+
+        return (
+            <span className={`gm-chip shrink-0 text-[10px] ${tone[status] ?? "border-gm-line text-gm-ink-dim"}`}>
+                {label[status] ?? status}
+            </span>
+        );
+    };
+
     // Recursive component to render a file tree item
     const FileTreeItem = ({
         item,
         level = 0,
         onEditFile,
         onDeleteFile,
+        statusOf,
     }: {
         item: FileTreeNode;
         level?: number;
         onEditFile: (path: string) => void;
         onDeleteFile: (path: string, name: string) => void;
+        statusOf: (path: string) => FileStatus | undefined;
     }) => {
-        const [isOpen, setIsOpen] = useState(level === 0); // Root is open by default
+        const [isOpen, setIsOpen] = useState(true);
 
         if (item.isDirectory) {
             // Directory
@@ -169,7 +206,7 @@ function LevelPageContent() {
                             )}
                         </span>
                         <Folder className="text-gm-grape-hi h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                        <span className="truncate">{item.name === "/" ? "root" : item.name}</span>
+                        <span className="truncate">{item.name}</span>
                     </button>
 
                     {isOpen && hasChildren && (
@@ -188,6 +225,7 @@ function LevelPageContent() {
                                         level={level + 1}
                                         onEditFile={onEditFile}
                                         onDeleteFile={onDeleteFile}
+                                        statusOf={statusOf}
                                     />
                                 ))}
                         </div>
@@ -197,12 +235,13 @@ function LevelPageContent() {
         } else {
             // File
             return (
-                <div className="mb-1 flex min-h-11 items-center justify-between gap-2 rounded-[0.7rem] px-2">
+                <div className="hover:bg-gm-deep/60 mb-1 flex min-h-11 items-center justify-between gap-2 rounded-[0.7rem] px-2 transition-colors duration-150">
                     <div
                         className="text-gm-ink-soft flex min-w-0 items-center gap-1.5 text-start [font-family:var(--font-code)] text-sm"
                         title={item.path}>
                         <FileIcon className="text-gm-ink-dim h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                         <span className="truncate">{item.name}</span>
+                        <FileStatusChip status={statusOf(item.path)} />
                     </div>
                     <div className="flex shrink-0 items-center">
                         <Button
@@ -371,6 +410,12 @@ function LevelPageContent() {
         // Create file tree structure for hierarchical view
         const fileTree = getFileTree(editableFiles);
 
+        // Git's view of the same files. getWorkingTreeStatus includes files Git has never been told
+        // about, so a brand-new file reads as "untracked" here without anyone running git status.
+        const workingTree = gitRepository.getWorkingTreeStatus();
+        const statusOf = (path: string): FileStatus | undefined =>
+            workingTree[path.startsWith("/") ? path.slice(1) : path];
+
         const handleEditFile = (path: string) => {
             openFileEditor(path);
         };
@@ -394,7 +439,24 @@ function LevelPageContent() {
                     )}
                 </div>
                 <div className="gm-inset p-2 sm:p-3">
-                    <FileTreeItem item={fileTree} onEditFile={handleEditFile} onDeleteFile={handleDeleteFile} />
+                    {/* The tree's own root is not rendered: "root" is a node that is always there,
+                        always open and never actionable, so it cost every file a level of indent to
+                        say nothing. */}
+                    {Object.values(fileTree.children)
+                        .sort((a, b) => {
+                            if (a.isDirectory && !b.isDirectory) return -1;
+                            if (!a.isDirectory && b.isDirectory) return 1;
+                            return a.name.localeCompare(b.name);
+                        })
+                        .map(child => (
+                            <FileTreeItem
+                                key={child.path}
+                                item={child}
+                                onEditFile={handleEditFile}
+                                onDeleteFile={handleDeleteFile}
+                                statusOf={statusOf}
+                            />
+                        ))}
                 </div>
             </div>
         );

@@ -11,6 +11,7 @@ const levels = {
     "level.staged": "استیج‌شده",
     "level.modified": "تغییریافته",
     "level.untracked": "ردیابی‌نشده",
+    "level.deleted": "حذف‌شده",
     "level.gitNotInitialized": "Git هنوز مقداردهی اولیه نشده است",
     "level.branch": "شاخه",
     "level.gitStatus": "وضعیت Git",

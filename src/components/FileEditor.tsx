@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "~/components/ui/dialog";
-import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { Save } from "lucide-react";
+import { CodeField } from "./editor/CodeField";
 
 interface FileEditorProps {
     isOpen: boolean;
@@ -35,8 +35,8 @@ export function FileEditor({ isOpen, onClose, fileName, initialContent = "" }: F
         onClose();
     }, [isDirty, fileName, content, handleFileEdit, onClose]);
 
-    const handleContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setContent(e.target.value);
+    const handleContentChange = useCallback((next: string) => {
+        setContent(next);
         setIsDirty(true);
     }, []);
 
@@ -92,10 +92,10 @@ export function FileEditor({ isOpen, onClose, fileName, initialContent = "" }: F
 
                 <div className="mt-4 flex min-h-0 flex-1 flex-col gap-2">
                     <p className="text-gm-ink-dim text-xs font-semibold">{t("editor.fileContent")}</p>
-                    <Textarea
+                    <CodeField
                         value={content}
-                        onChange={handleContentChange}
-                        className="font-code h-full min-h-0 w-full flex-1 resize-none text-xs sm:text-sm"
+                        onValueChange={handleContentChange}
+                        fileName={fileName}
                         autoFocus={!isMobileDevice()}
                         onKeyDown={handleKeyDown}
                     />

@@ -12,6 +12,7 @@ const levels = {
     "level.staged": "staged",
     "level.modified": "modified",
     "level.untracked": "untracked",
+    "level.deleted": "gelöscht",
     "level.gitNotInitialized": "Git ist noch nicht initialisiert",
     "level.branch": "Branch",
     "level.gitStatus": "Git Status",

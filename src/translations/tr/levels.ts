@@ -11,6 +11,7 @@ const levels = {
     "level.staged": "staged",
     "level.modified": "değiştirilmiş",
     "level.untracked": "izlenmeyen",
+    "level.deleted": "silindi",
     "level.gitNotInitialized": "Git henüz başlatılmadı",
     "level.branch": "Branch",
     "level.gitStatus": "Git Durumu",
