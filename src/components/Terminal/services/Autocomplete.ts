@@ -1,7 +1,7 @@
 import type { CommandProcessor } from "~/models/CommandProcessor";
 import type { FileSystem } from "~/models/FileSystem";
 import type { GitRepository } from "~/models/GitRepository";
-import type { AutocompleteState } from "../types";
+import type { AutocompleteState, CompletionItem } from "../types";
 import commandRegistry from "~/commands";
 
 export class AutocompleteService {
@@ -11,19 +11,27 @@ export class AutocompleteService {
         private gitRepository?: GitRepository,
     ) {}
 
+    /**
+     * The command name Tab would complete to, or undefined when there is nothing left to add.
+     *
+     * Matched against the text exactly as typed, trailing space included. Trimming first is what
+     * made `cd ` suggest `cd`: the trimmed form matches that command exactly, so accepting the
+     * suggestion rewrote the line without the space — the cursor appeared to jump backwards, and
+     * the space you had just typed to start naming a directory was gone.
+     *
+     * A suggestion that does not extend what is on screen is not a suggestion, so a command that is
+     * already complete returns nothing and Tab moves on to completing its arguments instead.
+     */
     getCommandSuggestion(partialCommand: string): string | undefined {
         if (!partialCommand || partialCommand.trim() === "") return undefined;
 
-        // Normalize input (lowercase, trim spaces)
-        const normalizedInput = partialCommand.toLowerCase().trim();
-
-        // Get all tab-completion-enabled commands from registry
+        const typed = partialCommand.toLowerCase();
         const completionCommands = commandRegistry.getTabCompletionCommands();
 
-        // Find matching commands that start with the input
-        const matches = completionCommands.filter(cmd => cmd.toLowerCase().startsWith(normalizedInput));
+        const matches = completionCommands.filter(
+            cmd => cmd.toLowerCase().startsWith(typed) && cmd.length > partialCommand.length,
+        );
 
-        // Return the first match or undefined
         return matches.length > 0 ? matches[0] : undefined;
     }
 
@@ -40,10 +48,41 @@ export class AutocompleteService {
             commandName = `git ${parts[1]}`;
         }
 
+        // Nothing is offered until the command name is actually finished. `git checkout` with the
+        // cursor still against the "t" is someone typing a command, not an argument — listing every
+        // file in the directory at that point is the noise this menu was accused of. A trailing
+        // space, or a third token, is what says "I have moved on to the argument".
+        const commandTokens = commandName.includes(" ") ? 2 : 1;
+        const endsWithSpace = /\s$/.test(input);
+        const isTypingArgument = endsWithSpace || parts.length > commandTokens;
+
+        if (!isTypingArgument) {
+            const suggestion = this.getCommandSuggestion(input);
+            return {
+                fileMatches: [],
+                showMenu: false,
+                commandSuggestion: suggestion ?? "",
+                showCommandSuggestion: !!suggestion,
+                typedPrefix: "",
+            };
+        }
+
         // Check if this command needs branch autocomplete
         const needsBranchCompletion = this.commandSupportsBranchCompletion(commandName);
 
-        if (needsBranchCompletion && this.gitRepository?.isInitialized()) {
+        if (needsBranchCompletion) {
+            // A command that takes a branch offers branches or nothing. Falling through to file
+            // completion here is what made `git checkout` list README.md and src/ in a folder that
+            // is not a repository yet — an answer to a question nobody asked.
+            if (!this.gitRepository?.isInitialized()) {
+                return {
+                    fileMatches: [],
+                    showMenu: false,
+                    commandSuggestion: "",
+                    showCommandSuggestion: false,
+                    typedPrefix: "",
+                };
+            }
             return this.processBranchAutocomplete(input, commandName, parts);
         }
 
@@ -60,6 +99,7 @@ export class AutocompleteService {
                 showMenu: false,
                 commandSuggestion: "",
                 showCommandSuggestion: false,
+                typedPrefix: "",
             };
         }
 
@@ -69,6 +109,7 @@ export class AutocompleteService {
                 showMenu: false,
                 commandSuggestion: commandSuggestion ?? "",
                 showCommandSuggestion: !!commandSuggestion,
+                typedPrefix: "",
             };
         }
 
@@ -100,11 +141,22 @@ export class AutocompleteService {
                 showMenu: false,
                 commandSuggestion: commandSuggestion ?? "",
                 showCommandSuggestion: !!commandSuggestion,
+                typedPrefix: "",
             };
         }
 
-        // Filter files based on the current input path
-        const matchingFiles = Object.keys(contents).filter(file => file.startsWith(filePart || ""));
+        // Filter files based on the current input path. A directory is carried as such so the menu
+        // can mark it and so completing it can leave the trailing slash in place, the way a shell
+        // does — otherwise every directory completion needs a second manual keystroke.
+        const typed = filePart || "";
+        const matchingFiles: CompletionItem[] = Object.keys(contents)
+            .filter(file => file !== ".git")
+            .filter(file => file.startsWith(typed))
+            .sort((a, b) => a.localeCompare(b))
+            .map(file => ({
+                value: file,
+                kind: contents[file]?.type === "directory" ? ("directory" as const) : ("file" as const),
+            }));
 
         if (matchingFiles.length === 0) {
             return {
@@ -112,15 +164,33 @@ export class AutocompleteService {
                 showMenu: false,
                 commandSuggestion: commandSuggestion ?? "",
                 showCommandSuggestion: !!commandSuggestion,
+                typedPrefix: typed,
             };
         }
+
+        const commonPrefix = this.longestCommonPrefix(matchingFiles.map(f => f.value));
 
         return {
             fileMatches: matchingFiles,
             showMenu: matchingFiles.length > 1,
             commandSuggestion: commandSuggestion ?? "",
             showCommandSuggestion: !!commandSuggestion,
+            commonPrefix: commonPrefix.length > typed.length ? commonPrefix : undefined,
+            typedPrefix: typed,
         };
+    }
+
+    /** The longest prefix shared by every candidate — what Tab inserts before offering a choice. */
+    private longestCommonPrefix(values: string[]): string {
+        if (values.length === 0) return "";
+        let prefix = values[0] ?? "";
+        for (const value of values.slice(1)) {
+            while (prefix && !value.startsWith(prefix)) {
+                prefix = prefix.slice(0, -1);
+            }
+            if (!prefix) break;
+        }
+        return prefix;
     }
 
     private commandSupportsBranchCompletion(commandName: string): boolean {
@@ -145,6 +215,7 @@ export class AutocompleteService {
                 showMenu: false,
                 commandSuggestion: "",
                 showCommandSuggestion: false,
+                typedPrefix: "",
             };
         }
 
@@ -165,6 +236,7 @@ export class AutocompleteService {
                     showMenu: false,
                     commandSuggestion: "",
                     showCommandSuggestion: false,
+                    typedPrefix: "",
                 };
             }
 
@@ -183,14 +255,19 @@ export class AutocompleteService {
                 showMenu: false,
                 commandSuggestion: "",
                 showCommandSuggestion: false,
+                typedPrefix: branchPart,
             };
         }
 
+        const commonPrefix = this.longestCommonPrefix(matchingBranches);
+
         return {
-            fileMatches: matchingBranches,
+            fileMatches: matchingBranches.map(value => ({ value, kind: "branch" as const })),
             showMenu: matchingBranches.length > 1,
             commandSuggestion: "",
             showCommandSuggestion: false,
+            commonPrefix: commonPrefix.length > branchPart.length ? commonPrefix : undefined,
+            typedPrefix: branchPart,
         };
     }
 

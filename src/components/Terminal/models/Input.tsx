@@ -1,6 +1,6 @@
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, GitBranch, Folder, File } from "lucide-react";
 import type { TerminalInputProps } from "../types";
 
 /** Shared type styling, so the ghost completion sits exactly under the real text. */
@@ -16,6 +16,9 @@ export function TerminalInput({
     showCommandSuggestion,
     showAutocomplete,
     fileAutocomplete,
+    activeCompletion,
+    setActiveCompletion,
+    completionPrefix,
     selectAutocompleteOption,
     theme,
     t,
@@ -103,22 +106,71 @@ export function TerminalInput({
                 </Button>
             </form>
 
-            {/* Autocomplete dropdown - adjusted for mobile */}
+            {/*
+             * The completion menu.
+             *
+             * It is a listbox, not a stack of buttons: the keyboard drives it (Tab and the arrows
+             * move, Enter inserts), so the highlighted row has to be a real selection the screen
+             * reader can follow, and focus must stay in the input the whole time. Each row says
+             * what kind of thing it is — a directory is not a file is not a branch — and the part
+             * already typed is dimmed so the eye lands on what Tab would add.
+             */}
             {showAutocomplete && fileAutocomplete.length > 0 && (
-                <div className="gm-scroll border-gm-line bg-gm-night absolute start-0 end-0 bottom-full z-(--z-dropdown) max-h-40 overflow-y-auto rounded-t-[0.85rem] border-2 p-1">
-                    {fileAutocomplete.map(file => (
-                        <button
-                            key={file}
-                            type="button"
-                            className="text-gm-ink-soft hover:bg-gm-deep hover:text-gm-ink active:bg-gm-grape active:text-gm-ink focus-visible:outline-gm-cyan flex min-h-11 w-full cursor-pointer items-center rounded-[0.7rem] px-2 py-1.5 text-start [font-family:var(--font-code)] text-xs transition-colors duration-150 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:-outline-offset-2 sm:min-h-9 sm:text-sm"
-                            onClick={() => selectAutocompleteOption(file)}
-                            onTouchEnd={e => {
-                                e.preventDefault();
-                                selectAutocompleteOption(file);
-                            }}>
-                            {file}
-                        </button>
-                    ))}
+                <div className="border-gm-line bg-gm-night absolute start-0 end-0 bottom-full z-(--z-dropdown) overflow-hidden rounded-t-[0.85rem] border-2">
+                    <ul className="gm-scroll max-h-44 overflow-y-auto p-1" role="listbox" aria-label="Completions">
+                        {fileAutocomplete.map((item, index) => {
+                            const isActive = index === activeCompletion;
+                            const text = item.kind === "directory" ? `${item.value}/` : item.value;
+                            const matched = text.toLowerCase().startsWith(completionPrefix.toLowerCase())
+                                ? text.slice(0, completionPrefix.length)
+                                : "";
+                            const rest = text.slice(matched.length);
+                            const Icon = item.kind === "branch" ? GitBranch : item.kind === "directory" ? Folder : File;
+
+                            return (
+                                <li key={`${item.kind}:${item.value}`} role="option" aria-selected={isActive}>
+                                    <button
+                                        type="button"
+                                        tabIndex={-1}
+                                        className={`flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-[0.7rem] px-2 py-1.5 text-start [font-family:var(--font-code)] text-xs transition-colors duration-150 ease-[var(--ease-out-expo)] sm:min-h-9 sm:text-sm ${
+                                            isActive
+                                                ? "bg-gm-grape text-gm-ink"
+                                                : "text-gm-ink-soft hover:bg-gm-deep hover:text-gm-ink"
+                                        }`}
+                                        // Keep focus in the input: a mousedown that blurs it would
+                                        // close the menu before the click ever lands.
+                                        onMouseDown={e => e.preventDefault()}
+                                        onMouseEnter={() => setActiveCompletion(index)}
+                                        onClick={() => selectAutocompleteOption(text)}
+                                        onTouchEnd={e => {
+                                            e.preventDefault();
+                                            selectAutocompleteOption(text);
+                                        }}>
+                                        <Icon
+                                            className={`h-3.5 w-3.5 shrink-0 ${
+                                                item.kind === "branch"
+                                                    ? "text-gm-cyan"
+                                                    : item.kind === "directory"
+                                                      ? "text-gm-grape-hi"
+                                                      : "text-gm-ink-dim"
+                                            }`}
+                                            aria-hidden="true"
+                                        />
+                                        <span className="truncate">
+                                            <span className="opacity-55">{matched}</span>
+                                            {rest}
+                                        </span>
+                                    </button>
+                                </li>
+                            );
+                        })}
+                    </ul>
+
+                    <p className="border-gm-line text-gm-ink-dim border-t px-2.5 py-1.5 text-[11px]">
+                        <kbd className="font-semibold">Tab</kbd> / <kbd className="font-semibold">↑↓</kbd> to move ·{" "}
+                        <kbd className="font-semibold">Enter</kbd> to insert · <kbd className="font-semibold">Esc</kbd>{" "}
+                        to close
+                    </p>
                 </div>
             )}
         </div>

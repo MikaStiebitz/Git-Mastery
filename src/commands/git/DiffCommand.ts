@@ -1,6 +1,7 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
 import { hint, notARepository } from "../base/GitErrors";
+import type { GitRepository } from "~/models/GitRepository";
 
 export class DiffCommand implements Command {
     name = "git diff";
@@ -126,6 +127,41 @@ export class DiffCommand implements Command {
             }
         }
 
+        // Real Git prints nothing when there is nothing to compare, and that is kept — but silence
+        // is indistinguishable from a broken command when you are learning, and this is the command
+        // people run straight after `git status` shows them three untracked files. The diff itself
+        // stays empty; a hint explains why it is.
+        if (output.length === 0) {
+            return this.explainEmptyDiff(gitRepository, !!isStaged);
+        }
+
         return output;
+    }
+
+    /** Why `git diff` had nothing to say, in terms of what the player can see on screen. */
+    private explainEmptyDiff(gitRepository: GitRepository, isStaged: boolean): string[] {
+        const status = gitRepository.getWorkingTreeStatus();
+        const counts = Object.values(status);
+        const untracked = counts.filter(state => state === "untracked").length;
+        const staged = counts.filter(state => state === "staged").length;
+
+        if (isStaged) {
+            return staged > 0
+                ? [hint("Nothing staged differs from the last commit.")]
+                : [
+                      hint("Nothing is staged, so there is nothing to compare."),
+                      hint("Stage something with 'git add <file>', then try again."),
+                  ];
+        }
+
+        if (untracked > 0) {
+            return [
+                hint(`No tracked changes. Git can see ${untracked} untracked file${untracked === 1 ? "" : "s"},`),
+                hint("but an untracked file has no committed version to compare against — that is why"),
+                hint("it shows no diff. Run 'git add <file>' first, then 'git diff --staged'."),
+            ];
+        }
+
+        return [hint("No changes. Your files match the last commit.")];
     }
 }

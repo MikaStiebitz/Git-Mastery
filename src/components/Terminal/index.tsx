@@ -13,7 +13,12 @@ import { CommandService } from "./services/Command";
 import { HistoryService } from "./services/History";
 import { AutocompleteService } from "./services/Autocomplete";
 import { OutputFormatterService } from "./services/OutputFormatter";
-import type { TerminalProps } from "./types";
+import type { TerminalProps, CompletionItem } from "./types";
+
+/** A directory completes with its trailing slash, so the next Tab can descend into it. */
+function completionText(item: CompletionItem): string {
+    return item.kind === "directory" ? `${item.value}/` : item.value;
+}
 
 /** Offered when someone types `git clone`, so nobody has to go and find a repository address. */
 const SAMPLE_CLONE_URL = "https://github.com/octocat/Hello-World.git";
@@ -59,7 +64,11 @@ export function Terminal({
 
     // Terminal state
     const [input, setInput] = useState("");
-    const [fileAutocomplete, setFileAutocomplete] = useState<string[]>([]);
+    const [fileAutocomplete, setFileAutocomplete] = useState<CompletionItem[]>([]);
+    /** Which candidate the menu has highlighted; -1 while the menu is closed. */
+    const [activeCompletion, setActiveCompletion] = useState(-1);
+    /** What had been typed when the menu opened, so the menu can show what matched. */
+    const [completionPrefix, setCompletionPrefix] = useState("");
     const [showAutocomplete, setShowAutocomplete] = useState(false);
     const [commandSuggestion, setCommandSuggestion] = useState<string>("");
     const [showCommandSuggestion, setShowCommandSuggestion] = useState<boolean>(false);
@@ -177,19 +186,42 @@ export function Terminal({
 
         // Hide file autocomplete when typing
         setShowAutocomplete(false);
+        setActiveCompletion(-1);
     };
 
-    // Process Tab-autocomplete for files
-    const handleTabAutocomplete = () => {
+    /**
+     * Tab opens the list on the first press and never edits the line.
+     *
+     * A shell would first extend to the prefix every candidate shares and only then show you the
+     * options, but that means the first Tab silently rewrites what you typed — and when the shared
+     * prefix is shorter than the text already there, the line visibly jumps backwards. Here Tab is
+     * purely "show me what fits"; the text changes only when a choice is actually made, either by
+     * picking one from the list or because there was only ever one match.
+     */
+    const handleTabAutocomplete = (reverse = false) => {
+        // The menu is already open: Tab cycles instead of recomputing.
+        if (showAutocomplete && fileAutocomplete.length > 0) {
+            setActiveCompletion(current => {
+                const count = fileAutocomplete.length;
+                const next = reverse ? current - 1 : current + 1;
+                return ((next % count) + count) % count;
+            });
+            return;
+        }
+
         const result = autocompleteService.processTabAutocomplete(input);
 
         if (result.fileMatches.length === 1) {
-            // If there's only one match, complete it directly
-            setInput(autocompleteService.generateCompletedCommand(input, result.fileMatches[0] ?? ""));
+            const only = result.fileMatches[0]!;
+            setInput(autocompleteService.generateCompletedCommand(input, completionText(only)));
             setShowAutocomplete(false);
+            setActiveCompletion(-1);
         } else if (result.fileMatches.length > 1) {
-            // If there are multiple matches, show the autocomplete menu
             setFileAutocomplete(result.fileMatches);
+            // Highlight against what was actually typed, not against the shared prefix: the line is
+            // left exactly as it is, so the dimmed part has to match what is really on screen.
+            setCompletionPrefix(result.typedPrefix);
+            setActiveCompletion(0);
             setShowAutocomplete(true);
         }
 
@@ -202,6 +234,7 @@ export function Terminal({
     const selectAutocompleteOption = (file: string) => {
         setInput(autocompleteService.generateCompletedCommand(input, file));
         setShowAutocomplete(false);
+        setActiveCompletion(-1);
         if (inputRef.current) {
             inputRef.current.focus();
         }
@@ -209,6 +242,26 @@ export function Terminal({
 
     // Handle keyboard shortcuts and navigation
     const handleKeyDown = (e: React.KeyboardEvent) => {
+        const menuOpen = showAutocomplete && fileAutocomplete.length > 0;
+
+        // While the completion menu is open it owns the arrows and Enter. Closed, they belong to
+        // the command history and to submitting — which is why the menu was unusable by keyboard
+        // before: the arrows were always history and Enter always ran the half-typed line.
+        if (menuOpen && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+            e.preventDefault();
+            const count = fileAutocomplete.length;
+            const step = e.key === "ArrowDown" ? 1 : -1;
+            setActiveCompletion(current => (((current + step) % count) + count) % count);
+            return;
+        }
+
+        if (menuOpen && e.key === "Enter") {
+            e.preventDefault();
+            const chosen = fileAutocomplete[activeCompletion] ?? fileAutocomplete[0];
+            if (chosen) selectAutocompleteOption(completionText(chosen));
+            return;
+        }
+
         // Handle command history navigation with up/down arrows
         if (e.key === "ArrowUp") {
             e.preventDefault();
@@ -228,18 +281,19 @@ export function Terminal({
             e.preventDefault();
 
             // If we have a command suggestion, use it
-            if (showCommandSuggestion && commandSuggestion) {
+            if (!menuOpen && showCommandSuggestion && commandSuggestion) {
                 setInput(commandSuggestion);
                 setShowCommandSuggestion(false);
                 return;
             }
 
-            // Otherwise, try file autocomplete
-            handleTabAutocomplete();
+            // Otherwise, try file autocomplete. Shift+Tab walks the list backwards.
+            handleTabAutocomplete(e.shiftKey);
         } else if (e.key === "Escape") {
             // Escape key closes all popups
             setShowAutocomplete(false);
             setShowCommandSuggestion(false);
+            setActiveCompletion(-1);
         }
     };
 
@@ -381,6 +435,9 @@ export function Terminal({
                     showCommandSuggestion={showCommandSuggestion}
                     showAutocomplete={showAutocomplete}
                     fileAutocomplete={fileAutocomplete}
+                    activeCompletion={activeCompletion}
+                    setActiveCompletion={setActiveCompletion}
+                    completionPrefix={completionPrefix}
                     selectAutocompleteOption={selectAutocompleteOption}
                     theme={currentTheme.colors}
                     t={t}

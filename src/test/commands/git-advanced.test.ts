@@ -68,8 +68,11 @@ describe("Git Advanced Commands", () => {
             const diffCmd = new DiffCommand();
             const output = diffCmd.execute({ args: [], flags: {}, positionalArgs: [] }, context);
 
-            // Clean working tree shows no changes (empty or message)
-            expect(output.length).toBe(0);
+            // No diff content — real Git prints nothing here, and neither does this. What it does
+            // add is a hint saying why, because an empty terminal is indistinguishable from a
+            // command that failed when you are still learning what diff compares.
+            expect(output.join("\n")).not.toContain("diff --git");
+            expect(output.every(line => line.startsWith("hint:"))).toBe(true);
         });
 
         it("should show staged changes with --staged", () => {
