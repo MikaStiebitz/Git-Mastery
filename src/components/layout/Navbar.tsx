@@ -27,7 +27,6 @@ import {
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { ClientOnly } from "~/components/ClientOnly";
-import { allStages } from "~/levels";
 import { BadgeDisplay } from "~/components/BadgeDisplay";
 import { DebugModal } from "~/components/DebugModal";
 import { cn } from "~/lib/utils";
@@ -55,7 +54,6 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const { language, setLanguage, t } = useLanguage();
     const { openSponsor } = useSponsor();
     const { openShop } = useShop();
-    const stageName = t(allStages[currentStage as keyof typeof allStages]?.name ?? currentStage);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [repoStars, setRepoStars] = useState<number | null>(null);
     const [debugModalOpen, setDebugModalOpen] = useState(false);
@@ -316,20 +314,14 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     <span className="font-display text-gm-ink hidden text-lg sm:inline">GitMastery</span>
                 </Link>
 
-                {/* Where you are: the level you're playing, or the page you're on */}
-                {showLevelInfo ? (
-                    <ClientOnly>
-                        <span className="border-gm-line bg-gm-night text-gm-ink-soft hidden h-8 max-w-[240px] shrink items-center gap-1.5 truncate rounded-full border-2 px-3 text-xs font-semibold md:flex">
-                            <span className="text-gm-lime [font-family:var(--font-code)]">L{currentLevel}</span>
-                            <span className="truncate">{stageName}</span>
-                        </span>
-                    </ClientOnly>
-                ) : (
-                    pageLabel && (
-                        <span className="text-gm-ink-soft hidden shrink truncate text-sm font-semibold md:inline">
-                            {pageLabel}
-                        </span>
-                    )
+                {/* Which page you're on. The level you're playing is deliberately NOT repeated here:
+                    the level page's own header already states "Level 4 · Remote Repositories" directly
+                    above the content, and a second truncated copy of it ("L4 Remote Repositori…") only
+                    cost the bar its scarcest resource — width — to say something already on screen. */}
+                {!showLevelInfo && pageLabel && (
+                    <span className="text-gm-ink-soft hidden shrink truncate text-sm font-semibold md:inline">
+                        {pageLabel}
+                    </span>
                 )}
 
                 <div className="ms-auto flex items-center gap-2 xl:gap-3">
@@ -442,15 +434,6 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     id="mobile-nav"
                     className={`gm-scroll border-gm-line bg-gm-void max-h-[calc(100svh-4rem)] overflow-y-auto border-t-2 lg:hidden`}>
                     <div className="container mx-auto flex flex-col gap-2 px-4 py-4">
-                        {/* Current level info for mobile */}
-                        {showLevelInfo && (
-                            <ClientOnly>
-                                <p className="text-gm-ink-soft text-sm font-semibold">
-                                    {t("level.level")} {currentLevel} · {stageName}
-                                </p>
-                            </ClientOnly>
-                        )}
-
                         <div className="mb-1 flex flex-wrap items-center justify-center gap-2">
                             <BadgeDisplay className="justify-center" />
                             {starChip("sm:hidden")}
