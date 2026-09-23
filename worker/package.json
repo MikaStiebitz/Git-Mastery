@@ -1,0 +1,29 @@
+{
+    "name": "gitmastery-accounts",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "description": "Optional account + progress-sync API for GitMastery. Deployed separately from the static site.",
+    "scripts": {
+        "dev": "wrangler dev",
+        "deploy": "wrangler deploy",
+        "migrate:local": "wrangler d1 migrations apply gitmastery-accounts --local",
+        "migrate:remote": "wrangler d1 migrations apply gitmastery-accounts --remote",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "dependencies": {
+        "obscenity": "0.4.6"
+    },
+    "devDependencies": {
+        "@cloudflare/workers-types": "^5.20260923.1",
+        "naughty-words": "1.2.0",
+        "typescript": "^5.7.2",
+        "vitest": "^4.0.15",
+        "wrangler": "^4.136.0"
+    },
+    "allowScripts": {
+        "workerd@1.20260921.1": true
+    }
+}

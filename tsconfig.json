@@ -50,6 +50,10 @@
     "node_modules",
     "coverage",
     ".next",
-    "out"
+    "out",
+    // The Cloudflare Worker is a separate TypeScript project with its own tsconfig: it targets
+    // the Workers runtime rather than the DOM, so its types cannot resolve against this one.
+    // Check it with `npm run typecheck` inside worker/.
+    "worker"
   ]
 }

@@ -23,6 +23,7 @@ import {
     Check,
     Gamepad2,
     ShoppingCart,
+    UserRound,
 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -32,6 +33,8 @@ import { DebugModal } from "~/components/DebugModal";
 import { cn } from "~/lib/utils";
 import { useSponsor } from "~/components/SponsorDialog";
 import { useShop } from "~/components/Shop";
+import { useAuth } from "~/contexts/AuthContext";
+import { useAccountDialog } from "~/components/account/AccountDialog";
 import { ProgressManager } from "~/models/ProgressManager";
 import { env } from "~/env";
 
@@ -54,6 +57,8 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const { language, setLanguage, t } = useLanguage();
     const { openSponsor } = useSponsor();
     const { openShop } = useShop();
+    const auth = useAuth();
+    const { openAccount } = useAccountDialog();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [repoStars, setRepoStars] = useState<number | null>(null);
     const [debugModalOpen, setDebugModalOpen] = useState(false);
@@ -266,6 +271,41 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
      * you what you can spend was the one thing you could not click. Opening the shop from here is
      * the obvious next move, so the chip is a button everywhere the bar appears.
      */
+    /**
+     * The way in to an optional account.
+     *
+     * Absent entirely when this build has no account API configured, rather than present and
+     * broken. Signed in, it shows the name; signed out, it is an icon that says "save your
+     * progress" on hover — never a wall, and never in the way of playing.
+     */
+    const accountButton = (className = "") => {
+        if (!auth.enabled) return null;
+
+        return (
+            <ClientOnly fallback={<div className={cn("h-10 w-10 shrink-0", className)} aria-hidden="true" />}>
+                <button
+                    type="button"
+                    onClick={openAccount}
+                    title={auth.signedIn ? (auth.username ?? t("account.account")) : t("account.title")}
+                    aria-label={auth.signedIn ? `${t("account.account")}: ${auth.username}` : t("account.signIn")}
+                    className={cn(
+                        "border-gm-line bg-gm-night hover:border-gm-grape-hi hover:bg-gm-deep focus-visible:outline-gm-cyan flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full border-2 px-3 transition-colors duration-150 focus-visible:outline-3 focus-visible:outline-offset-2",
+                        className,
+                    )}>
+                    <UserRound
+                        className={cn("h-4 w-4 shrink-0", auth.signedIn ? "text-gm-lime" : "text-gm-ink-dim")}
+                        aria-hidden="true"
+                    />
+                    {auth.signedIn && (
+                        <span className="text-gm-ink-soft hidden max-w-[10ch] truncate text-xs font-semibold lg:block">
+                            {auth.username}
+                        </span>
+                    )}
+                </button>
+            </ClientOnly>
+        );
+    };
+
     const purseChip = (className = "") => (
         <ClientOnly
             fallback={<div className={cn("h-10 w-[92px] shrink-0 sm:w-[140px]", className)} aria-hidden="true" />}>
@@ -393,6 +433,8 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     <span className="bg-gm-line hidden h-6 w-px shrink-0 lg:block" aria-hidden="true" />
 
                     {purseChip()}
+
+                    {accountButton()}
 
                     <Button
                         variant="ghost"

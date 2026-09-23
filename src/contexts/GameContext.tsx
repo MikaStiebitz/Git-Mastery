@@ -29,13 +29,17 @@ interface EditableFile {
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const router = useRouter();
-    const [fileSystem] = useState<FileSystem>(new FileSystem());
-    const [gitRepository] = useState<GitRepository>(new GitRepository(fileSystem));
-    const [progressManager] = useState<ProgressManager>(new ProgressManager());
+    // Lazy initialisers, deliberately. `useState(new Thing())` constructs a fresh Thing on every
+    // single render and throws it away — React only keeps the first. That was merely wasteful when
+    // these were pure in-memory models; with ProgressManager now reading localStorage in its
+    // constructor it would mean re-parsing the save on every keystroke.
+    const [fileSystem] = useState<FileSystem>(() => new FileSystem());
+    const [gitRepository] = useState<GitRepository>(() => new GitRepository(fileSystem));
+    const [progressManager] = useState<ProgressManager>(() => new ProgressManager());
     const [commandProcessor] = useState<CommandProcessor>(
-        new CommandProcessor(fileSystem, gitRepository, progressManager),
+        () => new CommandProcessor(fileSystem, gitRepository, progressManager),
     );
-    const [levelManager] = useState<LevelManager>(new LevelManager());
+    const [levelManager] = useState<LevelManager>(() => new LevelManager());
     const { t } = useLanguage();
 
     // Initialize sound manager with purchased status

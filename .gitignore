@@ -29,7 +29,21 @@ yarn-error.log*
 # local env files
 # do not commit any .env files to git, except for the .env.example file. https://create.t3.gg/en/usage/env-variables#using-environment-variables
 .env
-.env*.local
+.env.*
+!.env.example
+
+# Cloudflare Worker (worker/)
+# .dev.vars holds local secrets; .wrangler/state contains the local D1 file, which
+# after any local testing holds real password hashes and session rows.
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.wrangler/
+# The node_modules/coverage/build rules above are root-anchored (/node_modules), so
+# they do not cover a subproject. These do.
+worker/node_modules/
+worker/dist/
+worker/coverage/
 
 # typescript
 *.tsbuildinfo

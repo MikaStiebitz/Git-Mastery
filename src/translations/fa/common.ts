@@ -160,6 +160,91 @@ const common = {
     "sponsor.note": "کاملاً اختیاری — بازی در هر صورت رایگان می‌ماند.",
     "sponsor.landingLine": "رایگان، متن‌باز و زنده به لطف حامیانش.",
     "sponsor.landingCta": "حمایت از پروژه",
+
+    // Optional account. The game works without one; this only carries progress between devices.
+    "account.signIn": "ورود",
+    "account.account": "حساب کاربری",
+    "account.title": "پیشرفت خود را ذخیره کنید",
+    "account.description":
+        "داشتن حساب کاربری اختیاری است. هر چه بازی کرده‌اید همین حالا روی این دستگاه ذخیره شده — حساب کاربری فقط به شما اجازه می‌دهد روی دستگاهی دیگر ادامه دهید.",
+    "account.tab.signIn": "ورود",
+    "account.tab.register": "ساخت حساب",
+    "account.username": "نام کاربری",
+    "account.usernameHint": "3 تا 20 نویسه: حروف، اعداد، خط تیره و زیرخط.",
+    "account.password": "رمز عبور",
+    "account.passwordHint": "دست‌کم 8 نویسه.",
+    "account.noRecoveryWarning":
+        "نه ایمیلی در کار است و نه بازنشانی رمز عبور. اگر رمز عبور خود را فراموش کنید، حساب قابل بازیابی نیست — پس چیزی انتخاب کنید که به خاطر بسپارید، یا آن را جایی یادداشت کنید.",
+    "account.signInAction": "ورود",
+    "account.registerAction": "ساخت حساب",
+    "account.continueWithout": "بدون حساب کاربری به بازی ادامه دهید",
+
+    "account.manageTitle": "حساب کاربری شما",
+    "account.manageDescription": "پیشرفت شما همین‌طور که بازی می‌کنید به‌طور خودکار همگام‌سازی می‌شود.",
+    "account.syncNow": "همگام‌سازی همین حالا",
+    "account.signOut": "خروج",
+    "account.signOutHint": "با خروج، پیشرفت شما روی این دستگاه دست‌نخورده باقی می‌ماند.",
+    "account.save": "ذخیره",
+    "account.cancel": "لغو",
+
+    "account.changeUsername": "تغییر نام کاربری",
+    "account.usernameChanged": "نام کاربری تغییر کرد.",
+    "account.changePassword": "تغییر رمز عبور",
+    "account.currentPassword": "رمز عبور فعلی",
+    "account.newPassword": "رمز عبور جدید",
+    "account.passwordChanged": "رمز عبور تغییر کرد.",
+    "account.passwordChangeHint": "با تغییر رمز عبور، از همه دستگاه‌های دیگر خارج می‌شوید.",
+
+    "account.dangerZone": "از اینجا به بعد مراقب باشید",
+    "account.resetCloud": "بازنشانی پیشرفت ابری",
+    "account.resetCloudHint":
+        "پیشرفت ذخیره‌شده در حساب شما را پاک می‌کند تا بتوانید دوباره از ابتدا بازی کنید. این دستگاه تا همگام‌سازی بعدی آنچه را دارد نگه می‌دارد.",
+    "account.cloudReset": "پیشرفت ابری بازنشانی شد.",
+    "account.deleteAccount": "حذف حساب کاربری",
+    "account.deleteConfirm": "برای حذف این حساب، رمز عبور خود را وارد کنید. این کار قابل بازگشت نیست.",
+    "account.deleteForever": "حذف همیشگی",
+    "account.deleted": "حساب کاربری حذف شد.",
+    "account.deleteHint": "حذف حساب، آن را از سرور پاک می‌کند. پیشرفت روی این دستگاه باقی می‌ماند.",
+
+    "account.status.idle": "بدون همگام‌سازی",
+    "account.status.syncing": "در حال ذخیره…",
+    "account.status.synced": "ذخیره شد",
+    "account.status.offline": "آفلاین — بعداً ذخیره می‌شود",
+    "account.status.paused": "ذخیره‌سازی متوقف شده، بعداً دوباره تلاش کنید",
+    "account.status.pending": "{count} در انتظار",
+
+    "account.merge.title": "دو ذخیره، یک حساب",
+    "account.merge.description":
+        "روی این دستگاه پیشرفت دارید و {username} هم پیشرفتی در فضای ابری ذخیره کرده است. تا زمانی که انتخاب نکنید، هیچ چیزی تغییر نمی‌کند.",
+    "account.merge.preview":
+        "این دستگاه {levels} مرحله، {minigames} بازی کوچک و {purchases} خرید دارد که حساب شما ندارد.",
+    "account.merge.coinsWarning":
+        "سکه‌ها بر اساس آنچه واقعاً به دست آورده‌اید دوباره محاسبه می‌شوند، بنابراین مجموع ممکن است با {coins} که اینجا نشان داده شده فرق داشته باشد.",
+    "account.merge.mergeAction": "ادغام هر دو",
+    "account.merge.mergeHint": "پیشرفت این دستگاه را به حساب شما اضافه می‌کند. هیچ چیزی از دست نمی‌رود.",
+    "account.merge.keepCloudAction": "استفاده از ذخیره ابری",
+    "account.merge.keepCloudHint": "پیشرفت این دستگاه را با پیشرفت حساب شما جایگزین می‌کند.",
+    "account.merge.cancelAction": "الان نه",
+    "account.merge.cancelHint": "خارج از حساب باقی می‌مانید و هیچ چیزی تغییر نمی‌کند.",
+    "account.merge.backupNote": "در هر صورت، ابتدا یک نسخه از پیشرفت این دستگاه در مرورگر شما نگه داشته می‌شود.",
+
+    "account.error.invalid_credentials": "این نام کاربری و رمز عبور با هم نمی‌خوانند.",
+    "account.error.username_taken": "این نام کاربری قبلاً گرفته شده است.",
+    "account.error.weak_password": "رمز عبوری طولانی‌تر یا کمتر رایج انتخاب کنید (دست‌کم 8 نویسه).",
+    "account.error.rate_limited": "تلاش‌های بیش از حد. کمی صبر کنید و دوباره تلاش کنید.",
+    "account.error.network_error": "دسترسی به سرور ممکن نشد. پیشرفت شما همچنان روی این دستگاه ذخیره است.",
+    "account.error.storage_quota_exhausted":
+        "ذخیره‌سازی برای امروز متوقف شده است. پیشرفت شما روی این دستگاه باقی می‌ماند.",
+    "account.error.accounts_disabled": "حساب کاربری در این نسخه در دسترس نیست.",
+    "account.error.server_misconfigured": "سرور هنوز درست تنظیم نشده است.",
+    "account.error.unauthorized": "از حساب خارج شده‌اید. برای ادامه ذخیره‌سازی دوباره وارد شوید.",
+    "account.error.unknown": "مشکلی پیش آمد. پیشرفت شما همچنان روی این دستگاه ذخیره است.",
+    "account.error.username.too_short": "این نام کاربری خیلی کوتاه است (دست‌کم 3 نویسه).",
+    "account.error.username.too_long": "این نام کاربری خیلی بلند است (حداکثر 20 نویسه).",
+    "account.error.username.charset": "فقط از حروف، اعداد، خط تیره و زیرخط استفاده کنید.",
+    "account.error.username.inappropriate": "لطفاً نام کاربری دیگری انتخاب کنید.",
+    "account.error.username.reserved": "این نام کاربری رزرو شده است.",
+    "account.error.username.needs_letter_or_digit": "نام کاربری باید دست‌کم یک حرف یا عدد داشته باشد.",
 };
 
 export default common;

@@ -1,0 +1,60 @@
+{
+    // GitMastery's optional account API.
+    //
+    // Everything in this file is safe in a public repository. `database_id` is not a secret: D1
+    // has no public endpoint, so the id is inert without an account-scoped API token, and
+    // `wrangler d1 create` writes it into config for you. `account_id` is deliberately absent —
+    // `wrangler login` supplies it.
+    //
+    // The one real secret, PASSWORD_PEPPER, is declared by NAME below and set out of band with
+    // `wrangler secret put PASSWORD_PEPPER`. Its value must never appear in this file, in
+    // `vars`, or anywhere else in the repo. See worker/README.md.
+    "$schema": "./node_modules/wrangler/config-schema.json",
+    "name": "gitmastery-accounts",
+    "main": "src/index.ts",
+
+    // A compatibility date of 2026-08-04 or later enables nodejs_compat and nodejs_compat_v2 by
+    // default, so no compatibility_flags are needed.
+    "compatibility_date": "2026-09-22",
+
+    "observability": {
+        "enabled": true,
+    },
+
+    "d1_databases": [
+        {
+            "binding": "DB",
+            "database_name": "gitmastery-accounts",
+            "database_id": "6f340ccd-9e31-45c5-944d-d245ef25edb0",
+            "migrations_dir": "migrations",
+        },
+    ],
+
+    // Layer one of the login defence: per-location, zero added latency, free. Deliberately
+    // permissive — Cloudflare documents these counters as eventually consistent and not an
+    // accounting system, so the code treats a missing or failing binding as "allow" and relies
+    // on the D1 lockout in `ratelimit.ts` for the guarantee. `period` accepts only 10 or 60.
+    "ratelimits": [
+        { "name": "RL_LOGIN_USER", "namespace_id": "1001", "simple": { "limit": 8, "period": 60 } },
+        { "name": "RL_LOGIN_IP", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } },
+        { "name": "RL_REGISTER_IP", "namespace_id": "1003", "simple": { "limit": 4, "period": 60 } },
+        { "name": "RL_SYNC_USER", "namespace_id": "1004", "simple": { "limit": 60, "period": 60 } },
+    ],
+
+    // Public values only. This file is committed.
+    "vars": {
+        // Exact origins, comma-separated. No wildcards, no trailing slash.
+        //
+        // No localhost here, and none is needed: `corsHeaders` additionally allows a local origin
+        // when the Worker itself is running on localhost, which `wrangler dev` does and a deployed
+        // Worker never can. That keeps the production allowlist to the real site while leaving
+        // local development working without a flag.
+        "ALLOWED_ORIGINS": "https://gitmastery.me,https://www.gitmastery.me",
+        "SESSION_TTL_DAYS": "90",
+    },
+
+    // Names, never values. `wrangler deploy` refuses to ship without these set.
+    "secrets": {
+        "required": ["PASSWORD_PEPPER"],
+    },
+}

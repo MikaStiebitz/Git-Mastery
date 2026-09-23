@@ -165,6 +165,97 @@ const common = {
     "sponsor.note": "Völlig freiwillig — Spielen bleibt in jedem Fall kostenlos.",
     "sponsor.landingLine": "Kostenlos, quelloffen und von Sponsoren am Leben gehalten.",
     "sponsor.landingCta": "Projekt unterstützen",
+
+    // Optionales Konto. Das Spiel funktioniert auch ohne; das hier nimmt deinen Fortschritt nur mit auf andere Geräte.
+    "account.signIn": "Anmelden",
+    "account.account": "Konto",
+    "account.title": "Speichere deinen Fortschritt",
+    "account.description":
+        "Ein Konto ist freiwillig. Alles, was du gespielt hast, ist schon auf diesem Gerät gespeichert — mit einem Konto kannst du einfach auf einem anderen weitermachen.",
+    "account.tab.signIn": "Anmelden",
+    "account.tab.register": "Konto erstellen",
+    "account.username": "Benutzername",
+    "account.usernameHint": "3–20 Zeichen: Buchstaben, Zahlen, Binde- und Unterstriche.",
+    "account.password": "Passwort",
+    "account.passwordHint": "Mindestens 8 Zeichen.",
+    "account.noRecoveryWarning":
+        "Es gibt keine E-Mail-Adresse und kein Zurücksetzen des Passworts. Wenn du dein Passwort vergisst, lässt sich das Konto nicht wiederherstellen — wähle also eines, das du dir merkst, oder schreib es dir auf.",
+    "account.signInAction": "Anmelden",
+    "account.registerAction": "Konto erstellen",
+    "account.continueWithout": "Ohne Konto weiterspielen",
+
+    "account.manageTitle": "Dein Konto",
+    "account.manageDescription": "Dein Fortschritt wird beim Spielen automatisch synchronisiert.",
+    "account.syncNow": "Jetzt synchronisieren",
+    "account.signOut": "Abmelden",
+    "account.signOutHint": "Beim Abmelden bleibt dein Fortschritt auf diesem Gerät unangetastet.",
+    "account.save": "Speichern",
+    "account.cancel": "Abbrechen",
+
+    "account.changeUsername": "Benutzernamen ändern",
+    "account.usernameChanged": "Benutzername geändert.",
+    "account.changePassword": "Passwort ändern",
+    "account.currentPassword": "Aktuelles Passwort",
+    "account.newPassword": "Neues Passwort",
+    "account.passwordChanged": "Passwort geändert.",
+    "account.passwordChangeHint": "Wenn du dein Passwort änderst, wirst du auf allen anderen Geräten abgemeldet.",
+
+    "account.dangerZone": "Ab hier bitte vorsichtig",
+    "account.resetCloud": "Cloud-Fortschritt zurücksetzen",
+    "account.resetCloudHint":
+        "Löscht den in deinem Konto gespeicherten Fortschritt, damit du noch einmal von vorne spielen kannst. Dieses Gerät behält seinen Stand bis zur nächsten Synchronisierung.",
+    "account.cloudReset": "Cloud-Fortschritt zurückgesetzt.",
+    "account.deleteAccount": "Konto löschen",
+    "account.deleteConfirm":
+        "Gib dein Passwort ein, um dieses Konto zu löschen. Das lässt sich nicht rückgängig machen.",
+    "account.deleteForever": "Endgültig löschen",
+    "account.deleted": "Konto gelöscht.",
+    "account.deleteHint":
+        "Beim Löschen wird dein Konto vom Server entfernt. Der Fortschritt auf diesem Gerät bleibt erhalten.",
+
+    "account.status.idle": "Keine Synchronisierung",
+    "account.status.syncing": "Wird gespeichert…",
+    "account.status.synced": "Gespeichert",
+    "account.status.offline": "Offline — wird später gespeichert",
+    "account.status.paused": "Speichern pausiert, versuch es später nochmal",
+    "account.status.pending": "{count} ausstehend",
+
+    "account.merge.title": "Zwei Spielstände, ein Konto",
+    "account.merge.description":
+        "Du hast Fortschritt auf diesem Gerät, und {username} hat Fortschritt in der Cloud gespeichert. Es wird nichts verändert, bevor du dich entscheidest.",
+    "account.merge.preview":
+        "Dieses Gerät hat {levels} Level, {minigames} Minispiele und {purchases} Käufe, die dein Konto nicht hat.",
+    "account.merge.coinsWarning":
+        "Münzen werden daraus neu berechnet, was du tatsächlich verdient hast — die Summe kann also von den hier gezeigten {coins} abweichen.",
+    "account.merge.mergeAction": "Beides zusammenführen",
+    "account.merge.mergeHint": "Fügt den Fortschritt dieses Geräts zu deinem Konto hinzu. Es geht nichts verloren.",
+    "account.merge.keepCloudAction": "Den Cloud-Stand nehmen",
+    "account.merge.keepCloudHint": "Ersetzt den Fortschritt auf diesem Gerät durch den aus deinem Konto.",
+    "account.merge.cancelAction": "Jetzt nicht",
+    "account.merge.cancelHint": "Du bleibst abgemeldet und es ändert sich nichts.",
+    "account.merge.backupNote":
+        "So oder so wird vorher eine Kopie des Fortschritts dieses Geräts in deinem Browser gesichert.",
+
+    "account.error.invalid_credentials": "Benutzername und Passwort passen nicht zusammen.",
+    "account.error.username_taken": "Dieser Benutzername ist schon vergeben.",
+    "account.error.weak_password": "Wähle ein längeres oder weniger verbreitetes Passwort (mindestens 8 Zeichen).",
+    "account.error.rate_limited": "Zu viele Versuche. Warte einen Moment und versuch es nochmal.",
+    "account.error.network_error":
+        "Der Server war nicht erreichbar. Dein Fortschritt ist weiterhin auf diesem Gerät gespeichert.",
+    "account.error.storage_quota_exhausted":
+        "Das Speichern ist für heute pausiert. Dein Fortschritt bleibt auf diesem Gerät.",
+    "account.error.accounts_disabled": "Konten sind in dieser Version nicht verfügbar.",
+    "account.error.server_misconfigured": "Der Server ist noch nicht richtig eingerichtet.",
+    "account.error.unauthorized": "Du bist abgemeldet. Melde dich wieder an, um weiter zu speichern.",
+    "account.error.unknown":
+        "Da ist etwas schiefgelaufen. Dein Fortschritt ist weiterhin auf diesem Gerät gespeichert.",
+    "account.error.username.too_short": "Dieser Benutzername ist zu kurz (mindestens 3 Zeichen).",
+    "account.error.username.too_long": "Dieser Benutzername ist zu lang (höchstens 20 Zeichen).",
+    "account.error.username.charset": "Verwende nur Buchstaben, Zahlen, Binde- und Unterstriche.",
+    "account.error.username.inappropriate": "Bitte wähle einen anderen Benutzernamen.",
+    "account.error.username.reserved": "Dieser Benutzername ist reserviert.",
+    "account.error.username.needs_letter_or_digit":
+        "Benutzernamen brauchen mindestens einen Buchstaben oder eine Zahl.",
 };
 
 export default common;

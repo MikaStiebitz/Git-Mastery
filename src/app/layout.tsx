@@ -9,6 +9,9 @@ import { LanguageProvider } from "~/contexts/LanguageContext";
 import { TerminalThemeWrapper } from "~/components/TerminalThemeWrapper";
 import { SponsorProvider } from "~/components/SponsorDialog";
 import { ShopProvider } from "~/components/Shop";
+import { AuthProvider } from "~/contexts/AuthContext";
+import { AccountProvider } from "~/components/account/AccountDialog";
+import { ReflogDialog } from "~/components/ReflogDialog";
 import { env } from "~/env";
 import { getPageUrl, getSiteUrl } from "~/lib/site";
 
@@ -90,10 +93,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     <GameProvider>
                         <TerminalThemeWrapper>
                             {/* One sponsor dialog and one shop for the whole app: the navbar, the
-                                footer and the landing page all open these instances. */}
+                                footer and the landing page all open these instances. AuthProvider
+                                sits inside GameProvider because it syncs that ProgressManager, and
+                                outside AccountProvider because the dialog reads its state. */}
                             <SponsorProvider>
-                                <ShopProvider>{children}</ShopProvider>
+                                <ShopProvider>
+                                    <AuthProvider>
+                                        <AccountProvider>{children}</AccountProvider>
+                                    </AuthProvider>
+                                </ShopProvider>
                             </SponsorProvider>
+                            <ReflogDialog />
                         </TerminalThemeWrapper>
                     </GameProvider>
                 </LanguageProvider>
