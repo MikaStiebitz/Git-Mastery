@@ -30,7 +30,7 @@ import { ClientOnly } from "~/components/ClientOnly";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { useRouter } from "next/navigation";
 import { DifficultySelector } from "~/components/DifficultySelector";
-import { Shop } from "~/components/Shop";
+import { useShop } from "~/components/Shop";
 import { Minigames } from "~/components/Minigames";
 import { HeroDemo } from "~/components/home/HeroDemo";
 import { FeaturedReels } from "~/components/home/FeaturedReels";
@@ -127,10 +127,10 @@ export default function Home() {
     const { levelManager, progressManager, currentDifficulty, setCurrentDifficulty } = useGameContext();
     const { t } = useLanguage();
     const { openSponsor } = useSponsor();
+    const { openShop } = useShop();
     const router = useRouter();
     const [progress, setProgress] = useState(progressManager.getProgress());
     const [showDifficultySelector, setShowDifficultySelector] = useState(false);
-    const [showShop, setShowShop] = useState(false);
     const [showMinigames, setShowMinigames] = useState(false);
     const [isFirstVisit, setIsFirstVisit] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
@@ -525,10 +525,7 @@ export default function Home() {
             shadow: "shadow-[12px_12px_0_0_var(--color-gm-gold)]",
             tilt: "-rotate-1",
             action: (
-                <button
-                    type="button"
-                    onClick={() => setShowShop(true)}
-                    className="btn-arcade btn-arcade-sm btn-arcade-night">
+                <button type="button" onClick={openShop} className="btn-arcade btn-arcade-sm btn-arcade-night">
                     <ShoppingCart className="text-gm-gold h-4 w-4" aria-hidden="true" />
                     {t("home.shop")}
                     <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
@@ -642,7 +639,7 @@ export default function Home() {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => setShowShop(true)}
+                                    onClick={openShop}
                                     className="btn-arcade btn-arcade-sm btn-arcade-night">
                                     <ShoppingCart className="text-gm-gold h-4 w-4" aria-hidden="true" />
                                     {t("home.shop")}
@@ -1028,8 +1025,6 @@ export default function Home() {
                 }}
                 isInitialSelection={isFirstVisit}
             />
-
-            <Shop isOpen={showShop} onClose={() => setShowShop(false)} />
 
             <Minigames isOpen={showMinigames} onClose={() => setShowMinigames(false)} />
         </PageLayout>
