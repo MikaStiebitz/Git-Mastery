@@ -122,6 +122,9 @@ const introLevel4 = createLevel({
         createRequirement({
             id: "inspect-changes",
             command: "git diff",
+            // The task is to inspect a real change; typing the command over an empty diff
+            // (e.g. every file untracked, nothing to compare) must not count as inspecting one.
+            checkDiffHasContent: true,
             description: "intro.level4.requirement2.description",
             successMessage: "intro.level4.requirement2.success",
         }),

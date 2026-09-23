@@ -81,6 +81,7 @@ export function createRequirement(params: {
     checkCurrentBranch?: string;
     checkCurrentBranchNot?: string;
     checkAllFilesStaged?: boolean;
+    checkDiffHasContent?: boolean;
 }): LevelRequirement {
     return {
         command: params.command,
@@ -100,6 +101,7 @@ export function createRequirement(params: {
         checkCurrentBranch: params.checkCurrentBranch,
         checkCurrentBranchNot: params.checkCurrentBranchNot,
         checkAllFilesStaged: params.checkAllFilesStaged,
+        checkDiffHasContent: params.checkDiffHasContent,
     };
 }
 

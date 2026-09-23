@@ -137,6 +137,7 @@ export type LevelRequirement = {
     checkCurrentBranch?: string; // HEAD must be on this branch
     checkCurrentBranchNot?: string; // HEAD must have moved off this branch
     checkAllFilesStaged?: boolean; // Nothing in the working tree may be left unstaged
+    checkDiffHasContent?: boolean; // The diff this command would show is non-empty
 };
 
 export type StoryContext = {

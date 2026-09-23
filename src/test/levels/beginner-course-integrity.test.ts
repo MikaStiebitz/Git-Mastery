@@ -222,6 +222,45 @@ describe("beginner course integrity", () => {
         });
     });
 
+    describe("'inspect the diff' means a diff was actually shown", () => {
+        // Reported: on a repository where every file had gone untracked, `git diff` printed nothing
+        // (correctly — an untracked file has no committed version to compare) but the "inspect the
+        // exact changes" objective still completed on the bare fact that the command was typed.
+        it("does not complete when there is nothing to diff", () => {
+            enter("intro", 4);
+            play("intro", 4, "git status"); // clears the sequential first requirement
+            // Force the leaked-looking state: everything untracked, nothing modified.
+            gitRepository.updateFileStatus("README.md", "untracked");
+            gitRepository.updateFileStatus("src/app.js", "untracked");
+            gitRepository.updateFileStatus("src/config.js", "untracked");
+
+            const { output, completed } = play("intro", 4, "git diff");
+
+            expect(output).toContain("hint:");
+            expect(completed).toBe(false);
+        });
+
+        it("completes on the level's real, intended diff", () => {
+            enter("intro", 4);
+            play("intro", 4, "git status");
+
+            const { output, completed } = play("intro", 4, "git diff");
+
+            expect(output).toContain("diff --git");
+            expect(completed).toBe(true);
+        });
+
+        it("survives an unnecessary git init without losing the modification", () => {
+            enter("intro", 4);
+            play("intro", 4, "git status");
+
+            play("intro", 4, "git init");
+            const { completed } = play("intro", 4, "git diff");
+
+            expect(completed).toBe(true);
+        });
+    });
+
     describe("no state leaks between levels", () => {
         it("drops files a previous level created dynamically", () => {
             enter("intro", 3);

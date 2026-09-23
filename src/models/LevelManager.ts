@@ -338,6 +338,20 @@ export class LevelManager {
             if (!this.areAllFilesStaged(gitRepository)) return false;
         }
 
+        if (requirement.checkDiffHasContent) {
+            // Real `git diff` shows tracked-but-unstaged changes; `--staged` shows staged ones.
+            // Neither ever shows an untracked file, which is exactly the state a stale or leaked
+            // repository can be in — every file untracked, nothing to compare against. Without this,
+            // "inspect the diff" was satisfied by typing the command over an empty result.
+            const wantsStaged = requirement.requiresArgs?.includes("--staged") ?? false;
+            const relevant = wantsStaged ? "staged" : "modified";
+            const secondary = wantsStaged ? undefined : "deleted";
+            const hasContent = Object.values(gitRepository.getWorkingTreeStatus()).some(
+                state => state === relevant || (secondary !== undefined && state === secondary),
+            );
+            if (!hasContent) return false;
+        }
+
         return true;
     }
 
