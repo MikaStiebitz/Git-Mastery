@@ -5,6 +5,12 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 interface TerminalTheme {
     id: string;
     name: string;
+    /**
+     * Class that gives this theme its material — bezel, glow, motion — defined in globals.css.
+     * The default theme has none: the free terminal is the design system's own panel, and the
+     * material layer is the thing a purchase actually buys.
+     */
+    frameClass?: string;
     colors: {
         background: string;
         text: string;
@@ -50,6 +56,7 @@ const TERMINAL_THEMES: TerminalTheme[] = [
     {
         id: "dark-terminal",
         name: "Dark Blue",
+        frameClass: "gm-term-blue",
         colors: {
             background: "#0f172a",
             text: "#cbd5e1",
@@ -65,6 +72,7 @@ const TERMINAL_THEMES: TerminalTheme[] = [
     {
         id: "matrix-terminal",
         name: "Matrix Green",
+        frameClass: "gm-term-matrix",
         colors: {
             // Phosphor on black, but a mint body text instead of pure #00ff00, which is unreadable
             // over a screen of output. The bright phosphor stays for the prompt and accents.
@@ -82,6 +90,7 @@ const TERMINAL_THEMES: TerminalTheme[] = [
     {
         id: "golden-terminal",
         name: "Golden Luxury",
+        frameClass: "gm-term-gold",
         colors: {
             // Gold as the accent on warm near-black, not gold as every character on screen — which
             // is both what luxury actually looks like and what keeps a long log legible.

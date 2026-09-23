@@ -274,8 +274,12 @@ export function Terminal({
         <>
             <div
                 className={cn(
-                    "gm-panel flex w-full min-w-0 flex-col overflow-hidden shadow-[0_6px_0_var(--color-gm-line)]",
+                    "gm-panel gm-term-frame flex w-full min-w-0 flex-col overflow-hidden shadow-[0_6px_0_var(--color-gm-line)]",
                     className,
+                    // A purchased theme's material: bezel, glow, and the travelling highlight on
+                    // gold. It comes last among the theme classes so its box-shadow beats the
+                    // panel's flat drop edge above.
+                    currentTheme.frameClass,
                     // Last, so a legacy `rounded-md` from a call site can't undo the panel shape.
                     "rounded-[1.4rem]",
                 )}
@@ -297,6 +301,17 @@ export function Terminal({
                         "--term-warning": currentTheme.colors.warning,
                     } as React.CSSProperties
                 }>
+                {/* The material layer. Out of flow and paint-contained, so the bezel and its
+                    travelling highlight can never repaint the output above them. Only themes that
+                    define a material render it. */}
+                {currentTheme.frameClass && (
+                    <span className="gm-term-fx" aria-hidden="true">
+                        <span className="gm-term-fx__ring">
+                            <span className="gm-term-fx__sweep" />
+                        </span>
+                    </span>
+                )}
+
                 <TerminalHeader
                     path={sessionPath}
                     theme={currentTheme.colors}

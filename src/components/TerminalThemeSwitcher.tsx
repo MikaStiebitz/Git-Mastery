@@ -65,14 +65,25 @@ export function TerminalThemeSwitcher({ isOpen, onClose }: TerminalThemeSwitcher
                                     </div>
                                 </div>
 
-                                {/* Theme Preview — the purchased themes keep their own literal colours */}
+                                {/* Theme Preview — the purchased themes keep their own literal colours,
+                                    and carry their material too: a bezel is most of what the price
+                                    buys, so a preview without it is selling the wrong thing. The
+                                    bloom is dropped via gm-term-preview, because three tiles glowing
+                                    into a 16px gutter turns the dialog into a haze. */}
                                 <div
-                                    className="overflow-hidden rounded-[0.7rem] border-2 p-2 [font-family:var(--font-code)] text-xs"
+                                    className={`gm-term-frame gm-term-preview relative overflow-hidden rounded-[0.7rem] border-2 p-2 [font-family:var(--font-code)] text-xs ${theme.frameClass ?? ""}`}
                                     style={{
                                         backgroundColor: theme.colors.background,
                                         borderColor: theme.colors.border,
                                         color: theme.colors.text,
                                     }}>
+                                    {theme.frameClass && (
+                                        <span className="gm-term-fx" aria-hidden="true">
+                                            <span className="gm-term-fx__ring">
+                                                <span className="gm-term-fx__sweep" />
+                                            </span>
+                                        </span>
+                                    )}
                                     <div className="mb-1 flex items-center gap-1 truncate">
                                         <span style={{ color: theme.colors.prompt }}>git-mastery:~$</span>
                                         <span>git status</span>

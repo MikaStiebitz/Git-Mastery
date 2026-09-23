@@ -268,6 +268,197 @@
     }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Purchased terminal skins — the material layer.
+
+   A bought theme used to be eight hex strings, so the 100-coin Legendary item
+   did exactly as much work as the 25-coin one: it changed the hue. These rules
+   sell a *material* instead — a bezel with a light model — and the ladder is
+   built from how much light each material does. Scope is exactly `.gm-term-*`,
+   which is the theme exception the design system already carves out; nothing
+   here may leak onto real UI.
+
+   Paint contract. The terminal holds a lot of text and reprints it on every
+   command, so nothing here may touch that text's paint path:
+     · every effect lives in `.gm-term-fx`, an out-of-flow sibling of the
+       terminal rows, so it can never trigger layout on the output;
+     · `contain: layout style paint` walls off invalidation, so a repaint
+       inside the effect layer cannot reach the text's display list;
+     · the only animated property is `transform`, on an element whose entire
+       content is one gradient — it rasterises once and the compositor reuses
+       the texture every frame;
+     · nothing animates `background`, `box-shadow`, `filter`, or any property
+       of an element that contains text.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.gm-term-frame {
+    position: relative;
+    isolation: isolate;
+    /* Keep in sync with the frame's own rounded-[1.4rem]. */
+    --gm-term-radius: 1.4rem;
+    --gm-term-ring-width: 2px;
+    --gm-term-spin: 7s;
+    --gm-term-ring: transparent;
+    --gm-term-sweep: transparent;
+}
+
+.gm-term-fx {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: var(--gm-term-radius);
+    overflow: hidden;
+    contain: layout style paint;
+    /* Lets the sweep size itself against the frame's longer axis. */
+    container-type: size;
+}
+
+/* The bezel channel. The mask keeps only a ring of --gm-term-ring-width, so the
+   rotating gradient behind it is visible as a frame and nowhere else. Static: the
+   mask is painted once and never animates. */
+.gm-term-fx__ring {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: var(--gm-term-ring-width);
+    background: var(--gm-term-ring);
+    overflow: hidden;
+    /* Longhands, never the `mask` shorthand: the shorthand (and its -webkit- alias) resets
+       mask-composite back to `add`, which silently turns the ring into a filled rectangle. */
+    -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    -webkit-mask-clip: content-box, border-box;
+    -webkit-mask-composite: xor;
+    mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    mask-clip: content-box, border-box;
+    mask-composite: exclude;
+}
+
+/* The travelling highlight. A square tied to the frame's longer axis so that
+   rotating it about the centre always covers the whole frame: a square of side
+   1.6·max covers a diagonal of at most 1.415·max, with room to spare. */
+.gm-term-fx__sweep {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160cqmax;
+    height: 160cqmax;
+    background: var(--gm-term-sweep);
+    animation: gm-term-orbit var(--gm-term-spin) linear infinite;
+    transform-origin: 50% 50%;
+}
+
+@keyframes gm-term-orbit {
+    from {
+        transform: translate(-50%, -50%) rotate(0turn);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(1turn);
+    }
+}
+
+/* ── Dark Blue · 25 coins · polished, still ─────────────────────────────────
+   Light is present but never moves: a cool hairline that is brightest where a
+   screen catches room light and fades toward the bottom. No motion at any
+   price — this is the entry rung, and it should read as a nicer box. */
+.gm-term-blue {
+    --gm-term-ring-width: 2px;
+    --gm-term-ring: linear-gradient(170deg, #6fb7ff 0%, #3a72c4 22%, #1e3a5f 55%, #16273f 100%);
+    box-shadow:
+        0 6px 0 #16273f,
+        0 0 0 1px rgb(111 183 255 / 0.12);
+}
+.gm-term-blue .gm-term-fx__sweep {
+    display: none;
+}
+
+/* ── Matrix Green · 50 coins · a tube, not a div ────────────────────────────
+   The identity is a CRT, so it gets CRT physics: fixed scanlines on the glass
+   and a phosphor bezel. The scanlines are static texture — they cost nothing in
+   attention, unlike a bezel that flickers next to text you read for 20 minutes. */
+.gm-term-matrix {
+    --gm-term-ring-width: 2px;
+    --gm-term-ring: linear-gradient(160deg, #39ff7a 0%, #1c4a28 45%, #0c2a16 100%);
+    box-shadow:
+        0 6px 0 #0c2a16,
+        0 0 0 1px rgb(57 255 122 / 0.14),
+        0 0 18px -10px rgb(57 255 122 / 0.45);
+}
+.gm-term-matrix .gm-term-fx__sweep {
+    display: none;
+}
+/* Scanlines and a tube vignette. Both sit over the output, so they are tuned as a hint
+   rather than a filter: one dark row in four at 12% is enough to read as glass, and it
+   costs the body text about a tenth of a contrast stop. A denser grille looks better in a
+   screenshot and worse after twenty minutes of reading, which is the wrong trade for a
+   tool people learn from. */
+.gm-term-matrix .gm-term-fx::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.12) 0 1px, transparent 1px 4px);
+    box-shadow: inset 0 0 60px 6px rgb(0 0 0 / 0.4);
+}
+
+/* ── Golden Luxury · 100 coins · polished gold under a moving light ─────────
+   The bezel is not a gold line, it is brushed gold: a seven-stop diagonal that
+   runs light-dark-light around the frame, so the frame is never flat on the
+   side the highlight is not on. Over it a specular pair laps the perimeter —
+   two highlights 180° apart, because polished metal under a light source never
+   shows just one. This is the only thing in the app that glows.
+
+   Bloom budget: no stop may reach further than the level grid's gutter, or the
+   gold bleeds onto the Challenge Card sitting beside it. Reach is
+   blur − |spread|, so both blurred stops stay at 14px. */
+.gm-term-gold {
+    --gm-term-ring-width: 3px;
+    --gm-term-spin: 7s;
+    --gm-term-ring: linear-gradient(
+        152deg,
+        #8a6a28 0%,
+        #d9ad52 14%,
+        #6b5320 30%,
+        #3f3116 48%,
+        #7a5d24 64%,
+        #b8933f 80%,
+        #55411b 100%
+    );
+    --gm-term-sweep: conic-gradient(
+        from 0turn at 50% 50%,
+        transparent 0deg,
+        rgb(255 245 214 / 0.95) 8deg,
+        rgb(245 196 81 / 0.35) 26deg,
+        transparent 62deg,
+        transparent 180deg,
+        rgb(255 245 214 / 0.7) 188deg,
+        rgb(245 196 81 / 0.28) 204deg,
+        transparent 240deg,
+        transparent 360deg
+    );
+    box-shadow:
+        0 6px 0 #3a2c13,
+        0 0 0 1px rgb(245 196 81 / 0.16),
+        0 0 22px -8px rgb(245 196 81 / 0.5),
+        0 0 40px -26px rgb(240 180 41 / 0.55);
+}
+
+/* The switcher and shop previews are small and sit in a tight grid, so they
+   keep the material but drop the bloom — three tiles throwing warm light into a
+   16px gutter turns the theme dialog into a haze. */
+.gm-term-preview {
+    --gm-term-radius: 0.7rem;
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gm-term-fx__sweep {
+        animation: none;
+        /* Park the specular pair where brushed metal would catch light anyway,
+           so the frame still reads as gold rather than losing the highlight. */
+        transform: translate(-50%, -50%) rotate(-0.08turn);
+    }
+}
+
 /* Keyboard focus, everywhere, in one place. */
 @layer base {
     :focus-visible {
