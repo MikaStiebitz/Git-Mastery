@@ -12,6 +12,8 @@ import type { DifficultyLevel } from "~/types";
  */
 
 export const CERTIFICATE_ISSUER = "GitMastery";
+export const CERTIFICATE_SIGNATORY = "Mika Stiebitz";
+export const CERTIFICATE_SIGNATORY_ROLE = "Creator of GitMastery";
 
 export const CERTIFICATE_SIZE = { width: 1080, height: 1350 } as const; // 4:5 — fits LinkedIn and Instagram feeds
 
@@ -194,7 +196,8 @@ export function renderCertificate(options: RenderOptions): HTMLCanvasElement {
     ctx.fillText("This certifies that", W / 2, 375);
 
     // Name
-    const displayName = name.trim() || "Your Name";
+    const displayName = name.trim();
+    if (!displayName) throw new Error("A name is required to issue a certificate");
     ctx.fillStyle = PALETTE.ink;
     fitText(ctx, displayName, W - 240, 96, SANS);
     ctx.fillText(displayName, W / 2, 490);
@@ -224,7 +227,8 @@ export function renderCertificate(options: RenderOptions): HTMLCanvasElement {
     drawGraph(ctx, W / 2, 870);
 
     // Seal
-    drawSeal(ctx, W / 2, 1035);
+    drawSeal(ctx, 250, 1035);
+    drawSignature(ctx, W - 250, 1035);
 
     // Footer: date / id
     ctx.textAlign = "left";
@@ -335,4 +339,19 @@ export function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
     return new Promise((resolve, reject) => {
         canvas.toBlob(blob => (blob ? resolve(blob) : reject(new Error("Could not create image"))), "image/png");
     });
+}
+
+function drawSignature(ctx: CanvasRenderingContext2D, cx: number, cy: number) {
+    ctx.textAlign = "center";
+    ctx.fillStyle = PALETTE.ink;
+    ctx.font = `italic 700 50px "Snell Roundhand", "Segoe Script", "Brush Script MT", "Apple Chancery", cursive`;
+    ctx.fillText(CERTIFICATE_SIGNATORY, cx, cy);
+    ctx.fillStyle = PALETTE.line;
+    ctx.fillRect(cx - 170, cy + 16, 340, 3);
+    ctx.fillStyle = PALETTE.ink;
+    ctx.font = `600 24px ${SANS}`;
+    ctx.fillText(CERTIFICATE_SIGNATORY, cx, cy + 52);
+    ctx.fillStyle = PALETTE.inkDim;
+    ctx.font = `400 20px ${SANS}`;
+    ctx.fillText(CERTIFICATE_SIGNATORY_ROLE, cx, cy + 80);
 }

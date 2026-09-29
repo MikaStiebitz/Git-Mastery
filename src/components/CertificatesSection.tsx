@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Award, Copy, Download, Linkedin, Lock, Share2 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
-import { useAuth } from "~/contexts/AuthContext";
 import {
     canvasToBlob,
     getCertificateFilename,
@@ -165,7 +164,11 @@ function CertificateCard({ certificate, name }: { certificate: Certificate; name
                         className="btn-arcade btn-arcade-night btn-arcade-sm">
                         <Copy className="h-4 w-4" aria-hidden="true" /> Copy caption
                     </button>
-                    {!name.trim() && <p className="text-gm-ink-dim text-xs">Enter your name above to unlock these.</p>}
+                    {!name.trim() && (
+                        <p className="text-gm-ink-dim text-xs">
+                            Enter your full name above first — it is printed on the certificate.
+                        </p>
+                    )}
                     {notice && (
                         <p role="status" className="text-gm-ink-soft text-xs">
                             {notice}
@@ -184,14 +187,13 @@ function CertificateCard({ certificate, name }: { certificate: Certificate; name
 /** One certificate per finished course, downloadable as an image and ready to post. */
 export function CertificatesSection() {
     const { progressManager } = useGameContext();
-    const { username } = useAuth();
     const [name, setName] = useState("");
     const [completed, setCompleted] = useState(progressManager.getProgress().completedLevels);
 
     useEffect(() => {
-        setName(readStored(NAME_KEY) ?? username ?? "");
+        setName(readStored(NAME_KEY) ?? "");
         setCompleted(progressManager.getProgress().completedLevels);
-    }, [progressManager, username]);
+    }, [progressManager]);
 
     const certificates = useMemo(() => getCertificates(completed), [completed]);
     if (!certificates.some(c => c.earned)) return null;
@@ -208,9 +210,10 @@ export function CertificatesSection() {
                 </p>
 
                 <label className="mt-6 block max-w-sm">
-                    <span className="text-gm-ink-soft text-sm font-semibold">Name on certificate</span>
+                    <span className="text-gm-ink-soft text-sm font-semibold">Your full name (required)</span>
                     <input
                         type="text"
+                        required
                         value={name}
                         maxLength={60}
                         onChange={event => {
@@ -228,7 +231,8 @@ export function CertificatesSection() {
                     ))}
                 </ul>
                 <p className="text-gm-ink-dim mt-4 text-xs">
-                    Completion certificates issued by GitMastery. Not an accredited qualification.
+                    Completion certificates issued by GitMastery, signed by Mika Stiebitz. Not an accredited
+                    qualification.
                 </p>
             </div>
         </section>
