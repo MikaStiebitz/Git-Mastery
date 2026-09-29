@@ -153,30 +153,47 @@ export function renderCertificate(options: RenderOptions): HTMLCanvasElement {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas is not supported in this browser");
 
-    // Background
+    // Background: deep gradient with soft coloured light pools
     const bg = ctx.createLinearGradient(0, 0, W, H);
     bg.addColorStop(0, PALETTE.void);
     bg.addColorStop(1, PALETTE.night);
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
+    glow(ctx, W / 2, 210, 620, "rgba(148, 85, 239, 0.34)");
+    glow(ctx, W + 40, H - 120, 560, "rgba(68, 221, 251, 0.14)");
+    glow(ctx, -40, H - 60, 520, "rgba(183, 246, 82, 0.10)");
 
     // Dot matrix texture
-    ctx.fillStyle = "rgba(148, 85, 239, 0.16)";
+    ctx.fillStyle = "rgba(148, 85, 239, 0.14)";
     for (let y = 30; y < H; y += 30) {
         for (let x = 30; x < W; x += 30) {
             ctx.beginPath();
-            ctx.arc(x, y, 1.6, 0, Math.PI * 2);
+            ctx.arc(x, y, 1.5, 0, Math.PI * 2);
             ctx.fill();
         }
     }
 
-    // Frame
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = PALETTE.lime;
-    ctx.strokeRect(48, 48, W - 96, H - 96);
-    ctx.lineWidth = 2;
+    // Frame: gradient outer line, hairline inner line, ornamented corners
+    const frame = ctx.createLinearGradient(0, 0, W, H);
+    frame.addColorStop(0, PALETTE.lime);
+    frame.addColorStop(0.5, PALETTE.cyan);
+    frame.addColorStop(1, PALETTE.grape);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = frame;
+    roundRect(ctx, 48, 48, W - 96, H - 96, 28);
+    ctx.stroke();
+    ctx.lineWidth = 1.5;
     ctx.strokeStyle = PALETTE.line;
-    ctx.strokeRect(68, 68, W - 136, H - 136);
+    roundRect(ctx, 68, 68, W - 136, H - 136, 18);
+    ctx.stroke();
+    for (const [x, y, dx, dy] of [
+        [68, 68, 1, 1],
+        [W - 68, 68, -1, 1],
+        [68, H - 68, 1, -1],
+        [W - 68, H - 68, -1, -1],
+    ] as const) {
+        drawCorner(ctx, x, y, dx, dy);
+    }
 
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
@@ -203,15 +220,22 @@ export function renderCertificate(options: RenderOptions): HTMLCanvasElement {
     ctx.fillText(displayName, W / 2, 490);
 
     // Underline accent
-    ctx.fillStyle = PALETTE.lime;
-    ctx.fillRect(W / 2 - 90, 520, 180, 6);
+    const underline = ctx.createLinearGradient(W / 2 - 110, 0, W / 2 + 110, 0);
+    underline.addColorStop(0, "rgba(183, 246, 82, 0)");
+    underline.addColorStop(0.5, PALETTE.lime);
+    underline.addColorStop(1, "rgba(183, 246, 82, 0)");
+    ctx.fillStyle = underline;
+    ctx.fillRect(W / 2 - 110, 520, 220, 5);
 
     ctx.fillStyle = PALETTE.inkSoft;
     ctx.font = `400 32px ${SANS}`;
     ctx.fillText("has successfully completed the course", W / 2, 600);
 
     // Course title
-    ctx.fillStyle = PALETTE.gold;
+    const titleGradient = ctx.createLinearGradient(W / 2 - 320, 0, W / 2 + 320, 0);
+    titleGradient.addColorStop(0, "#FFE38A");
+    titleGradient.addColorStop(1, PALETTE.gold);
+    ctx.fillStyle = titleGradient;
     fitText(ctx, certificate.title, W - 200, 78, SANS);
     ctx.fillText(certificate.title, W / 2, 700);
 
@@ -351,4 +375,41 @@ function drawSignature(ctx: CanvasRenderingContext2D, cx: number, cy: number) {
     ctx.fillStyle = PALETTE.inkDim;
     ctx.font = `400 20px ${SANS}`;
     ctx.fillText(CERTIFICATE_SIGNATORY_ROLE, cx, cy + 52);
+}
+
+function glow(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    gradient.addColorStop(0, color);
+    gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+}
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+}
+
+/** A small commit-node-and-branch flourish in each corner of the inner frame. */
+function drawCorner(ctx: CanvasRenderingContext2D, x: number, y: number, dx: number, dy: number) {
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = PALETTE.lime;
+    ctx.beginPath();
+    ctx.moveTo(x + dx * 26, y + dy * 26);
+    ctx.lineTo(x + dx * 26, y + dy * 74);
+    ctx.moveTo(x + dx * 26, y + dy * 26);
+    ctx.lineTo(x + dx * 74, y + dy * 26);
+    ctx.stroke();
+    ctx.fillStyle = PALETTE.void;
+    ctx.strokeStyle = PALETTE.gold;
+    ctx.beginPath();
+    ctx.arc(x + dx * 26, y + dy * 26, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
 }
