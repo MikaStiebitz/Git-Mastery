@@ -33,6 +33,7 @@ import { DifficultySelector } from "~/components/DifficultySelector";
 import { useShop } from "~/components/Shop";
 import { getStageProgress } from "~/lib/courseProgress";
 import { Minigames } from "~/components/Minigames";
+import { CertificatesSection } from "~/components/CertificatesSection";
 import { HeroDemo } from "~/components/home/HeroDemo";
 import { FeaturedReels } from "~/components/home/FeaturedReels";
 import { useSponsor } from "~/components/SponsorDialog";
@@ -757,6 +758,10 @@ export default function Home() {
                         </div>
                     </section>
                 )}
+
+                <ClientOnly>
+                    <CertificatesSection />
+                </ClientOnly>
 
                 {/* ── Stage map ────────────────────────────────────────────── */}
                 <section className="path-section bg-gm-grape relative py-24 [clip-path:polygon(0_2.5vw,100%_0,100%_calc(100%-2.5vw),0_100%)] sm:py-32">
