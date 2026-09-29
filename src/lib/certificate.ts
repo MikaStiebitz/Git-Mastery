@@ -13,9 +13,9 @@ import type { DifficultyLevel } from "~/types";
 
 export const CERTIFICATE_ISSUER = "GitMastery";
 export const CERTIFICATE_SIGNATORY = "Mika Stiebitz";
-export const CERTIFICATE_SIGNATORY_ROLE = "Creator of GitMastery";
+export const CERTIFICATE_SIGNATORY_ROLE = "Founder, GitMastery";
 
-export const CERTIFICATE_SIZE = { width: 1080, height: 1350 } as const; // 4:5 — fits LinkedIn and Instagram feeds
+export const CERTIFICATE_SIZE = { width: 2000, height: 1414 } as const; // A4 landscape — the shape people expect of a certificate
 
 const COURSE_TITLES: Record<DifficultyLevel, string> = {
     beginner: "Git Fundamentals",
@@ -68,7 +68,7 @@ export function formatIsoDate(date: Date): string {
 }
 
 export function formatDisplayDate(date: Date): string {
-    return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    return date.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
 }
 
 export function getCertificateFilename(name: string, certificate: Certificate): string {
@@ -111,21 +111,44 @@ export function getShareCaption(certificate: Certificate): string {
     ].join("\n");
 }
 
-const PALETTE = {
-    void: "#0C091F",
-    night: "#150F33",
-    line: "#3A2F6B",
-    grape: "#9455EF",
-    lime: "#B7F652",
-    cyan: "#44DDFB",
-    gold: "#FDC94B",
-    ink: "#F5F4FD",
-    inkSoft: "#C9C4EC",
-    inkDim: "#9A93C7",
+const COLORS = {
+    paper: "#FFFFFF",
+    band: "#F2F0F8",
+    indigo: "#241E55",
+    ink: "#15131F",
+    sub: "#5E5A6E",
+    faint: "#8C889A",
+    line: "#E3E1EA",
 } as const;
 
-const SANS = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace';
+const SERIF = '"GM Certificate Serif", Georgia, serif';
+const SANS = '"GM Certificate Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+const SCRIPT = '"GM Certificate Signature", "Snell Roundhand", "Segoe Script", cursive';
+
+/**
+ * The certificate's own fonts, served from /public so every device renders the same image instead of
+ * whatever serif or script font the system happens to have.
+ */
+const FONT_FILES: [family: string, weight: string, file: string][] = [
+    ["GM Certificate Serif", "400", "instrument-serif-latin-400-normal.woff2"],
+    ["GM Certificate Sans", "400", "inter-latin-400-normal.woff2"],
+    ["GM Certificate Sans", "600", "inter-latin-600-normal.woff2"],
+    ["GM Certificate Sans", "700", "inter-latin-700-normal.woff2"],
+    ["GM Certificate Signature", "400", "mrs-saint-delafield-latin-400-normal.woff2"],
+];
+
+let fontsReady: Promise<void> | null = null;
+
+/** Loads the certificate fonts once. A font that fails to load falls back to the next family in the stack. */
+export function loadCertificateFonts(): Promise<void> {
+    fontsReady ??= Promise.allSettled(
+        FONT_FILES.map(async ([family, weight, file]) => {
+            const face = new FontFace(family, `url(/fonts/certificate/${file})`, { weight });
+            document.fonts.add(await face.load());
+        }),
+    ).then(() => undefined);
+    return fontsReady;
+}
 
 interface RenderOptions {
     name: string;
@@ -134,18 +157,29 @@ interface RenderOptions {
     issuedAt: Date;
 }
 
-/** Shrinks the font until the text fits, so long names never overflow the card. */
-function fitText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, startSize: number, font: string) {
+/** Shrinks the font until the text fits, so long names never overflow. */
+function fitText(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    maxWidth: number,
+    startSize: number,
+    font: string,
+    weight = 400,
+) {
     let size = startSize;
     do {
-        ctx.font = `800 ${size}px ${font}`;
+        ctx.font = `${weight} ${size}px ${font}`;
         size -= 2;
     } while (ctx.measureText(text).width > maxWidth && size > 28);
 }
 
 /** Draws the certificate onto a canvas and returns it. Browser only. */
-export function renderCertificate(options: RenderOptions): HTMLCanvasElement {
-    const { name, certificate, certId, issuedAt } = options;
+export async function renderCertificate(options: RenderOptions): Promise<HTMLCanvasElement> {
+    const { certificate, certId, issuedAt } = options;
+    const name = options.name.trim();
+    if (!name) throw new Error("A name is required to issue a certificate");
+    await loadCertificateFonts();
+
     const { width: W, height: H } = CERTIFICATE_SIZE;
     const canvas = document.createElement("canvas");
     canvas.width = W;
@@ -153,123 +187,81 @@ export function renderCertificate(options: RenderOptions): HTMLCanvasElement {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas is not supported in this browser");
 
-    // Background: deep gradient with soft coloured light pools
-    const bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0, PALETTE.void);
-    bg.addColorStop(1, PALETTE.night);
-    ctx.fillStyle = bg;
+    ctx.fillStyle = COLORS.paper;
     ctx.fillRect(0, 0, W, H);
-    glow(ctx, W / 2, 210, 620, "rgba(148, 85, 239, 0.34)");
-    glow(ctx, W + 40, H - 120, 560, "rgba(68, 221, 251, 0.14)");
-    glow(ctx, -40, H - 60, 520, "rgba(183, 246, 82, 0.10)");
 
-    // Dot matrix texture
-    ctx.fillStyle = "rgba(148, 85, 239, 0.14)";
-    for (let y = 30; y < H; y += 30) {
-        for (let x = 30; x < W; x += 30) {
-            ctx.beginPath();
-            ctx.arc(x, y, 1.5, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
+    // Right-hand band with the ribbon and seal
+    const bandWidth = 560;
+    const bx = W - bandWidth;
+    const cx = bx + bandWidth / 2;
+    ctx.fillStyle = COLORS.band;
+    ctx.fillRect(bx, 0, bandWidth, H);
+    ctx.fillStyle = COLORS.indigo;
+    ctx.beginPath();
+    ctx.moveTo(cx - 130, 0);
+    ctx.lineTo(cx + 130, 0);
+    ctx.lineTo(cx + 130, 760);
+    ctx.lineTo(cx, 700);
+    ctx.lineTo(cx - 130, 760);
+    ctx.closePath();
+    ctx.fill();
+    drawSeal(ctx, cx, 520, 190);
+    ctx.fillStyle = COLORS.indigo;
+    ctx.font = `600 30px ${SANS}`;
+    drawSpaced(ctx, "COURSE", cx, 900, 10);
+    drawSpaced(ctx, "CERTIFICATE", cx, 950, 10);
 
-    // Frame: gradient outer line, hairline inner line, ornamented corners
-    const frame = ctx.createLinearGradient(0, 0, W, H);
-    frame.addColorStop(0, PALETTE.lime);
-    frame.addColorStop(0.5, PALETTE.cyan);
-    frame.addColorStop(1, PALETTE.grape);
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = frame;
-    roundRect(ctx, 48, 48, W - 96, H - 96, 28);
-    ctx.stroke();
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = PALETTE.line;
-    roundRect(ctx, 68, 68, W - 136, H - 136, 18);
-    ctx.stroke();
-    for (const [x, y, dx, dy] of [
-        [68, 68, 1, 1],
-        [W - 68, 68, -1, 1],
-        [68, H - 68, 1, -1],
-        [W - 68, H - 68, -1, -1],
-    ] as const) {
-        drawCorner(ctx, x, y, dx, dy);
-    }
-
-    ctx.textAlign = "center";
+    // Content
+    const L = 150;
+    const maxWidth = bx - L - 120;
+    ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
 
-    // Wordmark
-    ctx.fillStyle = PALETTE.lime;
-    ctx.font = `700 40px ${MONO}`;
-    ctx.fillText("$ git mastery", W / 2, 165);
+    ctx.fillStyle = COLORS.sub;
+    ctx.font = `400 34px ${SANS}`;
+    ctx.fillText(formatDisplayDate(issuedAt), L, 250);
 
-    // Heading
-    ctx.fillStyle = PALETTE.inkDim;
-    ctx.font = `700 26px ${SANS}`;
-    drawSpaced(ctx, "CERTIFICATE OF COMPLETION", W / 2, 270, 7);
+    ctx.fillStyle = COLORS.ink;
+    fitText(ctx, name, maxWidth, 132, SERIF);
+    ctx.fillText(name, L, 420);
 
-    ctx.fillStyle = PALETTE.inkSoft;
+    ctx.fillStyle = COLORS.sub;
+    ctx.font = `400 36px ${SANS}`;
+    ctx.fillText("has successfully completed", L, 520);
+
+    ctx.fillStyle = COLORS.ink;
+    fitText(ctx, certificate.title, maxWidth, 84, SANS, 700);
+    ctx.fillText(certificate.title, L, 635);
+
+    ctx.fillStyle = COLORS.sub;
     ctx.font = `400 32px ${SANS}`;
-    ctx.fillText("This certifies that", W / 2, 375);
-
-    // Name
-    const displayName = name.trim();
-    if (!displayName) throw new Error("A name is required to issue a certificate");
-    ctx.fillStyle = PALETTE.ink;
-    fitText(ctx, displayName, W - 240, 96, SANS);
-    ctx.fillText(displayName, W / 2, 490);
-
-    // Underline accent
-    const underline = ctx.createLinearGradient(W / 2 - 110, 0, W / 2 + 110, 0);
-    underline.addColorStop(0, "rgba(183, 246, 82, 0)");
-    underline.addColorStop(0.5, PALETTE.lime);
-    underline.addColorStop(1, "rgba(183, 246, 82, 0)");
-    ctx.fillStyle = underline;
-    ctx.fillRect(W / 2 - 110, 520, 220, 5);
-
-    ctx.fillStyle = PALETTE.inkSoft;
-    ctx.font = `400 32px ${SANS}`;
-    ctx.fillText("has successfully completed the course", W / 2, 600);
-
-    // Course title
-    const titleGradient = ctx.createLinearGradient(W / 2 - 320, 0, W / 2 + 320, 0);
-    titleGradient.addColorStop(0, "#FFE38A");
-    titleGradient.addColorStop(1, PALETTE.gold);
-    ctx.fillStyle = titleGradient;
-    fitText(ctx, certificate.title, W - 200, 78, SANS);
-    ctx.fillText(certificate.title, W / 2, 700);
-
-    ctx.fillStyle = PALETTE.inkSoft;
-    ctx.font = `400 30px ${SANS}`;
     ctx.fillText(
-        `${certificate.level} difficulty · ${certificate.stagesTotal} stages · ${certificate.levelsTotal} levels`,
-        W / 2,
-        760,
+        `an interactive ${certificate.level.toLowerCase()} course of ${certificate.levelsTotal} hands-on levels across ${certificate.stagesTotal} stages,`,
+        L,
+        720,
     );
+    ctx.fillText("completed by typing real Git commands in a simulated repository.", L, 768);
 
-    // Git graph decoration: a branch that forks and merges back
-    drawGraph(ctx, W / 2, 870);
+    // Signature
+    ctx.fillStyle = COLORS.ink;
+    ctx.font = `400 110px ${SCRIPT}`;
+    ctx.fillText(CERTIFICATE_SIGNATORY, L + 10, 1090);
+    ctx.strokeStyle = COLORS.line;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(L, 1116);
+    ctx.lineTo(L + 560, 1116);
+    ctx.stroke();
+    ctx.fillStyle = COLORS.ink;
+    ctx.font = `600 30px ${SANS}`;
+    ctx.fillText(CERTIFICATE_SIGNATORY, L, 1162);
+    ctx.fillStyle = COLORS.sub;
+    ctx.font = `400 26px ${SANS}`;
+    ctx.fillText(CERTIFICATE_SIGNATORY_ROLE, L, 1200);
 
-    // Seal
-    drawSeal(ctx, 250, 1035);
-    drawSignature(ctx, W - 250, 1035);
-
-    // Footer: date / id
-    ctx.textAlign = "left";
-    ctx.fillStyle = PALETTE.inkDim;
-    ctx.font = `600 20px ${SANS}`;
-    ctx.fillText("ISSUED", 130, 1165);
-    ctx.fillText("CERTIFICATE ID", W - 130 - 300, 1165);
-    ctx.fillStyle = PALETTE.ink;
-    ctx.font = `600 28px ${SANS}`;
-    ctx.fillText(formatDisplayDate(issuedAt), 130, 1202);
-    ctx.font = `600 28px ${MONO}`;
-    ctx.fillText(certId, W - 130 - 300, 1202);
-
-    ctx.textAlign = "center";
-    ctx.fillStyle = PALETTE.cyan;
-    ctx.font = `700 30px ${SANS}`;
-    ctx.fillText("gitmastery.me", W / 2, 1262);
+    ctx.fillStyle = COLORS.faint;
+    ctx.font = `400 24px ${SANS}`;
+    ctx.fillText(`Certificate ID ${certId}  ·  gitmastery.me`, L, H - 90);
 
     return canvas;
 }
@@ -278,138 +270,71 @@ function drawSpaced(ctx: CanvasRenderingContext2D, text: string, cx: number, y: 
     const chars = [...text];
     const widths = chars.map(c => ctx.measureText(c).width + spacing);
     let x = cx - (widths.reduce((a, b) => a + b, 0) - spacing) / 2;
-    const align = ctx.textAlign;
+    ctx.save();
     ctx.textAlign = "left";
     chars.forEach((c, i) => {
         ctx.fillText(c, x, y);
         x += widths[i]!;
     });
-    ctx.textAlign = align;
+    ctx.restore();
 }
 
-function drawGraph(ctx: CanvasRenderingContext2D, cx: number, cy: number) {
-    const left = cx - 260;
-    const right = cx + 260;
-    const up = cy - 34;
-    ctx.lineWidth = 6;
+/** The GitMastery branch mark from public/logo.svg, drawn in a 24-unit box scaled to `size`. */
+function drawMark(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(size / 24, size / 24);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.4;
     ctx.lineCap = "round";
-
-    ctx.strokeStyle = PALETTE.lime;
     ctx.beginPath();
-    ctx.moveTo(left, cy);
-    ctx.lineTo(right, cy);
+    ctx.moveTo(6, 3);
+    ctx.lineTo(6, 15);
     ctx.stroke();
-
-    ctx.strokeStyle = PALETTE.grape;
     ctx.beginPath();
-    ctx.moveTo(cx - 130, cy);
-    ctx.bezierCurveTo(cx - 100, up, cx - 90, up, cx - 60, up);
-    ctx.lineTo(cx + 60, up);
-    ctx.bezierCurveTo(cx + 90, up, cx + 100, up, cx + 130, cy);
+    ctx.arc(18, 6, 3, 0, Math.PI * 2);
     ctx.stroke();
-
-    const nodes: [number, number, string][] = [
-        [left, cy, PALETTE.lime],
-        [cx - 130, cy, PALETTE.lime],
-        [cx - 40, up, PALETTE.grape],
-        [cx + 40, up, PALETTE.grape],
-        [cx + 130, cy, PALETTE.lime],
-        [right, cy, PALETTE.gold],
-    ];
-    for (const [x, y, color] of nodes) {
-        ctx.fillStyle = PALETTE.void;
-        ctx.beginPath();
-        ctx.arc(x, y, 15, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.lineWidth = 6;
-        ctx.strokeStyle = color;
-        ctx.stroke();
-    }
+    ctx.beginPath();
+    ctx.arc(6, 18, 3, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(9, 9, 9, 0, Math.PI / 2);
+    ctx.stroke();
+    ctx.restore();
 }
 
-function drawSeal(ctx: CanvasRenderingContext2D, cx: number, cy: number) {
-    const points = 24;
+function drawSeal(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number) {
+    ctx.fillStyle = COLORS.indigo;
     ctx.beginPath();
-    for (let i = 0; i < points * 2; i++) {
-        const radius = i % 2 === 0 ? 76 : 66;
-        const angle = (Math.PI * i) / points - Math.PI / 2;
-        const x = cx + Math.cos(angle) * radius;
-        const y = cy + Math.sin(angle) * radius;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.fillStyle = PALETTE.gold;
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.fill();
-
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = PALETTE.void;
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.arc(cx, cy, 52, 0, Math.PI * 2);
+    ctx.arc(cx, cy, r - 12, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 58, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Checkmark
-    ctx.lineWidth = 10;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.beginPath();
-    ctx.moveTo(cx - 24, cy + 2);
-    ctx.lineTo(cx - 6, cy + 20);
-    ctx.lineTo(cx + 26, cy - 18);
-    ctx.stroke();
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = `600 ${Math.round(r * 0.17)}px ${SANS}`;
+    ctx.textAlign = "center";
+    const chars = [..."GITMASTERY  ·  CERTIFIED  ·  "];
+    chars.forEach((ch, i) => {
+        const angle = (i / chars.length) * Math.PI * 2 - Math.PI / 2;
+        ctx.save();
+        ctx.translate(cx + (r - 35) * Math.cos(angle), cy + (r - 35) * Math.sin(angle));
+        ctx.rotate(angle + Math.PI / 2);
+        ctx.fillText(ch, 0, 6);
+        ctx.restore();
+    });
+    drawMark(ctx, cx - r * 0.3, cy - r * 0.3, r * 0.6, "#FFFFFF");
 }
 
 export function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
     return new Promise((resolve, reject) => {
         canvas.toBlob(blob => (blob ? resolve(blob) : reject(new Error("Could not create image"))), "image/png");
     });
-}
-
-function drawSignature(ctx: CanvasRenderingContext2D, cx: number, cy: number) {
-    ctx.textAlign = "center";
-    ctx.fillStyle = PALETTE.ink;
-    ctx.font = `italic 700 50px "Snell Roundhand", "Segoe Script", "Brush Script MT", "Apple Chancery", cursive`;
-    ctx.fillText(CERTIFICATE_SIGNATORY, cx, cy);
-    ctx.fillStyle = PALETTE.line;
-    ctx.fillRect(cx - 170, cy + 16, 340, 3);
-    ctx.fillStyle = PALETTE.inkDim;
-    ctx.font = `400 20px ${SANS}`;
-    ctx.fillText(CERTIFICATE_SIGNATORY_ROLE, cx, cy + 52);
-}
-
-function glow(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-    gradient.addColorStop(0, color);
-    gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-}
-
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-}
-
-/** A small commit-node-and-branch flourish in each corner of the inner frame. */
-function drawCorner(ctx: CanvasRenderingContext2D, x: number, y: number, dx: number, dy: number) {
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = PALETTE.lime;
-    ctx.beginPath();
-    ctx.moveTo(x + dx * 26, y + dy * 26);
-    ctx.lineTo(x + dx * 26, y + dy * 74);
-    ctx.moveTo(x + dx * 26, y + dy * 26);
-    ctx.lineTo(x + dx * 74, y + dy * 26);
-    ctx.stroke();
-    ctx.fillStyle = PALETTE.void;
-    ctx.strokeStyle = PALETTE.gold;
-    ctx.beginPath();
-    ctx.arc(x + dx * 26, y + dy * 26, 8, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
 }

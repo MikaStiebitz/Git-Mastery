@@ -60,7 +60,7 @@ function CertificateCard({ certificate, name }: { certificate: Certificate; name
     const build = async () => {
         const issuedAt = getIssuedAt(certificate.difficultyId);
         const certId = getCertificateId(name, certificate.difficultyId, issuedAt);
-        const blob = await canvasToBlob(renderCertificate({ name, certificate, certId, issuedAt }));
+        const blob = await canvasToBlob(await renderCertificate({ name, certificate, certId, issuedAt }));
         return { blob, certId, issuedAt };
     };
 
