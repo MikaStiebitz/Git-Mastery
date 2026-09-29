@@ -348,10 +348,7 @@ function drawSignature(ctx: CanvasRenderingContext2D, cx: number, cy: number) {
     ctx.fillText(CERTIFICATE_SIGNATORY, cx, cy);
     ctx.fillStyle = PALETTE.line;
     ctx.fillRect(cx - 170, cy + 16, 340, 3);
-    ctx.fillStyle = PALETTE.ink;
-    ctx.font = `600 24px ${SANS}`;
-    ctx.fillText(CERTIFICATE_SIGNATORY, cx, cy + 52);
     ctx.fillStyle = PALETTE.inkDim;
     ctx.font = `400 20px ${SANS}`;
-    ctx.fillText(CERTIFICATE_SIGNATORY_ROLE, cx, cy + 80);
+    ctx.fillText(CERTIFICATE_SIGNATORY_ROLE, cx, cy + 52);
 }
