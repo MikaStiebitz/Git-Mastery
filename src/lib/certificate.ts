@@ -330,7 +330,7 @@ function drawSeal(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: numb
         ctx.fillText(ch, 0, 6);
         ctx.restore();
     });
-    drawMark(ctx, cx - r * 0.3, cy - r * 0.3, r * 0.6, "#FFFFFF");
+    drawMark(ctx, cx - r * 0.46, cy - r * 0.46, r * 0.92, "#FFFFFF");
 }
 
 export function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
