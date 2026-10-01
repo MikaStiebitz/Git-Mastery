@@ -69,6 +69,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Advanced mode state - initialize with false to avoid hydration mismatch
     const [isAdvancedMode, setIsAdvancedMode] = useState<boolean>(false);
 
+    // Visual mode: play levels with command cards instead of the terminal (Oh My Git! style).
+    // Starts false like advanced mode, and is read from localStorage after mount.
+    const [isVisualMode, setIsVisualMode] = useState<boolean>(false);
+
     // Story dialog trigger state
     const [shouldShowStoryDialog, setShouldShowStoryDialog] = useState<boolean>(false);
 
@@ -78,9 +82,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Load values from localStorage after mount to avoid hydration issues
     useEffect(() => {
         const savedAdvancedMode = localStorage.getItem("gitgud-advanced-mode") === "true";
+        const savedVisualMode = localStorage.getItem("gitgud-visual-mode") === "true";
         const savedDifficulty = (localStorage.getItem("gitgud-difficulty") as DifficultyLevel) || "beginner";
 
         setIsAdvancedMode(savedAdvancedMode);
+        setIsVisualMode(savedVisualMode);
         setCurrentDifficulty(savedDifficulty);
     }, []);
 
@@ -100,6 +106,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (typeof window !== "undefined") localStorage.setItem("gitgud-advanced-mode", newMode.toString());
             return newMode;
         });
+    };
+
+    // Switch between typing commands and playing cards
+    const setVisualMode = (visual: boolean) => {
+        setIsVisualMode(visual);
+        if (typeof window !== "undefined") localStorage.setItem("gitgud-visual-mode", visual.toString());
     };
 
     // Update difficulty level
@@ -654,6 +666,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         terminalOutput,
         isFileEditorOpen,
         isAdvancedMode,
+        isVisualMode,
         shouldShowStoryDialog,
         currentDifficulty,
         currentFile: getCurrentFile(),
@@ -668,6 +681,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         resetTerminalForPlayground,
         resetTerminalForLevel,
         toggleAdvancedMode,
+        setVisualMode,
         getEditableFiles,
         syncURLWithCurrentLevel,
         handleLevelFromUrl,

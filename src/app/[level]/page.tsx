@@ -24,6 +24,9 @@ import {
     FileIcon,
     Folder,
     GitGraph as GitGraphIcon,
+    Layers,
+    ScrollText,
+    SquareTerminal,
 } from "lucide-react";
 import { PageLayout } from "~/components/layout/PageLayout";
 import { ClientOnly } from "~/components/ClientOnly";
@@ -31,6 +34,8 @@ import { useLanguage } from "~/contexts/LanguageContext";
 import { StoryDialog } from "~/components/StoryDialog";
 import { GitMascot } from "~/components/GitMascot";
 import { LevelVisualizer } from "~/components/LevelVisualizer";
+import { VisualBoard } from "~/components/visual/VisualBoard";
+import { CommandLog } from "~/components/visual/CommandLog";
 import dynamic from "next/dynamic";
 import { TerminalSkeleton } from "~/components/ui/TerminalSkeleton";
 import { CommitDialog } from "~/components/CommitDialog";
@@ -65,6 +70,9 @@ function LevelPageContent() {
         setIsFileEditorOpen,
         isAdvancedMode,
         toggleAdvancedMode,
+        isVisualMode,
+        setVisualMode,
+        terminalOutput,
         getEditableFiles,
         handleCommand,
         currentFile,
@@ -87,7 +95,9 @@ function LevelPageContent() {
     const [userClosedStoryDialog, setUserClosedStoryDialog] = useState(false);
     const [urlParamsProcessed, setUrlParamsProcessed] = useState(false);
     const [showResetModal, setShowResetModal] = useState(false);
-    const [activePanel, setActivePanel] = useState<"challenge" | "graph">("challenge");
+    // The second tab is the commit graph next to the terminal, and the full command log in visual
+    // mode, where the graph already sits on the board.
+    const [activePanel, setActivePanel] = useState<"challenge" | "side">("challenge");
 
     // Helper function to convert flat file list to tree structure
     const getFileTree = (files: Array<{ name: string; path: string }>): FileTreeNode => {
@@ -546,7 +556,8 @@ function LevelPageContent() {
                         </div>
                     )}
 
-                    {renderEditableFiles()}
+                    {/* In visual mode the board shows the files, with their Git state, and edits them. */}
+                    {!isVisualMode && renderEditableFiles()}
                 </div>
             </ClientOnly>
         );
@@ -587,10 +598,56 @@ function LevelPageContent() {
                     className="mb-4 sm:mb-6"
                 />
 
-                {/* Mobile-optimized layout: Stack vertically on mobile, side-by-side on desktop */}
-                <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+                {/* How the level is played: typing in the terminal, or playing command cards on a
+                    visual board (the Oh My Git! way). Remembered across levels and visits. */}
+                <ClientOnly fallback={<div className="mb-3 h-[3.25rem] sm:mb-4" />}>
+                    <div className="mb-3 flex flex-wrap items-center justify-end gap-2 sm:mb-4">
+                        <p id="play-mode-label" className="text-gm-ink-dim text-sm">
+                            {t("visual.modeLabel")}
+                        </p>
+                        <div
+                            role="group"
+                            aria-labelledby="play-mode-label"
+                            className="gm-inset flex items-center gap-1 p-1">
+                            {(
+                                [
+                                    { visual: false, icon: SquareTerminal, label: t("visual.modeTerminal") },
+                                    { visual: true, icon: Layers, label: t("visual.modeVisual") },
+                                ] as const
+                            ).map(({ visual, icon: Icon, label }) => {
+                                const isActive = isVisualMode === visual;
+                                return (
+                                    <button
+                                        key={label}
+                                        type="button"
+                                        aria-pressed={isActive}
+                                        onClick={() => setVisualMode(visual)}
+                                        title={visual ? t("visual.modeHint") : undefined}
+                                        className={`focus-visible:outline-gm-cyan flex min-h-11 cursor-pointer items-center gap-1.5 rounded-[0.7rem] px-3 text-sm font-semibold transition-colors duration-150 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:outline-offset-2 ${
+                                            isActive
+                                                ? "bg-gm-grape text-gm-ink"
+                                                : "text-gm-ink-dim hover:bg-gm-deep hover:text-gm-ink active:bg-gm-deep"
+                                        }`}>
+                                        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                        <span>{label}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </ClientOnly>
+
+                {/* Mobile-optimized layout: Stack vertically on mobile, side-by-side on desktop.
+                    The visual board needs more room than the terminal, so it gets the wider column. */}
+                <div
+                    className={`grid grid-cols-1 gap-3 sm:gap-4 ${
+                        isVisualMode ? "lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]" : "lg:grid-cols-2"
+                    }`}>
                     {/* Challenge Card - Always show first on mobile for context */}
-                    <Card className="order-1 flex min-w-0 flex-col overflow-hidden lg:order-2 lg:h-[580px]">
+                    <Card
+                        className={`order-1 flex min-w-0 flex-col overflow-hidden lg:order-2 ${
+                            isVisualMode ? "lg:h-[700px]" : "lg:h-[580px]"
+                        }`}>
                         <CardHeader className="shrink-0 p-3 pb-3 sm:p-5 sm:pb-4">
                             <div className="flex items-center justify-between gap-2">
                                 {/* Tab switcher: Challenge ⟷ Visual Git Graph */}
@@ -616,17 +673,23 @@ function LevelPageContent() {
                                     <button
                                         type="button"
                                         role="tab"
-                                        id="level-tab-graph"
-                                        aria-selected={activePanel === "graph"}
-                                        aria-controls="level-panel-graph"
-                                        onClick={() => setActivePanel("graph")}
+                                        id="level-tab-side"
+                                        aria-selected={activePanel === "side"}
+                                        aria-controls="level-panel-side"
+                                        onClick={() => setActivePanel("side")}
                                         className={`focus-visible:outline-gm-cyan flex min-h-11 min-w-0 cursor-pointer items-center gap-1.5 rounded-[0.7rem] px-2.5 text-sm font-semibold transition-colors duration-150 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:outline-offset-2 sm:px-3 ${
-                                            activePanel === "graph"
+                                            activePanel === "side"
                                                 ? "bg-gm-grape text-gm-ink"
                                                 : "text-gm-ink-dim hover:bg-gm-deep hover:text-gm-ink active:bg-gm-deep"
                                         }`}>
-                                        <GitGraphIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                                        <span className="truncate">{t("level.tab.graph")}</span>
+                                        {isVisualMode ? (
+                                            <ScrollText className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                        ) : (
+                                            <GitGraphIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                                        )}
+                                        <span className="truncate">
+                                            {isVisualMode ? t("level.tab.log") : t("level.tab.graph")}
+                                        </span>
                                     </button>
                                 </div>
                                 {/* Mode Toggle in top right corner */}
@@ -658,7 +721,7 @@ function LevelPageContent() {
                         </CardHeader>
                         <CardContent
                             className={`min-h-0 flex-grow p-3 pt-0 sm:p-5 sm:pt-0 ${
-                                activePanel === "graph" ? "flex flex-col overflow-hidden" : "gm-scroll overflow-auto"
+                                activePanel === "side" ? "flex flex-col overflow-hidden" : "gm-scroll overflow-auto"
                             }`}>
                             {activePanel === "challenge" ? (
                                 <div role="tabpanel" id="level-panel-challenge" aria-labelledby="level-tab-challenge">
@@ -667,25 +730,40 @@ function LevelPageContent() {
                             ) : (
                                 <div
                                     role="tabpanel"
-                                    id="level-panel-graph"
-                                    aria-labelledby="level-tab-graph"
+                                    id="level-panel-side"
+                                    aria-labelledby="level-tab-side"
                                     className="flex min-h-0 flex-1 flex-col">
                                     <ClientOnly>
-                                        <LevelVisualizer className="min-h-[320px]" />
+                                        {isVisualMode ? (
+                                            <CommandLog
+                                                lines={terminalOutput}
+                                                followTail
+                                                aria-label={t("level.tab.log")}
+                                                className="min-h-[320px] flex-1"
+                                            />
+                                        ) : (
+                                            <LevelVisualizer className="min-h-[320px]" />
+                                        )}
                                     </ClientOnly>
                                 </div>
                             )}
                         </CardContent>
                     </Card>
 
-                    {/* Terminal - Second on mobile, optimized height */}
-                    {urlParamsProcessed ? (
+                    {/* Terminal (or the visual board) - Second on mobile, optimized height */}
+                    {!urlParamsProcessed ? (
+                        <TerminalSkeleton className="order-2 h-[450px] min-w-0 sm:h-[500px] lg:order-1 lg:h-[580px]" />
+                    ) : isVisualMode ? (
+                        <VisualBoard
+                            className="order-2 lg:order-1 lg:h-[700px]"
+                            onResetClick={() => setShowResetModal(true)}
+                            onNextLevel={handleNextLevelWithStory}
+                        />
+                    ) : (
                         <Terminal
                             className="order-2 h-[450px] min-w-0 sm:h-[500px] lg:order-1 lg:h-[580px]"
                             onResetClick={() => setShowResetModal(true)}
                         />
-                    ) : (
-                        <TerminalSkeleton className="order-2 h-[450px] min-w-0 sm:h-[500px] lg:order-1 lg:h-[580px]" />
                     )}
                 </div>
 
