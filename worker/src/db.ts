@@ -170,7 +170,7 @@ export async function updateUsername(
 }
 
 export async function deleteUser(db: D1Database, userId: number): Promise<void> {
-    // Cascades to sessions, events, cursor and minigame_best. Nothing of the account survives,
+    // Cascades to sessions, events, cursor, minigame_best and level_stars. Nothing of the account survives,
     // which is also why there is no archive table: a reset simply deletes the ledger.
     await db.prepare("DELETE FROM users WHERE id = ?1").bind(userId).run();
 }
@@ -205,14 +205,25 @@ export async function loadBests(db: D1Database, userId: number): Promise<Record<
     return bests;
 }
 
+export async function loadStars(db: D1Database, userId: number): Promise<Record<string, number>> {
+    const result = await db
+        .prepare("SELECT subject, stars FROM level_stars WHERE user_id = ?1")
+        .bind(userId)
+        .all<{ subject: string; stars: number }>();
+    const stars: Record<string, number> = {};
+    for (const row of result.results) stars[row.subject] = row.stars;
+    return stars;
+}
+
 /** Read everything and fold it. One round of reads, ~4 rows read for a typical account. */
 export async function loadState(db: D1Database, userId: number): Promise<ServerState> {
-    const [ledger, cursor, bests] = await Promise.all([
+    const [ledger, cursor, bests, stars] = await Promise.all([
         loadLedger(db, userId),
         loadCursor(db, userId),
         loadBests(db, userId),
+        loadStars(db, userId),
     ]);
-    return deriveState(ledger, cursor, bests, new Date());
+    return deriveState(ledger, cursor, bests, new Date(), stars);
 }
 
 /**
@@ -236,6 +247,8 @@ export interface CommitInput {
     startSeq: number;
     cursor?: Cursor;
     bests?: Record<string, number>;
+    /** Already filtered to levels the catalog knows. */
+    stars?: Record<string, number>;
     suspicion: number;
     markEggAwarded: boolean;
 }
@@ -331,6 +344,20 @@ export async function commitBatch(db: D1Database, input: CommitInput): Promise<v
         );
     }
 
+    // The WHERE is what keeps this free when nothing improved: an upsert whose update is filtered
+    // out writes no row, so a client that resends results it already has costs reads, not writes.
+    for (const [subject, stars] of Object.entries(input.stars ?? {})) {
+        statements.push(
+            db
+                .prepare(
+                    `INSERT INTO level_stars (user_id, subject, stars) VALUES (?1, ?2, ?3)
+                     ON CONFLICT(user_id, subject) DO UPDATE SET stars = excluded.stars
+                      WHERE excluded.stars > level_stars.stars`,
+                )
+                .bind(input.userId, subject, stars),
+        );
+    }
+
     if (input.markEggAwarded) {
         statements.push(
             db
@@ -353,6 +380,7 @@ export async function resetProgress(db: D1Database, userId: number): Promise<voi
     await db.batch([
         db.prepare("DELETE FROM events WHERE user_id = ?1").bind(userId),
         db.prepare("DELETE FROM minigame_best WHERE user_id = ?1").bind(userId),
+        db.prepare("DELETE FROM level_stars WHERE user_id = ?1").bind(userId),
         db
             .prepare("UPDATE cursor SET stage = 'intro', level = 1, updated_at = unixepoch() WHERE user_id = ?1")
             .bind(userId),

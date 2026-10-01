@@ -21,6 +21,7 @@ export interface ServerState {
     minigameScores: Record<string, number>;
     doubleXpUntil: string | null;
     gitGudActivated: boolean;
+    levelStars: Record<string, number>;
     serverTime: string;
 }
 
@@ -139,6 +140,8 @@ export interface SyncPayload {
     events: OutboxEvent[];
     cursor?: { stage: string; level: number; at: string };
     bests?: Record<string, number>;
+    /** Star results the server does not have yet, keyed "stage/level". */
+    stars?: Record<string, number>;
     imported?: boolean;
 }
 

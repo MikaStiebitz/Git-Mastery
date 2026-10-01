@@ -29,6 +29,7 @@ import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { ClientOnly } from "~/components/ClientOnly";
 import { BadgeDisplay } from "~/components/BadgeDisplay";
+import { RankChip } from "~/components/RankChip";
 import { DebugModal } from "~/components/DebugModal";
 import { cn } from "~/lib/utils";
 import { useSponsor } from "~/components/SponsorDialog";
@@ -432,6 +433,10 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     {/* What you have, and what to do next. */}
                     <span className="bg-gm-line hidden h-6 w-px shrink-0 lg:block" aria-hidden="true" />
 
+                    <ClientOnly>
+                        <RankChip score={purse.score} className="hidden xl:inline-flex" />
+                    </ClientOnly>
+
                     {purseChip()}
 
                     {accountButton()}
@@ -478,6 +483,9 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                     <div className="container mx-auto flex flex-col gap-2 px-4 py-4">
                         <div className="mb-1 flex flex-wrap items-center justify-center gap-2">
                             <BadgeDisplay className="justify-center" />
+                            <ClientOnly>
+                                <RankChip score={purse.score} />
+                            </ClientOnly>
                             {starChip("sm:hidden")}
                         </div>
 

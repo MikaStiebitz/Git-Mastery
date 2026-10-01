@@ -24,6 +24,7 @@ import { clientIp, errorResponse, handlePreflight, isQuotaExhausted, json, noCon
 import { foldEvents } from "./ledger";
 import { checkUsername } from "./moderation/username";
 import { clearFailures, loginGate, recordFailure, registerGate, syncGate } from "./ratelimit";
+import { isKnownLevel } from "./catalog";
 import { MAX_BODY_BYTES, validateSyncRequest } from "./validate";
 import type { Env, SyncResponse } from "./types";
 import * as db from "./db";
@@ -192,6 +193,23 @@ async function handleLogin(request: Request, env: Env, pepper: string): Promise<
     );
 }
 
+/**
+ * Drop star claims for levels the catalog has never heard of.
+ *
+ * The count cap in validation bounds one request, but without this an account could mint a fresh
+ * row per request under invented stage names. A real level this Worker has not been told about yet
+ * is dropped too, and costs nothing: the client resends stars until the server reports them.
+ */
+function knownLevelStars(stars: Record<string, number> | undefined): Record<string, number> | undefined {
+    if (!stars) return undefined;
+    const out: Record<string, number> = {};
+    for (const [subject, value] of Object.entries(stars)) {
+        const [stage, level] = subject.split("/");
+        if (stage && isKnownLevel(stage, Number(level))) out[subject] = value;
+    }
+    return out;
+}
+
 async function handleSync(request: Request, env: Env, auth: Authed): Promise<Response> {
     const gate = await syncGate(env, auth.session.userId);
     if (!gate.ok) {
@@ -224,6 +242,7 @@ async function handleSync(request: Request, env: Env, auth: Authed): Promise<Res
         startSeq,
         cursor: parsed.request.cursor,
         bests: parsed.request.bests,
+        stars: knownLevelStars(parsed.request.stars),
         suspicion: parsed.malformedCount,
         markEggAwarded: accepted.some(row => row.kind === "egg"),
     });

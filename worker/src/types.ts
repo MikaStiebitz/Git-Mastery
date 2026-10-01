@@ -50,6 +50,11 @@ export interface SyncRequest {
     /** Minigame high scores. Cosmetic, unpriced, clamped. */
     bests?: Record<string, number>;
     /**
+     * Level star results, keyed "stage/level". Cosmetic, unpriced and only ever raised. The client
+     * sends just the results the server does not have yet, but nothing here depends on that.
+     */
+    stars?: Record<string, number>;
+    /**
      * Set when this batch is a one-time import of progress made before the player had an
      * account. Imported events are always priced at multiplier 1 and their timestamps are
      * floored at the account's creation, so the import path cannot mint a doubled economy.
@@ -88,6 +93,8 @@ export interface ServerState {
     minigameScores: Record<string, number>;
     doubleXpUntil: string | null;
     gitGudActivated: boolean;
+    /** Two- and three-star results by "stage/level". One star is implied by completion. */
+    levelStars: Record<string, number>;
     /** Server clock, so the client can detect a badly skewed local clock. */
     serverTime: string;
 }

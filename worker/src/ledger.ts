@@ -237,6 +237,7 @@ export function deriveState(
     cursor: Cursor | null,
     bests: Readonly<Record<string, number>>,
     now: Date,
+    levelStars: Readonly<Record<string, number>> = {},
 ): ServerState {
     // A Map, not an object literal, and this is not stylistic. A stage named `constructor` would
     // make `levels[stage] ??= []` read `Object.prototype.constructor` — truthy, so the assignment
@@ -292,6 +293,7 @@ export function deriveState(
         minigameScores: { ...bests },
         doubleXpUntil,
         gitGudActivated,
+        levelStars: { ...levelStars },
         serverTime: now.toISOString(),
     };
 }

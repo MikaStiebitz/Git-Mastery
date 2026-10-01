@@ -112,6 +112,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const flushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const inFlight = useRef(false);
     const failureCount = useRef(0);
+    /** The star results the server last reported, so only genuine improvements are uploaded. */
+    const serverStars = useRef<Record<string, number>>({});
 
     const enabled = api.accountsEnabled();
 
@@ -127,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const adopt = useCallback(
         (state: api.ServerState) => {
+            serverStars.current = { ...(state.levelStars ?? {}) };
             progressManager.applyServerState(state);
             // The navbar purse and anything else reading progress outside React state listens for
             // this, so the coin total updates the moment the server's answer lands.
@@ -150,7 +153,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const queue = progressManager.getOutbox();
             const progress = progressManager.getProgress();
 
-            if (queue.length === 0 && !options.force) {
+            // Only results the server lacks or has at a lower value. Resending all of them on every
+            // sync would be harmless to the database — the upsert ignores a non-improvement — but it
+            // would keep a flush alive, and a request in flight, for no reason.
+            const newStars: Record<string, number> = {};
+            for (const [key, value] of Object.entries(progressManager.getStoredStars())) {
+                if (value > (serverStars.current[key] ?? 1)) newStars[key] = value;
+            }
+            const hasNewStars = Object.keys(newStars).length > 0;
+
+            if (queue.length === 0 && !hasNewStars && !options.force) {
                 setStatus("synced");
                 return;
             }
@@ -175,6 +187,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             at: new Date().toISOString(),
                         },
                         bests: progress.minigameScores,
+                        // Once is enough; every batch after the first would only repeat it.
+                        stars: hasNewStars && batch === batches[0] ? newStars : undefined,
                         imported: options.imported,
                     });
 
@@ -340,6 +354,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (choice === "keepCloud") {
                 progressManager.clearOutbox();
+                progressManager.clearStars();
                 adopt(merge.serverState);
                 setStatus("synced");
                 return;
@@ -425,6 +440,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const result = await api.resetCloudProgress(token);
         if (result.ok) {
             progressManager.clearOutbox();
+            progressManager.clearStars();
             adopt(result.state);
         }
         return result;
