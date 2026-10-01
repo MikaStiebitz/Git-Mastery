@@ -230,6 +230,8 @@ export interface GameContextProps {
     terminalOutput: string[];
     isFileEditorOpen: boolean;
     isAdvancedMode: boolean;
+    /** Levels are played with command cards on a visual board instead of the terminal. */
+    isVisualMode: boolean;
     shouldShowStoryDialog: boolean;
     currentDifficulty: DifficultyLevel;
     currentFile: { name: string; content: string };
@@ -247,6 +249,7 @@ export interface GameContextProps {
     openCommitDialog: () => void;
     setIsFileEditorOpen: (isOpen: boolean) => void;
     toggleAdvancedMode: () => void;
+    setVisualMode: (visual: boolean) => void;
     getEditableFiles: () => Array<{ name: string; path: string }>;
     syncURLWithCurrentLevel: () => void;
     handleLevelFromUrl: (stageId: string, levelId: number) => void;
