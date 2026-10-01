@@ -33,3 +33,20 @@ export function didCommandFail(output: string[]): boolean {
         );
     });
 }
+
+/**
+ * Did the player make a mistake, judged from what the command printed?
+ *
+ * Wider than `didCommandFail`, which decides whether a command may complete a level and must stay
+ * narrow: a mistyped command is not a failed *Git* operation, but it is exactly the slip the star
+ * rating is about, and counting it is what makes "no failed commands" mean what it says.
+ */
+export function isMistake(output: string[]): boolean {
+    return (
+        didCommandFail(output) ||
+        output.some(line => {
+            const lowerLine = line.toLowerCase();
+            return lowerLine.includes("command not found") || lowerLine.includes("is not a git command");
+        })
+    );
+}

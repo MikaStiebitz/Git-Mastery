@@ -9,7 +9,7 @@ import { ProgressManager } from "~/models/ProgressManager";
 import { GitRepository } from "~/models/GitRepository";
 import { parseCommand, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import { resolvePath } from "~/lib/utils";
-import { didCommandFail } from "~/models/commandOutcome";
+import { didCommandFail, isMistake } from "~/models/commandOutcome";
 import { cueMascot } from "~/components/GitMascot";
 import type { GameContextProps, DifficultyLevel } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -335,9 +335,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Tell the mascot what happened. A streak of failures is the only signal the app has that
         // a player is stuck, and it is the one the shop already promised the mascot would notice.
-        if (didCommandFail(output)) {
+        // Counted before the failure branch below, and with the wider test: a mistyped command never
+        // reaches it, but it still costs a star.
+        if (isMistake(output)) {
             const key = starKey(currentStage, currentLevel);
             levelMistakes.current.set(key, (levelMistakes.current.get(key) ?? 0) + 1);
+        }
+
+        if (didCommandFail(output)) {
             failStreak.current += 1;
             if (failStreak.current === 3) cueMascot({ cue: "struggle3" });
             if (failStreak.current === 7) cueMascot({ cue: "struggle7" });

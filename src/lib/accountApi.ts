@@ -165,5 +165,32 @@ export function deleteAccount(token: string, password: string): Promise<ApiResul
     return call("/v1/account", { method: "DELETE", token, body: { password } });
 }
 
+export interface LeaderboardEntry {
+    /** 1 + the accounts strictly ahead. Ties share a rank. */
+    rank: number;
+    username: string;
+    score: number;
+    levels: number;
+}
+
+export interface LeaderboardResponse {
+    top: LeaderboardEntry[];
+    /** Accounts on the board. */
+    total: number;
+    generatedAt: string;
+    nextRefreshInSeconds: number;
+    /** The caller's own standing; null when no (valid) token was sent. */
+    me: { score: number; levels: number; hidden: boolean; rank: number | null } | null;
+}
+
+/** Public. A token, when given, only adds the caller's own standing. */
+export function fetchLeaderboard(token?: string): Promise<ApiResult<LeaderboardResponse>> {
+    return call<LeaderboardResponse>("/v1/leaderboard", { token });
+}
+
+export function setLeaderboardHidden(token: string, hidden: boolean): Promise<ApiResult<{ hidden: boolean }>> {
+    return call("/v1/account/leaderboard", { method: "POST", token, body: { hidden } });
+}
+
 /** The largest batch the server accepts. Longer queues are flushed in several requests. */
 export const MAX_EVENTS_PER_SYNC = 64;

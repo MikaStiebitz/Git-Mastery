@@ -23,7 +23,8 @@ import {
 import { clientIp, errorResponse, handlePreflight, isQuotaExhausted, json, noContent, nowSeconds } from "./http";
 import { foldEvents } from "./ledger";
 import { checkUsername } from "./moderation/username";
-import { clearFailures, loginGate, recordFailure, registerGate, syncGate } from "./ratelimit";
+import { applyCurrentState, getSnapshot, rankOf } from "./leaderboard";
+import { clearFailures, leaderboardGate, loginGate, recordFailure, registerGate, syncGate } from "./ratelimit";
 import { isKnownLevel } from "./catalog";
 import { MAX_BODY_BYTES, validateSyncRequest } from "./validate";
 import type { Env, SyncResponse } from "./types";
@@ -304,6 +305,61 @@ async function handleDeleteAccount(request: Request, env: Env, auth: Authed, pep
     return noContent(request, env);
 }
 
+/**
+ * The public leaderboard.
+ *
+ * Unauthenticated on purpose — the board is something to look at before signing up — but a bearer
+ * token, when one is sent, adds the caller's own standing. That standing is computed live from the
+ * caller's own rows against the cached score histogram, so a level just cleared moves you up at
+ * once even while the list itself is still the snapshot.
+ */
+async function handleLeaderboard(request: Request, env: Env): Promise<Response> {
+    const gate = await leaderboardGate(env, clientIp(request));
+    if (!gate.ok) {
+        return errorResponse("rate_limited", 429, request, env, { "Retry-After": String(gate.retryAfter) });
+    }
+
+    const { snapshot, maxAge } = await getSnapshot(env, Date.now(), () => db.loadSnapshot(env.DB));
+
+    const top = applyCurrentState(
+        snapshot.top,
+        await db.loadCurrentAccounts(
+            env.DB,
+            snapshot.top.map(e => e.id),
+        ),
+    );
+
+    const auth = await authenticate(request, env);
+    let me: { score: number; levels: number; hidden: boolean; rank: number | null } | null = null;
+    if (auth) {
+        const own = await db.loadOwnStanding(env.DB, auth.session.userId);
+        me = { ...own, rank: own.hidden || own.score <= 0 ? null : rankOf(own.score, snapshot.histogram) };
+    }
+
+    return json(
+        {
+            top,
+            total: snapshot.total,
+            generatedAt: snapshot.generatedAt,
+            nextRefreshInSeconds: maxAge,
+            me,
+        },
+        200,
+        request,
+        env,
+    );
+}
+
+async function handleLeaderboardVisibility(request: Request, env: Env, auth: Authed): Promise<Response> {
+    const body = await readJson(request);
+    if (typeof body !== "object" || body === null) return errorResponse("malformed", 400, request, env);
+    const { hidden } = body as { hidden?: unknown };
+    if (typeof hidden !== "boolean") return errorResponse("malformed", 400, request, env);
+
+    await db.setLeaderboardHidden(env.DB, auth.session.userId, hidden);
+    return json({ hidden }, 200, request, env);
+}
+
 async function route(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "") || "/";
@@ -314,6 +370,8 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (path === "/v1/health" && method === "GET") {
         return json({ ok: true, time: new Date().toISOString() }, 200, request, env);
     }
+
+    if (path === "/v1/leaderboard" && method === "GET") return handleLeaderboard(request, env);
 
     // Everything past this point either hashes a password or reads a session, and both need the
     // pepper. A missing secret is a deploy error, so it fails loudly rather than degrading.
@@ -355,6 +413,9 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (path === "/v1/sync" && method === "POST") return handleSync(request, env, auth);
     if (path === "/v1/account/password" && method === "POST") return handleChangePassword(request, env, auth, pepper);
     if (path === "/v1/account/username" && method === "POST") return handleChangeUsername(request, env, auth);
+    if (path === "/v1/account/leaderboard" && method === "POST") {
+        return handleLeaderboardVisibility(request, env, auth);
+    }
 
     if (path === "/v1/account/reset" && method === "POST") {
         await db.resetProgress(env.DB, auth.session.userId);

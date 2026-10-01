@@ -310,6 +310,31 @@ const common = {
     "achievement.git-legend.desc": "نشان افسانه‌ی گیت را از فروشگاه بخر.",
     "achievement.git-gud.name": "Git Gud",
     "achievement.git-gud.desc": "دستور مخفی را پیدا کردی.",
+
+    // Leaderboard.
+    "leaderboard.title": "جدول امتیازات",
+    "leaderboard.subtitle": "همه‌ی کسانی که حساب دارند، بر اساس امتیاز. مرحله‌ها را تمام کن تا بالا بروی.",
+    "leaderboard.disabled": "جدول امتیازات به حساب کاربری نیاز دارد که این نسخه ندارد.",
+    "leaderboard.signInCta": "برای شرکت وارد شو",
+    "leaderboard.loading": "در حال بارگذاری جدول…",
+    "leaderboard.error": "جدول امتیازات بارگذاری نشد.",
+    "leaderboard.retry": "دوباره تلاش کن",
+    "leaderboard.empty": "هنوز کسی در جدول نیست. اولین نفر باش.",
+    "leaderboard.you": "تو",
+    "leaderboard.standing": "تو نفر {rank} از {total} هستی",
+    "leaderboard.standingHidden": "تو از جدول پنهان شده‌ای.",
+    "leaderboard.standingNone": "برای ورود به جدول یک مرحله را تمام کن.",
+    "leaderboard.toggle": "مرا در جدول نشان بده",
+    "leaderboard.toggleHint": "تا وقتی روشن است، نام کاربری و امتیازت عمومی است.",
+    "leaderboard.colRank": "رتبه",
+    "leaderboard.colPlayer": "بازیکن",
+    "leaderboard.colLevels": "مرحله",
+    "leaderboard.colScore": "XP",
+    "leaderboard.footnote": "امتیازها از پیشرفت ذخیره‌شده می‌آیند و تأیید نمی‌شوند؛ آن را رقابتی دوستانه بدان.",
+    "leaderboard.updated": "به‌روزرسانی: {time}",
+    "nav.leaderboard": "جدول امتیازات",
+    "account.leaderboardNotice":
+        "نام کاربری و امتیازت در جدول عمومی دیده می‌شود. هر زمان می‌توانی خودت را از آن پنهان کنی.",
 };
 
 export default common;

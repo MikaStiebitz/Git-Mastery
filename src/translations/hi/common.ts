@@ -305,6 +305,32 @@ const common = {
     "achievement.git-legend.desc": "शॉप से गिट लेजेंड बैज ख़रीदें।",
     "achievement.git-gud.name": "Git Gud",
     "achievement.git-gud.desc": "आपने गुप्त कमांड खोज ली।",
+
+    // Leaderboard.
+    "leaderboard.title": "लीडरबोर्ड",
+    "leaderboard.subtitle": "अकाउंट वाले सभी, स्कोर के हिसाब से। ऊपर चढ़ने के लिए लेवल पूरे करें।",
+    "leaderboard.disabled": "लीडरबोर्ड के लिए अकाउंट चाहिए, जो इस बिल्ड में नहीं हैं।",
+    "leaderboard.signInCta": "जुड़ने के लिए साइन इन करें",
+    "leaderboard.loading": "बोर्ड लोड हो रहा है…",
+    "leaderboard.error": "लीडरबोर्ड लोड नहीं हो सका।",
+    "leaderboard.retry": "फिर कोशिश करें",
+    "leaderboard.empty": "अभी बोर्ड पर कोई नहीं है। पहले आप बनें।",
+    "leaderboard.you": "आप",
+    "leaderboard.standing": "आप {total} में से #{rank} पर हैं",
+    "leaderboard.standingHidden": "आप बोर्ड से छिपे हुए हैं।",
+    "leaderboard.standingNone": "बोर्ड में आने के लिए एक लेवल पूरा करें।",
+    "leaderboard.toggle": "मुझे लीडरबोर्ड पर दिखाएँ",
+    "leaderboard.toggleHint": "जब तक यह चालू है, आपका यूज़रनेम और स्कोर सार्वजनिक है।",
+    "leaderboard.colRank": "रैंक",
+    "leaderboard.colPlayer": "खिलाड़ी",
+    "leaderboard.colLevels": "लेवल",
+    "leaderboard.colScore": "XP",
+    "leaderboard.footnote":
+        "स्कोर सेव की गई प्रगति से आते हैं और सत्यापित नहीं होते, इसलिए इसे दोस्ताना मुक़ाबला समझें।",
+    "leaderboard.updated": "अपडेट: {time}",
+    "nav.leaderboard": "लीडरबोर्ड",
+    "account.leaderboardNotice":
+        "आपका यूज़रनेम और स्कोर सार्वजनिक लीडरबोर्ड पर दिखते हैं। आप कभी भी वहाँ ख़ुद को छिपा सकते हैं।",
 };
 
 export default common;

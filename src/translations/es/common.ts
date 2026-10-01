@@ -317,6 +317,32 @@ const common = {
     "achievement.git-legend.desc": "Compra la insignia Git Legend en la tienda.",
     "achievement.git-gud.name": "Git Gud",
     "achievement.git-gud.desc": "Encontraste el comando secreto.",
+
+    // Leaderboard.
+    "leaderboard.title": "Clasificación",
+    "leaderboard.subtitle": "Todos los que tienen cuenta, ordenados por puntos. Supera niveles para subir.",
+    "leaderboard.disabled": "La clasificación necesita cuentas, que esta versión no tiene.",
+    "leaderboard.signInCta": "Inicia sesión para participar",
+    "leaderboard.loading": "Cargando la clasificación…",
+    "leaderboard.error": "No se pudo cargar la clasificación.",
+    "leaderboard.retry": "Reintentar",
+    "leaderboard.empty": "Todavía no hay nadie. Sé el primero.",
+    "leaderboard.you": "tú",
+    "leaderboard.standing": "Eres el n.º {rank} de {total}",
+    "leaderboard.standingHidden": "Estás oculto en la clasificación.",
+    "leaderboard.standingNone": "Supera un nivel para entrar en la clasificación.",
+    "leaderboard.toggle": "Mostrarme en la clasificación",
+    "leaderboard.toggleHint": "Tu nombre de usuario y tu puntuación son públicos mientras esto esté activado.",
+    "leaderboard.colRank": "Puesto",
+    "leaderboard.colPlayer": "Jugador",
+    "leaderboard.colLevels": "Niveles",
+    "leaderboard.colScore": "XP",
+    "leaderboard.footnote":
+        "Las puntuaciones salen del progreso guardado y no se verifican; tómatelo como una competición amistosa.",
+    "leaderboard.updated": "Actualizado {time}",
+    "nav.leaderboard": "Clasificación",
+    "account.leaderboardNotice":
+        "Tu nombre de usuario y tu puntuación aparecen en la clasificación pública. Puedes ocultarte allí en cualquier momento.",
 };
 
 export default common;

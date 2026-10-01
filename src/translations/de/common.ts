@@ -321,6 +321,32 @@ const common = {
     "achievement.git-legend.desc": "Kaufe das Git-Legend-Abzeichen im Shop.",
     "achievement.git-gud.name": "Git Gud",
     "achievement.git-gud.desc": "Du hast den geheimen Befehl gefunden.",
+
+    // Leaderboard.
+    "leaderboard.title": "Bestenliste",
+    "leaderboard.subtitle": "Alle mit Account, nach Punkten sortiert. Schließe Level ab, um aufzusteigen.",
+    "leaderboard.disabled": "Die Bestenliste braucht Accounts, die dieser Build nicht hat.",
+    "leaderboard.signInCta": "Anmelden und mitmachen",
+    "leaderboard.loading": "Lade die Liste…",
+    "leaderboard.error": "Die Bestenliste konnte nicht geladen werden.",
+    "leaderboard.retry": "Nochmal versuchen",
+    "leaderboard.empty": "Noch niemand in der Liste. Sei der Erste.",
+    "leaderboard.you": "du",
+    "leaderboard.standing": "Du bist Platz {rank} von {total}",
+    "leaderboard.standingHidden": "Du bist in der Liste ausgeblendet.",
+    "leaderboard.standingNone": "Schließe ein Level ab, um in die Liste zu kommen.",
+    "leaderboard.toggle": "In der Bestenliste anzeigen",
+    "leaderboard.toggleHint": "Dein Benutzername und deine Punkte sind öffentlich, solange das an ist.",
+    "leaderboard.colRank": "Platz",
+    "leaderboard.colPlayer": "Spieler",
+    "leaderboard.colLevels": "Level",
+    "leaderboard.colScore": "XP",
+    "leaderboard.footnote":
+        "Die Punkte stammen aus gespeichertem Fortschritt und werden nicht geprüft. Sieh die Liste als freundlichen Wettstreit.",
+    "leaderboard.updated": "Stand: {time}",
+    "nav.leaderboard": "Bestenliste",
+    "account.leaderboardNotice":
+        "Dein Benutzername und deine Punkte erscheinen in der öffentlichen Bestenliste. Du kannst dich dort jederzeit ausblenden.",
 };
 
 export default common;

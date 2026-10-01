@@ -52,6 +52,9 @@ export interface AuthContextValue {
     changePassword: (newPassword: string) => Promise<api.ApiResult<Record<string, never>>>;
     changeUsername: (newUsername: string) => Promise<api.ApiResult<{ username: string }>>;
     resetCloudProgress: () => Promise<api.ApiResult<{ state: api.ServerState }>>;
+    /** The public board, plus the caller's own standing when signed in. */
+    fetchLeaderboard: () => Promise<api.ApiResult<api.LeaderboardResponse>>;
+    setLeaderboardHidden: (hidden: boolean) => Promise<api.ApiResult<{ hidden: boolean }>>;
     deleteAccount: (password: string) => Promise<api.ApiResult<Record<string, never>>>;
 
     /** Set when signing in found progress on both sides and the player has to choose. */
@@ -446,6 +449,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return result;
     }, [adopt, progressManager]);
 
+    const fetchLeaderboard = useCallback(() => api.fetchLeaderboard(tokenRef.current ?? undefined), []);
+
+    const setLeaderboardHidden = useCallback(async (hidden: boolean) => {
+        const token = tokenRef.current;
+        if (!token) return { ok: false as const, code: "unauthorized", status: 401, retryable: false };
+        return api.setLeaderboardHidden(token, hidden);
+    }, []);
+
     const deleteAccount = useCallback(async (password: string) => {
         const token = tokenRef.current;
         if (!token) return { ok: false as const, code: "unauthorized", status: 401, retryable: false };
@@ -478,6 +489,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         changePassword,
         changeUsername,
         resetCloudProgress,
+        fetchLeaderboard,
+        setLeaderboardHidden,
         deleteAccount,
         pendingMerge,
         resolveMerge,

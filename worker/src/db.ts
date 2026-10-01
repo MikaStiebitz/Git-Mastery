@@ -8,6 +8,7 @@
 
 import { nowSeconds } from "./http";
 import type { Cursor, LedgerRow, ServerState } from "./types";
+import { TOP_COUNT, buildSnapshot, type AggregateRow, type Snapshot } from "./leaderboard";
 import { deriveState } from "./ledger";
 
 export interface UserRow {
@@ -239,6 +240,102 @@ export async function maxSeq(db: D1Database, userId: number): Promise<number> {
         .bind(userId)
         .first<{ maxSeq: number }>();
     return row?.maxSeq ?? 0;
+}
+
+/**
+ * Build the leaderboard snapshot in one pass over the ledger.
+ *
+ * One statement, one scan: the per-account totals are materialised once and read twice, as score
+ * buckets (`t = 'h'`, for ranking) and as the top rows (`t = 't'`, for display). A score of zero
+ * is excluded — an account that has played nothing has no place on a board — and so are accounts
+ * that opted out.
+ *
+ * Read-only. This is the whole point: the board adds no written rows to anything.
+ */
+export async function loadSnapshot(db: D1Database): Promise<Snapshot> {
+    const result = await db
+        .prepare(
+            `WITH totals AS MATERIALIZED (
+                 SELECT user_id,
+                        SUM(score_delta)        AS score,
+                        SUM(kind = 'level')     AS levels,
+                        MAX(accepted_at)        AS last_at
+                   FROM events
+                  GROUP BY user_id
+                 HAVING SUM(score_delta) > 0
+             ),
+             visible AS (
+                 SELECT u.id, u.username, u.username_key, t.score, t.levels, t.last_at
+                   FROM totals t JOIN users u ON u.id = t.user_id
+                  WHERE u.leaderboard_hidden = 0
+             )
+             SELECT 'h' AS t, score, COUNT(*) AS n, NULL AS username, 0 AS levels, 0 AS id
+               FROM visible GROUP BY score
+             UNION ALL
+             SELECT 't', score, 0, username, levels, id
+               FROM (SELECT id, username, score, levels FROM visible
+                      ORDER BY score DESC, last_at ASC, username_key ASC
+                      LIMIT ?1)`,
+        )
+        .bind(TOP_COUNT)
+        .all<{ t: "h" | "t"; score: number; n: number; username: string | null; levels: number; id: number }>();
+
+    const buckets: { score: number; count: number }[] = [];
+    const top: AggregateRow[] = [];
+    for (const row of result.results) {
+        if (row.t === "h") buckets.push({ score: row.score, count: row.n });
+        else if (row.username !== null) {
+            top.push({ id: row.id, username: row.username, score: row.score, levels: row.levels });
+        }
+    }
+
+    return buildSnapshot(buckets, top, new Date(), result.meta?.rows_read ?? 0);
+}
+
+/**
+ * Current name and visibility for a handful of accounts, by primary key.
+ *
+ * Accounts that no longer exist are simply absent from the result.
+ */
+export async function loadCurrentAccounts(
+    db: D1Database,
+    ids: readonly number[],
+): Promise<Map<number, { username: string; hidden: boolean }>> {
+    const out = new Map<number, { username: string; hidden: boolean }>();
+    if (ids.length === 0) return out;
+
+    const placeholders = ids.map((_, i) => `?${i + 1}`).join(", ");
+    const result = await db
+        .prepare(`SELECT id, username, leaderboard_hidden AS hidden FROM users WHERE id IN (${placeholders})`)
+        .bind(...ids)
+        .all<{ id: number; username: string; hidden: number }>();
+    for (const row of result.results) out.set(row.id, { username: row.username, hidden: row.hidden === 1 });
+    return out;
+}
+
+/** One account's own total and whether it has hidden itself. Cheap: its rows only. */
+export async function loadOwnStanding(
+    db: D1Database,
+    userId: number,
+): Promise<{ score: number; levels: number; hidden: boolean }> {
+    const row = await db
+        .prepare(
+            `SELECT COALESCE(SUM(e.score_delta), 0) AS score,
+                    COALESCE(SUM(e.kind = 'level'), 0) AS levels,
+                    (SELECT leaderboard_hidden FROM users WHERE id = ?1) AS hidden
+               FROM events e WHERE e.user_id = ?1`,
+        )
+        .bind(userId)
+        .first<{ score: number; levels: number; hidden: number }>();
+    return { score: row?.score ?? 0, levels: row?.levels ?? 0, hidden: (row?.hidden ?? 0) === 1 };
+}
+
+/** The only write the leaderboard ever causes, and only when a player flips the switch. */
+export async function setLeaderboardHidden(db: D1Database, userId: number, hidden: boolean): Promise<void> {
+    await db
+        .prepare("UPDATE users SET leaderboard_hidden = ?2 WHERE id = ?1 AND leaderboard_hidden <> ?2")
+        .bind(userId, hidden ? 1 : 0)
+        .run();
 }
 
 export interface CommitInput {

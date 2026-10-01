@@ -308,6 +308,32 @@ const common = {
     "achievement.git-legend.desc": "Buy the Git Legend badge in the shop.",
     "achievement.git-gud.name": "Git Gud",
     "achievement.git-gud.desc": "You found the secret command.",
+
+    // Leaderboard.
+    "leaderboard.title": "Leaderboard",
+    "leaderboard.subtitle": "Everyone with an account, ranked by score. Clear levels to climb.",
+    "leaderboard.disabled": "The leaderboard needs accounts, which this build does not have.",
+    "leaderboard.signInCta": "Sign in to join",
+    "leaderboard.loading": "Loading the board…",
+    "leaderboard.error": "Could not load the leaderboard.",
+    "leaderboard.retry": "Try again",
+    "leaderboard.empty": "Nobody is on the board yet. Be the first.",
+    "leaderboard.you": "you",
+    "leaderboard.standing": "You are #{rank} of {total}",
+    "leaderboard.standingHidden": "You are hidden from the board.",
+    "leaderboard.standingNone": "Clear a level to join the board.",
+    "leaderboard.toggle": "Show me on the leaderboard",
+    "leaderboard.toggleHint": "Your username and score are public while this is on.",
+    "leaderboard.colRank": "Rank",
+    "leaderboard.colPlayer": "Player",
+    "leaderboard.colLevels": "Levels",
+    "leaderboard.colScore": "XP",
+    "leaderboard.footnote":
+        "Scores come from saved progress and are not verified, so treat the board as friendly competition.",
+    "leaderboard.updated": "Updated {time}",
+    "nav.leaderboard": "Leaderboard",
+    "account.leaderboardNotice":
+        "Your username and score appear on the public leaderboard. You can hide yourself there at any time.",
 };
 
 export default common;

@@ -312,6 +312,31 @@ const common = {
     "achievement.git-legend.desc": "Mağazadan Git Efsanesi rozetini satın al.",
     "achievement.git-gud.name": "Git Gud",
     "achievement.git-gud.desc": "Gizli komutu buldun.",
+
+    // Leaderboard.
+    "leaderboard.title": "Lider Tablosu",
+    "leaderboard.subtitle": "Hesabı olan herkes, puana göre sıralı. Yükselmek için seviyeleri tamamla.",
+    "leaderboard.disabled": "Lider tablosu hesap gerektirir, bu sürümde hesap yok.",
+    "leaderboard.signInCta": "Katılmak için giriş yap",
+    "leaderboard.loading": "Tablo yükleniyor…",
+    "leaderboard.error": "Lider tablosu yüklenemedi.",
+    "leaderboard.retry": "Tekrar dene",
+    "leaderboard.empty": "Tabloda henüz kimse yok. İlk sen ol.",
+    "leaderboard.you": "sen",
+    "leaderboard.standing": "{total} kişi arasında #{rank}. sıradasın",
+    "leaderboard.standingHidden": "Tablodan gizlisin.",
+    "leaderboard.standingNone": "Tabloya girmek için bir seviye tamamla.",
+    "leaderboard.toggle": "Beni lider tablosunda göster",
+    "leaderboard.toggleHint": "Bu açıkken kullanıcı adın ve puanın herkese açıktır.",
+    "leaderboard.colRank": "Sıra",
+    "leaderboard.colPlayer": "Oyuncu",
+    "leaderboard.colLevels": "Seviye",
+    "leaderboard.colScore": "XP",
+    "leaderboard.footnote": "Puanlar kayıtlı ilerlemeden gelir ve doğrulanmaz; tabloyu dostane bir yarış olarak gör.",
+    "leaderboard.updated": "Güncelleme: {time}",
+    "nav.leaderboard": "Lider Tablosu",
+    "account.leaderboardNotice":
+        "Kullanıcı adın ve puanın herkese açık lider tablosunda görünür. Orada istediğin zaman kendini gizleyebilirsin.",
 };
 
 export default common;

@@ -80,7 +80,7 @@ nothing else here that could leak.
 
 The wire protocol has no coins field. Not a validated one, not a signed one — none.
 
-A sync request says what the player *did* ("cleared intro/3", "bought golden-terminal") and the
+A sync request says what the player _did_ ("cleared intro/3", "bought golden-terminal") and the
 server prices it from `src/catalog.ts`. So editing `coins: 999999` in localStorage does not fail
 validation; it has nowhere to go. There is no field it could travel in.
 
@@ -97,7 +97,39 @@ What this does **not** stop: the server has no Git simulator, so it cannot tell 
 from a forged POST. Someone who reads this repository can unlock the whole game without playing it.
 That is deliberate — the design converts unbounded, trivial cheating (edit one number) into
 bounded, deliberate cheating (read the source, forge a request, gain at most what an honest player
-could have earned), in a game with no leaderboard and no prizes.
+could have earned), in a game with no prizes.
+
+## Stars, ranks and the leaderboard
+
+None of these touch the ledger, so none of them can move the 685-coin ceiling above.
+
+- **Ranks** and **achievements** are derived on the client from the save. Nothing is stored for them.
+- **Stars** (`level_stars`, migration `0002`) rate how cleanly a level was solved. Cosmetic and unpriced,
+  so the table holds claims, not ledger rows. Only two- and three-star results are sent, one row per
+  level at most, written when first earned or improved. The upsert's `WHERE excluded.stars >
+level_stars.stars` makes a non-improving write a no-op, so a replay costs no written rows. Claims for
+  levels the catalog does not know are dropped.
+- **The leaderboard** (`GET /v1/leaderboard`) writes nothing. It is `SUM(score_delta)` per account over
+  the ledger that already exists, in a single scan, kept in memory for an hour and served from there. The
+  only write it ever causes is a player flipping the opt-out switch (`POST /v1/account/leaderboard`,
+  column `users.leaderboard_hidden`). Accounts are visible by default, with the notice shown at
+  registration. Hiding takes effect at once: each response re-checks the (at most 50) listed accounts by
+  primary key, so a stale snapshot never shows someone who has opted out.
+
+What the board costs: one scan of `events` per refresh per Worker isolate, i.e. roughly (ledger rows) x
+(refreshes per day). The refresh interval is `LEADERBOARD_TTL_SECONDS` (default 3600, minimum 60) and is
+stretched automatically so one isolate stays under `LEADERBOARD_DAILY_READ_BUDGET` (default 1,000,000 rows
+a day) as the table grows: the board gets staler instead of the site getting slower. Isolates do not share
+the cache, so this is a per-isolate bound, not a global one. D1's free read quota is a hard stop that
+takes logins down with it, so watch `rows_read` after launch.
+
+What it is not: **refereed**. The Worker cannot replay a level, so a level event is a claim, and a forged
+request can reach the top of the board. The design caps how far: one score per level and a finite set of
+levels, so forging can reach the ceiling of an honest full clear and no higher, with ties at the ceiling
+ordered by who got there first. Treat the board as friendly competition, which is also what the page says.
+
+Deploying it: apply the migration first (`npx wrangler d1 migrations apply gitmastery-accounts --remote`),
+then deploy. The new rate-limit binding `RL_LEADERBOARD_IP` is optional and fails open like the others.
 
 ## Things that will cost you an afternoon if you do not know them
 
