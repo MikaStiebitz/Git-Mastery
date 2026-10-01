@@ -313,7 +313,7 @@ const common = {
 
     // Leaderboard.
     "leaderboard.title": "جدول امتیازات",
-    "leaderboard.subtitle": "همه‌ی کسانی که حساب دارند، بر اساس امتیاز. مرحله‌ها را تمام کن تا بالا بروی.",
+    "leaderboard.subtitle": "بر اساس XP و امتیازهای آرکید. روی یک بازیکن بزن تا دستاوردهایش را ببینی.",
     "leaderboard.disabled": "جدول امتیازات به حساب کاربری نیاز دارد که این نسخه ندارد.",
     "leaderboard.signInCta": "برای شرکت وارد شو",
     "leaderboard.loading": "در حال بارگذاری جدول…",
@@ -335,6 +335,24 @@ const common = {
     "nav.leaderboard": "جدول امتیازات",
     "account.leaderboardNotice":
         "نام کاربری و امتیازت در جدول عمومی دیده می‌شود. هر زمان می‌توانی خودت را از آن پنهان کنی.",
+
+    // Leaderboard: arcade boards, profiles and rivals.
+    "leaderboard.tab.xp": "XP",
+    "leaderboard.tab.arcade": "آرکید",
+    "leaderboard.allGames": "همه‌ی بازی‌ها",
+    "leaderboard.colBest": "بهترین",
+    "leaderboard.colGames": "بازی‌ها",
+    "leaderboard.arcadeEmpty": "هنوز امتیازی نیست. در آرکید یک بازی کن.",
+    "leaderboard.arcadeMine": "بهترین تو: {score} · رتبه {rank}",
+    "leaderboard.arcadeMineHidden": "بهترین تو: {score}",
+    "leaderboard.arcadeTotalHint": "«همه‌ی بازی‌ها» بهترین امتیاز هر بازیکن در هر بازی را جمع می‌کند.",
+    "leaderboard.rivalAhead": "{name} به اندازه‌ی {points} XP جلوتر از توست.",
+    "leaderboard.rivalTop": "{points} XP تا ورود به {count} نفر برتر.",
+    "leaderboard.rivalLead": "با {points} XP اختلاف پیشتازی.",
+    "leaderboard.viewProfile": "نمایه‌ی {name} را ببین",
+    "leaderboard.profile.since": "بازیکن از {date}",
+    "leaderboard.profile.achievements": "دستاوردها ({count}/{total})",
+    "leaderboard.profile.arcade": "بهترین‌های آرکید",
 };
 
 export default common;

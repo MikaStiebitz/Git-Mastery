@@ -13,10 +13,14 @@
  * honest ceiling of this design, and the README says so rather than implying a guarantee.
  */
 
+import { minigameScoreCeiling, isKnownMinigame } from "./catalog";
 import type { Env } from "./types";
 
-/** How many accounts the public list shows. */
+/** How many accounts the public overall list shows. */
 export const TOP_COUNT = 50;
+
+/** How many accounts each arcade board shows. */
+export const ARCADE_TOP_COUNT = 10;
 
 const DEFAULT_TTL_SECONDS = 3600;
 const DEFAULT_DAILY_READ_BUDGET = 1_000_000;
@@ -39,8 +43,40 @@ export interface AggregateRow {
     levels: number;
 }
 
+/** One row of an arcade board. `games` is only set on the all-games total. */
+export interface ArcadeRow {
+    id: number;
+    rank: number;
+    username: string;
+    best: number;
+    games?: number;
+}
+
+export interface ArcadeData {
+    /** The best scores per game, best first. */
+    games: Record<string, ArcadeRow[]>;
+    /** Accounts ranked by the sum of their bests across every game. */
+    total: ArcadeRow[];
+    /** Visible accounts per best score, per game. Ranks any score without scanning. */
+    histograms: Record<string, Record<string, number>>;
+    totalHistogram: Record<string, number>;
+}
+
+/** What the board can say about one player. Internal until `presentSnapshot` strips the id. */
+export interface Profile {
+    /** Account creation, unix seconds. */
+    since: number;
+    score: number;
+    levels: number;
+    achievements: string[];
+    bests: Record<string, number>;
+}
+
 export interface Snapshot {
     top: (LeaderboardEntry & { id: number })[];
+    arcade: ArcadeData;
+    /** Keyed by account id, for everyone who appears anywhere on the board. */
+    profiles: Record<number, Profile>;
     /** Visible accounts per score. A histogram, so the rank of any score is a sum, not a scan. */
     histogram: Record<string, number>;
     total: number;
@@ -62,11 +98,16 @@ export function rankOf(score: number, histogram: Readonly<Record<string, number>
  * Assemble a snapshot from the two shapes the query returns: histogram buckets, and the top rows
  * already ordered. Pure, so the ranking rules are tested without a database.
  */
+export function emptyArcade(): ArcadeData {
+    return { games: {}, total: [], histograms: {}, totalHistogram: {} };
+}
+
 export function buildSnapshot(
     buckets: readonly { score: number; count: number }[],
     topRows: readonly AggregateRow[],
     generatedAt: Date,
     rowsRead: number,
+    extras: { arcade?: ArcadeData; profiles?: Record<number, Profile> } = {},
 ): Snapshot {
     const histogram: Record<string, number> = Object.create(null) as Record<string, number>;
     let total = 0;
@@ -83,7 +124,15 @@ export function buildSnapshot(
         levels: row.levels,
     }));
 
-    return { top, histogram, total, generatedAt: generatedAt.toISOString(), rowsRead };
+    return {
+        top,
+        arcade: extras.arcade ?? emptyArcade(),
+        profiles: extras.profiles ?? {},
+        histogram,
+        total,
+        generatedAt: generatedAt.toISOString(),
+        rowsRead,
+    };
 }
 
 /**
@@ -104,27 +153,128 @@ export function ttlSeconds(env: Env, rowsRead: number): number {
     return Math.max(base, Math.ceil((Math.max(0, rowsRead) * 86_400) / perDay));
 }
 
+/** Every account id the snapshot is about to show, so its current state can be fetched together. */
+export function listedAccountIds(snapshot: Snapshot): number[] {
+    const ids = new Set<number>();
+    for (const entry of snapshot.top) ids.add(entry.id);
+    for (const rows of Object.values(snapshot.arcade.games)) for (const row of rows) ids.add(row.id);
+    for (const row of snapshot.arcade.total) ids.add(row.id);
+    return [...ids];
+}
+
+export interface PublicEntry extends LeaderboardEntry {
+    /** Ids of unlocked achievements. */
+    achievements: string[];
+}
+
+export interface PublicArcadeEntry {
+    rank: number;
+    username: string;
+    best: number;
+    games?: number;
+}
+
+export interface PublicProfile {
+    since: string;
+    score: number;
+    levels: number;
+    achievements: string[];
+    bests: Record<string, number>;
+}
+
+export interface PublicBoard {
+    top: PublicEntry[];
+    arcade: { games: Record<string, PublicArcadeEntry[]>; total: PublicArcadeEntry[] };
+    /** Keyed by username as it is now. */
+    profiles: Record<string, PublicProfile>;
+}
+
 /**
- * The public list, re-checked against who is on the board right now.
+ * The snapshot, re-checked against who is on the board right now.
  *
  * The snapshot can be an hour old, and an hour is far too long for "I hid myself" or "I renamed
- * myself" to take effect. So each response re-reads the (at most fifty) accounts it is about to
- * show by primary key and drops whoever has since hidden or deleted their account, and shows
- * names as they are now. Fifty keyed reads per request is nothing next to the scan the cache saves,
- * and it writes nothing.
+ * myself" to take effect. So each response re-reads the (at most a hundred) accounts it is about
+ * to show by primary key, drops whoever has since hidden or deleted their account, and shows names
+ * as they are now. That is a few keyed reads per request against the scan the cache saves, and it
+ * writes nothing.
  *
  * Ranks are left as the snapshot computed them, so a hidden account leaves a gap until the next
- * refresh rather than everyone below shifting up a place under a reader's feet.
+ * refresh rather than everyone below shifting up a place under a reader's feet. The internal
+ * account id never leaves this function.
  */
-export function applyCurrentState(
-    top: Snapshot["top"],
+export function presentSnapshot(
+    snapshot: Snapshot,
     current: ReadonlyMap<number, { username: string; hidden: boolean }>,
-): LeaderboardEntry[] {
-    const out: LeaderboardEntry[] = [];
-    for (const entry of top) {
-        const now = current.get(entry.id);
-        if (!now || now.hidden) continue;
-        out.push({ rank: entry.rank, username: now.username, score: entry.score, levels: entry.levels });
+): PublicBoard {
+    const live = (id: number) => {
+        const now = current.get(id);
+        return now && !now.hidden ? now : null;
+    };
+
+    const profiles: Record<string, PublicProfile> = Object.create(null) as Record<string, PublicProfile>;
+    const profileFor = (id: number, username: string) => {
+        const profile = snapshot.profiles[id];
+        if (!profile || username in profiles) return;
+        profiles[username] = {
+            since: new Date(profile.since * 1000).toISOString(),
+            score: profile.score,
+            levels: profile.levels,
+            achievements: profile.achievements,
+            bests: profile.bests,
+        };
+    };
+
+    const top: PublicEntry[] = [];
+    for (const entry of snapshot.top) {
+        const now = live(entry.id);
+        if (!now) continue;
+        top.push({
+            rank: entry.rank,
+            username: now.username,
+            score: entry.score,
+            levels: entry.levels,
+            achievements: snapshot.profiles[entry.id]?.achievements ?? [],
+        });
+        profileFor(entry.id, now.username);
+    }
+
+    const present = (rows: readonly ArcadeRow[]): PublicArcadeEntry[] => {
+        const out: PublicArcadeEntry[] = [];
+        for (const row of rows) {
+            const now = live(row.id);
+            if (!now) continue;
+            out.push({
+                rank: row.rank,
+                username: now.username,
+                best: row.best,
+                ...(row.games === undefined ? {} : { games: row.games }),
+            });
+            profileFor(row.id, now.username);
+        }
+        return out;
+    };
+
+    const games: Record<string, PublicArcadeEntry[]> = Object.create(null) as Record<string, PublicArcadeEntry[]>;
+    for (const [gameId, rows] of Object.entries(snapshot.arcade.games)) games[gameId] = present(rows);
+
+    return { top, arcade: { games, total: present(snapshot.arcade.total) }, profiles };
+}
+
+/**
+ * Make a `bests` map something the arcade boards can be built on.
+ *
+ * Unknown game ids are dropped, which also closes a quieter hole: the old validation accepted any
+ * well-formed id, so an account could create rows under invented game names. Values are clamped to
+ * the highest score the game can produce. A clamp rather than a refusal on purpose — a real run on
+ * a game whose ceiling has not been updated yet should still save, at the ceiling.
+ */
+export function sanitizeBests(bests: Readonly<Record<string, number>> | undefined): Record<string, number> | undefined {
+    if (!bests) return undefined;
+    const out: Record<string, number> = {};
+    for (const [gameId, value] of Object.entries(bests)) {
+        if (!isKnownMinigame(gameId)) continue;
+        const ceiling = minigameScoreCeiling(gameId) ?? 0;
+        out[gameId] = Math.min(value, ceiling);
     }
     return out;
 }

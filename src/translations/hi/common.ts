@@ -308,7 +308,7 @@ const common = {
 
     // Leaderboard.
     "leaderboard.title": "लीडरबोर्ड",
-    "leaderboard.subtitle": "अकाउंट वाले सभी, स्कोर के हिसाब से। ऊपर चढ़ने के लिए लेवल पूरे करें।",
+    "leaderboard.subtitle": "XP और आर्केड स्कोर के हिसाब से। किसी खिलाड़ी पर टैप करके उसकी उपलब्धियाँ देखें।",
     "leaderboard.disabled": "लीडरबोर्ड के लिए अकाउंट चाहिए, जो इस बिल्ड में नहीं हैं।",
     "leaderboard.signInCta": "जुड़ने के लिए साइन इन करें",
     "leaderboard.loading": "बोर्ड लोड हो रहा है…",
@@ -331,6 +331,24 @@ const common = {
     "nav.leaderboard": "लीडरबोर्ड",
     "account.leaderboardNotice":
         "आपका यूज़रनेम और स्कोर सार्वजनिक लीडरबोर्ड पर दिखते हैं। आप कभी भी वहाँ ख़ुद को छिपा सकते हैं।",
+
+    // Leaderboard: arcade boards, profiles and rivals.
+    "leaderboard.tab.xp": "XP",
+    "leaderboard.tab.arcade": "आर्केड",
+    "leaderboard.allGames": "सभी गेम",
+    "leaderboard.colBest": "सर्वश्रेष्ठ",
+    "leaderboard.colGames": "गेम",
+    "leaderboard.arcadeEmpty": "अभी कोई स्कोर नहीं। आर्केड में कोई गेम खेलें।",
+    "leaderboard.arcadeMine": "आपका सर्वश्रेष्ठ: {score} · रैंक #{rank}",
+    "leaderboard.arcadeMineHidden": "आपका सर्वश्रेष्ठ: {score}",
+    "leaderboard.arcadeTotalHint": "सभी गेम हर खिलाड़ी का हर गेम का सर्वश्रेष्ठ स्कोर जोड़ता है।",
+    "leaderboard.rivalAhead": "{name} आपसे {points} XP आगे है।",
+    "leaderboard.rivalTop": "टॉप {count} तक पहुँचने में {points} XP बाक़ी।",
+    "leaderboard.rivalLead": "आप {points} XP से आगे हैं।",
+    "leaderboard.viewProfile": "{name} की प्रोफ़ाइल देखें",
+    "leaderboard.profile.since": "{date} से खेल रहे हैं",
+    "leaderboard.profile.achievements": "उपलब्धियाँ ({count}/{total})",
+    "leaderboard.profile.arcade": "आर्केड के सर्वश्रेष्ठ",
 };
 
 export default common;

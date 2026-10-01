@@ -315,7 +315,7 @@ const common = {
 
     // Leaderboard.
     "leaderboard.title": "Lider Tablosu",
-    "leaderboard.subtitle": "Hesabı olan herkes, puana göre sıralı. Yükselmek için seviyeleri tamamla.",
+    "leaderboard.subtitle": "XP ve salon skorlarına göre sıralı. Başarımlarını görmek için bir oyuncuya dokun.",
     "leaderboard.disabled": "Lider tablosu hesap gerektirir, bu sürümde hesap yok.",
     "leaderboard.signInCta": "Katılmak için giriş yap",
     "leaderboard.loading": "Tablo yükleniyor…",
@@ -337,6 +337,24 @@ const common = {
     "nav.leaderboard": "Lider Tablosu",
     "account.leaderboardNotice":
         "Kullanıcı adın ve puanın herkese açık lider tablosunda görünür. Orada istediğin zaman kendini gizleyebilirsin.",
+
+    // Leaderboard: arcade boards, profiles and rivals.
+    "leaderboard.tab.xp": "XP",
+    "leaderboard.tab.arcade": "Salon",
+    "leaderboard.allGames": "Tüm oyunlar",
+    "leaderboard.colBest": "En iyi",
+    "leaderboard.colGames": "Oyunlar",
+    "leaderboard.arcadeEmpty": "Henüz skor yok. Salonda bir oyun oyna.",
+    "leaderboard.arcadeMine": "En iyin: {score} · sıra #{rank}",
+    "leaderboard.arcadeMineHidden": "En iyin: {score}",
+    "leaderboard.arcadeTotalHint": "Tüm oyunlar, her oyuncunun her oyundaki en iyi skorunu toplar.",
+    "leaderboard.rivalAhead": "{name} senden {points} XP önde.",
+    "leaderboard.rivalTop": "İlk {count}'a girmek için {points} XP kaldı.",
+    "leaderboard.rivalLead": "{points} XP farkla öndesin.",
+    "leaderboard.viewProfile": "{name} profilini gör",
+    "leaderboard.profile.since": "{date} tarihinden beri oynuyor",
+    "leaderboard.profile.achievements": "Başarımlar ({count}/{total})",
+    "leaderboard.profile.arcade": "Salon rekorları",
 };
 
 export default common;

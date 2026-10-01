@@ -23,7 +23,7 @@ import {
 import { clientIp, errorResponse, handlePreflight, isQuotaExhausted, json, noContent, nowSeconds } from "./http";
 import { foldEvents } from "./ledger";
 import { checkUsername } from "./moderation/username";
-import { applyCurrentState, getSnapshot, rankOf } from "./leaderboard";
+import { getSnapshot, listedAccountIds, presentSnapshot, rankOf, sanitizeBests } from "./leaderboard";
 import { clearFailures, leaderboardGate, loginGate, recordFailure, registerGate, syncGate } from "./ratelimit";
 import { isKnownLevel } from "./catalog";
 import { MAX_BODY_BYTES, validateSyncRequest } from "./validate";
@@ -242,7 +242,7 @@ async function handleSync(request: Request, env: Env, auth: Authed): Promise<Res
         rows: accepted,
         startSeq,
         cursor: parsed.request.cursor,
-        bests: parsed.request.bests,
+        bests: sanitizeBests(parsed.request.bests),
         stars: knownLevelStars(parsed.request.stars),
         suspicion: parsed.malformedCount,
         markEggAwarded: accepted.some(row => row.kind === "egg"),
@@ -321,24 +321,43 @@ async function handleLeaderboard(request: Request, env: Env): Promise<Response> 
 
     const { snapshot, maxAge } = await getSnapshot(env, Date.now(), () => db.loadSnapshot(env.DB));
 
-    const top = applyCurrentState(
-        snapshot.top,
-        await db.loadCurrentAccounts(
-            env.DB,
-            snapshot.top.map(e => e.id),
-        ),
-    );
+    const board = presentSnapshot(snapshot, await db.loadCurrentAccounts(env.DB, listedAccountIds(snapshot)));
 
     const auth = await authenticate(request, env);
-    let me: { score: number; levels: number; hidden: boolean; rank: number | null } | null = null;
+    let me: {
+        score: number;
+        levels: number;
+        hidden: boolean;
+        rank: number | null;
+        bests: Record<string, number>;
+        arcadeRanks: Record<string, number>;
+        arcadeTotalRank: number | null;
+    } | null = null;
     if (auth) {
-        const own = await db.loadOwnStanding(env.DB, auth.session.userId);
-        me = { ...own, rank: own.hidden || own.score <= 0 ? null : rankOf(own.score, snapshot.histogram) };
+        const [own, bests] = await Promise.all([
+            db.loadOwnStanding(env.DB, auth.session.userId),
+            db.loadBests(env.DB, auth.session.userId),
+        ]);
+        const ranked = !own.hidden;
+        const arcadeRanks: Record<string, number> = {};
+        if (ranked) {
+            for (const [gameId, best] of Object.entries(bests)) {
+                if (best > 0) arcadeRanks[gameId] = rankOf(best, snapshot.arcade.histograms[gameId] ?? {});
+            }
+        }
+        const sum = Object.values(bests).reduce((total, best) => total + best, 0);
+        me = {
+            ...own,
+            rank: !ranked || own.score <= 0 ? null : rankOf(own.score, snapshot.histogram),
+            bests,
+            arcadeRanks,
+            arcadeTotalRank: ranked && sum > 0 ? rankOf(sum, snapshot.arcade.totalHistogram) : null,
+        };
     }
 
     return json(
         {
-            top,
+            ...board,
             total: snapshot.total,
             generatedAt: snapshot.generatedAt,
             nextRefreshInSeconds: maxAge,

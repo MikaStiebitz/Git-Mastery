@@ -320,7 +320,7 @@ const common = {
 
     // Leaderboard.
     "leaderboard.title": "Clasificación",
-    "leaderboard.subtitle": "Todos los que tienen cuenta, ordenados por puntos. Supera niveles para subir.",
+    "leaderboard.subtitle": "Ordenado por XP y puntuaciones del arcade. Toca a un jugador para ver sus logros.",
     "leaderboard.disabled": "La clasificación necesita cuentas, que esta versión no tiene.",
     "leaderboard.signInCta": "Inicia sesión para participar",
     "leaderboard.loading": "Cargando la clasificación…",
@@ -343,6 +343,24 @@ const common = {
     "nav.leaderboard": "Clasificación",
     "account.leaderboardNotice":
         "Tu nombre de usuario y tu puntuación aparecen en la clasificación pública. Puedes ocultarte allí en cualquier momento.",
+
+    // Leaderboard: arcade boards, profiles and rivals.
+    "leaderboard.tab.xp": "XP",
+    "leaderboard.tab.arcade": "Arcade",
+    "leaderboard.allGames": "Todos los juegos",
+    "leaderboard.colBest": "Mejor",
+    "leaderboard.colGames": "Juegos",
+    "leaderboard.arcadeEmpty": "Aún no hay puntuaciones. Juega algo en el arcade.",
+    "leaderboard.arcadeMine": "Tu mejor: {score} · puesto {rank}",
+    "leaderboard.arcadeMineHidden": "Tu mejor: {score}",
+    "leaderboard.arcadeTotalHint": "Todos los juegos suma la mejor puntuación de cada jugador en cada juego.",
+    "leaderboard.rivalAhead": "{name} te saca {points} XP.",
+    "leaderboard.rivalTop": "Te faltan {points} XP para el top {count}.",
+    "leaderboard.rivalLead": "Lideras por {points} XP.",
+    "leaderboard.viewProfile": "Ver el perfil de {name}",
+    "leaderboard.profile.since": "Juega desde {date}",
+    "leaderboard.profile.achievements": "Logros ({count}/{total})",
+    "leaderboard.profile.arcade": "Mejores del arcade",
 };
 
 export default common;

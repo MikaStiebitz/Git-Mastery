@@ -69,16 +69,16 @@ and it goes on the list.
 
 ### Learn by doing
 
-|                          |                                                                           |
-| ------------------------ | ------------------------------------------------------------------------- |
-| 🖥️ **Real terminal**     | A simulated Git environment that answers like the real thing              |
-| 🌳 **Live commit graph** | Every level draws your repository as you type — tap a node for details    |
-| 🎯 **Structured path**   | Stages that build on each other, from `git init` to `rebase` and `bisect` |
-| 🎮 **Playground**        | A free sandbox with no level goals, plus a printable cheat sheet          |
-| 📈 **Progress tracking** | Points, completed levels and your current stage, saved locally            |
-| ⭐ **Stars and ranks**   | Up to three stars per level for clean solves, and a rank that follows XP  |
-| 🏅 **Achievements**      | Sixteen milestones with progress bars, and a leaderboard for accounts     |
-| 🌍 **Six languages**     | English, German, Spanish, Persian, Hindi and Turkish                      |
+|                          |                                                                            |
+| ------------------------ | -------------------------------------------------------------------------- |
+| 🖥️ **Real terminal**     | A simulated Git environment that answers like the real thing               |
+| 🌳 **Live commit graph** | Every level draws your repository as you type — tap a node for details     |
+| 🎯 **Structured path**   | Stages that build on each other, from `git init` to `rebase` and `bisect`  |
+| 🎮 **Playground**        | A free sandbox with no level goals, plus a printable cheat sheet           |
+| 📈 **Progress tracking** | Points, completed levels and your current stage, saved locally             |
+| ⭐ **Stars and ranks**   | Up to three stars per level for clean solves, and a rank that follows XP   |
+| 🏅 **Achievements**      | Sixteen milestones with progress bars, shown on a leaderboard for accounts |
+| 🌍 **Six languages**     | English, German, Spanish, Persian, Hindi and Turkish                       |
 
 ### Play for it
 

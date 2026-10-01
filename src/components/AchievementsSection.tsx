@@ -25,29 +25,11 @@ import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { MINIGAMES } from "~/components/minigames/registry";
 import { RankChip } from "~/components/RankChip";
-import { getAchievements, maxStars, type AchievementId } from "~/lib/achievements";
+import { ACHIEVEMENT_ICONS } from "~/components/achievementIcons";
+import { getAchievements, maxStars } from "~/lib/achievements";
 import { ProgressManager } from "~/models/ProgressManager";
 import { totalStars } from "~/lib/stars";
 import { cn } from "~/lib/utils";
-
-const ICONS: Record<AchievementId, LucideIcon> = {
-    "first-step": Footprints,
-    "getting-going": Rocket,
-    halfway: Flag,
-    completionist: Trophy,
-    "stage-clear": Layers,
-    "beginner-course": Sprout,
-    "advanced-course": Zap,
-    "pro-course": GraduationCap,
-    flawless: Star,
-    perfectionist: Target,
-    "flawless-stage": Sparkles,
-    "star-collector": Award,
-    "arcade-regular": Gamepad2,
-    maintainer: Medal,
-    "git-legend": Crown,
-    "git-gud": EyeOff,
-};
 
 /**
  * Milestones, how close the next ones are, and the star total.
@@ -106,7 +88,7 @@ export function AchievementsSection() {
 
                 <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {achievements.map(achievement => {
-                        const Icon = ICONS[achievement.id];
+                        const Icon = ACHIEVEMENT_ICONS[achievement.id];
                         const hidden = achievement.secret && !achievement.unlocked;
                         const showBar = !achievement.unlocked && achievement.target > 1 && !hidden;
 

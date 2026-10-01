@@ -8,7 +8,19 @@
 
 import { nowSeconds } from "./http";
 import type { Cursor, LedgerRow, ServerState } from "./types";
-import { TOP_COUNT, buildSnapshot, type AggregateRow, type Snapshot } from "./leaderboard";
+import { unlockedAchievements } from "./achievements";
+import {
+    ARCADE_TOP_COUNT,
+    TOP_COUNT,
+    buildSnapshot,
+    emptyArcade,
+    listedAccountIds,
+    type AggregateRow,
+    type ArcadeData,
+    type ArcadeRow,
+    type Profile,
+    type Snapshot,
+} from "./leaderboard";
 import { deriveState } from "./ledger";
 
 export interface UserRow {
@@ -242,54 +254,239 @@ export async function maxSeq(db: D1Database, userId: number): Promise<number> {
     return row?.maxSeq ?? 0;
 }
 
+/** D1 allows 100 bound parameters per statement, so lists of ids go in chunks well under that. */
+const ID_CHUNK = 80;
+
+function chunks<T>(items: readonly T[], size: number): T[][] {
+    const out: T[][] = [];
+    for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+    return out;
+}
+
+const OVERALL_SQL = `WITH totals AS MATERIALIZED (
+         SELECT user_id,
+                SUM(score_delta)        AS score,
+                SUM(kind = 'level')     AS levels,
+                MAX(accepted_at)        AS last_at
+           FROM events
+          GROUP BY user_id
+         HAVING SUM(score_delta) > 0
+     ),
+     visible AS (
+         SELECT u.id, u.username, u.username_key, t.score, t.levels, t.last_at
+           FROM totals t JOIN users u ON u.id = t.user_id
+          WHERE u.leaderboard_hidden = 0
+     )
+     SELECT 'h' AS t, score, COUNT(*) AS n, NULL AS username, 0 AS levels, 0 AS id
+       FROM visible GROUP BY score
+     UNION ALL
+     SELECT 't', score, 0, username, levels, id
+       FROM (SELECT id, username, score, levels FROM visible
+              ORDER BY score DESC, last_at ASC, username_key ASC
+              LIMIT ?1)`;
+
 /**
- * Build the leaderboard snapshot in one pass over the ledger.
+ * The arcade boards: the best scores per game, the all-games total, and the histograms that rank
+ * any score without scanning. One statement over `minigame_best`, a table with at most one row per
+ * account per game. A tie goes to whoever set the score first; results from before `achieved_at`
+ * existed (0) sort after any dated one.
+ */
+const ARCADE_SQL = `WITH vis AS (
+         SELECT b.game_id, b.user_id, b.best, b.achieved_at, u.username, u.username_key
+           FROM minigame_best b JOIN users u ON u.id = b.user_id
+          WHERE u.leaderboard_hidden = 0 AND b.best > 0
+     ),
+     ranked AS (
+         SELECT *,
+                RANK()       OVER (PARTITION BY game_id ORDER BY best DESC) AS rk,
+                ROW_NUMBER() OVER (PARTITION BY game_id
+                                   ORDER BY best DESC, achieved_at = 0, achieved_at, username_key) AS rn
+           FROM vis
+     ),
+     sums AS (
+         SELECT user_id, username, username_key, SUM(best) AS best, COUNT(*) AS games
+           FROM vis GROUP BY user_id
+     ),
+     sums_ranked AS (
+         SELECT *,
+                RANK()       OVER (ORDER BY best DESC) AS rk,
+                ROW_NUMBER() OVER (ORDER BY best DESC, games DESC, username_key) AS rn
+           FROM sums
+     )
+     SELECT 'g' AS t, game_id AS k, rk, user_id, username, best, 0 AS games, rn
+       FROM ranked WHERE rn <= ?1
+     UNION ALL
+     SELECT 's', '', rk, user_id, username, best, games, rn FROM sums_ranked WHERE rn <= ?1
+     UNION ALL
+     SELECT 'h', game_id, 0, 0, NULL, best, COUNT(*), 0 FROM vis GROUP BY game_id, best
+     UNION ALL
+     SELECT 'H', '', 0, 0, NULL, best, COUNT(*), 0 FROM sums GROUP BY best`;
+
+interface ArcadeRecord {
+    t: "g" | "s" | "h" | "H";
+    k: string;
+    rk: number;
+    user_id: number;
+    username: string | null;
+    best: number;
+    games: number;
+    /** Position within its board, which settles ties. Not part of the public rank. */
+    rn: number;
+}
+
+function toArcade(records: readonly ArcadeRecord[]): ArcadeData {
+    const arcade = emptyArcade();
+    const position = new Map<ArcadeRow, number>();
+    for (const row of records) {
+        if (row.t === "h") {
+            (arcade.histograms[row.k] ??= {})[String(row.best)] = row.games;
+        } else if (row.t === "H") {
+            arcade.totalHistogram[String(row.best)] = row.games;
+        } else if (row.username !== null) {
+            const entry: ArcadeRow = { id: row.user_id, rank: row.rk, username: row.username, best: row.best };
+            position.set(entry, row.rn);
+            if (row.t === "s") arcade.total.push({ ...entry, games: row.games });
+            else (arcade.games[row.k] ??= []).push(entry);
+        }
+    }
+    // A UNION ALL promises no order, so each board is put back in the order the query ranked it.
+    const byPosition = (a: ArcadeRow, b: ArcadeRow) => (position.get(a) ?? 0) - (position.get(b) ?? 0);
+    arcade.total.sort(byPosition);
+    for (const rows of Object.values(arcade.games)) rows.sort(byPosition);
+    return arcade;
+}
+
+/**
+ * Everything the board shows about the listed accounts, worked out from their own rows.
  *
- * One statement, one scan: the per-account totals are materialised once and read twice, as score
- * buckets (`t = 'h'`, for ranking) and as the top rows (`t = 't'`, for display). A score of zero
- * is excluded — an account that has played nothing has no place on a board — and so are accounts
- * that opted out.
+ * Only the handful of accounts that appear on the board are read, a few thousand rows however many
+ * accounts exist, which is why this can run on every refresh without touching the full-table cost.
+ */
+async function loadProfiles(
+    db: D1Database,
+    ids: readonly number[],
+): Promise<{ profiles: Record<number, Profile>; rowsRead: number }> {
+    const profiles: Record<number, Profile> = {};
+    let rowsRead = 0;
+
+    for (const chunk of chunks(ids, ID_CHUNK)) {
+        const marks = chunk.map((_, i) => `?${i + 1}`).join(", ");
+        const [users, events, stars, bests] = await db.batch<Record<string, unknown>>([
+            db.prepare(`SELECT id, created_at FROM users WHERE id IN (${marks})`).bind(...chunk),
+            db
+                .prepare(`SELECT user_id, kind, subject, score_delta FROM events WHERE user_id IN (${marks})`)
+                .bind(...chunk),
+            db.prepare(`SELECT user_id, subject, stars FROM level_stars WHERE user_id IN (${marks})`).bind(...chunk),
+            db.prepare(`SELECT user_id, game_id, best FROM minigame_best WHERE user_id IN (${marks})`).bind(...chunk),
+        ]);
+        for (const result of [users, events, stars, bests]) rowsRead += result?.meta?.rows_read ?? 0;
+
+        const facts = new Map<
+            number,
+            {
+                levels: Set<string>;
+                purchases: Set<string>;
+                minigames: number;
+                egg: boolean;
+                score: number;
+                stars: Record<string, number>;
+                bests: Record<string, number>;
+            }
+        >();
+        for (const row of (users?.results ?? []) as { id: number; created_at: number }[]) {
+            facts.set(row.id, {
+                levels: new Set(),
+                purchases: new Set(),
+                minigames: 0,
+                egg: false,
+                score: 0,
+                stars: {},
+                bests: {},
+            });
+            profiles[row.id] = { since: row.created_at, score: 0, levels: 0, achievements: [], bests: {} };
+        }
+        for (const row of (events?.results ?? []) as {
+            user_id: number;
+            kind: string;
+            subject: string;
+            score_delta: number;
+        }[]) {
+            const f = facts.get(row.user_id);
+            if (!f) continue;
+            f.score += row.score_delta;
+            if (row.kind === "level") f.levels.add(row.subject);
+            else if (row.kind === "purchase") f.purchases.add(row.subject);
+            else if (row.kind === "minigame") f.minigames += 1;
+            else if (row.kind === "egg") f.egg = true;
+        }
+        for (const row of (stars?.results ?? []) as { user_id: number; subject: string; stars: number }[]) {
+            const f = facts.get(row.user_id);
+            if (f) f.stars[row.subject] = row.stars;
+        }
+        for (const row of (bests?.results ?? []) as { user_id: number; game_id: string; best: number }[]) {
+            const f = facts.get(row.user_id);
+            if (f) f.bests[row.game_id] = row.best;
+        }
+
+        for (const [id, f] of facts) {
+            const profile = profiles[id]!;
+            profile.score = f.score;
+            profile.levels = f.levels.size;
+            profile.bests = f.bests;
+            profile.achievements = unlockedAchievements({
+                levels: f.levels,
+                stars: f.stars,
+                minigamesCleared: f.minigames,
+                purchases: f.purchases,
+                eggFound: f.egg,
+                score: f.score,
+            });
+        }
+    }
+
+    return { profiles, rowsRead };
+}
+
+/**
+ * Build the leaderboard snapshot.
  *
- * Read-only. This is the whole point: the board adds no written rows to anything.
+ * The expensive part is one pass over the ledger for the overall board; the arcade boards read the
+ * small `minigame_best` table; the profiles read only the accounts that made the lists. Read-only
+ * throughout: the board adds no written rows to anything.
+ *
+ * Accounts with a score of zero are excluded, and so are accounts that opted out.
  */
 export async function loadSnapshot(db: D1Database): Promise<Snapshot> {
-    const result = await db
-        .prepare(
-            `WITH totals AS MATERIALIZED (
-                 SELECT user_id,
-                        SUM(score_delta)        AS score,
-                        SUM(kind = 'level')     AS levels,
-                        MAX(accepted_at)        AS last_at
-                   FROM events
-                  GROUP BY user_id
-                 HAVING SUM(score_delta) > 0
-             ),
-             visible AS (
-                 SELECT u.id, u.username, u.username_key, t.score, t.levels, t.last_at
-                   FROM totals t JOIN users u ON u.id = t.user_id
-                  WHERE u.leaderboard_hidden = 0
-             )
-             SELECT 'h' AS t, score, COUNT(*) AS n, NULL AS username, 0 AS levels, 0 AS id
-               FROM visible GROUP BY score
-             UNION ALL
-             SELECT 't', score, 0, username, levels, id
-               FROM (SELECT id, username, score, levels FROM visible
-                      ORDER BY score DESC, last_at ASC, username_key ASC
-                      LIMIT ?1)`,
-        )
-        .bind(TOP_COUNT)
-        .all<{ t: "h" | "t"; score: number; n: number; username: string | null; levels: number; id: number }>();
+    const [overall, arcade] = await db.batch<Record<string, unknown>>([
+        db.prepare(OVERALL_SQL).bind(TOP_COUNT),
+        db.prepare(ARCADE_SQL).bind(ARCADE_TOP_COUNT),
+    ]);
 
     const buckets: { score: number; count: number }[] = [];
     const top: AggregateRow[] = [];
-    for (const row of result.results) {
+    for (const row of (overall?.results ?? []) as {
+        t: "h" | "t";
+        score: number;
+        n: number;
+        username: string | null;
+        levels: number;
+        id: number;
+    }[]) {
         if (row.t === "h") buckets.push({ score: row.score, count: row.n });
         else if (row.username !== null) {
             top.push({ id: row.id, username: row.username, score: row.score, levels: row.levels });
         }
     }
 
-    return buildSnapshot(buckets, top, new Date(), result.meta?.rows_read ?? 0);
+    const arcadeData = toArcade((arcade?.results ?? []) as unknown as ArcadeRecord[]);
+    const draft = buildSnapshot(buckets, top, new Date(), 0, { arcade: arcadeData });
+    const { profiles, rowsRead } = await loadProfiles(db, listedAccountIds(draft));
+
+    return {
+        ...draft,
+        profiles,
+        rowsRead: (overall?.meta?.rows_read ?? 0) + (arcade?.meta?.rows_read ?? 0) + rowsRead,
+    };
 }
 
 /**
@@ -302,14 +499,15 @@ export async function loadCurrentAccounts(
     ids: readonly number[],
 ): Promise<Map<number, { username: string; hidden: boolean }>> {
     const out = new Map<number, { username: string; hidden: boolean }>();
-    if (ids.length === 0) return out;
 
-    const placeholders = ids.map((_, i) => `?${i + 1}`).join(", ");
-    const result = await db
-        .prepare(`SELECT id, username, leaderboard_hidden AS hidden FROM users WHERE id IN (${placeholders})`)
-        .bind(...ids)
-        .all<{ id: number; username: string; hidden: number }>();
-    for (const row of result.results) out.set(row.id, { username: row.username, hidden: row.hidden === 1 });
+    for (const chunk of chunks(ids, ID_CHUNK)) {
+        const marks = chunk.map((_, i) => `?${i + 1}`).join(", ");
+        const result = await db
+            .prepare(`SELECT id, username, leaderboard_hidden AS hidden FROM users WHERE id IN (${marks})`)
+            .bind(...chunk)
+            .all<{ id: number; username: string; hidden: number }>();
+        for (const row of result.results) out.set(row.id, { username: row.username, hidden: row.hidden === 1 });
+    }
     return out;
 }
 
@@ -434,8 +632,10 @@ export async function commitBatch(db: D1Database, input: CommitInput): Promise<v
         statements.push(
             db
                 .prepare(
-                    `INSERT INTO minigame_best (user_id, game_id, best) VALUES (?1, ?2, ?3)
-                     ON CONFLICT(user_id, game_id) DO UPDATE SET best = MAX(best, excluded.best)`,
+                    `INSERT INTO minigame_best (user_id, game_id, best, achieved_at) VALUES (?1, ?2, ?3, unixepoch())
+                     ON CONFLICT(user_id, game_id) DO UPDATE
+                        SET best = excluded.best, achieved_at = unixepoch()
+                      WHERE excluded.best > minigame_best.best`,
                 )
                 .bind(input.userId, gameId, best),
         );

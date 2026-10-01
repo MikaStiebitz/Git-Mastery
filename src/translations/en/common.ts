@@ -311,7 +311,7 @@ const common = {
 
     // Leaderboard.
     "leaderboard.title": "Leaderboard",
-    "leaderboard.subtitle": "Everyone with an account, ranked by score. Clear levels to climb.",
+    "leaderboard.subtitle": "Ranked by XP and arcade scores. Tap a player to see their achievements.",
     "leaderboard.disabled": "The leaderboard needs accounts, which this build does not have.",
     "leaderboard.signInCta": "Sign in to join",
     "leaderboard.loading": "Loading the board…",
@@ -334,6 +334,24 @@ const common = {
     "nav.leaderboard": "Leaderboard",
     "account.leaderboardNotice":
         "Your username and score appear on the public leaderboard. You can hide yourself there at any time.",
+
+    // Leaderboard: arcade boards, profiles and rivals.
+    "leaderboard.tab.xp": "XP",
+    "leaderboard.tab.arcade": "Arcade",
+    "leaderboard.allGames": "All games",
+    "leaderboard.colBest": "Best",
+    "leaderboard.colGames": "Games",
+    "leaderboard.arcadeEmpty": "No scores yet. Play a game in the arcade.",
+    "leaderboard.arcadeMine": "Your best: {score} · rank #{rank}",
+    "leaderboard.arcadeMineHidden": "Your best: {score}",
+    "leaderboard.arcadeTotalHint": "All games adds up each player's best score in every game.",
+    "leaderboard.rivalAhead": "{name} is {points} XP ahead of you.",
+    "leaderboard.rivalTop": "{points} XP to reach the top {count}.",
+    "leaderboard.rivalLead": "You lead by {points} XP.",
+    "leaderboard.viewProfile": "View {name}'s profile",
+    "leaderboard.profile.since": "Playing since {date}",
+    "leaderboard.profile.achievements": "Achievements ({count}/{total})",
+    "leaderboard.profile.arcade": "Arcade bests",
 };
 
 export default common;

@@ -171,16 +171,46 @@ export interface LeaderboardEntry {
     username: string;
     score: number;
     levels: number;
+    /** Ids of unlocked achievements. */
+    achievements: string[];
+}
+
+export interface ArcadeEntry {
+    rank: number;
+    username: string;
+    best: number;
+    /** Only on the all-games total: how many games this score is summed over. */
+    games?: number;
+}
+
+/** What the board can say about one player, keyed by username in `LeaderboardResponse.profiles`. */
+export interface PlayerProfile {
+    since: string;
+    score: number;
+    levels: number;
+    achievements: string[];
+    /** Best score per minigame id. */
+    bests: Record<string, number>;
 }
 
 export interface LeaderboardResponse {
     top: LeaderboardEntry[];
-    /** Accounts on the board. */
+    arcade: { games: Record<string, ArcadeEntry[]>; total: ArcadeEntry[] };
+    profiles: Record<string, PlayerProfile>;
+    /** Accounts on the overall board. */
     total: number;
     generatedAt: string;
     nextRefreshInSeconds: number;
     /** The caller's own standing; null when no (valid) token was sent. */
-    me: { score: number; levels: number; hidden: boolean; rank: number | null } | null;
+    me: {
+        score: number;
+        levels: number;
+        hidden: boolean;
+        rank: number | null;
+        bests: Record<string, number>;
+        arcadeRanks: Record<string, number>;
+        arcadeTotalRank: number | null;
+    } | null;
 }
 
 /** Public. A token, when given, only adds the caller's own standing. */

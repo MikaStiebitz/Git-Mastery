@@ -324,7 +324,7 @@ const common = {
 
     // Leaderboard.
     "leaderboard.title": "Bestenliste",
-    "leaderboard.subtitle": "Alle mit Account, nach Punkten sortiert. Schließe Level ab, um aufzusteigen.",
+    "leaderboard.subtitle": "Nach XP und Arcade-Punkten sortiert. Tippe auf einen Spieler, um seine Erfolge zu sehen.",
     "leaderboard.disabled": "Die Bestenliste braucht Accounts, die dieser Build nicht hat.",
     "leaderboard.signInCta": "Anmelden und mitmachen",
     "leaderboard.loading": "Lade die Liste…",
@@ -347,6 +347,24 @@ const common = {
     "nav.leaderboard": "Bestenliste",
     "account.leaderboardNotice":
         "Dein Benutzername und deine Punkte erscheinen in der öffentlichen Bestenliste. Du kannst dich dort jederzeit ausblenden.",
+
+    // Leaderboard: arcade boards, profiles and rivals.
+    "leaderboard.tab.xp": "XP",
+    "leaderboard.tab.arcade": "Arcade",
+    "leaderboard.allGames": "Alle Spiele",
+    "leaderboard.colBest": "Bestwert",
+    "leaderboard.colGames": "Spiele",
+    "leaderboard.arcadeEmpty": "Noch keine Ergebnisse. Spiel ein Spiel in der Arcade.",
+    "leaderboard.arcadeMine": "Dein Bestwert: {score} · Platz {rank}",
+    "leaderboard.arcadeMineHidden": "Dein Bestwert: {score}",
+    "leaderboard.arcadeTotalHint": "Alle Spiele addiert den Bestwert jedes Spielers aus jedem Spiel.",
+    "leaderboard.rivalAhead": "{name} liegt {points} XP vor dir.",
+    "leaderboard.rivalTop": "Noch {points} XP bis in die Top {count}.",
+    "leaderboard.rivalLead": "Du führst mit {points} XP Vorsprung.",
+    "leaderboard.viewProfile": "Profil von {name} ansehen",
+    "leaderboard.profile.since": "Spielt seit {date}",
+    "leaderboard.profile.achievements": "Erfolge ({count}/{total})",
+    "leaderboard.profile.arcade": "Arcade-Bestwerte",
 };
 
 export default common;
