@@ -9,11 +9,12 @@ import { ProgressManager } from "~/models/ProgressManager";
 import { GitRepository } from "~/models/GitRepository";
 import { parseCommand, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import { resolvePath } from "~/lib/utils";
-import { didCommandFail } from "~/models/commandOutcome";
+import { didCommandFail, isMistake } from "~/models/commandOutcome";
 import { cueMascot } from "~/components/GitMascot";
 import type { GameContextProps, DifficultyLevel } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
 import { useSoundManager } from "~/lib/SoundManager";
+import { formatStars, starKey, starsForMistakes } from "~/lib/stars";
 
 const GameContext = createContext<GameContextProps | undefined>(undefined);
 
@@ -65,6 +66,15 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
      * encouragement least. A ref, not state: it must not re-render the terminal on every keystroke.
      */
     const failStreak = useRef(0);
+
+    /**
+     * Failed commands per level this session, for the star rating.
+     *
+     * Kept per level rather than as one counter so that wandering between levels cannot wash
+     * mistakes away, and a ref for the same reason as `failStreak`. Deliberately not persisted: a
+     * star rates one sitting, and a replay in a later session is a fresh attempt by design.
+     */
+    const levelMistakes = useRef<Map<string, number>>(new Map());
 
     // Advanced mode state - initialize with false to avoid hydration mismatch
     const [isAdvancedMode, setIsAdvancedMode] = useState<boolean>(false);
@@ -325,6 +335,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Tell the mascot what happened. A streak of failures is the only signal the app has that
         // a player is stuck, and it is the one the shop already promised the mascot would notice.
+        // Counted before the failure branch below, and with the wider test: a mistyped command never
+        // reaches it, but it still costs a star.
+        if (isMistake(output)) {
+            const key = starKey(currentStage, currentLevel);
+            levelMistakes.current.set(key, (levelMistakes.current.get(key) ?? 0) + 1);
+        }
+
         if (didCommandFail(output)) {
             failStreak.current += 1;
             if (failStreak.current === 3) cueMascot({ cue: "struggle3" });
@@ -358,10 +375,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Helper function to mark a level as completed
     const markLevelAsCompleted = () => {
+        const stars = starsForMistakes(levelMistakes.current.get(starKey(currentStage, currentLevel)) ?? 0);
+
+        if (isLevelCompleted) {
+            // Cleared before and solved again without resetting — typically a replay after a reload.
+            // Nothing is paid twice; the only thing a replay can still earn is a better star result.
+            if (progressManager.recordStars(currentStage, currentLevel, stars)) {
+                setTerminalOutput(prev => [...prev, `${formatStars(stars)} ${t("stars.improved")}`]);
+            }
+            return;
+        }
+
         if (!isLevelCompleted) {
             setIsLevelCompleted(true);
-            progressManager.completeLevel(currentStage, currentLevel);
-            setTerminalOutput(prev => [...prev, "🎉 " + t("level.levelCompleted") + " 🎉", t("terminal.typeNext")]);
+            progressManager.completeLevel(currentStage, currentLevel, undefined, stars);
+            setTerminalOutput(prev => [
+                ...prev,
+                "🎉 " + t("level.levelCompleted") + " 🎉",
+                `${formatStars(stars)} ${stars === 3 ? t("stars.perfect") : t("stars.tryAgain")}`,
+                t("terminal.typeNext"),
+            ]);
 
             // Play victory sound if purchased
             if (progressManager.getPurchasedItems().includes("victory-sound")) {
@@ -480,6 +513,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Reset the current level
     const resetCurrentLevel = () => {
+        // Restarting a level you have already cleared is a replay, so it gets a fresh count. An
+        // unfinished level keeps its mistakes: otherwise reset-and-retry would be a free way to
+        // erase every failed command before finishing.
+        if (isLevelCompleted) levelMistakes.current.delete(starKey(currentStage, currentLevel));
+
         // Set up level with the LevelManager
         levelManager.setupLevel(currentStage, currentLevel, fileSystem, gitRepository);
 

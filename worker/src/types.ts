@@ -5,6 +5,10 @@ export interface Env {
     /** Comma-separated exact origins. No wildcards. */
     ALLOWED_ORIGINS: string;
     SESSION_TTL_DAYS: string;
+    /** Seconds a leaderboard snapshot is reused. Optional; see leaderboard.ts for the floor. */
+    LEADERBOARD_TTL_SECONDS?: string;
+    /** Rows of D1 read quota one isolate may spend a day on the leaderboard. Optional. */
+    LEADERBOARD_DAILY_READ_BUDGET?: string;
     /**
      * HMAC key applied to passwords before stretching. Set with `wrangler secret put`, never in
      * config and never with a fallback default in code — a fallback would publish the production
@@ -19,6 +23,7 @@ export interface Env {
     RL_LOGIN_IP?: RateLimit;
     RL_REGISTER_IP?: RateLimit;
     RL_SYNC_USER?: RateLimit;
+    RL_LEADERBOARD_IP?: RateLimit;
 }
 
 /**
@@ -49,6 +54,11 @@ export interface SyncRequest {
     cursor?: Cursor;
     /** Minigame high scores. Cosmetic, unpriced, clamped. */
     bests?: Record<string, number>;
+    /**
+     * Level star results, keyed "stage/level". Cosmetic, unpriced and only ever raised. The client
+     * sends just the results the server does not have yet, but nothing here depends on that.
+     */
+    stars?: Record<string, number>;
     /**
      * Set when this batch is a one-time import of progress made before the player had an
      * account. Imported events are always priced at multiplier 1 and their timestamps are
@@ -88,6 +98,8 @@ export interface ServerState {
     minigameScores: Record<string, number>;
     doubleXpUntil: string | null;
     gitGudActivated: boolean;
+    /** Two- and three-star results by "stage/level". One star is implied by completion. */
+    levelStars: Record<string, number>;
     /** Server clock, so the client can detect a badly skewed local clock. */
     serverTime: string;
 }

@@ -110,3 +110,13 @@ export async function syncGate(env: Env, userId: number): Promise<Gate> {
     const allowed = await perLocation(env.RL_SYNC_USER, `sync:${userId}`);
     return allowed ? ALLOWED : { ok: false, retryAfter: 10 };
 }
+
+/**
+ * The leaderboard is public and unauthenticated, so this is its only throttle. It fails open like
+ * the rest: the real protection is that the aggregate is cached, and a request that hits the cache
+ * costs no database reads at all.
+ */
+export async function leaderboardGate(env: Env, ip: string): Promise<Gate> {
+    const allowed = await perLocation(env.RL_LEADERBOARD_IP, `leaderboard:ip:${ip}`);
+    return allowed ? ALLOWED : { ok: false, retryAfter: 30 };
+}

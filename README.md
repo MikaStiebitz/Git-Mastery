@@ -69,14 +69,16 @@ and it goes on the list.
 
 ### Learn by doing
 
-|                          |                                                                           |
-| ------------------------ | ------------------------------------------------------------------------- |
-| 🖥️ **Real terminal**     | A simulated Git environment that answers like the real thing              |
-| 🌳 **Live commit graph** | Every level draws your repository as you type — tap a node for details    |
-| 🎯 **Structured path**   | Stages that build on each other, from `git init` to `rebase` and `bisect` |
-| 🎮 **Playground**        | A free sandbox with no level goals, plus a printable cheat sheet          |
-| 📈 **Progress tracking** | Points, completed levels and your current stage, saved locally            |
-| 🌍 **Six languages**     | English, German, Spanish, Persian, Hindi and Turkish                      |
+|                          |                                                                            |
+| ------------------------ | -------------------------------------------------------------------------- |
+| 🖥️ **Real terminal**     | A simulated Git environment that answers like the real thing               |
+| 🌳 **Live commit graph** | Every level draws your repository as you type — tap a node for details     |
+| 🎯 **Structured path**   | Stages that build on each other, from `git init` to `rebase` and `bisect`  |
+| 🎮 **Playground**        | A free sandbox with no level goals, plus a printable cheat sheet           |
+| 📈 **Progress tracking** | Points, completed levels and your current stage, saved locally             |
+| ⭐ **Stars and ranks**   | Up to three stars per level for clean solves, and a rank that follows XP   |
+| 🏅 **Achievements**      | Sixteen milestones with progress bars, shown on a leaderboard for accounts |
+| 🌍 **Six languages**     | English, German, Spanish, Persian, Hindi and Turkish                       |
 
 ### Play for it
 
@@ -92,8 +94,10 @@ and it goes on the list.
 
 **Next.js 16** (App Router, static export) · **TypeScript** · **Tailwind CSS 4** · **GSAP** ·
 **Radix UI** · **Lucide** — with a full Git simulation, level engine and progress system written
-from scratch, and React Context plus `localStorage` holding the state. No backend, no database,
-no tracking beyond privacy-friendly analytics.
+from scratch, and React Context plus `localStorage` holding the state. The only backend is an
+optional account API (a Cloudflare Worker with a D1 database, in [`worker/`](./worker)) that carries
+progress between devices and feeds the leaderboard; the game plays fully without it. No tracking
+beyond privacy-friendly analytics.
 
 The visual system is documented in [DESIGN.md](./DESIGN.md); the product decisions behind it
 live in [PRODUCT.md](./PRODUCT.md).

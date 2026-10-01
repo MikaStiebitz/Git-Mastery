@@ -205,6 +205,8 @@ export type UserProgress = {
     minigameScores: Record<string, number>;
     doubleXpUntil?: string | null; // ISO string date when double XP expires
     gitGudActivated?: boolean; // Easter egg - has the player discovered "git gud"?
+    /** Two- and three-star results by "stage/level" (lowercase stage). One star is implied by completion. */
+    levelStars?: Record<string, number>;
 };
 
 // Git commit definition with better types

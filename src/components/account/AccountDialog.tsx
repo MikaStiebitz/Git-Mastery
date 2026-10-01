@@ -124,7 +124,13 @@ function SignInForm({ mode, onDone }: { mode: "signIn" | "register"; onDone: () 
 
             {mode === "register" && (
                 /* Said plainly and up front, because there is no email and therefore no way back. */
-                <p className="gm-inset text-gm-gold p-3 text-xs leading-relaxed">{t("account.noRecoveryWarning")}</p>
+                <>
+                    <p className="gm-inset text-gm-gold p-3 text-xs leading-relaxed">
+                        {t("account.noRecoveryWarning")}
+                    </p>
+                    {/* The username is public from the first level, so that is said before it is chosen. */}
+                    <p className="text-gm-ink-dim text-xs leading-relaxed">{t("account.leaderboardNotice")}</p>
+                </>
             )}
 
             {error && (
