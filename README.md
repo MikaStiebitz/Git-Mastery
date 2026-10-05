@@ -73,6 +73,7 @@ and it goes on the list.
 | ------------------------ | -------------------------------------------------------------------------- |
 | 🖥️ **Real terminal**     | A simulated Git environment that answers like the real thing               |
 | 🌳 **Live commit graph** | Every level draws your repository as you type — tap a node for details     |
+| 🃏 **Visual mode**       | Prefer clicking to typing? Play Git commands as cards, like Oh My Git!     |
 | 🎯 **Structured path**   | Stages that build on each other, from `git init` to `rebase` and `bisect`  |
 | 🎮 **Playground**        | A free sandbox with no level goals, plus a printable cheat sheet           |
 | 📈 **Progress tracking** | Points, completed levels and your current stage, saved locally             |

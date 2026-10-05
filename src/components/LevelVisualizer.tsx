@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { gsap } from "gsap";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -35,9 +35,43 @@ const pseudoAuthors = ["Sam", "Alex", "Taylor", "Lee"];
 const getPseudoAuthor = (id: string) =>
     pseudoAuthors[Math.abs(id.charCodeAt(0) || 0) % pseudoAuthors.length] ?? "Unknown";
 
+/** Something on the graph a card can be played onto. */
+export type GraphPick = { type: "commit"; id: string } | { type: "branch"; name: string };
+
+/**
+ * While a card in visual mode waits for a commit or a branch, the graph turns into a target:
+ * the things that can be picked get a dashed cyan ring, and tapping or dropping a card on one
+ * hands it to `onPick` instead of opening the detail panel.
+ */
+export interface GraphPickTargets {
+    commits: boolean;
+    branches: boolean;
+    onPick: (target: GraphPick) => void;
+}
+
 interface LevelVisualizerProps {
     /** Optional height cap for the scrollable graph area */
     className?: string;
+    /** Turns commits and/or branches into card targets; null for the normal, browsable graph. */
+    pickTargets?: GraphPickTargets | null;
+    /** Drops the "tap a commit" footer, for hosts that explain the interaction themselves. */
+    hideHint?: boolean;
+}
+
+/** Drag-and-drop props for a pick target: accept the dragged card, and pick on drop. */
+function dropProps(enabled: boolean, onDrop: () => void) {
+    if (!enabled) return {};
+    return {
+        onDragOver: (e: DragEvent) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "copy";
+        },
+        onDrop: (e: DragEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onDrop();
+        },
+    };
 }
 
 /**
@@ -46,7 +80,7 @@ interface LevelVisualizerProps {
  * themselves and HEAD keeps a ring around it. Nodes are tappable for details and
  * branch badges highlight their history — a visual path through the level.
  */
-export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
+export function LevelVisualizer({ className = "", pickTargets = null, hideHint = false }: LevelVisualizerProps) {
     const { gitRepository, terminalOutput, currentStage, currentLevel } = useGameContext();
     const { t } = useLanguage();
 
@@ -60,8 +94,10 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
 
     // Rebuild the graph whenever a command ran or the level changed
     const refreshKey = `${currentStage}-${currentLevel}-${terminalOutput.length}`;
-    const { graph, branchHeads, currentBranch, initialized } = useMemo(() => {
+    const { graph, branchHeads, currentBranch, initialized, tagsByCommit } = useMemo(() => {
         const isInit = gitRepository.isInitialized();
+        const tagMap: Record<string, string[]> = {};
+        for (const [name, commitId] of gitRepository.getTags()) (tagMap[commitId] ??= []).push(name);
         const allCommits = gitRepository.getAllCommits();
         const heads = gitRepository.getBranchHeads();
         const branch = gitRepository.getCurrentBranch();
@@ -73,6 +109,7 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
             branchHeads: heads,
             currentBranch: branch,
             initialized: isInit,
+            tagsByCommit: tagMap,
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gitRepository, refreshKey]);
@@ -217,6 +254,33 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
 
     const commitLabel = (node: GraphNode) => `C${maxRow - node.row}`;
 
+    const pickCommits = pickTargets?.commits ?? false;
+    const pickBranches = pickTargets?.branches ?? false;
+
+    // A tap on a commit or a branch either feeds the card waiting for it, or does what it always
+    // did: open the commit's details, or highlight the branch's history.
+    const activateCommit = (node: GraphNode) => {
+        if (pickCommits) {
+            pickTargets?.onPick({ type: "commit", id: node.id });
+            return;
+        }
+        setSelected(selected?.id === node.id ? null : node);
+    };
+    const activateBranch = (branch: string) => {
+        if (pickBranches) {
+            pickTargets?.onPick({ type: "branch", name: branch });
+            return;
+        }
+        setHighlightBranch(highlightBranch === branch ? null : branch);
+    };
+
+    // A picking session is no time for an open detail panel or a dimmed graph.
+    useEffect(() => {
+        if (!pickCommits && !pickBranches) return;
+        setSelected(null);
+        setHighlightBranch(null);
+    }, [pickCommits, pickBranches]);
+
     // ── Empty state ─────────────────────────────────────────────────────────
     if (!initialized || rowCount === 0) {
         return (
@@ -281,9 +345,12 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                     pressed keycap rather than as a second colour. */}
                                 <button
                                     type="button"
-                                    aria-pressed={isHighlighted}
-                                    onClick={() => setHighlightBranch(isHighlighted ? null : branch)}
+                                    aria-pressed={pickBranches ? undefined : isHighlighted}
+                                    onClick={() => activateBranch(branch)}
+                                    {...dropProps(pickBranches, () => activateBranch(branch))}
                                     className={`focus-visible:outline-gm-cyan flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full border-2 px-3 [font-family:var(--font-code)] text-[11px] transition-[transform,box-shadow,border-color,color,filter] duration-150 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:outline-offset-4 motion-reduce:transition-none ${
+                                        pickBranches ? "outline-gm-cyan outline-2 outline-offset-2 outline-dashed" : ""
+                                    } ${
                                         isCurrent
                                             ? "border-gm-lime-edge bg-gm-lime text-gm-void hover:brightness-105"
                                             : "border-gm-line bg-gm-void text-gm-ink-soft hover:border-gm-grape-hi hover:text-gm-ink"
@@ -296,7 +363,7 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                               ? "shadow-[0_4px_0_var(--color-gm-lime-edge)]"
                                               : "shadow-[0_4px_0_var(--color-gm-line)]"
                                     }`}
-                                    title={t("visualizer.branchFilterHint")}>
+                                    title={pickBranches ? t("visual.pickThis") : t("visualizer.branchFilterHint")}>
                                     <GitBranch className="h-3 w-3 shrink-0" aria-hidden="true" />
                                     {branch}
                                     {isCurrent && <Sparkles className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />}
@@ -405,6 +472,20 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                 <g key={node.id} data-node-group={node.id}>
                                     {/* HEAD is lime everywhere in the game, so the ring that marks
                                         the player's position is lime rather than lane-coloured. */}
+                                    {/* Pick ring: dashed, so "you can play the card here" never reads
+                                        as the solid HEAD ring or a selection. */}
+                                    {pickCommits && (
+                                        <circle
+                                            cx={x}
+                                            cy={y}
+                                            r={R + 8}
+                                            fill="none"
+                                            stroke="var(--color-gm-cyan)"
+                                            strokeWidth={2}
+                                            strokeDasharray="4 4"
+                                            className="pointer-events-none"
+                                        />
+                                    )}
                                     {node.isHead && (
                                         <circle
                                             data-head-halo
@@ -420,19 +501,23 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                         data-node-id={node.id}
                                         role="button"
                                         tabIndex={0}
-                                        aria-label={`${commitLabel(node)} ${node.shortId}`}
-                                        aria-pressed={isSelected}
+                                        aria-label={`${commitLabel(node)} ${node.shortId}${node.isHead ? " (HEAD)" : ""}`}
+                                        aria-pressed={pickCommits ? undefined : isSelected}
                                         className="focus-visible:outline-gm-cyan cursor-pointer focus-visible:outline-3 focus-visible:outline-offset-2"
                                         onClick={e => {
                                             e.stopPropagation();
-                                            setSelected(isSelected ? null : node);
+                                            activateCommit(node);
                                         }}
                                         onKeyDown={e => {
                                             if (e.key !== "Enter" && e.key !== " ") return;
                                             e.preventDefault();
                                             e.stopPropagation();
-                                            setSelected(isSelected ? null : node);
-                                        }}>
+                                            activateCommit(node);
+                                        }}
+                                        {...dropProps(pickCommits, () => activateCommit(node))}>
+                                        {/* Invisible hit area: a dragged card has to land on
+                                            the node, and the 14px circle alone is a small target. */}
+                                        {pickCommits && <circle cx={x} cy={y} r={R + 10} fill="transparent" />}
                                         <circle
                                             cx={x}
                                             cy={y}
@@ -468,18 +553,19 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                                 role="button"
                                                 tabIndex={0}
                                                 aria-label={branch}
-                                                aria-pressed={highlightBranch === branch}
+                                                aria-pressed={pickBranches ? undefined : highlightBranch === branch}
                                                 className="focus-visible:outline-gm-cyan cursor-pointer focus-visible:outline-3 focus-visible:outline-offset-2"
                                                 onClick={e => {
                                                     e.stopPropagation();
-                                                    setHighlightBranch(highlightBranch === branch ? null : branch);
+                                                    activateBranch(branch);
                                                 }}
                                                 onKeyDown={e => {
                                                     if (e.key !== "Enter" && e.key !== " ") return;
                                                     e.preventDefault();
                                                     e.stopPropagation();
-                                                    setHighlightBranch(highlightBranch === branch ? null : branch);
-                                                }}>
+                                                    activateBranch(branch);
+                                                }}
+                                                {...dropProps(pickBranches, () => activateBranch(branch))}>
                                                 <path
                                                     d={`M ${bx - 7} ${y} L ${bx} ${y - 5} L ${bx} ${y + 5} z`}
                                                     fill={
@@ -495,8 +581,15 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                                     fill={
                                                         isCurrentHead ? "var(--color-gm-lime)" : "var(--color-gm-deep)"
                                                     }
-                                                    stroke={isCurrentHead ? "var(--color-gm-lime-edge)" : color}
+                                                    stroke={
+                                                        pickBranches
+                                                            ? "var(--color-gm-cyan)"
+                                                            : isCurrentHead
+                                                              ? "var(--color-gm-lime-edge)"
+                                                              : color
+                                                    }
                                                     strokeWidth={2}
+                                                    strokeDasharray={pickBranches ? "4 3" : undefined}
                                                 />
                                                 <text
                                                     x={bx + w / 2}
@@ -509,6 +602,44 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                                     }
                                                     className="pointer-events-none [font-family:var(--font-code)]">
                                                     {label}
+                                                </text>
+                                            </g>
+                                        );
+                                    })}
+                                    {/* Tags sit under the branch badges. They are labels on a commit, not
+                                        lines of history, so they are square-cornered and carry no lane
+                                        colour: a different shape, never a different meaning for a hue. */}
+                                    {(tagsByCommit[node.id] ?? []).map((tag, ti) => {
+                                        const w = tag.length * BADGE_W_CHAR + 30;
+                                        const bx = x + R + 12;
+                                        const by = y - BADGE_H / 2 + (node.branches.length + ti) * (BADGE_H + 4);
+                                        return (
+                                            <g
+                                                key={`tag-${tag}`}
+                                                role="img"
+                                                aria-label={`${t("visualizer.tag")} ${tag}`}>
+                                                <rect
+                                                    x={bx}
+                                                    y={by}
+                                                    width={w}
+                                                    height={BADGE_H}
+                                                    rx={5}
+                                                    fill="var(--color-gm-deep)"
+                                                    stroke="var(--color-gm-ink-dim)"
+                                                    strokeWidth={2}
+                                                />
+                                                <path
+                                                    d={`M ${bx + 9} ${by + BADGE_H / 2 - 5} L ${bx + 14} ${by + BADGE_H / 2} L ${bx + 9} ${by + BADGE_H / 2 + 5} L ${bx + 4} ${by + BADGE_H / 2} z`}
+                                                    fill="var(--color-gm-ink-soft)"
+                                                />
+                                                <text
+                                                    x={bx + 20 + (w - 26) / 2}
+                                                    y={by + BADGE_H / 2 + 3.5}
+                                                    textAnchor="middle"
+                                                    fontSize={11}
+                                                    fill="var(--color-gm-ink)"
+                                                    className="pointer-events-none [font-family:var(--font-code)]">
+                                                    {tag}
                                                 </text>
                                             </g>
                                         );
@@ -547,6 +678,11 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                                 <p className="text-gm-ink-dim mt-0.5 text-xs">
                                     {selected.author} · {selected.timestamp.toLocaleString()}
                                 </p>
+                                {(tagsByCommit[selected.id] ?? []).length > 0 && (
+                                    <p className="text-gm-ink-soft mt-1.5 [font-family:var(--font-code)] text-[11px]">
+                                        {t("visualizer.tag")}: {(tagsByCommit[selected.id] ?? []).join(", ")}
+                                    </p>
+                                )}
                                 {selected.branches.length > 0 && (
                                     <ul className="mt-1.5 flex flex-wrap gap-1">
                                         {selected.branches.map(b => (
@@ -573,7 +709,9 @@ export function LevelVisualizer({ className = "" }: LevelVisualizerProps) {
                 )}
             </div>
 
-            <p className="text-gm-ink-dim mt-2 text-center text-[11px]">{t("visualizer.interactHint")}</p>
+            {!hideHint && (
+                <p className="text-gm-ink-dim mt-2 text-center text-[11px]">{t("visualizer.interactHint")}</p>
+            )}
         </div>
     );
 }
