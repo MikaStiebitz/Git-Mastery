@@ -161,6 +161,17 @@ const levels = {
     "visual.card.push-tags": "Etiketlerini yükle",
     "visual.card.pull": "Uzak commit'leri indir ve birleştir",
     "visual.card.pull-branch": "origin'den bir branch çek",
+    "visual.nextGoal": "Sıradaki hedef",
+    "visual.conflict": "çakışma",
+    "visual.conflictState": "Merge çakışması",
+    "visual.repoState": "Depo durumu",
+    "visual.elsewhere": "Uzak depo ve stash",
+    "visual.incoming": "{remote} üzerinden gelen",
+    "visual.stashTitle": "Stash",
+    "visual.cardDone": "oynandı",
+    "visual.cardNext": "sıradaki kart bu",
+    "visual.card.edit": "Bir dosyayı düzenleyicide aç",
+    "visualizer.tag": "Etiket",
 
     // Level Content - Intro Stage
     "intro.name": "Git'e Giriş",

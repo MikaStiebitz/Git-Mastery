@@ -563,6 +563,42 @@ function LevelPageContent() {
         );
     };
 
+    // How the level is played: typing in the terminal, or playing command cards on a visual board
+    // (the Oh My Git! way). Remembered across levels and visits.
+    const playModeSwitch = (
+        <div className="flex flex-wrap items-center justify-end gap-2">
+            <p aria-hidden="true" className="text-gm-ink-dim hidden text-sm md:block">
+                {t("visual.modeLabel")}
+            </p>
+            <div role="group" aria-label={t("visual.modeLabel")} className="gm-inset flex items-center gap-1 p-1">
+                {(
+                    [
+                        { visual: false, icon: SquareTerminal, label: t("visual.modeTerminal") },
+                        { visual: true, icon: Layers, label: t("visual.modeVisual") },
+                    ] as const
+                ).map(({ visual, icon: Icon, label }) => {
+                    const isActive = isVisualMode === visual;
+                    return (
+                        <button
+                            key={label}
+                            type="button"
+                            aria-pressed={isActive}
+                            onClick={() => setVisualMode(visual)}
+                            title={visual ? t("visual.modeHint") : undefined}
+                            className={`focus-visible:outline-gm-cyan flex min-h-11 cursor-pointer items-center gap-1.5 rounded-[0.7rem] px-3 text-sm font-semibold transition-colors duration-150 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:outline-offset-2 ${
+                                isActive
+                                    ? "bg-gm-grape text-gm-ink"
+                                    : "text-gm-ink-dim hover:bg-gm-deep hover:text-gm-ink active:bg-gm-deep"
+                            }`}>
+                            <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                            <span>{label}</span>
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+
     return (
         <PageLayout showLevelInfo>
             <div className="container mx-auto p-3 sm:p-4">
@@ -583,10 +619,13 @@ function LevelPageContent() {
                             </h1>
                         </div>
 
-                        <GitMascot
-                            isActive={progressManager.getPurchasedItems().includes("git-mascot")}
-                            suppressed={isFileEditorOpen || shouldShowStoryDialog}
-                        />
+                        <div className="flex shrink-0 items-start gap-3">
+                            <div className="hidden sm:block">{playModeSwitch}</div>
+                            <GitMascot
+                                isActive={progressManager.getPurchasedItems().includes("git-mascot")}
+                                suppressed={isFileEditorOpen || shouldShowStoryDialog}
+                            />
+                        </div>
                     </header>
                 </ClientOnly>
                 <ProgressBar
@@ -598,43 +637,10 @@ function LevelPageContent() {
                     className="mb-4 sm:mb-6"
                 />
 
-                {/* How the level is played: typing in the terminal, or playing command cards on a
-                    visual board (the Oh My Git! way). Remembered across levels and visits. */}
-                <ClientOnly fallback={<div className="mb-3 h-[3.25rem] sm:mb-4" />}>
-                    <div className="mb-3 flex flex-wrap items-center justify-end gap-2 sm:mb-4">
-                        <p id="play-mode-label" className="text-gm-ink-dim text-sm">
-                            {t("visual.modeLabel")}
-                        </p>
-                        <div
-                            role="group"
-                            aria-labelledby="play-mode-label"
-                            className="gm-inset flex items-center gap-1 p-1">
-                            {(
-                                [
-                                    { visual: false, icon: SquareTerminal, label: t("visual.modeTerminal") },
-                                    { visual: true, icon: Layers, label: t("visual.modeVisual") },
-                                ] as const
-                            ).map(({ visual, icon: Icon, label }) => {
-                                const isActive = isVisualMode === visual;
-                                return (
-                                    <button
-                                        key={label}
-                                        type="button"
-                                        aria-pressed={isActive}
-                                        onClick={() => setVisualMode(visual)}
-                                        title={visual ? t("visual.modeHint") : undefined}
-                                        className={`focus-visible:outline-gm-cyan flex min-h-11 cursor-pointer items-center gap-1.5 rounded-[0.7rem] px-3 text-sm font-semibold transition-colors duration-150 ease-[var(--ease-out-expo)] focus-visible:outline-3 focus-visible:outline-offset-2 ${
-                                            isActive
-                                                ? "bg-gm-grape text-gm-ink"
-                                                : "text-gm-ink-dim hover:bg-gm-deep hover:text-gm-ink active:bg-gm-deep"
-                                        }`}>
-                                        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                                        <span>{label}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
+                {/* On a phone the switch gets its own row; from `sm` it sits in the header, beside
+                    the mascot, so the board starts higher up the page. */}
+                <ClientOnly fallback={<div className="mb-3 h-[3.25rem] sm:hidden" />}>
+                    <div className="mb-3 sm:hidden">{playModeSwitch}</div>
                 </ClientOnly>
 
                 {/* Mobile-optimized layout: Stack vertically on mobile, side-by-side on desktop.
@@ -646,7 +652,7 @@ function LevelPageContent() {
                     {/* Challenge Card - Always show first on mobile for context */}
                     <Card
                         className={`order-1 flex min-w-0 flex-col overflow-hidden lg:order-2 ${
-                            isVisualMode ? "lg:h-[700px]" : "lg:h-[580px]"
+                            isVisualMode ? "lg:h-[760px]" : "lg:h-[580px]"
                         }`}>
                         <CardHeader className="shrink-0 p-3 pb-3 sm:p-5 sm:pb-4">
                             <div className="flex items-center justify-between gap-2">
@@ -755,7 +761,7 @@ function LevelPageContent() {
                         <TerminalSkeleton className="order-2 h-[450px] min-w-0 sm:h-[500px] lg:order-1 lg:h-[580px]" />
                     ) : isVisualMode ? (
                         <VisualBoard
-                            className="order-2 lg:order-1 lg:h-[700px]"
+                            className="order-2 lg:order-1 lg:h-[760px]"
                             onResetClick={() => setShowResetModal(true)}
                             onNextLevel={handleNextLevelWithStory}
                         />

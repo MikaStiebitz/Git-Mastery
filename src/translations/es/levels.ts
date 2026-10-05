@@ -161,6 +161,17 @@ const levels = {
     "visual.card.push-tags": "Sube tus etiquetas",
     "visual.card.pull": "Descarga y fusiona commits remotos",
     "visual.card.pull-branch": "Trae una rama de origin",
+    "visual.nextGoal": "Siguiente objetivo",
+    "visual.conflict": "conflicto",
+    "visual.conflictState": "Conflicto de merge",
+    "visual.repoState": "Estado del repositorio",
+    "visual.elsewhere": "Remoto y stash",
+    "visual.incoming": "Entrante desde {remote}",
+    "visual.stashTitle": "Stash",
+    "visual.cardDone": "jugada",
+    "visual.cardNext": "juega esta a continuación",
+    "visual.card.edit": "Abre un archivo en el editor",
+    "visualizer.tag": "Etiqueta",
 
     // Level Content - Intro Stage
     "intro.name": "Introducción a Git",

@@ -94,8 +94,10 @@ export function LevelVisualizer({ className = "", pickTargets = null, hideHint =
 
     // Rebuild the graph whenever a command ran or the level changed
     const refreshKey = `${currentStage}-${currentLevel}-${terminalOutput.length}`;
-    const { graph, branchHeads, currentBranch, initialized } = useMemo(() => {
+    const { graph, branchHeads, currentBranch, initialized, tagsByCommit } = useMemo(() => {
         const isInit = gitRepository.isInitialized();
+        const tagMap: Record<string, string[]> = {};
+        for (const [name, commitId] of gitRepository.getTags()) (tagMap[commitId] ??= []).push(name);
         const allCommits = gitRepository.getAllCommits();
         const heads = gitRepository.getBranchHeads();
         const branch = gitRepository.getCurrentBranch();
@@ -107,6 +109,7 @@ export function LevelVisualizer({ className = "", pickTargets = null, hideHint =
             branchHeads: heads,
             currentBranch: branch,
             initialized: isInit,
+            tagsByCommit: tagMap,
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gitRepository, refreshKey]);
@@ -603,6 +606,44 @@ export function LevelVisualizer({ className = "", pickTargets = null, hideHint =
                                             </g>
                                         );
                                     })}
+                                    {/* Tags sit under the branch badges. They are labels on a commit, not
+                                        lines of history, so they are square-cornered and carry no lane
+                                        colour: a different shape, never a different meaning for a hue. */}
+                                    {(tagsByCommit[node.id] ?? []).map((tag, ti) => {
+                                        const w = tag.length * BADGE_W_CHAR + 30;
+                                        const bx = x + R + 12;
+                                        const by = y - BADGE_H / 2 + (node.branches.length + ti) * (BADGE_H + 4);
+                                        return (
+                                            <g
+                                                key={`tag-${tag}`}
+                                                role="img"
+                                                aria-label={`${t("visualizer.tag")} ${tag}`}>
+                                                <rect
+                                                    x={bx}
+                                                    y={by}
+                                                    width={w}
+                                                    height={BADGE_H}
+                                                    rx={5}
+                                                    fill="var(--color-gm-deep)"
+                                                    stroke="var(--color-gm-ink-dim)"
+                                                    strokeWidth={2}
+                                                />
+                                                <path
+                                                    d={`M ${bx + 9} ${by + BADGE_H / 2 - 5} L ${bx + 14} ${by + BADGE_H / 2} L ${bx + 9} ${by + BADGE_H / 2 + 5} L ${bx + 4} ${by + BADGE_H / 2} z`}
+                                                    fill="var(--color-gm-ink-soft)"
+                                                />
+                                                <text
+                                                    x={bx + 20 + (w - 26) / 2}
+                                                    y={by + BADGE_H / 2 + 3.5}
+                                                    textAnchor="middle"
+                                                    fontSize={11}
+                                                    fill="var(--color-gm-ink)"
+                                                    className="pointer-events-none [font-family:var(--font-code)]">
+                                                    {tag}
+                                                </text>
+                                            </g>
+                                        );
+                                    })}
                                 </g>
                             );
                         })}
@@ -637,6 +678,11 @@ export function LevelVisualizer({ className = "", pickTargets = null, hideHint =
                                 <p className="text-gm-ink-dim mt-0.5 text-xs">
                                     {selected.author} · {selected.timestamp.toLocaleString()}
                                 </p>
+                                {(tagsByCommit[selected.id] ?? []).length > 0 && (
+                                    <p className="text-gm-ink-soft mt-1.5 [font-family:var(--font-code)] text-[11px]">
+                                        {t("visualizer.tag")}: {(tagsByCommit[selected.id] ?? []).join(", ")}
+                                    </p>
+                                )}
                                 {selected.branches.length > 0 && (
                                     <ul className="mt-1.5 flex flex-wrap gap-1">
                                         {selected.branches.map(b => (

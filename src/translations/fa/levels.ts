@@ -161,6 +161,17 @@ const levels = {
     "visual.card.push-tags": "برچسب‌هایت را بفرست",
     "visual.card.pull": "کامیت‌های راه دور را بگیر و ادغام کن",
     "visual.card.pull-branch": "یک شاخه را از origin بگیر",
+    "visual.nextGoal": "هدف بعدی",
+    "visual.conflict": "تعارض",
+    "visual.conflictState": "تعارض ادغام",
+    "visual.repoState": "وضعیت مخزن",
+    "visual.elsewhere": "مخزن راه دور و stash",
+    "visual.incoming": "ورودی از {remote}",
+    "visual.stashTitle": "Stash",
+    "visual.cardDone": "بازی شده",
+    "visual.cardNext": "این را بعدی بازی کنید",
+    "visual.card.edit": "فایل را در ویرایشگر باز کن",
+    "visualizer.tag": "برچسب",
 
     // Level Content - Intro Stage
     "intro.name": "مقدمه‌ای بر Git",

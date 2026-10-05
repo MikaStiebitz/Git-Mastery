@@ -161,6 +161,17 @@ const levels = {
     "visual.card.push-tags": "अपने टैग अपलोड करें",
     "visual.card.pull": "रिमोट commits लाकर merge करें",
     "visual.card.pull-branch": "origin से एक branch pull करें",
+    "visual.nextGoal": "अगला लक्ष्य",
+    "visual.conflict": "टकराव",
+    "visual.conflictState": "Merge टकराव",
+    "visual.repoState": "रिपॉज़िटरी की स्थिति",
+    "visual.elsewhere": "रिमोट और stash",
+    "visual.incoming": "{remote} से आने वाले",
+    "visual.stashTitle": "Stash",
+    "visual.cardDone": "खेला जा चुका",
+    "visual.cardNext": "इसे अगला खेलें",
+    "visual.card.edit": "फ़ाइल को एडिटर में खोलें",
+    "visualizer.tag": "टैग",
 
     // Level Content - Intro Stage
     "intro.name": "Git का परिचय",

@@ -47,6 +47,7 @@ export type CardGroup = "basics" | "branches" | "undo" | "history" | "remote";
 
 export type CardIcon =
     | "init"
+    | "edit"
     | "status"
     | "add"
     | "commit"
@@ -176,6 +177,7 @@ export const CARD_DECK: GitCard[] = [
     // Basics: the working directory, the staging area and the commit.
     defineCard("init", "git init", "grape", "basics", "init"),
     defineCard("status", "git status", "grape", "basics", "status"),
+    defineCard("edit", "nano {file}", "grape", "basics", "edit", ["file"]),
     defineCard("add", "git add {file}", "grape", "basics", "add", ["files"]),
     defineCard("commit", "git commit -m {message}", "lime", "basics", "commit", ["message"]),
     defineCard("commit-all", "git commit -a -m {message}", "lime", "basics", "commit", ["message"]),
@@ -388,7 +390,7 @@ export function extractCommands(text: string): string[] {
 
     for (const match of text.matchAll(/`([^`]+)`/g)) {
         const code = match[1]!.trim();
-        if (/^(git|cd)\b/.test(code)) found.push(code);
+        if (/^(git|cd|nano)\b/.test(code)) found.push(code);
     }
 
     const prose = text.replace(/`[^`]*`/g, " ");
@@ -408,24 +410,135 @@ function commandsInLevel(level: LevelType): string[] {
     return [level.description, ...level.objectives, ...level.hints].flatMap(extractCommands);
 }
 
+/** Cards that only make sense once another card has been played: there is nothing to list, pop or apply before a stash. */
+const PREREQUISITES: Record<string, string[]> = {
+    "stash-list": ["stash"],
+    "stash-pop": ["stash"],
+    "stash-apply": ["stash"],
+};
+
+/** Commands that change the working tree by themselves, so a level using one never needs a file edited first. */
+const CHANGE_MAKERS = new Set([
+    "git mv",
+    "git rm",
+    "git merge",
+    "git rebase",
+    "git cherry-pick",
+    "git revert",
+    "git pull",
+]);
+
+/**
+ * Whether finishing this level means opening a file in the editor: a requirement that watches a
+ * file, a merge to resolve, or a commit to make in a repository that starts clean (there is nothing
+ * to stage until the player changes something).
+ */
+function needsEditing(level: LevelType): boolean {
+    if (level.requirements.some(requirement => requirement.checkFileChanged !== undefined)) return true;
+    if ((level.initialState?.git?.mergeConflicts?.length ?? 0) > 0) return true;
+
+    // Only a step that comes before the first commit can supply the thing to commit.
+    const firstCommit = level.requirements.findIndex(requirement => requirement.command === "git commit");
+    if (firstCommit === -1) return false;
+    const startsDirty = level.initialState?.git?.fileChanges?.some(change => change.status !== "committed") ?? false;
+    const makesChanges = level.requirements
+        .slice(0, firstCommit)
+        .some(requirement => CHANGE_MAKERS.has(requirement.command));
+    return !startsDirty && !makesChanges;
+}
+
 /**
  * The hand a level deals in visual mode, in the order the player will most likely need it.
  *
  * Cards come from the level's own requirements, so every level can be finished with the hand it
  * deals, plus any command the level's hints or objectives spell out (stash level 2 asks for a
  * `git switch` but its hint says `git switch -c`, and the hint is what the player will reach for).
+ * Levels that need a file edited — a conflict to resolve, a file to change — also deal the editor
+ * card, in the slot where the edit happens.
  */
 export function getLevelHand(level: LevelType): GitCard[] {
     const ids: string[] = [];
     const add = (card: GitCard | undefined) => {
-        if (card && !ids.includes(card.id)) ids.push(card.id);
+        if (!card || ids.includes(card.id)) return;
+        // A card that works on something a level never hands out is no use without the card that makes it.
+        PREREQUISITES[card.id]?.forEach(id => add(getCard(id)));
+        ids.push(card.id);
     };
 
-    level.requirements.forEach(requirement => add(cardForRequirement(requirement)));
+    const editing = needsEditing(level);
+    let editDealt = false;
+    const dealEdit = () => {
+        if (editing && !editDealt) {
+            editDealt = true;
+            add(getCard("edit"));
+        }
+    };
+
+    level.requirements.forEach(requirement => {
+        // A requirement that watches a file is the editing step itself.
+        if (requirement.checkFileChanged !== undefined) dealEdit();
+        // Without one, the edit belongs just before the first thing that stages the result.
+        if (requirement.command === "git add") dealEdit();
+        add(cardForRequirement(requirement));
+    });
     commandsInLevel(level).forEach(command => add(findCardForCommand(command)?.card));
+    dealEdit();
     ALWAYS_IN_HAND.forEach(id => add(getCard(id)));
 
     return ids.map(id => getCard(id)!);
+}
+
+export type CardProgress = "done" | "next" | "open";
+
+/**
+ * Where each card in the hand stands against the level's requirements: `done` once every
+ * requirement it fulfils is complete, `next` for the card the level wants played now (the first
+ * open requirement, when the level is a sequence), `open` for the rest.
+ */
+export function getHandProgress(level: LevelType, hand: GitCard[]): Map<string, CardProgress> {
+    const completed = new Set(level.completedRequirements ?? []);
+    const sequential = level.requirementLogic === "all" || level.requirements.length === 1;
+    const progress = new Map<string, CardProgress>(hand.map(card => [card.id, "open"]));
+    const fulfilled = new Map<string, { total: number; done: number }>();
+
+    let nextCard: string | undefined;
+    for (const requirement of level.requirements) {
+        const card = cardForRequirement(requirement);
+        const isDone = requirement.id !== undefined && completed.has(requirement.id);
+        if (!card) {
+            // A requirement with no command ("edit this file") still holds the line in a sequence.
+            if (!isDone && sequential && nextCard === undefined) nextCard = requirement.checkFileChanged ? "edit" : "";
+            continue;
+        }
+        const tally = fulfilled.get(card.id) ?? { total: 0, done: 0 };
+        tally.total += 1;
+        if (isDone) tally.done += 1;
+        fulfilled.set(card.id, tally);
+        if (!isDone && sequential && nextCard === undefined) nextCard = card.id;
+    }
+
+    for (const [id, tally] of fulfilled) {
+        if (tally.done === tally.total && progress.has(id)) progress.set(id, "done");
+    }
+    if (nextCard && progress.get(nextCard) !== undefined) progress.set(nextCard, "next");
+    return progress;
+}
+
+/**
+ * Each of a level's objectives with whether it is complete, worked out the way the challenge
+ * checklist does it: by objective id where the level uses them, otherwise by position.
+ */
+export function getObjectiveStates(level: LevelType): { label: string; completed: boolean }[] {
+    const hasObjectiveIds = level.requirements.some(requirement => requirement.objectiveId !== undefined);
+    return level.objectives.map((label, index) => {
+        const requirementId = level.requirements[index]?.id;
+        const completed = hasObjectiveIds
+            ? (level.completedObjectives?.includes(index + 1) ?? false)
+            : requirementId !== undefined
+              ? (level.completedRequirements?.includes(requirementId) ?? false)
+              : false;
+        return { label, completed };
+    });
 }
 
 /** A value from level text is only a useful suggestion if it is not itself a placeholder. */

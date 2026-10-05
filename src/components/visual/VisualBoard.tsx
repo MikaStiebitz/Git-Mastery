@@ -5,9 +5,12 @@ import {
     Activity,
     Archive,
     ArchiveRestore,
+    ArrowDown,
     ArrowRightLeft,
     ArrowRightIcon,
+    ArrowUp,
     Bug,
+    Check,
     Cherry,
     Copy,
     Download,
@@ -21,6 +24,7 @@ import {
     FolderOpen,
     GitBranchPlus,
     GitCommitHorizontal,
+    GitBranch,
     GitCompareArrows,
     GitMerge,
     Globe,
@@ -35,8 +39,11 @@ import {
     RotateCcw,
     ScrollText,
     Search,
+    SquarePen,
     Tag,
+    Target,
     Trash2,
+    TriangleAlert,
     Undo2,
     Upload,
     UserSearch,
@@ -48,14 +55,18 @@ import { useLanguage } from "~/contexts/LanguageContext";
 import { LevelVisualizer, type GraphPickTargets } from "~/components/LevelVisualizer";
 import { Button } from "~/components/ui/button";
 import { CommandLog } from "~/components/visual/CommandLog";
+import { didCommandFail } from "~/models/commandOutcome";
 import {
     CARD_DECK,
     CARD_GROUPS,
     buildCommand,
+    getHandProgress,
     getLevelHand,
+    getObjectiveStates,
     getSlotSuggestions,
     isBoardSlot,
     type CardIcon,
+    type CardProgress,
     type CardSlotKind,
     type CardTone,
     type GitCard,
@@ -64,6 +75,7 @@ import type { FileStatus } from "~/types";
 
 const CARD_ICONS: Record<CardIcon, LucideIcon> = {
     init: FolderGit2,
+    edit: SquarePen,
     status: Activity,
     add: FilePlus,
     commit: GitCommitHorizontal,
@@ -158,12 +170,25 @@ function cardFace(card: GitCard): { base: string; rest: string } {
 interface PlayCardProps {
     card: GitCard;
     armed: boolean;
+    /** Where the level stands on this card: played already, or the one it wants next. */
+    progress?: CardProgress;
+    doneLabel: string;
+    nextLabel: string;
     onPlay: (card: GitCard) => void;
     onDragStart: (card: GitCard) => void;
     description: string;
 }
 
-function PlayCard({ card, armed, onPlay, onDragStart, description }: PlayCardProps) {
+function PlayCard({
+    card,
+    armed,
+    progress = "open",
+    doneLabel,
+    nextLabel,
+    onPlay,
+    onDragStart,
+    description,
+}: PlayCardProps) {
     const Icon = CARD_ICONS[card.icon];
     const tone = TONE_CLASSES[card.tone];
     const { base, rest } = cardFace(card);
@@ -173,6 +198,8 @@ function PlayCard({ card, armed, onPlay, onDragStart, description }: PlayCardPro
     return (
         <button
             type="button"
+            data-card-id={card.id}
+            data-card-progress={progress}
             aria-pressed={armed}
             draggable={draggable}
             onDragStart={e => {
@@ -185,9 +212,25 @@ function PlayCard({ card, armed, onPlay, onDragStart, description }: PlayCardPro
                 armed
                     ? `-translate-y-1.5 ${tone.armed} motion-reduce:translate-y-0`
                     : `${tone.rest} hover:-translate-y-0.5 active:translate-y-[3px] motion-reduce:hover:translate-y-0`
-            } ${draggable ? "active:cursor-grabbing" : ""}`}>
+            } ${draggable ? "active:cursor-grabbing" : ""} ${
+                progress === "next" && !armed ? "outline-gm-lime outline-2 outline-offset-2 outline-dashed" : ""
+            } ${progress === "done" && !armed ? "opacity-70" : ""}`}>
             <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1.5 ${tone.stripe}`} />
-            <span className="flex w-full min-w-0 items-center gap-1.5">
+            {/* The mark is a shape and a word, never just a colour: a check for played, a target for
+                the card the level wants next. */}
+            {progress === "done" && (
+                <span className="bg-gm-lime text-gm-void absolute end-1.5 top-2.5 flex h-4 w-4 items-center justify-center rounded-full">
+                    <Check className="h-3 w-3" aria-hidden="true" />
+                    <span className="sr-only">{doneLabel}</span>
+                </span>
+            )}
+            {progress === "next" && (
+                <span className="bg-gm-lime text-gm-void absolute end-1.5 top-2.5 flex h-4 w-4 items-center justify-center rounded-full">
+                    <Target className="h-3 w-3" aria-hidden="true" />
+                    <span className="sr-only">{nextLabel}</span>
+                </span>
+            )}
+            <span className="flex w-full min-w-0 items-center gap-1.5 pe-5">
                 <Icon className={`h-3.5 w-3.5 shrink-0 ${tone.icon}`} aria-hidden="true" />
                 <span className="text-gm-ink truncate [font-family:var(--font-code)] text-[12px] font-bold">
                     {base}
@@ -244,12 +287,16 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
     const [showDeck, setShowDeck] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // The translated level: hints are where a level spells its commands out, in any language.
-    const level = useMemo(
-        () => levelManager.getLevel(currentStage, currentLevel, t),
-        [levelManager, currentStage, currentLevel, t],
-    );
-    const hand = useMemo(() => (level ? getLevelHand(level) : []), [level]);
+    // The translated level: hints are where a level spells its commands out, in any language. Read
+    // fresh on every render because its completed requirements change with every command; the hand
+    // only depends on what the level says, so that is worked out once per level.
+    const level = levelManager.getLevel(currentStage, currentLevel, t);
+    const hand = useMemo(() => {
+        const dealt = levelManager.getLevel(currentStage, currentLevel, t);
+        return dealt ? getLevelHand(dealt) : [];
+    }, [levelManager, currentStage, currentLevel, t]);
+    const handProgress = level ? getHandProgress(level, hand) : new Map<string, CardProgress>();
+    const nextGoal = level ? getObjectiveStates(level).find(objective => !objective.completed) : undefined;
     const slot = armed ? armed.card.slots[armed.values.length] : undefined;
     const slotKind: CardSlotKind | undefined = slot?.kind;
 
@@ -331,6 +378,27 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
 
     const stagedFiles = workingFiles.filter(f => f.status === "staged" || f.status === "staged+modified");
 
+    // A file is in conflict for exactly as long as it still carries Git's markers, whether a merge
+    // put them there or the level did. Reading the file rather than a flag means the chip clears the
+    // moment the player saves a resolved version.
+    const conflictedPaths = new Set(
+        workingFiles
+            .filter(file => /^<{7}( |$)/m.test(fileSystem.getFileContents(`/${file.path}`) ?? ""))
+            .map(file => file.path),
+    );
+
+    const branch = gitRepository.getCurrentBranch();
+    const remoteName = Object.keys(gitRepository.getRemotes())[0];
+    const incoming = gitRepository.getRemoteCommits(branch);
+    const toPush = initialized && remoteName ? gitRepository.getUnpushedCommitCount() : 0;
+    const stashEntries = gitRepository.getStash();
+    // A remote only belongs on the board in levels that are about one; elsewhere every level that
+    // happens to start with an origin would nag about commits it never asks anyone to push.
+    const remoteRelevant =
+        initialized &&
+        remoteName !== undefined &&
+        (incoming.length > 0 || hand.some(card => /^(push|pull|remote)/.test(card.id)));
+
     /** A file as the command line names it, relative to where the player currently is. */
     const fileArg = (path: string): string => {
         if (cwd === "/" || cwd === "") return path;
@@ -371,10 +439,13 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
     })();
 
     // ── Pieces ───────────────────────────────────────────────────────────────────────────────
-    const statusChip = (status: FileStatus | undefined, where: "working" | "staging") => {
+    const statusChip = (status: FileStatus | undefined, where: "working" | "staging", path?: string) => {
         let label: string | null = null;
         let tone = "border-gm-line text-gm-ink-dim";
-        if (where === "staging") {
+        if (path && conflictedPaths.has(path)) {
+            label = t("visual.conflict");
+            tone = "border-gm-coral-edge bg-gm-coral text-gm-void";
+        } else if (where === "staging") {
             label = t("level.staged");
             tone = "border-gm-lime-edge text-gm-lime";
         } else if (status === "untracked") {
@@ -413,7 +484,7 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
                     aria-label={`${t("visual.pickThis")}: ${file.path}`}
                     className="outline-gm-cyan hover:bg-gm-deep focus-visible:outline-gm-cyan flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-[0.7rem] px-2 text-start outline-2 -outline-offset-2 transition-colors duration-150 outline-dashed focus-visible:outline-3 focus-visible:outline-solid">
                     {name}
-                    {statusChip(file.status, where)}
+                    {statusChip(file.status, where, file.path)}
                 </button>
             );
         }
@@ -422,7 +493,7 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
             <div className="hover:bg-gm-deep/60 flex min-h-11 items-center justify-between gap-2 rounded-[0.7rem] ps-2 transition-colors duration-150">
                 {name}
                 <span className="flex shrink-0 items-center gap-1">
-                    {statusChip(file.status, where)}
+                    {statusChip(file.status, where, file.path)}
                     {where === "working" && file.status !== "deleted" && (
                         <Button
                             variant="ghost"
@@ -489,10 +560,25 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
                             {t("level.levelCompleted")}
                         </p>
                     ) : (
-                        <p className="text-gm-ink-soft flex items-center gap-2 text-sm">
-                            <MousePointerClick className="text-gm-grape-hi h-4 w-4 shrink-0" aria-hidden="true" />
-                            <span>{t("visual.idleHint")}</span>
-                        </p>
+                        <div className="flex min-w-0 items-start gap-2">
+                            {nextGoal ? (
+                                <Target className="text-gm-lime mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                            ) : (
+                                <MousePointerClick
+                                    className="text-gm-grape-hi mt-0.5 h-4 w-4 shrink-0"
+                                    aria-hidden="true"
+                                />
+                            )}
+                            <div className="min-w-0">
+                                {nextGoal && (
+                                    <p className="text-gm-ink text-sm font-semibold [text-wrap:pretty]">
+                                        <span className="text-gm-lime">{t("visual.nextGoal")}: </span>
+                                        {nextGoal.label}
+                                    </p>
+                                )}
+                                <p className="text-gm-ink-soft text-xs">{t("visual.idleHint")}</p>
+                            </div>
+                        </div>
                     )}
                     <span className="flex shrink-0 items-center gap-2">
                         {isLevelCompleted && (
@@ -603,6 +689,9 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
                     <PlayCard
                         card={card}
                         armed={armed?.card.id === card.id}
+                        progress={showDeck ? undefined : handProgress.get(card.id)}
+                        doneLabel={t("visual.cardDone")}
+                        nextLabel={t("visual.cardNext")}
                         onPlay={playCard}
                         onDragStart={c => {
                             setArmed({ card: c, values: [] });
@@ -623,6 +712,47 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
             <div aria-live="polite" className="shrink-0">
                 {renderBanner()}
             </div>
+
+            {/* Where the repository stands, in one line: branch, conflicts, and the remote and stash
+                when the level is about them. Every chip names what it counts; none is colour alone. */}
+            {initialized && (
+                <ul
+                    aria-label={t("visual.repoState")}
+                    className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 [font-family:var(--font-code)] text-[11px]">
+                    <li className="gm-chip border-gm-lime-edge bg-gm-lime text-gm-void">
+                        <GitBranch className="h-3 w-3" aria-hidden="true" />
+                        {branch}
+                    </li>
+                    {conflictedPaths.size > 0 && (
+                        <li className="gm-chip border-gm-coral-edge bg-gm-coral text-gm-void">
+                            <TriangleAlert className="h-3 w-3" aria-hidden="true" />
+                            {t("visual.conflictState")}
+                        </li>
+                    )}
+                    {remoteRelevant && (
+                        <li className="gm-chip border-gm-line text-gm-ink-soft">
+                            <Globe className="text-gm-cyan h-3 w-3" aria-hidden="true" />
+                            {remoteName}
+                            <span className="text-gm-lime flex items-center" title={t("terminal.status.ahead")}>
+                                <ArrowUp className="h-3 w-3" aria-hidden="true" />
+                                {toPush}
+                                <span className="sr-only"> {t("terminal.status.ahead")}</span>
+                            </span>
+                            <span className="text-gm-cyan flex items-center" title={t("terminal.status.behind")}>
+                                <ArrowDown className="h-3 w-3" aria-hidden="true" />
+                                {incoming.length}
+                                <span className="sr-only"> {t("terminal.status.behind")}</span>
+                            </span>
+                        </li>
+                    )}
+                    {stashEntries.length > 0 && (
+                        <li className="gm-chip border-gm-line text-gm-ink-soft">
+                            <Archive className="text-gm-grape-hi h-3 w-3" aria-hidden="true" />
+                            {t("visual.stashTitle")} {stashEntries.length}
+                        </li>
+                    )}
+                </ul>
+            )}
 
             {/* The three places a change lives, left to right: folder, staging area, history. */}
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
@@ -673,6 +803,46 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
                             )}
                         </ul>
                     </section>
+
+                    {/* What is waiting elsewhere: commits on the remote that are not here yet, and
+                        work put aside in the stash. Only rendered when there is something in them. */}
+                    {((remoteRelevant && incoming.length > 0) || stashEntries.length > 0) && (
+                        <section
+                            aria-label={t("visual.elsewhere")}
+                            className="gm-inset gm-scroll max-h-32 shrink-0 space-y-2 overflow-auto p-2">
+                            {remoteRelevant && incoming.length > 0 && (
+                                <div>
+                                    <h3 className="text-gm-ink flex items-center gap-1.5 px-1 pb-0.5 text-xs font-semibold">
+                                        <Download className="text-gm-cyan h-3.5 w-3.5" aria-hidden="true" />
+                                        {t("visual.incoming").replace("{remote}", remoteName ?? "")}
+                                    </h3>
+                                    <ul className="space-y-0.5 px-1 [font-family:var(--font-code)] text-[11px]">
+                                        {incoming.map(commit => (
+                                            <li key={commit.id} className="text-gm-ink-soft truncate">
+                                                <span className="text-gm-ink-dim">{commit.id.slice(0, 7)}</span>{" "}
+                                                {commit.message}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            {stashEntries.length > 0 && (
+                                <div>
+                                    <h3 className="text-gm-ink flex items-center gap-1.5 px-1 pb-0.5 text-xs font-semibold">
+                                        <Archive className="text-gm-grape-hi h-3.5 w-3.5" aria-hidden="true" />
+                                        {t("visual.stashTitle")}
+                                    </h3>
+                                    <ul className="space-y-0.5 px-1 [font-family:var(--font-code)] text-[11px]">
+                                        {[...stashEntries].reverse().map((entry, i) => (
+                                            <li key={i} className="text-gm-ink-soft truncate">
+                                                <span className="text-gm-ink-dim">{`{${i}}`}</span> {entry.message}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </section>
+                    )}
                 </div>
 
                 <div className="flex min-h-[300px] min-w-0 flex-col md:min-h-0">
@@ -685,6 +855,7 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
                 lines={lastBlock.lines}
                 emptyText={t("visual.logEmpty")}
                 aria-label={t("visual.lastCommand")}
+                failed={lastBlock.lines.length > 0 && didCommandFail(lastBlock.lines.slice(1))}
                 className="max-h-24 min-h-12 shrink-0"
             />
 

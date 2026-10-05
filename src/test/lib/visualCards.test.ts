@@ -15,7 +15,9 @@ import {
     extractCommands,
     findCardForCommand,
     getCard,
+    getHandProgress,
     getLevelHand,
+    getObjectiveStates,
     getSlotSuggestions,
     matchCommandToCard,
     type CardSlotKind,
@@ -122,6 +124,42 @@ describe("level hands", () => {
         expect(gaps).toEqual([]);
     });
 
+    it("deal the editor card to every level that needs a file edited", () => {
+        const needsEdit = allLevels.filter(
+            ({ level }) =>
+                level.requirements.some(r => r.checkFileChanged !== undefined) ||
+                (level.initialState?.git?.mergeConflicts?.length ?? 0) > 0,
+        );
+        expect(needsEdit.length).toBeGreaterThan(0);
+        const missing = needsEdit
+            .filter(({ level }) => !getLevelHand(level).some(card => card.id === "edit"))
+            .map(({ stageId, levelId }) => `${stageId} ${levelId}`);
+        expect(missing).toEqual([]);
+
+        // A level that asks for a commit but starts with a clean tree has nothing to stage until a
+        // file is edited, so it needs the editor too — unless one of its own steps makes the change.
+        const cleanStarts = allLevels.filter(({ stageId, levelId, level }) => {
+            if (!getLevelHand(level).some(card => card.id.startsWith("commit"))) return false;
+            const fileSystem = new FileSystem();
+            const repo = new GitRepository(fileSystem);
+            levelManager.setupLevel(stageId, levelId, fileSystem, repo);
+            return Object.values(repo.getWorkingTreeStatus()).every(status => status === "committed");
+        });
+        const unreachable = cleanStarts
+            .filter(({ level }) => !getLevelHand(level).some(card => card.id === "edit"))
+            .filter(({ level }) => {
+                const first = level.requirements.findIndex(r => r.command === "git commit");
+                return !level.requirements.slice(0, first).some(r => ["git mv", "git rm"].includes(r.command));
+            })
+            .map(({ stageId, levelId }) => `${stageId} ${levelId}`);
+        expect(unreachable).toEqual([]);
+        expect(cleanStarts.map(({ stageId, levelId }) => `${stageId} ${levelId}`)).toContain("Workflow 2");
+
+        // ...and keep it out of levels that never touch a file.
+        const intro1 = allLevels.find(l => l.stageId === "Intro" && l.levelId === 1)!.level;
+        expect(getLevelHand(intro1).map(card => card.id)).not.toContain("edit");
+    });
+
     it("pick the card whose flags a requirement asks for", () => {
         const pick = (command: string, requiresArgs?: string[]) =>
             cardForRequirement({ id: "x", command, requiresArgs, description: "" })?.id;
@@ -153,6 +191,13 @@ describe("level hands", () => {
         const switchCreate = getCard("switch-create")!;
         expect(getLevelHand(stash2).map(card => card.id)).toContain("switch-create");
         expect(getSlotSuggestions(stash2, switchCreate, 0)).toContain("feature/new-task");
+    });
+
+    it("deal the stash card wherever a level pops or lists stashes", () => {
+        const stash3 = allLevels.find(l => l.stageId === "Stash" && l.levelId === 3)!.level;
+        const ids = getLevelHand(stash3).map(card => card.id);
+        expect(ids.indexOf("stash")).toBeGreaterThanOrEqual(0);
+        expect(ids.indexOf("stash")).toBeLessThan(ids.indexOf("stash-list"));
     });
 
     it("never suggest a placeholder", () => {
@@ -278,5 +323,56 @@ describe("playing levels with cards", () => {
         game.play("switch", "feature/old-task");
         game.play("stash-pop");
         expect(game.isCompleted()).toBe(true);
+    });
+});
+
+describe("progress through a level", () => {
+    const sequence = allLevels.find(l => l.stageId === "Workflow" && l.levelId === 1)!.level;
+
+    it("marks the first open requirement's card as next, and played cards as done", () => {
+        const hand = getLevelHand(sequence);
+        const fresh = getHandProgress({ ...sequence, completedRequirements: [] }, hand);
+        expect(fresh.get("switch-create")).toBe("next");
+        expect(fresh.get("commit")).toBe("open");
+
+        const afterTwo = getHandProgress(
+            { ...sequence, completedRequirements: ["create-feature-branch", "stage-changes"] },
+            hand,
+        );
+        expect(afterTwo.get("switch-create")).toBe("done");
+        expect(afterTwo.get("add")).toBe("done");
+        expect(afterTwo.get("commit")).toBe("next");
+    });
+
+    it("keeps a card open until every requirement it serves is complete", () => {
+        // Reset 1 asks for three soft resets in a row; one played is not the card done.
+        const reset1 = allLevels.find(l => l.stageId === "Reset" && l.levelId === 1)!.level;
+        const hand = getLevelHand(reset1);
+        const first = reset1.requirements[0]!.id;
+        const some = getHandProgress({ ...reset1, completedRequirements: [first] }, hand);
+        expect(some.get("reset-soft")).toBe("next");
+        const all = getHandProgress({ ...reset1, completedRequirements: reset1.requirements.map(r => r.id) }, hand);
+        expect(all.get("reset-soft")).toBe("done");
+    });
+
+    it("points at the editor when the next step is editing a file", () => {
+        const teamwork1 = allLevels.find(l => l.stageId === "TeamWork" && l.levelId === 1)!.level;
+        const hand = getLevelHand(teamwork1);
+        const progress = getHandProgress(
+            { ...teamwork1, completedRequirements: ["git-pull-origin", "git-switch"] },
+            hand,
+        );
+        expect(progress.get("edit")).toBe("next");
+    });
+
+    it("reads objective completion by objective id or by position", () => {
+        const byPosition = allLevels.find(l => l.stageId === "Files" && l.levelId === 1)!.level;
+        expect(getObjectiveStates({ ...byPosition, completedRequirements: [] })[0]?.completed).toBe(false);
+        expect(getObjectiveStates({ ...byPosition, completedRequirements: ["git-add"] })[0]?.completed).toBe(true);
+
+        const byId = allLevels.find(l => l.stageId === "TeamWork" && l.levelId === 2)!.level;
+        const states = getObjectiveStates({ ...byId, completedObjectives: [1] });
+        expect(states[0]?.completed).toBe(true);
+        expect(states[1]?.completed).toBe(false);
     });
 });

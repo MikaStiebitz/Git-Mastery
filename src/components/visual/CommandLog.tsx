@@ -10,6 +10,8 @@ interface CommandLogProps {
     emptyText?: string;
     /** Keep the newest line in view, like a terminal. Off for a short strip that should start at the command. */
     followTail?: boolean;
+    /** The last command failed: the frame turns coral, so a failure reads before the text does. */
+    failed?: boolean;
     "aria-label"?: string;
 }
 
@@ -20,7 +22,14 @@ interface CommandLogProps {
  * would have: diffs, graphs, errors and all. The colour roles are pinned to the default terminal
  * palette; the purchasable terminal themes belong to the terminal itself.
  */
-export function CommandLog({ lines, className = "", emptyText, followTail = false, ...rest }: CommandLogProps) {
+export function CommandLog({
+    lines,
+    className = "",
+    emptyText,
+    followTail = false,
+    failed = false,
+    ...rest
+}: CommandLogProps) {
     const formatter = useMemo(() => new OutputFormatterService(lines), [lines]);
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -44,6 +53,7 @@ export function CommandLog({ lines, className = "", emptyText, followTail = fals
                     "--term-success": "var(--color-gm-lime)",
                     "--term-error": "var(--color-gm-coral)",
                     "--term-warning": "var(--color-gm-coral)",
+                    ...(failed ? { borderColor: "var(--color-gm-coral-edge)" } : {}),
                 } as CSSProperties
             }>
             {lines.length === 0 && emptyText ? (
