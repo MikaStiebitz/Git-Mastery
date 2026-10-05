@@ -13,6 +13,8 @@ export const MAX_EVENTS_PER_SYNC = 64;
 export const MAX_BODY_BYTES = 16 * 1024;
 export const MAX_BESTS_KEYS = 32;
 export const MAX_BEST_VALUE = 100_000;
+/** More than the game has levels, so a legitimate full sync always fits; bounded for the same reason as bests. */
+export const MAX_STARS_KEYS = 128;
 
 /** Longest a stage id or item id may be. Guards the ledger key length. */
 const MAX_ID_LENGTH = 64;
@@ -122,6 +124,30 @@ export function validateBests(raw: unknown): Record<string, number> | null {
     return out;
 }
 
+/** A level subject as the ledger spells it: "stage/level". */
+const STAR_KEY = /^([a-z0-9][a-z0-9-]{0,63})\/([1-9][0-9]{0,2})$/;
+
+/**
+ * Validate a `stars` map: well-formed "stage/level" keys, one to three stars, bounded count.
+ *
+ * Whether the level exists is the caller's job, as with events. The count cap is what stops this
+ * from being a way to create unbounded rows.
+ */
+export function validateStars(raw: unknown): Record<string, number> | null {
+    if (!isPlainRecord(raw)) return null;
+    const entries = Object.entries(raw);
+    if (entries.length > MAX_STARS_KEYS) return null;
+
+    const out: Record<string, number> = Object.create(null) as Record<string, number>;
+    for (const [subject, value] of entries) {
+        const match = STAR_KEY.exec(subject);
+        if (!match || UNSAFE_KEYS.has(match[1]!)) return null;
+        if (!isIntegerInRange(value, 1, 3)) return null;
+        out[subject] = value;
+    }
+    return out;
+}
+
 export interface ParsedSync {
     request: SyncRequest;
     /** Events that failed validation outright, counted but not applied. */
@@ -159,6 +185,12 @@ export function validateSyncRequest(raw: unknown): ParsedSync | null {
     if (raw.bests !== undefined) {
         const bests = validateBests(raw.bests);
         if (bests) request.bests = bests;
+        else malformedCount += 1;
+    }
+
+    if (raw.stars !== undefined) {
+        const stars = validateStars(raw.stars);
+        if (stars) request.stars = stars;
         else malformedCount += 1;
     }
 

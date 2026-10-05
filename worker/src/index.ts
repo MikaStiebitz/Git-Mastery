@@ -23,7 +23,9 @@ import {
 import { clientIp, errorResponse, handlePreflight, isQuotaExhausted, json, noContent, nowSeconds } from "./http";
 import { foldEvents } from "./ledger";
 import { checkUsername } from "./moderation/username";
-import { clearFailures, loginGate, recordFailure, registerGate, syncGate } from "./ratelimit";
+import { getSnapshot, listedAccountIds, presentSnapshot, rankOf, sanitizeBests } from "./leaderboard";
+import { clearFailures, leaderboardGate, loginGate, recordFailure, registerGate, syncGate } from "./ratelimit";
+import { isKnownLevel } from "./catalog";
 import { MAX_BODY_BYTES, validateSyncRequest } from "./validate";
 import type { Env, SyncResponse } from "./types";
 import * as db from "./db";
@@ -192,6 +194,23 @@ async function handleLogin(request: Request, env: Env, pepper: string): Promise<
     );
 }
 
+/**
+ * Drop star claims for levels the catalog has never heard of.
+ *
+ * The count cap in validation bounds one request, but without this an account could mint a fresh
+ * row per request under invented stage names. A real level this Worker has not been told about yet
+ * is dropped too, and costs nothing: the client resends stars until the server reports them.
+ */
+function knownLevelStars(stars: Record<string, number> | undefined): Record<string, number> | undefined {
+    if (!stars) return undefined;
+    const out: Record<string, number> = {};
+    for (const [subject, value] of Object.entries(stars)) {
+        const [stage, level] = subject.split("/");
+        if (stage && isKnownLevel(stage, Number(level))) out[subject] = value;
+    }
+    return out;
+}
+
 async function handleSync(request: Request, env: Env, auth: Authed): Promise<Response> {
     const gate = await syncGate(env, auth.session.userId);
     if (!gate.ok) {
@@ -223,7 +242,8 @@ async function handleSync(request: Request, env: Env, auth: Authed): Promise<Res
         rows: accepted,
         startSeq,
         cursor: parsed.request.cursor,
-        bests: parsed.request.bests,
+        bests: sanitizeBests(parsed.request.bests),
+        stars: knownLevelStars(parsed.request.stars),
         suspicion: parsed.malformedCount,
         markEggAwarded: accepted.some(row => row.kind === "egg"),
     });
@@ -285,6 +305,80 @@ async function handleDeleteAccount(request: Request, env: Env, auth: Authed, pep
     return noContent(request, env);
 }
 
+/**
+ * The public leaderboard.
+ *
+ * Unauthenticated on purpose — the board is something to look at before signing up — but a bearer
+ * token, when one is sent, adds the caller's own standing. That standing is computed live from the
+ * caller's own rows against the cached score histogram, so a level just cleared moves you up at
+ * once even while the list itself is still the snapshot.
+ */
+async function handleLeaderboard(request: Request, env: Env): Promise<Response> {
+    const gate = await leaderboardGate(env, clientIp(request));
+    if (!gate.ok) {
+        return errorResponse("rate_limited", 429, request, env, { "Retry-After": String(gate.retryAfter) });
+    }
+
+    const { snapshot, maxAge } = await getSnapshot(env, Date.now(), () => db.loadSnapshot(env.DB));
+
+    const board = presentSnapshot(snapshot, await db.loadCurrentAccounts(env.DB, listedAccountIds(snapshot)));
+
+    const auth = await authenticate(request, env);
+    let me: {
+        score: number;
+        levels: number;
+        hidden: boolean;
+        rank: number | null;
+        bests: Record<string, number>;
+        arcadeRanks: Record<string, number>;
+        arcadeTotalRank: number | null;
+    } | null = null;
+    if (auth) {
+        const [own, bests] = await Promise.all([
+            db.loadOwnStanding(env.DB, auth.session.userId),
+            db.loadBests(env.DB, auth.session.userId),
+        ]);
+        const ranked = !own.hidden;
+        const arcadeRanks: Record<string, number> = {};
+        if (ranked) {
+            for (const [gameId, best] of Object.entries(bests)) {
+                if (best > 0) arcadeRanks[gameId] = rankOf(best, snapshot.arcade.histograms[gameId] ?? {});
+            }
+        }
+        const sum = Object.values(bests).reduce((total, best) => total + best, 0);
+        me = {
+            ...own,
+            rank: !ranked || own.score <= 0 ? null : rankOf(own.score, snapshot.histogram),
+            bests,
+            arcadeRanks,
+            arcadeTotalRank: ranked && sum > 0 ? rankOf(sum, snapshot.arcade.totalHistogram) : null,
+        };
+    }
+
+    return json(
+        {
+            ...board,
+            total: snapshot.total,
+            generatedAt: snapshot.generatedAt,
+            nextRefreshInSeconds: maxAge,
+            me,
+        },
+        200,
+        request,
+        env,
+    );
+}
+
+async function handleLeaderboardVisibility(request: Request, env: Env, auth: Authed): Promise<Response> {
+    const body = await readJson(request);
+    if (typeof body !== "object" || body === null) return errorResponse("malformed", 400, request, env);
+    const { hidden } = body as { hidden?: unknown };
+    if (typeof hidden !== "boolean") return errorResponse("malformed", 400, request, env);
+
+    await db.setLeaderboardHidden(env.DB, auth.session.userId, hidden);
+    return json({ hidden }, 200, request, env);
+}
+
 async function route(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "") || "/";
@@ -295,6 +389,8 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (path === "/v1/health" && method === "GET") {
         return json({ ok: true, time: new Date().toISOString() }, 200, request, env);
     }
+
+    if (path === "/v1/leaderboard" && method === "GET") return handleLeaderboard(request, env);
 
     // Everything past this point either hashes a password or reads a session, and both need the
     // pepper. A missing secret is a deploy error, so it fails loudly rather than degrading.
@@ -336,6 +432,9 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (path === "/v1/sync" && method === "POST") return handleSync(request, env, auth);
     if (path === "/v1/account/password" && method === "POST") return handleChangePassword(request, env, auth, pepper);
     if (path === "/v1/account/username" && method === "POST") return handleChangeUsername(request, env, auth);
+    if (path === "/v1/account/leaderboard" && method === "POST") {
+        return handleLeaderboardVisibility(request, env, auth);
+    }
 
     if (path === "/v1/account/reset" && method === "POST") {
         await db.resetProgress(env.DB, auth.session.userId);

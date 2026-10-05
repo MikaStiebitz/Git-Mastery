@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
     MAX_EVENTS_PER_SYNC,
+    MAX_STARS_KEYS,
     validateBests,
     validateCursor,
     validateEvent,
+    validateStars,
     validateSyncRequest,
 } from "../src/validate";
 
@@ -180,5 +182,45 @@ describe("the sync envelope", () => {
         expect(event?.coins).toBeUndefined();
         expect(event?.score).toBeUndefined();
         expect(event?.key).toBeUndefined();
+    });
+});
+
+describe("star claims are cosmetic, bounded and well-formed", () => {
+    it("accepts level subjects with one to three stars", () => {
+        expect(validateStars({ "intro/1": 3, "branches/6": 2 })).toEqual({ "intro/1": 3, "branches/6": 2 });
+    });
+
+    it.each([0, 4, -1, 2.5, "3", null, NaN])("refuses %s stars", value => {
+        expect(validateStars({ "intro/1": value })).toBeNull();
+    });
+
+    it.each(["intro", "intro/0", "intro/01", "Intro/1", "intro/1/2", "../intro/1", "intro/1000", "__proto__/1"])(
+        "refuses the subject %s",
+        subject => {
+            expect(validateStars({ [subject]: 3 })).toBeNull();
+        },
+    );
+
+    it("refuses more claims than the game has levels, so it cannot mint rows", () => {
+        const many = Object.fromEntries(Array.from({ length: MAX_STARS_KEYS + 1 }, (_, i) => [`intro/${i + 1}`, 3]));
+        // 129 distinct keys, though 'intro/1000' and above are rejected on shape anyway.
+        expect(validateStars(many)).toBeNull();
+    });
+
+    it("refuses anything that is not a plain record", () => {
+        expect(validateStars([["intro/1", 3]])).toBeNull();
+        expect(validateStars("intro/1")).toBeNull();
+        expect(validateStars(null)).toBeNull();
+    });
+
+    it("drops a malformed map from a sync without failing the batch", () => {
+        const parsed = validateSyncRequest({ events: [], stars: { "intro/1": 9 } });
+        expect(parsed?.request.stars).toBeUndefined();
+        expect(parsed?.malformedCount).toBe(1);
+    });
+
+    it("carries a good map through a sync", () => {
+        const parsed = validateSyncRequest({ events: [], stars: { "intro/1": 3 } });
+        expect(parsed?.request.stars).toEqual({ "intro/1": 3 });
     });
 });

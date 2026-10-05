@@ -24,6 +24,7 @@ import {
     Gamepad2,
     ShoppingCart,
     UserRound,
+    ListOrdered,
 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -72,6 +73,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const isInstallationPage = normalizedPathname === "/installation";
     const isFaqPage = normalizedPathname === "/faq";
     const isArcadePage = normalizedPathname === "/arcade";
+    const isLeaderboardPage = normalizedPathname === "/leaderboard";
 
     // Language options
     const languages = [
@@ -220,7 +222,9 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
             ? t("nav.faq")
             : isArcadePage
               ? t("nav.arcade")
-              : null;
+              : isLeaderboardPage
+                ? t("nav.leaderboard")
+                : null;
 
     // One definition per destination, so the desktop bar and the mobile drawer can never
     // drift apart.
@@ -238,6 +242,11 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const referenceLinks = [
         { href: "/installation", label: t("nav.installation"), icon: Download, current: isInstallationPage },
         { href: "/faq", label: t("nav.faq"), icon: HelpCircle, current: isFaqPage },
+        // The board needs accounts, so it only exists in builds that have them. Icon-only like the
+        // other reference pages: a fourth labelled destination does not fit the bar at xl.
+        ...(auth.enabled
+            ? [{ href: "/leaderboard", label: t("nav.leaderboard"), icon: ListOrdered, current: isLeaderboardPage }]
+            : []),
     ];
 
     const navLinks = [...primaryLinks, ...referenceLinks];

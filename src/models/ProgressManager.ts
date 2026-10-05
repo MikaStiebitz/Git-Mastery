@@ -1,5 +1,6 @@
 import type { UserProgress } from "../types";
 import { foldCompletedLevels, toStageId, toStageKey } from "../lib/stageIds";
+import { MAX_STARS, starKey } from "../lib/stars";
 
 /**
  * One thing the player did, queued for an account that may or may not exist yet.
@@ -51,6 +52,7 @@ export class ProgressManager {
                 completedMinigames: [],
                 minigameScores: {},
                 doubleXpUntil: null,
+                levelStars: {},
             };
             this.saveProgress();
         }
@@ -76,6 +78,9 @@ export class ProgressManager {
         if (this.progress.gitGudActivated === undefined) {
             this.progress.gitGudActivated = false;
         }
+        if (!this.progress.levelStars) {
+            this.progress.levelStars = {};
+        }
         if (!this.progress.coins) {
             // Migration: existing users get coins equal to their score
             this.progress.coins = this.progress.score || 0;
@@ -87,8 +92,14 @@ export class ProgressManager {
         return { ...this.progress };
     }
 
-    // Mark a level as completed
-    public completeLevel(stage: string, level: number, score = 10): void {
+    /**
+     * Mark a level as completed.
+     *
+     * `stars` is the result of this run (see lib/stars.ts). It is optional so callers that clear a
+     * level without playing it — the debug tools, a merge — simply leave the level at its implied
+     * single star.
+     */
+    public completeLevel(stage: string, level: number, score = 10, stars?: number): void {
         if (!this.progress.completedLevels[stage]) {
             this.progress.completedLevels[stage] = [];
         }
@@ -108,8 +119,53 @@ export class ProgressManager {
             this.enqueue({ kind: "level", stage: toStageId(stage), level, at: new Date().toISOString() });
         }
 
+        if (stars !== undefined) this.recordStars(stage, level, stars, false);
+
         this.progress.lastSavedAt = new Date().toISOString();
         this.saveProgress();
+    }
+
+    /**
+     * Remember a better star result for a level. Returns true when it improved on what was stored.
+     *
+     * Only results of two stars or more are kept — a single star is implied by the level being
+     * completed — and a result never goes down, so a sloppy replay cannot take stars away.
+     */
+    public recordStars(stage: string, level: number, stars: number, save = true): boolean {
+        const clamped = Math.min(MAX_STARS, Math.floor(stars));
+        if (!Number.isFinite(clamped) || clamped < 2) return false;
+
+        const store = (this.progress.levelStars ??= {});
+        const key = starKey(stage, level);
+        if ((store[key] ?? 1) >= clamped) return false;
+
+        store[key] = clamped;
+        if (save) {
+            this.progress.lastSavedAt = new Date().toISOString();
+            this.saveProgress();
+        }
+        return true;
+    }
+
+    /** Stars earned on one level: 0 if it is not completed, otherwise 1 to 3. */
+    public getLevelStars(stage: string, level: number): number {
+        if (!this.isLevelCompleted(stage, level) && !this.isLevelCompleted(toStageKey(stage), level)) return 0;
+        return this.progress.levelStars?.[starKey(stage, level)] ?? 1;
+    }
+
+    /**
+     * Forget every star result. For the moments the cloud save is replaced or wiped, where the
+     * merge in `applyServerState` would otherwise carry stale stars into a game that no longer has
+     * the levels they belong to.
+     */
+    public clearStars(): void {
+        this.progress.levelStars = {};
+        this.saveProgress();
+    }
+
+    /** Every stored two- and three-star result, keyed "stage/level". */
+    public getStoredStars(): Record<string, number> {
+        return { ...(this.progress.levelStars ?? {}) };
     }
 
     // Set current stage and level
@@ -149,6 +205,7 @@ export class ProgressManager {
             // stayed spent while the discovery it paid for was gone.
             doubleXpUntil: null,
             gitGudActivated: false,
+            levelStars: {},
         };
         this.clearOutbox();
         this.saveProgress();
@@ -482,6 +539,7 @@ export class ProgressManager {
         minigameScores: Record<string, number>;
         doubleXpUntil: string | null;
         gitGudActivated: boolean;
+        levelStars?: Record<string, number>;
     }): void {
         this.progress.completedLevels = foldCompletedLevels(state.completedLevels);
         this.progress.currentStage = toStageKey(state.currentStage);
@@ -493,6 +551,13 @@ export class ProgressManager {
         this.progress.minigameScores = { ...state.minigameScores };
         this.progress.doubleXpUntil = state.doubleXpUntil;
         this.progress.gitGudActivated = state.gitGudActivated;
+        // Stars only ever go up, so the better of the two sides wins. Anything better that exists
+        // only here is uploaded by the next sync; replacing wholesale would throw it away.
+        const merged = { ...(state.levelStars ?? {}) };
+        for (const [key, value] of Object.entries(this.progress.levelStars ?? {})) {
+            if (value > (merged[key] ?? 1)) merged[key] = value;
+        }
+        this.progress.levelStars = merged;
         this.progress.lastSavedAt = new Date().toISOString();
         this.saveProgress();
     }
