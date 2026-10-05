@@ -21,6 +21,7 @@ export interface ServerState {
     minigameScores: Record<string, number>;
     doubleXpUntil: string | null;
     gitGudActivated: boolean;
+    levelStars: Record<string, number>;
     serverTime: string;
 }
 
@@ -139,6 +140,8 @@ export interface SyncPayload {
     events: OutboxEvent[];
     cursor?: { stage: string; level: number; at: string };
     bests?: Record<string, number>;
+    /** Star results the server does not have yet, keyed "stage/level". */
+    stars?: Record<string, number>;
     imported?: boolean;
 }
 
@@ -160,6 +163,63 @@ export function resetCloudProgress(token: string): Promise<ApiResult<{ state: Se
 
 export function deleteAccount(token: string, password: string): Promise<ApiResult<Record<string, never>>> {
     return call("/v1/account", { method: "DELETE", token, body: { password } });
+}
+
+export interface LeaderboardEntry {
+    /** 1 + the accounts strictly ahead. Ties share a rank. */
+    rank: number;
+    username: string;
+    score: number;
+    levels: number;
+    /** Ids of unlocked achievements. */
+    achievements: string[];
+}
+
+export interface ArcadeEntry {
+    rank: number;
+    username: string;
+    best: number;
+    /** Only on the all-games total: how many games this score is summed over. */
+    games?: number;
+}
+
+/** What the board can say about one player, keyed by username in `LeaderboardResponse.profiles`. */
+export interface PlayerProfile {
+    since: string;
+    score: number;
+    levels: number;
+    achievements: string[];
+    /** Best score per minigame id. */
+    bests: Record<string, number>;
+}
+
+export interface LeaderboardResponse {
+    top: LeaderboardEntry[];
+    arcade: { games: Record<string, ArcadeEntry[]>; total: ArcadeEntry[] };
+    profiles: Record<string, PlayerProfile>;
+    /** Accounts on the overall board. */
+    total: number;
+    generatedAt: string;
+    nextRefreshInSeconds: number;
+    /** The caller's own standing; null when no (valid) token was sent. */
+    me: {
+        score: number;
+        levels: number;
+        hidden: boolean;
+        rank: number | null;
+        bests: Record<string, number>;
+        arcadeRanks: Record<string, number>;
+        arcadeTotalRank: number | null;
+    } | null;
+}
+
+/** Public. A token, when given, only adds the caller's own standing. */
+export function fetchLeaderboard(token?: string): Promise<ApiResult<LeaderboardResponse>> {
+    return call<LeaderboardResponse>("/v1/leaderboard", { token });
+}
+
+export function setLeaderboardHidden(token: string, hidden: boolean): Promise<ApiResult<{ hidden: boolean }>> {
+    return call("/v1/account/leaderboard", { method: "POST", token, body: { hidden } });
 }
 
 /** The largest batch the server accepts. Longer queues are flushed in several requests. */

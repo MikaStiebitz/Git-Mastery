@@ -41,6 +41,20 @@ export const STAGE_LEVELS: Readonly<Record<string, readonly number[]>> = Object.
 });
 
 /**
+ * The stages of each course, by lowercase stage id. The leaderboard needs them to say who has
+ * finished a whole course, and `src/test/worker/catalog-parity.test.ts` checks them against
+ * `src/config/difficulties.ts`.
+ */
+export const DIFFICULTY_STAGES: Readonly<Record<string, readonly string[]>> = Object.freeze({
+    beginner: ["intro", "files", "branches", "remote"],
+    advanced: ["merge", "workflow", "teamwork", "reset", "stash"],
+    pro: ["rebase", "advanced", "archaeology", "mastery"],
+});
+
+/** The score from which the Maintainer rank (and its achievement) applies. See `src/lib/ranks.ts`. */
+export const MAINTAINER_MIN_SCORE = 420;
+
+/**
  * Coins a minigame pays, once.
  *
  * These are the numbers the arcade advertises. The client used to pass a gameplay score here
@@ -52,6 +66,30 @@ export const MINIGAME_COINS: Readonly<Record<string, number>> = Object.freeze({
     "graph-puzzle": 25,
     "commit-champion": 20,
     "merge-master": 30,
+});
+
+/**
+ * The highest score each minigame can produce, derived from the game's own rules.
+ *
+ * Minigame high scores are reported by the client and the Worker cannot replay a run, so a score
+ * is a claim. What the Worker can do is refuse a claim no run could have produced: a value above
+ * these is clamped to them. That turns "anyone can post 100,000" into "anyone can post a perfect
+ * run" — the same bound the ledger puts on levels — and it is the reason an arcade leaderboard is
+ * defensible at all.
+ *
+ * Derivations (all from the components in `src/components/minigames`):
+ * - branch-master:    8 questions x 10, doubled, plus up to 60 s left     = 160 + 60  = 220
+ * - commit-champion:  5 messages x 15 plus up to 90 s left                = 75 + 90   = 165
+ * - merge-master:     3 conflicts x 25 plus half of up to 120 s left      = 75 + 60   = 135
+ * - graph-puzzle:     5 puzzles x (20 + up to 10 time bonus)              = 150
+ *
+ * A game that gains points or rounds must raise its ceiling here, or its best scores are clamped.
+ */
+export const MINIGAME_SCORE_CEILING: Readonly<Record<string, number>> = Object.freeze({
+    "branch-master": 220,
+    "commit-champion": 165,
+    "merge-master": 135,
+    "graph-puzzle": 150,
 });
 
 /** Shop prices. Spent as a negative `coins_delta`. */
@@ -84,6 +122,7 @@ const stageLevelSets = new Map<string, ReadonlySet<number>>(
     Object.entries(STAGE_LEVELS).map(([stage, levels]) => [stage, new Set(levels)]),
 );
 const minigameIds = new Map(Object.entries(MINIGAME_COINS));
+const minigameCeilings = new Map(Object.entries(MINIGAME_SCORE_CEILING));
 const shopIds = new Map(Object.entries(SHOP_PRICES));
 
 export function isKnownLevel(stage: string, level: number): boolean {
@@ -92,6 +131,10 @@ export function isKnownLevel(stage: string, level: number): boolean {
 
 export function isKnownMinigame(gameId: string): boolean {
     return minigameIds.has(gameId);
+}
+
+export function minigameScoreCeiling(gameId: string): number | undefined {
+    return minigameCeilings.get(gameId);
 }
 
 export function minigameCoins(gameId: string): number | undefined {

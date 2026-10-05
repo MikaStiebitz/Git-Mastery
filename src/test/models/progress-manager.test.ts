@@ -161,6 +161,91 @@ describe("ProgressManager", () => {
         });
     });
 
+    describe("level stars", () => {
+        it("keeps a clean run's three stars and implies one for a plain clear", () => {
+            const pm = fresh();
+            pm.completeLevel("Intro", 1, 10, 3);
+            pm.completeLevel("Intro", 2);
+
+            expect(pm.getLevelStars("Intro", 1)).toBe(3);
+            expect(pm.getLevelStars("Intro", 2)).toBe(1);
+            expect(pm.getLevelStars("Intro", 3)).toBe(0);
+        });
+
+        it("stores nothing for a one-star run, since completion already implies it", () => {
+            const pm = fresh();
+            pm.completeLevel("Intro", 1, 10, 1);
+            expect(pm.getStoredStars()).toEqual({});
+        });
+
+        it("only ever raises a result, so a sloppy replay cannot take stars away", () => {
+            const pm = fresh();
+            pm.completeLevel("Intro", 1, 10, 3);
+
+            expect(pm.recordStars("Intro", 1, 2)).toBe(false);
+            expect(pm.getLevelStars("Intro", 1)).toBe(3);
+
+            pm.completeLevel("Intro", 2, 10, 2);
+            expect(pm.recordStars("Intro", 2, 3)).toBe(true);
+            expect(pm.getLevelStars("Intro", 2)).toBe(3);
+        });
+
+        it("pays no extra score or coins for stars", () => {
+            const pm = fresh();
+            pm.completeLevel("Intro", 1, 10, 3);
+            expect(pm.getProgress().score).toBe(10);
+            expect(pm.getCoins()).toBe(10);
+        });
+
+        it("does not queue anything for upload: stars are not ledger facts", () => {
+            const pm = fresh();
+            pm.completeLevel("Intro", 1, 10, 3);
+            expect(pm.getOutbox().map(event => event.kind)).toEqual(["level"]);
+        });
+
+        it("round-trips through localStorage", () => {
+            const pm = fresh();
+            pm.completeLevel("Intro", 1, 10, 3);
+            expect(fresh().getLevelStars("Intro", 1)).toBe(3);
+        });
+
+        it("is cleared by a reset", () => {
+            const pm = fresh();
+            pm.completeLevel("Intro", 1, 10, 3);
+            pm.resetProgress();
+            expect(pm.getStoredStars()).toEqual({});
+        });
+
+        it("keeps the better of local and server results when adopting server state", () => {
+            const pm = fresh();
+            pm.completeLevel("Intro", 1, 10, 3);
+            pm.completeLevel("Intro", 2, 10, 2);
+
+            pm.applyServerState({
+                completedLevels: { intro: [1, 2] },
+                currentStage: "intro",
+                currentLevel: 1,
+                score: 20,
+                coins: 20,
+                purchasedItems: [],
+                completedMinigames: [],
+                minigameScores: {},
+                doubleXpUntil: null,
+                gitGudActivated: false,
+                levelStars: { "intro/2": 3, "intro/1": 2 },
+            });
+
+            expect(pm.getStoredStars()).toEqual({ "intro/1": 3, "intro/2": 3 });
+        });
+
+        it("can be wiped on its own for a cloud reset", () => {
+            const pm = fresh();
+            pm.completeLevel("Intro", 1, 10, 3);
+            pm.clearStars();
+            expect(pm.getStoredStars()).toEqual({});
+        });
+    });
+
     describe("current earn behaviour (documents what the economy rework must change)", () => {
         // XP and coins are the same number from the same trigger, so "XP" carries no information
         // that "every coin ever earned" does not already carry.

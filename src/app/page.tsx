@@ -34,6 +34,7 @@ import { useShop } from "~/components/Shop";
 import { getStageProgress } from "~/lib/courseProgress";
 import { Minigames } from "~/components/Minigames";
 import { CertificatesSection } from "~/components/CertificatesSection";
+import { AchievementsSection } from "~/components/AchievementsSection";
 import { HeroDemo } from "~/components/home/HeroDemo";
 import { FeaturedReels } from "~/components/home/FeaturedReels";
 import { useSponsor } from "~/components/SponsorDialog";
@@ -760,6 +761,7 @@ export default function Home() {
                 )}
 
                 <ClientOnly>
+                    <AchievementsSection />
                     <CertificatesSection />
                 </ClientOnly>
 
@@ -788,6 +790,10 @@ export default function Home() {
                                 </ClientOnly>
                             </button>
                         </div>
+
+                        <p className="text-gm-ink-soft mt-4 text-sm" data-reveal>
+                            {t("stars.legend")}
+                        </p>
 
                         <ClientOnly>
                             <ol className="stage-list relative mt-14 sm:mt-20">
@@ -873,8 +879,11 @@ export default function Home() {
                                                         const level = parseInt(levelId);
                                                         const levelUnlocked = isLevelUnlocked(stageId, level);
                                                         const levelCompleted = isLevelCompleted(stageId, level);
+                                                        const stars = levelCompleted
+                                                            ? progressManager.getLevelStars(stageId, level)
+                                                            : 0;
                                                         const state = levelCompleted
-                                                            ? t("home.completed")
+                                                            ? `${t("home.completed")}, ${t("stars.count").replace("{count}", String(stars))}`
                                                             : levelUnlocked
                                                               ? t("home.startLevel")
                                                               : t("home.locked");
@@ -906,6 +915,22 @@ export default function Home() {
                                                                                 strokeWidth={4}
                                                                                 aria-hidden="true"
                                                                             />
+                                                                        </span>
+                                                                    )}
+                                                                    {levelCompleted && (
+                                                                        <span
+                                                                            className="border-gm-line bg-gm-void absolute start-1/2 -bottom-2 flex -translate-x-1/2 gap-px rounded-full border px-1 py-0.5 rtl:translate-x-1/2"
+                                                                            aria-hidden="true">
+                                                                            {[1, 2, 3].map(n => (
+                                                                                <Star
+                                                                                    key={n}
+                                                                                    className={`h-2.5 w-2.5 ${
+                                                                                        n <= stars
+                                                                                            ? "fill-gm-gold text-gm-gold"
+                                                                                            : "text-gm-ink-dim"
+                                                                                    }`}
+                                                                                />
+                                                                            ))}
                                                                         </span>
                                                                     )}
                                                                 </button>

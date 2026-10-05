@@ -27,9 +27,9 @@ export default function ImpressumPage() {
                             <br />
                             Mika Stiebitz
                             <br />
-                            Rabenhofstraße 25
+                            Harmoniestraße 10
                             <br />
-                            91522 Ansbach
+                            90489 Nürnberg
                             <br />
                             {language === "de" ? "Deutschland" : "Germany"}
                         </p>

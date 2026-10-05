@@ -52,6 +52,9 @@ export interface AuthContextValue {
     changePassword: (newPassword: string) => Promise<api.ApiResult<Record<string, never>>>;
     changeUsername: (newUsername: string) => Promise<api.ApiResult<{ username: string }>>;
     resetCloudProgress: () => Promise<api.ApiResult<{ state: api.ServerState }>>;
+    /** The public board, plus the caller's own standing when signed in. */
+    fetchLeaderboard: () => Promise<api.ApiResult<api.LeaderboardResponse>>;
+    setLeaderboardHidden: (hidden: boolean) => Promise<api.ApiResult<{ hidden: boolean }>>;
     deleteAccount: (password: string) => Promise<api.ApiResult<Record<string, never>>>;
 
     /** Set when signing in found progress on both sides and the player has to choose. */
@@ -112,6 +115,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const flushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const inFlight = useRef(false);
     const failureCount = useRef(0);
+    /** The star results the server last reported, so only genuine improvements are uploaded. */
+    const serverStars = useRef<Record<string, number>>({});
 
     const enabled = api.accountsEnabled();
 
@@ -127,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const adopt = useCallback(
         (state: api.ServerState) => {
+            serverStars.current = { ...(state.levelStars ?? {}) };
             progressManager.applyServerState(state);
             // The navbar purse and anything else reading progress outside React state listens for
             // this, so the coin total updates the moment the server's answer lands.
@@ -150,7 +156,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const queue = progressManager.getOutbox();
             const progress = progressManager.getProgress();
 
-            if (queue.length === 0 && !options.force) {
+            // Only results the server lacks or has at a lower value. Resending all of them on every
+            // sync would be harmless to the database — the upsert ignores a non-improvement — but it
+            // would keep a flush alive, and a request in flight, for no reason.
+            const newStars: Record<string, number> = {};
+            for (const [key, value] of Object.entries(progressManager.getStoredStars())) {
+                if (value > (serverStars.current[key] ?? 1)) newStars[key] = value;
+            }
+            const hasNewStars = Object.keys(newStars).length > 0;
+
+            if (queue.length === 0 && !hasNewStars && !options.force) {
                 setStatus("synced");
                 return;
             }
@@ -175,6 +190,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             at: new Date().toISOString(),
                         },
                         bests: progress.minigameScores,
+                        // Once is enough; every batch after the first would only repeat it.
+                        stars: hasNewStars && batch === batches[0] ? newStars : undefined,
                         imported: options.imported,
                     });
 
@@ -340,6 +357,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (choice === "keepCloud") {
                 progressManager.clearOutbox();
+                progressManager.clearStars();
                 adopt(merge.serverState);
                 setStatus("synced");
                 return;
@@ -425,10 +443,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const result = await api.resetCloudProgress(token);
         if (result.ok) {
             progressManager.clearOutbox();
+            progressManager.clearStars();
             adopt(result.state);
         }
         return result;
     }, [adopt, progressManager]);
+
+    const fetchLeaderboard = useCallback(() => api.fetchLeaderboard(tokenRef.current ?? undefined), []);
+
+    const setLeaderboardHidden = useCallback(async (hidden: boolean) => {
+        const token = tokenRef.current;
+        if (!token) return { ok: false as const, code: "unauthorized", status: 401, retryable: false };
+        return api.setLeaderboardHidden(token, hidden);
+    }, []);
 
     const deleteAccount = useCallback(async (password: string) => {
         const token = tokenRef.current;
@@ -462,6 +489,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         changePassword,
         changeUsername,
         resetCloudProgress,
+        fetchLeaderboard,
+        setLeaderboardHidden,
         deleteAccount,
         pendingMerge,
         resolveMerge,

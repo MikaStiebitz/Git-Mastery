@@ -80,7 +80,7 @@ nothing else here that could leak.
 
 The wire protocol has no coins field. Not a validated one, not a signed one — none.
 
-A sync request says what the player *did* ("cleared intro/3", "bought golden-terminal") and the
+A sync request says what the player _did_ ("cleared intro/3", "bought golden-terminal") and the
 server prices it from `src/catalog.ts`. So editing `coins: 999999` in localStorage does not fail
 validation; it has nowhere to go. There is no field it could travel in.
 
@@ -97,7 +97,52 @@ What this does **not** stop: the server has no Git simulator, so it cannot tell 
 from a forged POST. Someone who reads this repository can unlock the whole game without playing it.
 That is deliberate — the design converts unbounded, trivial cheating (edit one number) into
 bounded, deliberate cheating (read the source, forge a request, gain at most what an honest player
-could have earned), in a game with no leaderboard and no prizes.
+could have earned), in a game with no prizes.
+
+## Stars, ranks and the leaderboard
+
+None of these touch the ledger, so none of them can move the 685-coin ceiling above.
+
+- **Ranks** and **achievements** are derived on the client from the save. Nothing is stored for them.
+- **Stars** (`level_stars`, migration `0002`) rate how cleanly a level was solved. Cosmetic and unpriced,
+  so the table holds claims, not ledger rows. Only two- and three-star results are sent, one row per
+  level at most, written when first earned or improved. The upsert's `WHERE excluded.stars >
+level_stars.stars` makes a non-improving write a no-op, so a replay costs no written rows. Claims for
+  levels the catalog does not know are dropped.
+- **The leaderboard** (`GET /v1/leaderboard`) writes nothing. It has an overall board (XP), an arcade board
+  per minigame and an all-games arcade total. Each listed player carries their unlocked achievements, and
+  the response has a small profile per listed player (since, XP, levels, achievements, arcade bests), so
+  opening a profile in the UI needs no second request. Everything is built from tables that already exist:
+  `SUM(score_delta)` over the ledger for the overall board (one scan), `minigame_best` for the arcade
+  boards (a small table), and the listed players' own rows for their achievements. Achievements are
+  computed in `src/achievements.ts`, and `src/test/worker/achievements-parity.test.ts` runs the game's and
+  the Worker's rules over the same generated saves so a badge cannot differ between your screen and the
+  board. The snapshot is kept in memory for an hour. The only write the board ever causes is a player
+  flipping the opt-out switch (`POST /v1/account/leaderboard`, column `users.leaderboard_hidden`). Accounts
+  are visible by default, with the notice shown at registration. Hiding takes effect at once: each response
+  re-checks the (at most ~100) listed accounts by primary key, so a stale snapshot never shows someone who
+  has opted out or still shows an old name.
+- **Arcade scores are clamped.** `minigame_best` is reported by the client, so `MINIGAME_SCORE_CEILING` in
+  `src/catalog.ts` holds the highest score each game can produce (derivations in the comment), and a
+  `bests` value above it is clamped. Unknown game ids are dropped. Ties on a board go to whoever set the
+  score first (`achieved_at`, migration `0003`). A best is only written when it improves, so resending all
+  of them on every sync no longer rewrites every row.
+
+What the board costs: one scan of `events` per refresh per Worker isolate, i.e. roughly (ledger rows) x
+(refreshes per day). The refresh interval is `LEADERBOARD_TTL_SECONDS` (default 3600, minimum 60) and is
+stretched automatically so one isolate stays under `LEADERBOARD_DAILY_READ_BUDGET` (default 1,000,000 rows
+a day) as the table grows: the board gets staler instead of the site getting slower. Isolates do not share
+the cache, so this is a per-isolate bound, not a global one. D1's free read quota is a hard stop that
+takes logins down with it, so watch `rows_read` after launch.
+
+What it is not: **refereed**. The Worker cannot replay a level or a minigame run, so both are claims, and
+a forged request can reach the top of a board. The design caps how far: one score per level and a finite
+set of levels, and a ceiling per minigame, so forging reaches the best an honest run could score and no
+higher, with ties ordered by who got there first. Treat the boards as friendly competition, which is also
+what the page says. Stars are left off the boards for the same reason.
+
+Deploying it: apply the migrations (`0002` and `0003`) first (`npx wrangler d1 migrations apply gitmastery-accounts --remote`),
+then deploy. The new rate-limit binding `RL_LEADERBOARD_IP` is optional and fails open like the others.
 
 ## Things that will cost you an afternoon if you do not know them
 
