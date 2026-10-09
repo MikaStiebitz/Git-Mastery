@@ -26,3 +26,11 @@ describe("isMistake", () => {
         expect(isMistake(["Automatic merge failed; fix conflicts and then commit the result."])).toBe(false);
     });
 });
+
+describe("commit summary line", () => {
+    it("does not read the player's own commit message as a failure", () => {
+        const output = ["[main abc1234] Fix: error: failed to rename", " 1 file changed, 1 insertion(+)"];
+        expect(didCommandFail(output)).toBe(false);
+        expect(isMistake(output)).toBe(false);
+    });
+});
