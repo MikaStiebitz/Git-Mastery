@@ -178,7 +178,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Check for level completion after dialog commit (only if not in playground mode).
         // Skip the check if the commit did not actually happen (e.g. empty message, nothing staged).
         if (
-            !didCommandFail(output) &&
+            !didCommandFail(output, `git commit -m "${escapedMessage}"`) &&
             typeof window !== "undefined" &&
             !window.location.pathname.includes("/playground")
         ) {
@@ -349,12 +349,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // a player is stuck, and it is the one the shop already promised the mascot would notice.
         // Counted before the failure branch below, and with the wider test: a mistyped command never
         // reaches it, but it still costs a star.
-        if (isMistake(output)) {
+        if (isMistake(output, command)) {
             const key = starKey(currentStage, currentLevel);
             levelMistakes.current.set(key, (levelMistakes.current.get(key) ?? 0) + 1);
         }
 
-        if (didCommandFail(output)) {
+        if (didCommandFail(output, command)) {
             failStreak.current += 1;
             if (failStreak.current === 3) cueMascot({ cue: "struggle3" });
             if (failStreak.current === 7) cueMascot({ cue: "struggle7" });
@@ -364,7 +364,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Only a command that worked can complete a level.
-        if (didCommandFail(output)) {
+        if (didCommandFail(output, command)) {
             return; // Don't mark level as completed if command failed
         }
 

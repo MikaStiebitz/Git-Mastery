@@ -855,7 +855,9 @@ export function VisualBoard({ className = "", onResetClick, onNextLevel }: Visua
                 lines={lastBlock.lines}
                 emptyText={t("visual.logEmpty")}
                 aria-label={t("visual.lastCommand")}
-                failed={lastBlock.lines.length > 0 && didCommandFail(lastBlock.lines.slice(1))}
+                failed={
+                    lastBlock.lines.length > 0 && didCommandFail(lastBlock.lines.slice(1), lastBlock.lines[0]?.slice(2))
+                }
                 className="max-h-24 min-h-12 shrink-0"
             />
 
