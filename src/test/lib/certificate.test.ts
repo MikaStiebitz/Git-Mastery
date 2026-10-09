@@ -37,4 +37,29 @@ describe("certificates", () => {
         expect(url.searchParams.get("certId")).toBe("GM-BEG-ABC1234");
         expect(url.searchParams.get("issueMonth")).toBe("9");
     });
+
+    it("locks certificate name upon issuance and prevents renaming exploit", async () => {
+        const { getLockedName, lockCertificateName, LOCKED_NAME_KEY, NAME_KEY, ISSUED_KEY } = await import(
+            "~/components/CertificatesSection"
+        );
+        localStorage.clear();
+
+        expect(getLockedName()).toBeNull();
+
+        // First issuance locks the name
+        lockCertificateName("Alice Real");
+        expect(getLockedName()).toBe("Alice Real");
+        expect(localStorage.getItem(LOCKED_NAME_KEY)).toBe("Alice Real");
+
+        // Subsequent attempt to rename to Bob should be ignored
+        lockCertificateName("Bob Fake");
+        expect(getLockedName()).toBe("Alice Real");
+        expect(localStorage.getItem(LOCKED_NAME_KEY)).toBe("Alice Real");
+
+        // Test migration if certificate was previously issued
+        localStorage.clear();
+        localStorage.setItem(NAME_KEY, "Charlie Prior");
+        localStorage.setItem(ISSUED_KEY, JSON.stringify({ beginner: "2026-01-01T00:00:00.000Z" }));
+        expect(getLockedName()).toBe("Charlie Prior");
+    });
 });
