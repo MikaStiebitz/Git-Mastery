@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { allStages } from "~/levels";
 import { difficulties } from "~/config/difficulties";
 import { getCertificateId, getCertificates, getLinkedInAddToProfileUrl } from "~/lib/certificate";
@@ -39,27 +39,51 @@ describe("certificates", () => {
     });
 
     it("locks certificate name upon issuance and prevents renaming exploit", async () => {
-        const { getLockedName, lockCertificateName, LOCKED_NAME_KEY, NAME_KEY, ISSUED_KEY } = await import(
-            "~/components/CertificatesSection"
-        );
+        const { getLockedName, lockCertificateName, resetSessionLockedName, LOCKED_NAME_KEY, NAME_KEY, ISSUED_KEY } =
+            await import("~/components/CertificatesSection");
         localStorage.clear();
+        resetSessionLockedName();
 
         expect(getLockedName()).toBeNull();
 
         // First issuance locks the name
-        lockCertificateName("Alice Real");
+        expect(lockCertificateName("Alice Real")).toBe("Alice Real");
         expect(getLockedName()).toBe("Alice Real");
         expect(localStorage.getItem(LOCKED_NAME_KEY)).toBe("Alice Real");
 
         // Subsequent attempt to rename to Bob should be ignored
-        lockCertificateName("Bob Fake");
+        expect(lockCertificateName("Bob Fake")).toBe("Alice Real");
         expect(getLockedName()).toBe("Alice Real");
         expect(localStorage.getItem(LOCKED_NAME_KEY)).toBe("Alice Real");
 
         // Test migration if certificate was previously issued
         localStorage.clear();
+        resetSessionLockedName();
         localStorage.setItem(NAME_KEY, "Charlie Prior");
         localStorage.setItem(ISSUED_KEY, JSON.stringify({ beginner: "2026-01-01T00:00:00.000Z" }));
         expect(getLockedName()).toBe("Charlie Prior");
+    });
+
+    it("keeps the lock in memory when localStorage is unavailable", async () => {
+        const { getLockedName, lockCertificateName, resetSessionLockedName } = await import(
+            "~/components/CertificatesSection"
+        );
+        localStorage.clear();
+        resetSessionLockedName();
+        const getItem = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+            throw new Error("blocked");
+        });
+        const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+            throw new Error("blocked");
+        });
+        try {
+            expect(lockCertificateName("Alice Real")).toBe("Alice Real");
+            expect(lockCertificateName("Bob Fake")).toBe("Alice Real");
+            expect(getLockedName()).toBe("Alice Real");
+        } finally {
+            getItem.mockRestore();
+            setItem.mockRestore();
+            resetSessionLockedName();
+        }
     });
 });

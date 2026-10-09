@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Award, Copy, Download, Linkedin, Lock, Share2 } from "lucide-react";
+import { Award, Copy, Download, Linkedin, Lock, Printer, Share2 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import {
     canvasToBlob,
@@ -36,15 +36,31 @@ export function writeStored(key: string, value: string) {
     }
 }
 
+/**
+ * Session-level fallback so the lock still holds when localStorage is blocked or unavailable.
+ *
+ * Note: the name lock is a client-side UI guard only. Anyone can clear site data or edit localStorage to
+ * change it, so it is not a security boundary; enforcing it for real would need a server-side or signed
+ * issuance record tied to an account.
+ */
+let sessionLockedName: string | null = null;
+
+/** Test helper: forget the in-memory lock. */
+export function resetSessionLockedName() {
+    sessionLockedName = null;
+}
+
 export function getLockedName(): string | null {
     const locked = readStored(LOCKED_NAME_KEY);
     if (locked && locked.trim().length > 0) return locked.trim();
+    if (sessionLockedName) return sessionLockedName;
 
     try {
         const stored = JSON.parse(readStored(ISSUED_KEY) ?? "{}") as Record<string, string>;
         if (Object.keys(stored).length > 0) {
             const existingName = readStored(NAME_KEY)?.trim();
             if (existingName) {
+                sessionLockedName = existingName;
                 writeStored(LOCKED_NAME_KEY, existingName);
                 return existingName;
             }
@@ -55,14 +71,54 @@ export function getLockedName(): string | null {
     return null;
 }
 
-export function lockCertificateName(nameToLock: string) {
+/**
+ * Locks the certificate name on first issuance and returns the name that is actually locked.
+ * Callers must use the returned value (not a name captured earlier) for the certificate ID and render,
+ * so a stale snapshot or a lock set by another tab can never produce a differently-named certificate.
+ */
+export function lockCertificateName(nameToLock: string): string {
     const clean = nameToLock.trim();
-    if (!clean) return;
     const existing = getLockedName();
-    if (!existing) {
-        writeStored(LOCKED_NAME_KEY, clean);
-        writeStored(NAME_KEY, clean);
-    }
+    if (existing) return existing;
+    if (!clean) return "";
+    sessionLockedName = clean;
+    writeStored(LOCKED_NAME_KEY, clean);
+    // Re-read so that if another tab wrote between our check and write, we adopt whichever value persisted.
+    const persisted = readStored(LOCKED_NAME_KEY)?.trim();
+    const effective = persisted && persisted.length > 0 ? persisted : clean;
+    sessionLockedName = effective;
+    writeStored(NAME_KEY, effective);
+    return effective;
+}
+
+/** Prints the certificate image on A4 landscape via a hidden iframe, so no popup blocker gets involved. */
+function printCertificateBlob(blob: Blob, title: string) {
+    const url = URL.createObjectURL(blob);
+    const frame = document.createElement("iframe");
+    frame.setAttribute("aria-hidden", "true");
+    frame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
+    const cleanup = () => {
+        URL.revokeObjectURL(url);
+        frame.remove();
+    };
+    frame.onload = () => {
+        const win = frame.contentWindow;
+        const img = win?.document.querySelector("img");
+        const run = () => {
+            if (!win) return cleanup();
+            win.addEventListener("afterprint", cleanup);
+            win.focus();
+            win.print();
+            // Fallback in case afterprint never fires.
+            setTimeout(cleanup, 120_000);
+        };
+        if (img && !img.complete) img.onload = run;
+        else run();
+    };
+    frame.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><title>${title.replace(/[<&]/g, "")}</title>
+<style>@page{size:A4 landscape;margin:0}html,body{margin:0;height:100%}img{display:block;width:100%;height:100%;object-fit:contain}</style>
+</head><body><img src="${url}" alt=""></body></html>`;
+    document.body.appendChild(frame);
 }
 
 /** The date a course certificate was first issued, remembered so re-downloading never changes it. */
@@ -98,33 +154,41 @@ function CertificateCard({
 
     const build = async () => {
         if (!ready) return null;
-        lockCertificateName(finalName);
+        const issuedName = lockCertificateName(finalName);
+        if (!issuedName) return null;
         onIssued?.();
         const issuedAt = getIssuedAt(certificate.difficultyId);
-        const certId = getCertificateId(finalName, certificate.difficultyId, issuedAt);
-        const blob = await canvasToBlob(await renderCertificate({ name: finalName, certificate, certId, issuedAt }));
-        return { blob, certId, issuedAt };
+        const certId = getCertificateId(issuedName, certificate.difficultyId, issuedAt);
+        const blob = await canvasToBlob(await renderCertificate({ name: issuedName, certificate, certId, issuedAt }));
+        return { blob, certId, issuedAt, issuedName };
     };
 
     const download = async () => {
         if (!ready) return;
         const result = await build();
         if (!result) return;
-        const { blob } = result;
+        const { blob, issuedName } = result;
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = getCertificateFilename(finalName, certificate);
+        link.download = getCertificateFilename(issuedName, certificate);
         link.click();
         URL.revokeObjectURL(url);
+    };
+
+    const print = async () => {
+        if (!ready) return;
+        const result = await build();
+        if (!result) return;
+        printCertificateBlob(result.blob, `${certificate.title} – ${result.issuedName}`);
     };
 
     const share = async () => {
         if (!ready) return;
         const result = await build();
         if (!result) return;
-        const { blob } = result;
-        const file = new File([blob], getCertificateFilename(finalName, certificate), { type: "image/png" });
+        const { blob, issuedName } = result;
+        const file = new File([blob], getCertificateFilename(issuedName, certificate), { type: "image/png" });
         if (navigator.canShare?.({ files: [file] })) {
             try {
                 await navigator.share({ files: [file], text: getShareCaption(certificate) });
@@ -147,10 +211,11 @@ function CertificateCard({
 
     const openLinkedIn = (kind: "profile" | "share") => {
         if (!ready) return;
-        lockCertificateName(finalName);
+        const issuedName = lockCertificateName(finalName);
+        if (!issuedName) return;
         onIssued?.();
         const issuedAt = getIssuedAt(certificate.difficultyId);
-        const certId = getCertificateId(finalName, certificate.difficultyId, issuedAt);
+        const certId = getCertificateId(issuedName, certificate.difficultyId, issuedAt);
         const url =
             kind === "profile" ? getLinkedInAddToProfileUrl(certificate, certId, issuedAt) : getLinkedInShareUrl();
         if (kind === "share") void copyCaption();
@@ -184,6 +249,13 @@ function CertificateCard({
                         onClick={() => void download()}
                         className="btn-arcade btn-arcade-lime btn-arcade-sm">
                         <Download className="h-4 w-4" aria-hidden="true" /> Download PNG
+                    </button>
+                    <button
+                        type="button"
+                        disabled={!ready}
+                        onClick={() => void print()}
+                        className="btn-arcade btn-arcade-gold btn-arcade-sm">
+                        <Printer className="h-4 w-4" aria-hidden="true" /> Print certificate
                     </button>
                     <button
                         type="button"
