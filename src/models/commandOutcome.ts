@@ -1,3 +1,5 @@
+const COMMIT_SUMMARY_LINE = /^\[[^\]\s]+(?: \(root-commit\))? [0-9a-f]{7}\] /;
+
 /**
  * Did a command fail, judged from what it printed?
  *
@@ -10,6 +12,11 @@
  */
 export function didCommandFail(output: string[]): boolean {
     return output.some(line => {
+        // `[main abc1234] <message>` echoes whatever the player typed as the commit message. That is
+        // their text, not Git's, so a message containing "failed" or "error:" (in any language) must
+        // not read as a failure.
+        if (COMMIT_SUMMARY_LINE.test(line)) return false;
+
         const lowerLine = line.toLowerCase();
 
         // A merge conflict is a normal state to be in, not a failed command.
