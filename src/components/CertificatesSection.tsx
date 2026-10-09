@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Award, Copy, Download, Linkedin, Lock, Share2 } from "lucide-react";
+import { Award, Copy, Download, Linkedin, Lock, Printer, Share2 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import {
     canvasToBlob,
@@ -91,6 +91,36 @@ export function lockCertificateName(nameToLock: string): string {
     return effective;
 }
 
+/** Prints the certificate image on A4 landscape via a hidden iframe, so no popup blocker gets involved. */
+function printCertificateBlob(blob: Blob, title: string) {
+    const url = URL.createObjectURL(blob);
+    const frame = document.createElement("iframe");
+    frame.setAttribute("aria-hidden", "true");
+    frame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
+    const cleanup = () => {
+        URL.revokeObjectURL(url);
+        frame.remove();
+    };
+    frame.onload = () => {
+        const win = frame.contentWindow;
+        const img = win?.document.querySelector("img");
+        const run = () => {
+            if (!win) return cleanup();
+            win.addEventListener("afterprint", cleanup);
+            win.focus();
+            win.print();
+            // Fallback in case afterprint never fires.
+            setTimeout(cleanup, 120_000);
+        };
+        if (img && !img.complete) img.onload = run;
+        else run();
+    };
+    frame.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><title>${title.replace(/[<&]/g, "")}</title>
+<style>@page{size:A4 landscape;margin:0}html,body{margin:0;height:100%}img{display:block;width:100%;height:100%;object-fit:contain}</style>
+</head><body><img src="${url}" alt=""></body></html>`;
+    document.body.appendChild(frame);
+}
+
 /** The date a course certificate was first issued, remembered so re-downloading never changes it. */
 function getIssuedAt(difficultyId: DifficultyLevel): Date {
     let stored: Record<string, string> = {};
@@ -144,6 +174,13 @@ function CertificateCard({
         link.download = getCertificateFilename(issuedName, certificate);
         link.click();
         URL.revokeObjectURL(url);
+    };
+
+    const print = async () => {
+        if (!ready) return;
+        const result = await build();
+        if (!result) return;
+        printCertificateBlob(result.blob, `${certificate.title} – ${result.issuedName}`);
     };
 
     const share = async () => {
@@ -212,6 +249,13 @@ function CertificateCard({
                         onClick={() => void download()}
                         className="btn-arcade btn-arcade-lime btn-arcade-sm">
                         <Download className="h-4 w-4" aria-hidden="true" /> Download PNG
+                    </button>
+                    <button
+                        type="button"
+                        disabled={!ready}
+                        onClick={() => void print()}
+                        className="btn-arcade btn-arcade-gold btn-arcade-sm">
+                        <Printer className="h-4 w-4" aria-hidden="true" /> Print certificate
                     </button>
                     <button
                         type="button"
