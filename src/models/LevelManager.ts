@@ -13,6 +13,11 @@ import type {
 import { allStages } from "../levels";
 import { getAvailableStagesForDifficulty } from "~/config/difficulties";
 
+/** True if `arg` is a clustered short-flag group (e.g. `-am`) containing the short flag `reqArg` (e.g. `-m`). */
+function clusterHasFlag(arg: string, reqArg: string): boolean {
+    return /^-[A-Za-z]{2,}$/.test(arg) && arg.includes(reqArg.slice(1));
+}
+
 export class LevelManager {
     private stages: Record<string, StageType>;
 
@@ -722,7 +727,7 @@ export class LevelManager {
 
                             // For short flags like -S that take values (like -S "value" or -Svalue)
                             if (reqArg.startsWith("-") && reqArg.length === 2) {
-                                return gitArgs.some(arg => arg === reqArg || arg.startsWith(reqArg));
+                                return gitArgs.some(arg => arg === reqArg || arg.startsWith(reqArg) || clusterHasFlag(arg, reqArg));
                             }
 
                             // General flag matching (fallback)
@@ -816,7 +821,7 @@ export class LevelManager {
                             }
                             // For short flags like -S that take values (like -S "value" or -Svalue)
                             if (reqArg.startsWith("-") && reqArg.length === 2) {
-                                return args.some(arg => arg === reqArg || arg.startsWith(reqArg));
+                                return args.some(arg => arg === reqArg || arg.startsWith(reqArg) || clusterHasFlag(arg, reqArg));
                             }
                             return false;
                         });

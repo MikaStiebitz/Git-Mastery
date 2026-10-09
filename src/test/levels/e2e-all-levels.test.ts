@@ -699,6 +699,21 @@ describe("Level Logic Edge Cases", () => {
         });
     });
 
+    describe("Clustered short flags", () => {
+        it("should accept git commit -am as satisfying a -m requirement (files level 4)", () => {
+            const env = createTestEnvironment();
+            const stageId = "files";
+            const levelId = 4;
+
+            env.levelManager.setupLevel(stageId, levelId, env.fileSystem, env.gitRepository);
+
+            executeCommandAndCheckCompletion("git mv src/app-config.js src/config.js", stageId, levelId, env);
+            executeCommandAndCheckCompletion('git commit -am "Rename config"', stageId, levelId, env);
+
+            expect(isLevelFullyCompleted(stageId, levelId, env)).toBe(true);
+        });
+    });
+
     describe("Alternative Commands", () => {
         it("should accept git checkout as alternative to git switch", () => {
             const env = createTestEnvironment();
