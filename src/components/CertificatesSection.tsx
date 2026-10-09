@@ -16,10 +16,11 @@ import {
 } from "~/lib/certificate";
 import type { DifficultyLevel } from "~/types";
 
-const NAME_KEY = "gitmastery-certificate-name";
-const ISSUED_KEY = "gitmastery-certificate-issued";
+export const NAME_KEY = "gitmastery-certificate-name";
+export const ISSUED_KEY = "gitmastery-certificate-issued";
+export const LOCKED_NAME_KEY = "gitmastery-certificate-locked-name";
 
-function readStored(key: string): string | null {
+export function readStored(key: string): string | null {
     try {
         return localStorage.getItem(key);
     } catch {
@@ -27,11 +28,40 @@ function readStored(key: string): string | null {
     }
 }
 
-function writeStored(key: string, value: string) {
+export function writeStored(key: string, value: string) {
     try {
         localStorage.setItem(key, value);
     } catch {
         // Private mode / blocked storage: the certificate still works, it just is not remembered.
+    }
+}
+
+export function getLockedName(): string | null {
+    const locked = readStored(LOCKED_NAME_KEY);
+    if (locked && locked.trim().length > 0) return locked.trim();
+
+    try {
+        const stored = JSON.parse(readStored(ISSUED_KEY) ?? "{}") as Record<string, string>;
+        if (Object.keys(stored).length > 0) {
+            const existingName = readStored(NAME_KEY)?.trim();
+            if (existingName) {
+                writeStored(LOCKED_NAME_KEY, existingName);
+                return existingName;
+            }
+        }
+    } catch {
+        // Corrupted JSON
+    }
+    return null;
+}
+
+export function lockCertificateName(nameToLock: string) {
+    const clean = nameToLock.trim();
+    if (!clean) return;
+    const existing = getLockedName();
+    if (!existing) {
+        writeStored(LOCKED_NAME_KEY, clean);
+        writeStored(NAME_KEY, clean);
     }
 }
 
@@ -52,31 +82,49 @@ function getIssuedAt(difficultyId: DifficultyLevel): Date {
     return now;
 }
 
-function CertificateCard({ certificate, name }: { certificate: Certificate; name: string }) {
+function CertificateCard({
+    certificate,
+    name,
+    onIssued,
+}: {
+    certificate: Certificate;
+    name: string;
+    onIssued?: () => void;
+}) {
     const [notice, setNotice] = useState<string | null>(null);
     const canShareFiles = typeof navigator !== "undefined" && typeof navigator.canShare === "function";
-    const ready = certificate.earned && name.trim().length > 0;
+    const finalName = (getLockedName() ?? name).trim();
+    const ready = certificate.earned && finalName.length > 0;
 
     const build = async () => {
+        if (!ready) return null;
+        lockCertificateName(finalName);
+        onIssued?.();
         const issuedAt = getIssuedAt(certificate.difficultyId);
-        const certId = getCertificateId(name, certificate.difficultyId, issuedAt);
-        const blob = await canvasToBlob(await renderCertificate({ name, certificate, certId, issuedAt }));
+        const certId = getCertificateId(finalName, certificate.difficultyId, issuedAt);
+        const blob = await canvasToBlob(await renderCertificate({ name: finalName, certificate, certId, issuedAt }));
         return { blob, certId, issuedAt };
     };
 
     const download = async () => {
-        const { blob } = await build();
+        if (!ready) return;
+        const result = await build();
+        if (!result) return;
+        const { blob } = result;
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = getCertificateFilename(name, certificate);
+        link.download = getCertificateFilename(finalName, certificate);
         link.click();
         URL.revokeObjectURL(url);
     };
 
     const share = async () => {
-        const { blob } = await build();
-        const file = new File([blob], getCertificateFilename(name, certificate), { type: "image/png" });
+        if (!ready) return;
+        const result = await build();
+        if (!result) return;
+        const { blob } = result;
+        const file = new File([blob], getCertificateFilename(finalName, certificate), { type: "image/png" });
         if (navigator.canShare?.({ files: [file] })) {
             try {
                 await navigator.share({ files: [file], text: getShareCaption(certificate) });
@@ -98,8 +146,11 @@ function CertificateCard({ certificate, name }: { certificate: Certificate; name
     };
 
     const openLinkedIn = (kind: "profile" | "share") => {
+        if (!ready) return;
+        lockCertificateName(finalName);
+        onIssued?.();
         const issuedAt = getIssuedAt(certificate.difficultyId);
-        const certId = getCertificateId(name, certificate.difficultyId, issuedAt);
+        const certId = getCertificateId(finalName, certificate.difficultyId, issuedAt);
         const url =
             kind === "profile" ? getLinkedInAddToProfileUrl(certificate, certId, issuedAt) : getLinkedInShareUrl();
         if (kind === "share") void copyCaption();
@@ -188,12 +239,24 @@ function CertificateCard({ certificate, name }: { certificate: Certificate; name
 export function CertificatesSection() {
     const { progressManager } = useGameContext();
     const [name, setName] = useState("");
+    const [lockedName, setLockedName] = useState<string | null>(null);
     const [completed, setCompleted] = useState(progressManager.getProgress().completedLevels);
 
     useEffect(() => {
-        setName(readStored(NAME_KEY) ?? "");
+        const locked = getLockedName();
+        setLockedName(locked);
+        setName(locked ?? readStored(NAME_KEY) ?? "");
         setCompleted(progressManager.getProgress().completedLevels);
     }, [progressManager]);
+
+    const isLocked = Boolean(lockedName);
+    const handleIssued = () => {
+        const locked = getLockedName();
+        if (locked) {
+            setLockedName(locked);
+            setName(locked);
+        }
+    };
 
     const certificates = useMemo(() => getCertificates(completed), [completed]);
     if (!certificates.some(c => c.earned)) return null;
@@ -214,20 +277,34 @@ export function CertificatesSection() {
                     <input
                         type="text"
                         required
+                        disabled={isLocked}
                         value={name}
                         maxLength={60}
                         onChange={event => {
+                            if (isLocked) return;
                             setName(event.target.value);
                             writeStored(NAME_KEY, event.target.value);
                         }}
                         placeholder="Your full name"
-                        className="border-gm-line bg-gm-void text-gm-ink mt-1 w-full rounded-lg border-2 px-3 py-2"
+                        className={`border-gm-line bg-gm-void text-gm-ink mt-1 w-full rounded-lg border-2 px-3 py-2 ${
+                            isLocked ? "cursor-not-allowed opacity-60" : ""
+                        }`}
                     />
+                    {isLocked && (
+                        <p className="text-gm-ink-dim mt-1.5 text-xs">
+                            🔒 Name is locked because a certificate has already been issued.
+                        </p>
+                    )}
                 </label>
 
                 <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {certificates.map(certificate => (
-                        <CertificateCard key={certificate.difficultyId} certificate={certificate} name={name} />
+                        <CertificateCard
+                            key={certificate.difficultyId}
+                            certificate={certificate}
+                            name={name}
+                            onIssued={handleIssued}
+                        />
                     ))}
                 </ul>
                 <p className="text-gm-ink-dim mt-4 text-xs">
