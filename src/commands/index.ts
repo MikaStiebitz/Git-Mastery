@@ -32,6 +32,7 @@ import { CherryPickCommand } from "./git/CherryPickCommand";
 import { RemoteCommand } from "./git/RemoteCommand";
 import { PushCommand } from "./git/PushCommand";
 import { PullCommand } from "./git/PullCommand";
+import { FetchCommand } from "./git/FetchCommand";
 import { GitHelpCommand } from "./git/HelpCommand";
 import { CloneCommand } from "./git/CloneCommand";
 import { BisectCommand } from "./git/BisectCommand";
@@ -91,7 +92,14 @@ registry.register(new CherryPickCommand());
 registry.register(new RemoteCommand());
 registry.register(new PushCommand());
 registry.register(new PullCommand());
-registry.register(new GitHelpCommand());
+registry.register(new FetchCommand());
+registry.register(
+    new GitHelpCommand({
+        get: name => registry.get(name),
+        gitSubcommands: () =>
+            registry.getGitSubcommands().filter(n => registry.get(`git ${n}`)?.includeInTabCompletion),
+    }),
+);
 registry.register(new CloneCommand());
 registry.register(new BisectCommand());
 registry.register(new TagCommand());

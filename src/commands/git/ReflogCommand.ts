@@ -1,133 +1,90 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
+import { unknownFlagError } from "../base/GitErrors";
+import { decorations, formatGitDate, isoDate, relativeDate, requireRepository } from "../helpers/gitFormat";
 
 export class ReflogCommand implements Command {
     name = "git reflog";
     description = "Manage reflog information";
-    usage = "git reflog [options]";
-    examples = ["git reflog", "git reflog --oneline", "git reflog --date=relative", "git reflog --all"];
+    usage = "git reflog [show] [<log-options>] [<ref>]";
+    examples = [
+        "git reflog",
+        "git reflog show main",
+        "git reflog -n 5",
+        "git reflog --date=relative",
+        "git reflog exists main",
+    ];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
     /** Flag semantics for this command (see FlagSpec). */
     flagSpec: FlagSpec = {
-        boolean: ["all", "no-abbrev", "oneline"],
-        value: ["n", "max-count", "date"],
+        boolean: ["all", "no-abbrev", "oneline", "relative-date", "q", "quiet", "no-decorate", "decorate"],
+        value: ["n", "max-count", "date", "format", "pretty"],
     };
+
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository, currentDirectory } = context;
+        const notRepo = requireRepository(context);
+        if (notRepo) return notRepo;
+        const repo = context.gitRepository;
 
-        if (!gitRepository.isInitialized()) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) return unknownFlagError(unknownFlag, this.usage);
+
+        const positional = [...args.positionalArgs];
+        const sub = positional[0];
+
+        if (sub === "exists") {
+            const ref = positional[1];
+            if (!ref) return ["error: missing ref argument"];
+            return repo.getRefLog(ref).length > 0 ? [] : [`error: reflog for '${ref}' does not exist`];
         }
-
-        if (!gitRepository.isInRepository(currentDirectory)) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
-        }
-
-        // Parse options
-        const showAll = args.positionalArgs.includes("--all");
-        const showOneline = args.positionalArgs.includes("--oneline");
-        const showDate = args.positionalArgs.includes("--date=relative") || args.positionalArgs.includes("--date=iso");
-        const showRelative = args.positionalArgs.includes("--date=relative");
-        const showIso = args.positionalArgs.includes("--date=iso");
-        const showShort = args.positionalArgs.includes("--short");
-        // Note: These options are parsed but not yet implemented
-        // const showExpire = args.positionalArgs.includes("--expire");
-        // const showExpireUnreachable = args.positionalArgs.includes("--expire-unreachable");
-        // const showDelete = args.positionalArgs.includes("--delete");
-        // const showExists = args.positionalArgs.includes("--exists");
-        // const showUpdateref = args.positionalArgs.includes("--updateref");
-        // const showNoWalk = args.positionalArgs.includes("--no-walk");
-        // const showWalk = args.positionalArgs.includes("--walk-reflogs");
-        // const showStaleFix = args.positionalArgs.includes("--stale-fix");
-        // const showVerbose = args.positionalArgs.includes("-v") || args.positionalArgs.includes("--verbose");
-        // const showQuiet = args.positionalArgs.includes("-q") || args.positionalArgs.includes("--quiet");
-        const showHelp = args.positionalArgs.includes("-h") || args.positionalArgs.includes("--help");
-
-        if (showHelp) {
+        if (sub === "expire" || sub === "delete") {
             return [
-                `usage: git reflog [<options>] [<ref>]
-
-    --all                 show all refs
-    --oneline            show in one line per entry
-    --date=<format>      show date in specified format
-    --short              show short format
-    --expire=<time>      expire entries older than <time>
-    --expire-unreachable=<time>  expire unreachable entries older than <time>
-    --delete             delete entries
-    --exists             check if ref exists
-    --updateref          update ref
-    --no-walk            don't walk the reflog
-    --walk-reflogs       walk the reflog
-    --stale-fix          fix stale reflog entries
-    -v, --verbose        be verbose
-    -q, --quiet          be quiet
-    -h, --help           show this help message`,
+                `hint: 'git reflog ${sub}' is not needed here; this repository keeps its reflog for the whole session.`,
             ];
         }
+        if (sub === "show") positional.shift();
 
-        // Get reflog entries from git repository
-        const reflogEntries = gitRepository.getReflog();
+        const refArg = positional[0] ?? "HEAD";
+        const refName = refArg === "@" ? "HEAD" : refArg;
+        const entries = repo.getRefLog(refName);
 
-        if (reflogEntries.length === 0) {
-            return ["fatal: your current branch 'main' does not have any commits yet"];
-        }
-
-        const result: string[] = [];
-
-        // Filter entries based on options
-        let entries = reflogEntries;
-
-        if (showAll) {
-            // Show all refs (in a real implementation, this would show all branch reflogs)
-            entries = reflogEntries;
-        }
-
-        // Sort by timestamp (newest first)
-        entries.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-        // Format each entry
-        for (const entry of entries) {
-            const commitHash = entry.commitHash.substring(0, 8);
-            const action = entry.action;
-            const message = entry.message;
-            const timestamp = new Date(entry.timestamp);
-
-            let dateStr = "";
-            if (showDate) {
-                if (showRelative) {
-                    const now = new Date();
-                    const diff = now.getTime() - timestamp.getTime();
-                    const minutes = Math.floor(diff / 60000);
-                    const hours = Math.floor(diff / 3600000);
-                    const days = Math.floor(diff / 86400000);
-
-                    if (days > 0) {
-                        dateStr = `${days} day${days > 1 ? "s" : ""} ago`;
-                    } else if (hours > 0) {
-                        dateStr = `${hours} hour${hours > 1 ? "s" : ""} ago`;
-                    } else if (minutes > 0) {
-                        dateStr = `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-                    } else {
-                        dateStr = "just now";
-                    }
-                } else if (showIso) {
-                    dateStr = timestamp.toISOString();
-                } else {
-                    dateStr = timestamp.toLocaleString();
-                }
+        if (entries.length === 0) {
+            if (refName === "HEAD" && repo.getHeadCommitId() === null) {
+                return [`fatal: your current branch '${repo.getCurrentBranch()}' does not have any commits yet`];
             }
-
-            if (showOneline) {
-                result.push(`${commitHash} HEAD@{${entry.index}}: ${action}: ${message}`);
-            } else if (showShort) {
-                result.push(`${commitHash} ${action}: ${message}`);
-            } else {
-                const datePart = dateStr ? ` (${dateStr})` : "";
-                result.push(`${commitHash} HEAD@{${entry.index}}: ${action}: ${message}${datePart}`);
+            if (refName !== "HEAD" && !repo.fullRefName(refName)) {
+                return [
+                    `fatal: ambiguous argument '${refArg}': unknown revision or path not in the working tree.`,
+                    "Use '--' to separate paths from revisions, like this:",
+                    "'git <command> [<revision>...] -- [<file>...]'",
+                ];
             }
+            return [];
         }
 
-        return result;
+        const limitRaw = args.flags.n ?? args.flags["max-count"];
+        const limit = typeof limitRaw === "string" ? parseInt(limitRaw, 10) : Infinity;
+        const dateMode =
+            typeof args.flags.date === "string"
+                ? args.flags.date
+                : args.flags["relative-date"] !== undefined
+                  ? "relative"
+                  : null;
+        const fullHash = args.flags["no-abbrev"] !== undefined;
+        const decorate = args.flags["no-decorate"] === undefined;
+
+        // A reflog of a branch is addressed as <branch>@{n}; HEAD's as HEAD@{n}.
+        const label = refName === "HEAD" ? "HEAD" : refName.replace(/^refs\/(heads|remotes)\//, "");
+
+        return entries.slice(0, Number.isFinite(limit) ? limit : undefined).map((entry, index) => {
+            const hash = fullHash ? entry.newId : repo.abbrev(entry.newId);
+            const decoration = decorate ? decorations(repo, entry.newId) : "";
+            let selector = `${label}@{${index}}`;
+            if (dateMode === "relative") selector = `${label}@{${relativeDate(entry.timestamp)}}`;
+            else if (dateMode === "iso") selector = `${label}@{${isoDate(entry.timestamp)}}`;
+            else if (dateMode) selector = `${label}@{${formatGitDate(entry.timestamp)}}`;
+            return `${hash}${decoration} ${selector}: ${entry.message}`;
+        });
     }
 }

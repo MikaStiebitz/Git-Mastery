@@ -15,7 +15,7 @@ export class TouchCommand implements Command {
         value: ["d", "date", "r", "reference"],
     };
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { fileSystem, gitRepository } = context;
+        const { fileSystem } = context;
 
         if (args.positionalArgs.length === 0) {
             return ["Please specify a file name."];
@@ -40,13 +40,7 @@ export class TouchCommand implements Command {
         const success = fileSystem.writeFile(filePath, "");
 
         if (success) {
-            // Mark the file as untracked if Git is initialized
-            if (gitRepository.isInitialized()) {
-                // Normalize path for git (remove leading slash)
-                const normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
-                gitRepository.updateFileStatus(normalizedPath, "untracked");
-            }
-
+            // No Git bookkeeping needed: Git sees the new file as untracked by itself.
             return [`Created file: ${fileName}`];
         } else {
             return [`Failed to create file: ${fileName}`];

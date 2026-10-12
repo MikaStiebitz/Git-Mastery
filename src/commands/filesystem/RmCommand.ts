@@ -1,7 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
 import type { FileSystem } from "~/models/FileSystem";
-import type { GitRepository } from "~/models/GitRepository";
 
 export class RmCommand implements Command {
     name = "rm";
@@ -17,7 +16,7 @@ export class RmCommand implements Command {
         value: [],
     };
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { fileSystem, gitRepository } = context;
+        const { fileSystem } = context;
 
         if (args.positionalArgs.length === 0) {
             return ["Please specify a file or directory to remove."];
@@ -37,33 +36,17 @@ export class RmCommand implements Command {
         }
 
         // If it's a file or we're using -r flag
-        const success = this.recursiveDelete(filePath, fileSystem, gitRepository, isRecursive);
+        const success = this.recursiveDelete(filePath, fileSystem, isRecursive);
 
         return success ? [`Removed '${file}'.`] : [`Failed to remove '${file}'.`];
     }
 
     // New method to handle recursive deletion
-    private recursiveDelete(
-        path: string,
-        fileSystem: FileSystem,
-        gitRepository: GitRepository,
-        isRecursive: boolean,
-    ): boolean {
+    private recursiveDelete(path: string, fileSystem: FileSystem, isRecursive: boolean): boolean {
         // If it's a file, simply delete it
         if (fileSystem.getFileContents(path) !== null) {
-            const success = fileSystem.delete(path);
-
-            // Update Git status if file was tracked
-            if (success && gitRepository.isInitialized()) {
-                // Normalize path for Git
-                const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
-                const status = gitRepository.getStatus();
-                if (normalizedPath in status) {
-                    delete status[normalizedPath];
-                }
-            }
-
-            return success;
+            // Git notices the deletion itself: a tracked file that is gone shows as "deleted".
+            return fileSystem.delete(path);
         }
 
         // If it's a directory and recursive is enabled
@@ -76,19 +59,10 @@ export class RmCommand implements Command {
                 const subPath = path === "/" ? `/${name}` : `${path}/${name}`;
 
                 if (item.type === "file") {
-                    // Delete file and update Git status
-                    const success = fileSystem.delete(subPath);
-                    if (success && gitRepository.isInitialized()) {
-                        // Normalize path for Git
-                        const normalizedPath = subPath.startsWith("/") ? subPath.substring(1) : subPath;
-                        const status = gitRepository.getStatus();
-                        if (normalizedPath in status) {
-                            delete status[normalizedPath];
-                        }
-                    }
+                    fileSystem.delete(subPath);
                 } else if (item.type === "directory") {
                     // Recursively delete subdirectory
-                    this.recursiveDelete(subPath, fileSystem, gitRepository, true);
+                    this.recursiveDelete(subPath, fileSystem, true);
                 }
             }
 

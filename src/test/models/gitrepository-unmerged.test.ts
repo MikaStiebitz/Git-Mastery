@@ -45,17 +45,9 @@ describe("GitRepository - Unmerged Commits Detection", () => {
         gitRepository.addFile("feature.txt");
         gitRepository.commit("Feature commit");
 
-        // Merge into main (simulate by adding feature's commit to main)
+        // Merge into main
         gitRepository.checkout("main");
         gitRepository.merge("feature");
-
-        // Manually add the commit to main's history (since merge() is simplified)
-        // In real implementation, merge would copy commits
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mainState = (gitRepository as any).branchStates["main"];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const featureState = (gitRepository as any).branchStates["feature"];
-        mainState.commits.push(...featureState.commits.filter((c: string) => !mainState.commits.includes(c)));
 
         // After merge, feature should not have unmerged commits
         expect(gitRepository.hasUnmergedCommits("feature")).toBe(false);

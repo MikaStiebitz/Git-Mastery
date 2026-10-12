@@ -829,24 +829,24 @@ const levels = {
     "archaeology.level3.objective1":
         "Nutze git reflog, um jede HEAD-Bewegung zu sehen, einschließlich 'verlorener' Commits",
     "archaeology.level3.objective2":
-        "Nutze git reset --hard mit einer reflog-Referenz (z. B. HEAD@{0}), um die verlorene Arbeit wiederherzustellen",
+        "Nutze git reset --hard mit einer reflog-Referenz (z. B. HEAD@{1}), um die verlorene Arbeit wiederherzustellen",
     "archaeology.level3.objective3":
         "Erstelle einen Branch, der auf einen reflog-Eintrag zeigt, um die wiederhergestellten Commits zu sichern",
     "archaeology.level3.hint1":
         "`git reflog` listet jeden Commit auf, auf den HEAD gezeigt hat - auch scheinbar 'gelöschte'",
     "archaeology.level3.hint2":
-        "Jeder reflog-Eintrag hat eine Referenz wie `HEAD@{0}`, `HEAD@{1}` - die letzte Aktion ist `HEAD@{0}`",
+        "Jeder reflog-Eintrag hat eine Referenz wie `HEAD@{0}`, `HEAD@{1}` - `HEAD@{0}` ist der aktuelle Stand, `HEAD@{1}` der Stand eine Bewegung davor (vor dem versehentlichen Reset)",
     "archaeology.level3.hint3":
         "Nutze `git reset --hard <reflog-referenz>`, um den Branch auf diesen Commit zurückzusetzen",
     "archaeology.level3.hint4":
-        "Du kannst auch einen neuen Branch auf einen reflog-Eintrag zeigen lassen: `git branch <name> <reflog-referenz>`",
+        "Du kannst auch einen neuen Branch auf einen reflog-Eintrag zeigen lassen: `git branch <name> <reflog-referenz>`. Nach dem Reset ist `HEAD@{0}` der wiederhergestellte Commit",
     "archaeology.level3.requirement1.description": "Führe git reflog aus, um kürzliche HEAD-Bewegungen zu sehen",
     "archaeology.level3.requirement1.success": "Reflog-Historie untersucht!",
     "archaeology.level3.requirement2.description":
-        "Stelle den verlorenen Commit mit git reset --hard und einer reflog-Referenz wieder her, z. B. git reset --hard HEAD@{0}",
+        "Stelle den verlorenen Commit mit git reset --hard und einer reflog-Referenz wieder her, z. B. git reset --hard HEAD@{1}",
     "archaeology.level3.requirement2.success": "Repository-Zustand wiederhergestellt!",
     "archaeology.level3.requirement3.description":
-        "Erstelle einen Recovery-Branch, der auf einen reflog-Eintrag zeigt, z. B. git branch recovery HEAD@{1}",
+        "Erstelle einen Recovery-Branch, der auf einen reflog-Eintrag zeigt, z. B. git branch recovery HEAD@{0}",
     "archaeology.level3.requirement3.success": "Recovery-Branch erstellt!",
     "archaeology.level3.story.title": "Die große Git-Katastrophen-Wiederherstellung",
     "archaeology.level3.story.narrative":
@@ -1755,7 +1755,7 @@ Viel Erfolg, Git-Meister! 🚀`,
     "advanced.level4.objective3": "Beende die Bisect-Sitzung",
     "advanced.level4.hint1": "`git bisect start` beginnt die binäre Suche durch deine Historie",
     "advanced.level4.hint2":
-        "Markiere den aktuellen kaputten Stand mit `git bisect bad`, dann einen funktionierenden Commit mit `git bisect good`",
+        "Markiere den aktuellen kaputten Stand mit `git bisect bad`, dann einen funktionierenden Commit mit `git bisect good <commit>` (z. B. `git bisect good HEAD~3`)",
     "advanced.level4.hint3": "Wenn du fertig bist, bringt dich `git bisect reset` zum Ausgangspunkt zurück",
     "advanced.level4.requirement1.description": "Starte das Bisecting",
     "advanced.level4.requirement1.success": "Bisect-Sitzung gestartet — Git ist bereit, den Übeltäter einzukreisen.",

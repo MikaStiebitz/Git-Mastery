@@ -54,6 +54,8 @@ export function didCommandFail(output: string[], command?: string): boolean {
         // A merge conflict is a normal state to be in, not a failed command.
         if (lowerLine.includes("merge") && lowerLine.includes("failed")) return false;
         if (lowerLine.includes("automatic merge failed")) return false;
+        // An octopus merge reports its conflict as "ERROR: content conflict in <file>".
+        if (lowerLine.startsWith("error: content conflict in ")) return false;
 
         return (
             lowerLine.includes("error:") ||

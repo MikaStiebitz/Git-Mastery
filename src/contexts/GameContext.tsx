@@ -10,6 +10,7 @@ import { GitRepository } from "~/models/GitRepository";
 import { parseCommand, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import { resolvePath } from "~/lib/utils";
 import { didCommandFail, isMistake } from "~/models/commandOutcome";
+import { OPEN_EDITOR_MARKER } from "~/commands/git/RebaseCommand";
 import { cueMascot } from "~/components/GitMascot";
 import type { GameContextProps, DifficultyLevel } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -325,8 +326,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Process the command and get output
-        const output = commandProcessor.processCommand(command);
+        const rawOutput = commandProcessor.processCommand(command);
+
+        // A command that needs the editor (git rebase -i) asks for it with a marker line, the way
+        // real Git launches $EDITOR. The marker is not shown; the file opens instead.
+        const editorRequest = rawOutput.find(line => line.startsWith(OPEN_EDITOR_MARKER));
+        const output = rawOutput.filter(line => !line.startsWith(OPEN_EDITOR_MARKER));
         setTerminalOutput(prev => [...prev, ...output]);
+        if (editorRequest) {
+            openFileEditor(editorRequest.substring(OPEN_EDITOR_MARKER.length), isPlaygroundMode);
+        }
 
         // `git commit` with no message opens the message editor, the way real Git opens $EDITOR.
         //
@@ -505,17 +514,21 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const currentDir = commandProcessor.getCurrentDirectory();
         const fullPath = resolvePath(path, currentDir);
 
-        // Write the file
+        // Write the file. Git notices the change itself: status is derived from file contents.
         fileSystem.writeFile(fullPath, content);
-
-        // Update Git status - use path without leading slash
-        const gitPath = fullPath.startsWith("/") ? fullPath.substring(1) : fullPath;
-
-        // If the file is staged, it should be shown as both staged and modified
-        gitRepository.updateFileStatus(gitPath, "modified");
 
         // Only add one message to terminal output
         setTerminalOutput(prev => [...prev, t("terminal.fileSaved").replace("{path}", path)]);
+
+        // Saving a file Git opened in the editor (the `git rebase -i` todo list) hands control back
+        // to Git, which carries on exactly as it does when the real editor closes.
+        const followUp = gitRepository.takeEditorFollowUp(fullPath);
+        if (followUp) {
+            const followUpOutput = commandProcessor
+                .processCommand(followUp)
+                .filter(line => !line.startsWith(OPEN_EDITOR_MARKER));
+            setTerminalOutput(prev => [...prev, ...followUpOutput]);
+        }
 
         // Check state-based requirements (like file modified checks)
         if (levelManager.checkStateBasedRequirements(currentStage, currentLevel, gitRepository, fileSystem)) {

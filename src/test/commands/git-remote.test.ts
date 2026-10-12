@@ -38,7 +38,8 @@ describe("Git Remote Commands", () => {
 
             const remotes = context.gitRepository.getRemotes();
             expect(remotes["upstream"]).toBe("https://github.com/user/repo.git");
-            expect(output[0]).toContain("Added remote");
+            // Like real Git, adding a remote prints nothing.
+            expect(output).toEqual([]);
         });
 
         it("should show remote URL with -v flag", () => {
@@ -105,8 +106,8 @@ describe("Git Remote Commands", () => {
                 context,
             );
 
-            expect(output.join("\n")).toContain("Branch");
-            expect(output.join("\n")).toContain("set up to track");
+            expect(output.join("\n")).toContain("branch 'main' set up to track 'origin/main'.");
+            expect(context.gitRepository.getUpstream("main")).toEqual({ remote: "origin", branch: "main" });
         });
 
         it("should fail if remote does not exist", () => {
@@ -148,13 +149,19 @@ describe("Git Remote Commands", () => {
         });
 
         it("should pull from remote", () => {
+            // The remote only has a main branch once something was pushed to it.
+            context.gitRepository.push("origin", "main");
             const pullCmd = new PullCommand();
             const output = pullCmd.execute(
                 { args: ["origin", "main"], flags: {}, positionalArgs: ["origin", "main"] },
                 context,
             );
 
-            expect(output[0]).toContain("From https://github.com/user/repo.git");
+            expect(output).toEqual([
+                "From https://github.com/user/repo",
+                " * branch            main       -> FETCH_HEAD",
+                "Already up to date.",
+            ]);
         });
 
         it("should fail if remote does not exist", () => {

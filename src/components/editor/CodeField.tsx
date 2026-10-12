@@ -93,7 +93,9 @@ export function CodeField({ value, onValueChange, fileName, onKeyDown, autoFocus
     const language = languageForFile(fileName);
 
     const highlight = (code: string) => {
-        if (!language) return code;
+        // The editor renders a returned string as HTML, so plain text must be escaped: otherwise a
+        // "<commit>" in a rebase todo list (or any "<tag>") silently disappears from view.
+        if (!language) return code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
         return (
             <Highlight theme={arcadeTheme} code={code} language={language}>

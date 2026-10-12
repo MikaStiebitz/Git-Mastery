@@ -1563,7 +1563,7 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
     "archaeology.level3.objective1":
         "Usa git reflog para ver cada movimiento de HEAD, incluidos los commits 'perdidos'",
     "archaeology.level3.objective2":
-        "Usa git reset --hard con una referencia del reflog (p. ej. HEAD@{0}) para restaurar el trabajo perdido",
+        "Usa git reset --hard con una referencia del reflog (p. ej. HEAD@{1}) para restaurar el trabajo perdido",
     "archaeology.level3.objective3":
         "Crea una rama que apunte a una entrada del reflog para guardar los commits recuperados",
     "archaeology.level3.hint1":
@@ -1576,10 +1576,10 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
     "archaeology.level3.requirement1.description": "Ejecuta git reflog para ver los movimientos recientes de HEAD",
     "archaeology.level3.requirement1.success": "¡Historial del reflog examinado!",
     "archaeology.level3.requirement2.description":
-        "Restaura el commit perdido con git reset --hard y una referencia del reflog, p. ej. git reset --hard HEAD@{0}",
+        "Restaura el commit perdido con git reset --hard y una referencia del reflog, p. ej. git reset --hard HEAD@{1}",
     "archaeology.level3.requirement2.success": "¡Estado del repositorio restaurado!",
     "archaeology.level3.requirement3.description":
-        "Crea una rama de recuperación que apunte a una entrada del reflog, p. ej. git branch recovery HEAD@{1}",
+        "Crea una rama de recuperación que apunte a una entrada del reflog, p. ej. git branch recovery HEAD@{0}",
     "archaeology.level3.requirement3.success": "¡Rama de recuperación creada!",
     "archaeology.level3.story.title": "La Gran Recuperación del Desastre de Git",
     "archaeology.level3.story.narrative":
@@ -1841,7 +1841,7 @@ Este es tu momento. Demuéstrales lo que puede hacer un Maestro de Git.
     "advanced.level4.objective3": "Terminar la sesión de bisect",
     "advanced.level4.hint1": "`git bisect start` inicia la búsqueda binaria a través de tu historial",
     "advanced.level4.hint2":
-        "Marca el estado actual roto con `git bisect bad`, luego un commit conocido funcional con `git bisect good`",
+        "Marca el estado actual roto con `git bisect bad`, luego un commit conocido funcional con `git bisect good <commit>` (p. ej. `git bisect good HEAD~3`)",
     "advanced.level4.hint3": "Cuando hayas terminado, `git bisect reset` te devuelve a donde empezaste",
     "advanced.level4.requirement1.description": "Iniciar el bisect",
     "advanced.level4.requirement1.success": "Sesión de bisect iniciada: Git está listo para acotar al culpable.",

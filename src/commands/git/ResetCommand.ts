@@ -1,200 +1,136 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
-import type { GitRepository } from "~/models/GitRepository";
-import { notARepository } from "../base/GitErrors";
+import { unknownFlagError } from "../base/GitErrors";
+import { displayPath, headIsNowAt, matchPathspec, requireRepository, revisionError } from "../helpers/gitFormat";
+import { ambiguousArgument } from "~/models/git/revision";
 
 export class ResetCommand implements Command {
     name = "git reset";
     description = "Reset current HEAD to the specified state";
-    usage = "git reset [--soft | --mixed | --hard] [<commit>]";
+    usage = "git reset [--mixed | --soft | --hard | --merge | --keep] [-q] [<commit>]";
     examples = [
         "git reset --soft HEAD~1",
-        "git reset --mixed HEAD~1",
+        "git reset HEAD~1",
         "git reset --hard HEAD~1",
-        "git reset --hard HEAD",
-        "git reset --soft HEAD",
-        "git reset HEAD~2",
+        "git reset --hard HEAD@{1}",
+        "git reset --hard ORIG_HEAD",
+        "git reset file.txt",
+        "git reset --hard origin/main",
     ];
     includeInTabCompletion = true;
-    supportsFileCompletion = false;
+    supportsFileCompletion = true;
 
     /** Flag semantics for this command (see FlagSpec). */
     flagSpec: FlagSpec = {
-        boolean: ["soft", "hard", "mixed", "merge", "keep", "q", "quiet", "p", "patch"],
+        boolean: ["soft", "hard", "mixed", "merge", "keep", "q", "quiet", "p", "patch", "N", "intent-to-add"],
         value: [],
     };
+
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository } = context;
+        const notRepo = requireRepository(context);
+        if (notRepo) return notRepo;
+        const repo = context.gitRepository;
 
-        if (!gitRepository.isInitialized()) {
-            return notARepository();
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) return unknownFlagError(unknownFlag, this.usage);
+
+        const modes = (["soft", "mixed", "hard", "merge", "keep"] as const).filter(m => args.flags[m] !== undefined);
+        if (modes.length > 1) return [`fatal: options '--${modes[0]}' and '--${modes[1]}' cannot be used together`];
+        const explicitMode = modes[0];
+        const mode = explicitMode ?? "mixed";
+        const quiet = args.flags.q !== undefined || args.flags.quiet !== undefined;
+
+        if (args.flags.p !== undefined || args.flags.patch !== undefined) {
+            return ["error: interactive reset needs a real terminal and is not available here."];
         }
 
-        // Parse options: --soft, --mixed (default), --hard
-        let mode: "soft" | "mixed" | "hard" = "mixed"; // mixed is default
-        let target = "HEAD";
+        // Split the arguments into an optional commit and paths, the way Git disambiguates them.
+        const dashDash = args.args.indexOf("--");
+        const positional = args.positionalArgs;
+        let revision: string | undefined;
+        let paths: string[] = [];
 
-        // Parse reset mode flags
-        if (args.flags.soft !== undefined) {
-            mode = "soft";
-        } else if (args.flags.hard !== undefined) {
-            mode = "hard";
-        } else if (args.flags.mixed !== undefined) {
-            mode = "mixed";
-        }
-
-        // Parse target commit
-        if (args.positionalArgs.length > 0) {
-            target = args.positionalArgs[0] ?? "HEAD";
-        }
-
-        // Get all commits for the current branch (in chronological order)
-        const commits = gitRepository.getCommitHistory();
-
-        if (commits.length === 0) {
-            if (target === "HEAD") {
-                return this.performReset(gitRepository, mode, "HEAD", 0);
+        if (dashDash !== -1) {
+            const afterCount = args.args.length - dashDash - 1;
+            paths = positional.slice(positional.length - afterCount);
+            const before = positional.slice(0, positional.length - afterCount);
+            revision = before[0];
+            if (before.length > 1) paths = [...before.slice(1), ...paths];
+        } else if (positional.length > 0) {
+            const first = positional[0]!;
+            const isRevision = repo.resolveRevision(first).ok || (first === "HEAD" && repo.getHeadCommitId() === null);
+            if (isRevision) {
+                revision = first;
+                paths = positional.slice(1);
             } else {
-                return [`fatal: ambiguous argument '${target}': unknown revision or path not in the working tree.`];
-            }
-        }
-
-        // Parse HEAD references (HEAD~N)
-        let commitsBack = 0;
-        let targetCommitId: string | null = null;
-
-        if (target === "HEAD") {
-            commitsBack = 0;
-            targetCommitId = commits[commits.length - 1] ?? null;
-        } else if (target.startsWith("HEAD~")) {
-            const num = parseInt(target.substring(5));
-            if (!isNaN(num) && num > 0) {
-                commitsBack = num;
-                if (commitsBack >= commits.length) {
-                    return [`fatal: ambiguous argument '${target}': unknown revision or path not in the working tree.`];
+                const tracked = new Set([...Object.keys(repo.getIndex()), ...Object.keys(repo.getHeadTree())]);
+                const allPaths = positional.every(p => matchPathspec(context, p, tracked).length > 0);
+                if (!allPaths) {
+                    // Not a commit and not a file: this is where `HEAD@{1}` used to fail (issue #109).
+                    const resolution = repo.resolveRevision(first);
+                    if (!resolution.ok && resolution.message && resolution.reason === "reflog-too-short") {
+                        return resolution.message;
+                    }
+                    return revisionError(repo, first, "reset");
                 }
-                targetCommitId = commits[commits.length - 1 - commitsBack] ?? null;
-            } else {
-                return [`fatal: ambiguous argument '${target}': unknown revision or path not in the working tree.`];
-            }
-        } else {
-            // Try to find commit by ID
-            targetCommitId = commits.find(id => id.startsWith(target)) ?? null;
-            if (!targetCommitId) {
-                return [`fatal: ambiguous argument '${target}': unknown revision or path not in the working tree.`];
-            }
-            // Calculate how many commits back this is
-            const targetIndex = commits.indexOf(targetCommitId);
-            if (targetIndex !== -1) {
-                commitsBack = commits.length - 1 - targetIndex;
+                paths = positional;
             }
         }
 
-        if (!targetCommitId) {
-            return [`fatal: ambiguous argument '${target}': unknown revision or path not in the working tree.`];
+        if (paths.length > 0) {
+            if (explicitMode && explicitMode !== "mixed") return [`fatal: Cannot do ${explicitMode} reset with paths.`];
+            return this.resetPaths(context, revision ?? "HEAD", paths, quiet);
         }
 
-        return this.performReset(gitRepository, mode, targetCommitId, commitsBack);
+        const spec = revision ?? "HEAD";
+
+        // On an unborn branch the only thing to reset is the index.
+        if (repo.getHeadCommitId() === null) {
+            if (spec !== "HEAD") return ambiguousArgument(spec, "reset");
+            for (const path of Object.keys(repo.getIndex())) repo.unstagePath(path, null);
+            return [];
+        }
+
+        const targetId = repo.resolveCommit(spec);
+        if (!targetId) return revisionError(repo, spec, "reset");
+
+        const result = repo.resetTo(targetId, mode, spec);
+        if (!result.ok) return result.error;
+
+        if (quiet) return [];
+        if (mode === "hard" || mode === "merge" || mode === "keep") return [headIsNowAt(repo)];
+        if (mode === "mixed") return this.unstagedAfterReset(context);
+        return [];
     }
 
-    private performReset(
-        gitRepository: GitRepository,
-        mode: "soft" | "mixed" | "hard",
-        targetCommitId: string,
-        commitsBack: number,
-    ): string[] {
-        const status = gitRepository.getStatus();
+    /** `git reset [<commit>] -- <paths>`: copy those paths from the commit into the index only. */
+    private resetPaths(context: CommandContext, spec: string, pathspecs: string[], quiet: boolean): string[] {
+        const repo = context.gitRepository;
+        const id = repo.getHeadCommitId() === null && spec === "HEAD" ? null : repo.resolveCommit(spec);
+        if (id === undefined) return revisionError(repo, spec, "reset");
 
-        switch (mode) {
-            case "hard":
-                // Reset working directory, staging area, and HEAD
-                // Clear all modifications, staged changes, and untracked files
-                const clearedFiles: string[] = [];
-
-                for (const [file, fileStatus] of Object.entries(status)) {
-                    if (
-                        fileStatus === "modified" ||
-                        fileStatus === "staged" ||
-                        fileStatus === "untracked" ||
-                        fileStatus === "staged+modified"
-                    ) {
-                        gitRepository.updateFileStatus(file, "committed");
-                        clearedFiles.push(file);
-                    }
-                }
-
-                // Use the new resetToCommit method
-                const hardResetSuccess = gitRepository.resetToCommit(targetCommitId, "hard");
-
-                if (!hardResetSuccess) {
-                    return [`fatal: Failed to reset to commit ${targetCommitId.substring(0, 7)}`];
-                }
-
-                if (commitsBack > 0) {
-                    return [
-                        `HEAD is now at ${targetCommitId.substring(0, 7)} (${commitsBack} commit${commitsBack > 1 ? "s" : ""} behind)`,
-                        "All local changes have been discarded.",
-                    ];
-                } else {
-                    return [
-                        `HEAD is now at ${targetCommitId.substring(0, 7)}`,
-                        "Working directory and staging area cleared.",
-                    ];
-                }
-
-            case "soft":
-                // Only move HEAD, keep staging area and working directory unchanged
-                const softResetSuccess = gitRepository.resetToCommit(targetCommitId, "soft");
-
-                if (!softResetSuccess) {
-                    return [`fatal: Failed to reset to commit ${targetCommitId.substring(0, 7)}`];
-                }
-
-                if (commitsBack > 0) {
-                    return [
-                        `HEAD is now at ${targetCommitId.substring(0, 7)} (${commitsBack} commit${commitsBack > 1 ? "s" : ""} behind)`,
-                        "Staged changes and working directory preserved.",
-                    ];
-                } else {
-                    return [
-                        `HEAD is now at ${targetCommitId.substring(0, 7)}`,
-                        "No changes to staging area or working directory.",
-                    ];
-                }
-
-            case "mixed":
-            default:
-                // Reset staging area but keep working directory
-                // Move staged files to modified state
-                const unstagedFiles: string[] = [];
-
-                for (const [file, fileStatus] of Object.entries(status)) {
-                    if (fileStatus === "staged" || fileStatus === "staged+modified") {
-                        gitRepository.updateFileStatus(file, "modified");
-                        unstagedFiles.push(file);
-                    }
-                }
-
-                const mixedResetSuccess = gitRepository.resetToCommit(targetCommitId, "mixed");
-
-                if (!mixedResetSuccess) {
-                    return [`fatal: Failed to reset to commit ${targetCommitId.substring(0, 7)}`];
-                }
-
-                if (commitsBack > 0) {
-                    return [
-                        `HEAD is now at ${targetCommitId.substring(0, 7)} (${commitsBack} commit${commitsBack > 1 ? "s" : ""} behind)`,
-                        unstagedFiles.length > 0
-                            ? `Unstaged changes after reset:\n${unstagedFiles.map(f => `M\t${f}`).join("\n")}`
-                            : "Working directory preserved.",
-                    ];
-                } else {
-                    return [
-                        `HEAD is now at ${targetCommitId.substring(0, 7)}`,
-                        unstagedFiles.length > 0
-                            ? `Unstaged changes:\n${unstagedFiles.map(f => `M\t${f}`).join("\n")}`
-                            : "No staged changes to reset.",
-                    ];
-                }
+        const source = id ? repo.treeOf(id) : {};
+        const candidates = new Set([
+            ...Object.keys(repo.getIndex()),
+            ...Object.keys(source),
+            ...repo.getUnmergedPaths(),
+        ]);
+        const paths = new Set<string>();
+        for (const pathspec of pathspecs) {
+            const matched = matchPathspec(context, pathspec, candidates);
+            if (matched.length === 0) {
+                return [`error: pathspec '${pathspec}' did not match any file(s) known to git`];
+            }
+            matched.forEach(p => paths.add(p));
         }
+        for (const path of paths) repo.unstagePath(path, id);
+        return quiet ? [] : this.unstagedAfterReset(context);
+    }
+
+    private unstagedAfterReset(context: CommandContext): string[] {
+        const changed = context.gitRepository
+            .statusEntries()
+            .filter(e => e.worktree === "M" || e.worktree === "D")
+            .map(e => `${e.worktree}\t${displayPath(context, e.path)}`);
+        return changed.length > 0 ? ["Unstaged changes after reset:", ...changed] : [];
     }
 }

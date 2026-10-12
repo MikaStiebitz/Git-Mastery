@@ -1548,7 +1548,7 @@ Bisect به شما کمک می‌کند با استفاده از جستجوی د
     "archaeology.level3.objective1":
         "از git reflog برای دیدن هر حرکت HEAD، از جمله کامیت‌های 'ازدست‌رفته'، استفاده کنید",
     "archaeology.level3.objective2":
-        "از git reset --hard همراه با یک مرجع reflog (مثلاً HEAD@{0}) برای بازیابی کار ازدست‌رفته استفاده کنید",
+        "از git reset --hard همراه با یک مرجع reflog (مثلاً HEAD@{1}) برای بازیابی کار ازدست‌رفته استفاده کنید",
     "archaeology.level3.objective3":
         "یک شاخه ایجاد کنید که به یک ورودی reflog اشاره کند تا کامیت‌های بازیابی‌شده را ذخیره کنید",
     "archaeology.level3.hint1":
@@ -1562,10 +1562,10 @@ Bisect به شما کمک می‌کند با استفاده از جستجوی د
     "archaeology.level3.requirement1.description": "git reflog را اجرا کنید تا حرکت‌های اخیر HEAD را ببینید",
     "archaeology.level3.requirement1.success": "تاریخچه reflog بررسی شد!",
     "archaeology.level3.requirement2.description":
-        "کامیت ازدست‌رفته را با git reset --hard و یک مرجع reflog بازیابی کنید، مثلاً git reset --hard HEAD@{0}",
+        "کامیت ازدست‌رفته را با git reset --hard و یک مرجع reflog بازیابی کنید، مثلاً git reset --hard HEAD@{1}",
     "archaeology.level3.requirement2.success": "وضعیت مخزن بازیابی شد!",
     "archaeology.level3.requirement3.description":
-        "یک شاخه بازیابی ایجاد کنید که به یک ورودی reflog اشاره کند، مثلاً git branch recovery HEAD@{1}",
+        "یک شاخه بازیابی ایجاد کنید که به یک ورودی reflog اشاره کند، مثلاً git branch recovery HEAD@{0}",
     "archaeology.level3.requirement3.success": "شاخه بازیابی ایجاد شد!",
     "archaeology.level3.story.title": "بازیابی بزرگ فاجعه Git",
     "archaeology.level3.story.narrative":
@@ -1820,7 +1820,7 @@ Bisect به شما کمک می‌کند با استفاده از جستجوی د
     "advanced.level4.objective3": "جلسه bisect را پایان دهید",
     "advanced.level4.hint1": "`git bisect start` جست‌وجوی دودویی در تاریخچه را آغاز می‌کند",
     "advanced.level4.hint2":
-        "وضعیت خراب فعلی را با `git bisect bad` و سپس یک کامیت سالم را با `git bisect good` علامت بزنید",
+        "وضعیت خراب فعلی را با `git bisect bad` و سپس یک کامیت سالم را با `git bisect good <commit>` (مثلاً `git bisect good HEAD~3`) علامت بزنید",
     "advanced.level4.hint3": "در پایان، `git bisect reset` شما را به نقطه شروع برمی‌گرداند",
     "advanced.level4.requirement1.description": "Bisect را شروع کنید",
     "advanced.level4.requirement1.success": "جلسه bisect شروع شد — Git آماده است مقصر را محاصره کند.",

@@ -186,7 +186,7 @@ const mergeLevel3 = createLevel({
                 {
                     file: "/src/config.js",
                     content: createMergeConflictContent(
-                        '// Configuration file\nconst config = {\n  port: 3000,\n  host: "localhost",\n  debug: true\n};\n\nmodule.exports = config;',
+                        '// Configuration file\nconst config = {\n  port: 3000,\n  host: "localhost",\n  debug: true,\n  logLevel: "verbose"\n};\n\nmodule.exports = config;',
                         '// Configuration file\nconst config = {\n  port: 8080,\n  host: "example.com",\n  debug: false\n};\n\nmodule.exports = config;',
                     ),
                     branch1: "main",

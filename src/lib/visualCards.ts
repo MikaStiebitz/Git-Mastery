@@ -436,6 +436,14 @@ const CHANGE_MAKERS = new Set([
 function needsEditing(level: LevelType): boolean {
     if (level.requirements.some(requirement => requirement.checkFileChanged !== undefined)) return true;
     if ((level.initialState?.git?.mergeConflicts?.length ?? 0) > 0) return true;
+    // A merge followed by staging is a merge whose conflict the player resolves by editing.
+    const mergeAt = level.requirements.findIndex(requirement => requirement.command === "git merge");
+    if (
+        mergeAt !== -1 &&
+        level.requirements.slice(mergeAt + 1).some(requirement => requirement.command === "git add")
+    ) {
+        return true;
+    }
 
     // Only a step that comes before the first commit can supply the thing to commit.
     const firstCommit = level.requirements.findIndex(requirement => requirement.command === "git commit");

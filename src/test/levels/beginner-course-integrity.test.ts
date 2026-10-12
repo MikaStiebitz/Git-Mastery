@@ -31,7 +31,7 @@ describe("beginner course integrity", () => {
         const [cmd, ...args] = splitCommandRespectingQuotes(command.trim());
 
         const completed =
-            !didCommandFail(lines) &&
+            !didCommandFail(lines, command) &&
             cmd !== undefined &&
             levelManager.checkLevelCompletion(stage, level, cmd, args, gitRepository);
 
@@ -229,10 +229,8 @@ describe("beginner course integrity", () => {
         it("does not complete when there is nothing to diff", () => {
             enter("intro", 4);
             play("intro", 4, "git status"); // clears the sequential first requirement
-            // Force the leaked-looking state: everything untracked, nothing modified.
-            gitRepository.updateFileStatus("README.md", "untracked");
-            gitRepository.updateFileStatus("src/app.js", "untracked");
-            gitRepository.updateFileStatus("src/config.js", "untracked");
+            // Throw the change away: now there is nothing left to compare.
+            play("intro", 4, "git restore src/config.js");
 
             const { output, completed } = play("intro", 4, "git diff");
 

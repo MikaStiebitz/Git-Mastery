@@ -37,6 +37,8 @@ const masteryLevel1 = createLevel({
         createRequirement({
             command: "git commit",
             requiresArgs: ["-m"],
+            // The commit has to conclude the merge, not just record something.
+            checkMergeExists: true,
             description: "mastery.level1.requirement3.description",
             successMessage: "mastery.level1.requirement3.success",
             id: "git-commit-message",
@@ -63,36 +65,45 @@ const masteryLevel1 = createLevel({
             initialized: true,
             currentBranch: "main",
             branches: ["main", "feature/auth", "feature/payments", "feature/ui"],
+            // Three teams branched off the same commit and two of them changed the same function.
             commits: [
                 {
                     message: "Initial application structure",
                     files: ["/src/app.js", "/src/utils/shared.js"],
                 },
-            ],
-            mergeConflicts: [
                 {
-                    file: "/src/utils/shared.js",
-                    content: `// Shared utilities
-<<<<<<< feature/auth
-function formatDate(date) {
-  // Auth team needs ISO format
-  return date.toISOString();
-}
-=======
-function formatDate(date) {
-  // Payments team needs locale format
-  return date.toLocaleDateString();
-}
->>>>>>> feature/payments
-
-<<<<<<< feature/ui
-// UI utility functions
-function formatCurrency(amount) {
-  return '$' + amount.toFixed(2);
-}
-=======
-// Empty - no UI utilities in other branches
->>>>>>> HEAD`,
+                    message: "Add authentication middleware",
+                    branch: "feature/auth",
+                    files: ["/src/auth.js", "/src/utils/shared.js"],
+                    contents: {
+                        "/src/auth.js":
+                            "// Authentication middleware\nmodule.exports = function auth(req, res, next) {\n  if (!req.user) return res.status(401).end();\n  next();\n};",
+                        "/src/utils/shared.js":
+                            "// Shared utilities\nfunction formatDate(date) {\n  // Auth team needs ISO format for token expiry\n  return date.toISOString();\n}",
+                    },
+                },
+                // Back to main before the next team branches off.
+                { message: "", files: [], branch: "main" },
+                {
+                    message: "Add payment processing",
+                    branch: "feature/payments",
+                    files: ["/src/payments.js", "/src/utils/shared.js"],
+                    contents: {
+                        "/src/payments.js":
+                            "// Payment processing\nmodule.exports = function payments(req, res, next) {\n  next();\n};",
+                        "/src/utils/shared.js":
+                            "// Shared utilities\nfunction formatDate(date) {\n  // Payments team needs locale format for receipts\n  return date.toLocaleDateString();\n}",
+                    },
+                },
+                { message: "", files: [], branch: "main" },
+                {
+                    message: "Add UI helpers",
+                    branch: "feature/ui",
+                    files: ["/src/ui.js"],
+                    contents: {
+                        "/src/ui.js":
+                            "// UI utility functions\nfunction formatCurrency(amount) {\n  return '$' + amount.toFixed(2);\n}\n\nmodule.exports = { formatCurrency };",
+                    },
                 },
             ],
         }),
@@ -265,18 +276,38 @@ const masteryLevel3 = createLevel({
             initialized: true,
             currentBranch: "main",
             branches: ["main", "hotfix/payment-fix", "hotfix/performance", "hotfix/checkout"],
+            // main is broken since the "performance optimizations". The checkout team already has
+            // a fix on hotfix/checkout. The way out: branch from the last good commit and
+            // cherry-pick only that fix onto it.
             commits: [
                 {
                     message: "Working Black Friday preparation (GOOD)",
                     files: ["/src/payments/processor.js", "/src/checkout/cart.js"],
+                    contents: {
+                        "/src/payments/processor.js":
+                            "// Payment processor - WORKING VERSION\nfunction processPayment(data) {\n  return processSync(data);\n}",
+                    },
                 },
                 {
                     message: "Deploy performance optimizations (BROKEN)",
                     files: ["/src/payments/processor.js"],
+                    contents: {
+                        "/src/payments/processor.js":
+                            "// Payment processor - BROKEN VERSION\nfunction processPayment(data) {\n  // BUG: This breaks on high load\n  return processAsync(data).catch(() => null);\n}",
+                    },
                 },
                 {
                     message: "Emergency: Add monitoring and alerts",
                     files: ["/EMERGENCY.md"],
+                },
+                {
+                    message: "Fix cart total rounding",
+                    branch: "hotfix/checkout",
+                    files: ["/src/checkout/cart.js"],
+                    contents: {
+                        "/src/checkout/cart.js":
+                            "// Shopping cart\nfunction calculateTotal(items) {\n  const total = items.reduce((sum, item) => sum + item.price, 0);\n  return Math.round(total * 100) / 100;\n}",
+                    },
                 },
             ],
         }),

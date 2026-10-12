@@ -20,8 +20,8 @@ export class OutputFormatterService {
      * it is what real diffs show, and it is the non-colour signal.
      */
     private renderDiffLine(line: string): React.ReactNode | null {
-        // File header: "diff --git a/src/config.js b/src/config.js"
-        if (line.startsWith("diff --git ")) {
+        // File header: "diff --git a/src/config.js b/src/config.js" (or "diff --cc" for a conflict)
+        if (line.startsWith("diff --git ") || line.startsWith("diff --cc ")) {
             return <div className="mt-2 font-semibold text-[var(--term-text)]">{line}</div>;
         }
 
@@ -45,6 +45,11 @@ export class OutputFormatterService {
                     {line}
                 </div>
             );
+        }
+
+        // Git's note that the file's last line has no newline — metadata, not content.
+        if (line === "\\ No newline at end of file") {
+            return <div className="text-[var(--term-text)] opacity-50">{line}</div>;
         }
 
         // The changes themselves. A leading +/- only means "added/removed" inside a diff, so this
@@ -73,6 +78,14 @@ export class OutputFormatterService {
     }
 
     renderTerminalOutput(line: string): React.ReactNode {
+        // An editor request (git rebase -i) is handled by the terminal, never shown.
+        if (line.startsWith("__OPEN_EDITOR__:")) return null;
+
+        // A conflict is the line to notice in a merge, pull, rebase or cherry-pick.
+        if (line.startsWith("CONFLICT ") || line.startsWith("ERROR: content conflict")) {
+            return <div className="font-semibold text-[var(--term-error)]">{line}</div>;
+        }
+
         // Render inline SVG git graph
         if (line.startsWith(GIT_GRAPH_PREFIX)) {
             try {
@@ -164,6 +177,20 @@ export class OutputFormatterService {
             return (
                 <div>
                     <span className="text-[var(--term-warning)]">{line}</span>
+                </div>
+            );
+        }
+        if (line.includes("renamed:")) {
+            return (
+                <div>
+                    <span className="text-[var(--term-success)]">{line}</span>
+                </div>
+            );
+        }
+        if (/^\t(both modified|both added|deleted by us|deleted by them):/.test(line)) {
+            return (
+                <div>
+                    <span className="text-[var(--term-error)]">{line}</span>
                 </div>
             );
         }

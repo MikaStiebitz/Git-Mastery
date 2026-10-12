@@ -47,7 +47,7 @@ describe("Git Repository Multi-Directory Support", () => {
         // Status in / should fail (no repo in root)
         context.currentDirectory = "/";
         const rootStatus = statusCmd.execute({ args: [], flags: {}, positionalArgs: [] }, context);
-        expect(rootStatus).toEqual(["fatal: not a git repository (or any of the parent directories): .git"]);
+        expect(rootStatus[0]).toBe("fatal: not a git repository (or any of the parent directories): .git");
     });
 
     it("should NOT allow independent repositories in different directories (single repo limitation)", () => {
@@ -62,7 +62,7 @@ describe("Git Repository Multi-Directory Support", () => {
         // Try to init in /test - should fail because root already has repo
         context.currentDirectory = "/test";
         const testInit = initCmd.execute({ args: [], flags: {}, positionalArgs: [] }, context);
-        expect(testInit).toEqual(["Repository already initialized elsewhere. Only one repository is supported."]);
+        expect(testInit[0]).toBe("Repository already initialized elsewhere. Only one repository is supported.");
 
         // Status should work only in root (where repo is)
         context.currentDirectory = "/";

@@ -110,113 +110,249 @@ export class LevelManager {
     // Set up git state based on configuration
     private setupGitState(gitRepository: GitRepository, fileSystem: FileSystem, gitState: GitState): boolean {
         try {
-            // Initialize git if specified
-            if (gitState.initialized) {
-                gitRepository.init();
+            if (!gitState.initialized) return true;
 
-                // Set up remotes. A level that declares them gets exactly those — including none at
-                // all, which is what a level teaching `git remote add origin` needs, since an origin
-                // that already exists makes the command the level asks for fail as "already exists".
-                if (gitState.remotes) {
-                    for (const [name, url] of Object.entries(gitState.remotes)) {
-                        gitRepository.addRemote(name, url);
-                    }
-                } else if (Object.keys(gitRepository.getRemotes()).length === 0) {
-                    gitRepository.addRemote("origin", "https://github.com/user/repo.git");
+            gitRepository.init();
+            // Commits a level sets up are by "the team", not by the player.
+            gitRepository.setSetupMode(true);
+
+            // Set up remotes. A level that declares them gets exactly those — including none at
+            // all, which is what a level teaching `git remote add origin` needs, since an origin
+            // that already exists makes the command the level asks for fail as "already exists".
+            if (gitState.remotes) {
+                for (const [name, url] of Object.entries(gitState.remotes)) {
+                    gitRepository.addRemote(name, url);
                 }
+            } else if (Object.keys(gitRepository.getRemotes()).length === 0) {
+                gitRepository.addRemote("origin", "https://github.com/user/repo.git");
+            }
+            if ("origin" in gitRepository.getRemotes()) {
+                gitRepository.setUpstream("main", "origin", "main");
+            }
 
-                // Create branches if specified
-                if (gitState.branches) {
-                    const existingBranches = gitRepository.getBranches();
-                    for (const branch of gitState.branches) {
-                        // Skip branches that already exist (e.g. the default "main" created by init())
-                        if (existingBranches.includes(branch)) {
-                            continue;
-                        }
-                        if (!gitRepository.createBranch(branch)) {
-                            console.warn(`Failed to create branch: ${branch}`);
-                            return false;
-                        }
-                    }
-                }
+            // A conflict the level wants to start in: each side's commits carry that side's version
+            // of the file, so the merge (or rebase) below conflicts for real.
+            const conflictSides = this.conflictSides(gitState.mergeConflicts ?? []);
 
-                // Create commits if specified
-                if (gitState.commits) {
-                    for (const commit of gitState.commits) {
-                        // Switch branch BEFORE committing if needed
-                        if (commit.branch && commit.branch !== gitRepository.getCurrentBranch()) {
-                            const checkoutResult = gitRepository.checkout(commit.branch);
-                            if (!checkoutResult.success) {
-                                console.warn(`Failed to checkout branch: ${commit.branch}`);
-                                return false;
-                            }
-                        }
+            // In real Git a branch cannot exist before there is a commit for it to point at, so the
+            // branches a level lists are created lazily: the first commit that names a branch forks
+            // it from wherever HEAD is at that moment; the rest are created once history exists.
+            const pending = new Set(gitState.branches ?? []);
 
-                        // Only commit if there's a message (empty message = just switch branch)
-                        if (commit.message) {
-                            // Stage files for this commit
-                            for (const filePath of commit.files) {
-                                gitRepository.addFile(filePath);
-                            }
+            // Spread the history over the past days, one day per commit, like a real project's.
+            const setupCommits = gitState.commits ?? [];
+            const realCommits = setupCommits.filter(c => c.message).length;
+            let commitIndex = 0;
 
-                            // Commit the changes. Branch-marker commits legitimately have no
-                            // files (e.g. "Create develop branch"), so allow empty commits here.
-                            const allowEmpty = commit.files.length === 0;
-                            const commitId = gitRepository.commit(commit.message, allowEmpty);
-                            if (!commitId) {
-                                console.warn(`Failed to create commit: ${commit.message}`);
-                                return false;
-                            }
+            for (const commit of setupCommits) {
+                if (commit.branch && commit.branch !== gitRepository.getCurrentBranch()) {
+                    if (!gitRepository.getBornBranches().includes(commit.branch)) {
+                        if (gitRepository.getHeadCommitId() === null) {
+                            // Nothing to fork from yet: just start history on this branch.
+                            gitRepository.setUnbornBranch(commit.branch);
+                        } else {
+                            gitRepository.createBranch(commit.branch);
                         }
                     }
-                }
-
-                // Create merge conflicts if specified
-                if (gitState.mergeConflicts) {
-                    this.setupMergeConflicts(gitRepository, fileSystem, gitState.mergeConflicts);
-                }
-
-                // Switch to the specified branch if provided
-                if (gitState.currentBranch) {
-                    const checkoutResult = gitRepository.checkout(gitState.currentBranch);
+                    pending.delete(commit.branch);
+                    const checkoutResult = gitRepository.checkout(commit.branch);
                     if (!checkoutResult.success) {
-                        console.warn(`Failed to checkout final branch: ${gitState.currentBranch}`);
+                        console.warn(`Failed to checkout branch: ${commit.branch}`);
                         return false;
                     }
                 }
 
-                // Apply file changes to create modified/untracked/deleted files
-                if (gitState.fileChanges) {
-                    this.applyFileChanges(gitRepository, fileSystem, gitState.fileChanges);
+                // Only commit if there's a message (empty message = just switch branch)
+                if (!commit.message) continue;
+
+                for (const [filePath, content] of Object.entries(commit.contents ?? {})) {
+                    fileSystem.writeFile(filePath.startsWith("/") ? filePath : `/${filePath}`, content);
+                }
+                for (const filePath of commit.files) {
+                    const side = conflictSides.get(this.normalizeLevelPath(filePath));
+                    if (side && commit.branch) {
+                        const version =
+                            commit.branch === side.theirsBranch
+                                ? side.theirs
+                                : commit.branch === side.oursBranch
+                                  ? side.ours
+                                  : undefined;
+                        if (version !== undefined) fileSystem.writeFile(filePath, version);
+                    }
+                    gitRepository.addFile(filePath);
                 }
 
-                // Set up remote commits if specified
-                if (gitState.remoteCommits) {
-                    for (const remoteCommitSet of gitState.remoteCommits) {
-                        gitRepository.setRemoteCommits(remoteCommitSet.branch, remoteCommitSet.commits);
+                // Setup history may record a commit whose files did not change (or none at all, as
+                // a branch marker); real Git would need --allow-empty for that, so allow it here.
+                commitIndex++;
+                const commitId = gitRepository.commit(commit.message, true, {
+                    author: commit.author ? this.parseAuthor(commit.author) : undefined,
+                    date: new Date(Date.now() - (realCommits - commitIndex + 1) * 86_400_000),
+                });
+                if (!commitId) {
+                    console.warn(`Failed to create commit: ${commit.message}`);
+                    return false;
+                }
+            }
+
+            // Remaining branches point at the branch the level starts on (or HEAD), so a branch that
+            // "was merged" really is merged into it.
+            const base =
+                (gitState.currentBranch ? gitRepository.getBranchTip(gitState.currentBranch) : null) ??
+                gitRepository.getHeadCommitId();
+            if (base !== null) {
+                for (const branch of pending) {
+                    if (!gitRepository.getBornBranches().includes(branch) && branch !== gitRepository.getBranchName()) {
+                        gitRepository.createBranch(branch, base);
                     }
                 }
             }
+
+            // Switch to the specified branch if provided
+            if (gitState.currentBranch && gitState.currentBranch !== gitRepository.getCurrentBranch()) {
+                const checkoutResult = gitRepository.checkout(gitState.currentBranch);
+                if (!checkoutResult.success) {
+                    console.warn(`Failed to checkout final branch: ${gitState.currentBranch}`);
+                    return false;
+                }
+            }
+
+            // "Someone" threw the last commits away with `git reset --hard` — they now live only in
+            // the reflog, which is exactly what a recovery level needs.
+            if (gitState.lostCommits) {
+                const target = gitRepository.resolveCommit(`HEAD~${gitState.lostCommits}`);
+                if (target) gitRepository.resetTo(target, "hard", `HEAD~${gitState.lostCommits}`);
+            }
+
+            // Leave the repository in the middle of a conflicted merge or rebase
+            if (gitState.mergeConflicts && gitState.mergeConflicts.length > 0) {
+                this.setupMergeConflicts(
+                    gitRepository,
+                    fileSystem,
+                    gitState.mergeConflicts,
+                    gitState.inProgress ?? "merge",
+                );
+            }
+
+            // Apply file changes to create modified/untracked/deleted files
+            if (gitState.fileChanges) {
+                this.applyFileChanges(gitRepository, fileSystem, gitState.fileChanges);
+            }
+
+            // Set up remote commits if specified
+            if (gitState.remoteCommits) {
+                for (const remoteCommitSet of gitState.remoteCommits) {
+                    gitRepository.setRemoteCommits(remoteCommitSet.branch, remoteCommitSet.commits);
+                }
+            }
+
+            gitRepository.setSetupMode(false);
             return true;
         } catch (error) {
             console.error("Error during git state setup:", error);
+            gitRepository.setSetupMode(false);
             return false;
         }
     }
 
-    // Set up merge conflicts
+    /** "Sarah Chen <sarah@x.org>" or "Sarah Chen" → name and email. */
+    private parseAuthor(author: string): { name: string; email: string } {
+        const match = /^(.*?)\s*<([^>]+)>$/.exec(author.trim());
+        if (match) return { name: match[1]!, email: match[2]! };
+        const name = author.trim();
+        return { name, email: `${name.toLowerCase().replace(/\s+/g, ".")}@example.com` };
+    }
+
+    private normalizeLevelPath(path: string): string {
+        return path.replace(/^\/+/, "");
+    }
+
+    /**
+     * Split a level's conflict text into the two full file versions it describes: everything outside
+     * the markers plus the "ours" (or "theirs") half of each conflict block.
+     */
+    private conflictSides(
+        conflicts: MergeConflict[],
+    ): Map<string, { ours: string; theirs: string; oursBranch?: string; theirsBranch?: string }> {
+        const sides = new Map<string, { ours: string; theirs: string; oursBranch?: string; theirsBranch?: string }>();
+        for (const conflict of conflicts) {
+            if (!conflict.branch1 || !conflict.branch2) continue;
+            const ours: string[] = [];
+            const theirs: string[] = [];
+            let section: "both" | "ours" | "theirs" = "both";
+            for (const line of conflict.content.split("\n")) {
+                if (line.startsWith("<<<<<<<")) section = "ours";
+                else if (line.startsWith("=======") && section === "ours") section = "theirs";
+                else if (line.startsWith(">>>>>>>") && section === "theirs") section = "both";
+                else {
+                    if (section !== "theirs") ours.push(line);
+                    if (section !== "ours") theirs.push(line);
+                }
+            }
+            const trim = (lines: string[]) => lines.join("\n").replace(/^\n+/, "").replace(/\n+$/, "");
+            sides.set(this.normalizeLevelPath(conflict.file), {
+                ours: trim(ours),
+                theirs: trim(theirs),
+                oursBranch: conflict.branch1,
+                theirsBranch: conflict.branch2,
+            });
+        }
+        return sides;
+    }
+
+    /**
+     * Leave the level in the middle of a conflicted merge (or rebase), the state a real `git merge`
+     * stops in: MERGE_HEAD set, the file unmerged and carrying conflict markers. `git merge --abort`,
+     * `git status`, `git add` and the concluding `git commit` then all behave as they would for real.
+     */
     private setupMergeConflicts(
         gitRepository: GitRepository,
         fileSystem: FileSystem,
         conflicts: MergeConflict[],
+        operation: "merge" | "rebase",
     ): void {
-        // Implementation would depend on how your GitRepository handles merge conflicts
-        // This is a simplified approach
+        const withBranches = conflicts.find(c => c.branch1 && c.branch2);
+
+        if (withBranches?.branch1 && withBranches.branch2) {
+            const ours = withBranches.branch1;
+            const theirs = withBranches.branch2;
+            const oursId = gitRepository.getBranchTip(ours);
+            const theirsId = gitRepository.getBranchTip(theirs);
+
+            if (oursId && theirsId) {
+                if (operation === "rebase") {
+                    // Rebase `theirs` onto `ours` and stop at the first conflict.
+                    gitRepository.checkout(theirs);
+                    const commits = gitRepository.rebaseCommits(oursId, theirsId);
+                    gitRepository.beginRebaseConflict({ onto: oursId, ontoLabel: ours, commits });
+                    if (gitRepository.getRebaseState()) return;
+                } else {
+                    if (gitRepository.getCurrentBranch() !== ours) gitRepository.checkout(ours);
+                    const outcome = gitRepository.mergeCommit(theirsId, { label: theirs, ff: "no-ff", noCommit: true });
+                    if (outcome.kind === "conflict") return;
+                    // The two versions merged cleanly after all; fall through to writing the
+                    // level's conflict text by hand so the level still starts where it says.
+                    gitRepository.abortMerge();
+                    gitRepository.beginMergeState(
+                        theirsId,
+                        theirs,
+                        conflicts.map(c => this.normalizeLevelPath(c.file)),
+                    );
+                    for (const conflict of conflicts) {
+                        fileSystem.writeFile(
+                            conflict.file,
+                            conflict.content.replace(/>>>>>>> branch-name/g, `>>>>>>> ${theirs}`),
+                        );
+                    }
+                    return;
+                }
+            }
+        }
+
+        // No branch information: just leave the conflicted text in the working tree.
         for (const conflict of conflicts) {
-            // Create conflicting changes in the specified file
             if (conflict.file && conflict.content) {
                 fileSystem.writeFile(conflict.file, conflict.content);
-                gitRepository.updateFileStatus(conflict.file, "modified");
             }
         }
     }
@@ -226,26 +362,20 @@ export class LevelManager {
         for (const change of changes) {
             switch (change.status) {
                 case "modified":
-                    // Update file content
                     if (change.path && change.content) {
                         fileSystem.writeFile(change.path, change.content);
-                        gitRepository.updateFileStatus(change.path, "modified");
                     }
                     break;
                 case "untracked":
                     // Create new untracked file (only if content is provided)
-                    if (change.path) {
-                        if (change.content) {
-                            fileSystem.writeFile(change.path, change.content);
-                        }
-                        gitRepository.updateFileStatus(change.path, "untracked");
+                    if (change.path && change.content) {
+                        fileSystem.writeFile(change.path, change.content);
                     }
+                    gitRepository.updateFileStatus(change.path, "untracked");
                     break;
                 case "deleted":
-                    // Delete file
                     if (change.path) {
                         fileSystem.delete(change.path);
-                        gitRepository.updateFileStatus(change.path, "deleted");
                     }
                     break;
                 case "staged":
@@ -255,6 +385,16 @@ export class LevelManager {
                             fileSystem.writeFile(change.path, change.content);
                         }
                         gitRepository.addFile(change.path);
+                    }
+                    break;
+                case "committed":
+                    // Make sure the file is part of history: commit it if it is not tracked yet.
+                    if (change.path) {
+                        if (change.content) fileSystem.writeFile(change.path, change.content);
+                        if (!gitRepository.isFileTracked(change.path)) {
+                            gitRepository.addFile(change.path);
+                            gitRepository.commit(`Add ${this.normalizeLevelPath(change.path)}`);
+                        }
                     }
                     break;
             }
@@ -727,7 +867,9 @@ export class LevelManager {
 
                             // For short flags like -S that take values (like -S "value" or -Svalue)
                             if (reqArg.startsWith("-") && reqArg.length === 2) {
-                                return gitArgs.some(arg => arg === reqArg || arg.startsWith(reqArg) || clusterHasFlag(arg, reqArg));
+                                return gitArgs.some(
+                                    arg => arg === reqArg || arg.startsWith(reqArg) || clusterHasFlag(arg, reqArg),
+                                );
                             }
 
                             // General flag matching (fallback)
@@ -821,7 +963,9 @@ export class LevelManager {
                             }
                             // For short flags like -S that take values (like -S "value" or -Svalue)
                             if (reqArg.startsWith("-") && reqArg.length === 2) {
-                                return args.some(arg => arg === reqArg || arg.startsWith(reqArg) || clusterHasFlag(arg, reqArg));
+                                return args.some(
+                                    arg => arg === reqArg || arg.startsWith(reqArg) || clusterHasFlag(arg, reqArg),
+                                );
                             }
                             return false;
                         });

@@ -123,6 +123,8 @@ export function createGitState(params: {
         message: string;
         files: string[];
         branch?: string;
+        author?: string;
+        contents?: Record<string, string>;
     }[];
     remoteCommits?: {
         branch: string;
@@ -145,6 +147,10 @@ export function createGitState(params: {
     }[];
     /** Omit for the default "origin"; pass {} for a level that must start with no remote. */
     remotes?: Record<string, string>;
+    /** Leave the conflicts above in an unfinished "merge" (default) or "rebase". */
+    inProgress?: "merge" | "rebase";
+    /** Discard the last N commits with `git reset --hard HEAD~N` after setup (reflog keeps them). */
+    lostCommits?: number;
 }): GitState {
     return {
         initialized: params.initialized,
@@ -155,6 +161,8 @@ export function createGitState(params: {
         fileChanges: params.fileChanges,
         mergeConflicts: params.mergeConflicts,
         remotes: params.remotes,
+        inProgress: params.inProgress,
+        lostCommits: params.lostCommits,
     };
 }
 

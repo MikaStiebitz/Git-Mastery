@@ -15,7 +15,7 @@ export class NanoCommand implements Command {
         value: [],
     };
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { fileSystem, gitRepository } = context;
+        const { fileSystem } = context;
 
         if (args.positionalArgs.length === 0) {
             return ["Please specify a file."];
@@ -26,15 +26,8 @@ export class NanoCommand implements Command {
 
         // Check if the file exists, and if not, create it
         if (fileSystem.getFileContents(filePath) === null) {
-            // Create an empty file if it doesn't exist
+            // Create an empty file if it doesn't exist (Git will list it as untracked)
             fileSystem.writeFile(filePath, "");
-
-            // Mark as untracked if Git is initialized
-            if (gitRepository.isInitialized()) {
-                // Ensure we use normalized path without leading slash
-                const normalizedPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
-                gitRepository.updateFileStatus(normalizedPath, "untracked");
-            }
         }
 
         // Return a message indicating the file is being opened

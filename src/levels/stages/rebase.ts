@@ -132,7 +132,8 @@ const rebaseLevel2 = createLevel({
                     branch: "main",
                 },
             ],
-            // Simulate rebase conflict
+            // Stop in the middle of `git rebase main` (on feature) at a real conflict
+            inProgress: "rebase",
             mergeConflicts: [
                 {
                     file: "/src/config.js",

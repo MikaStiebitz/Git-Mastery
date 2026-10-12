@@ -18,12 +18,15 @@ import { CommandProcessor } from "~/models/CommandProcessor";
 import { ProgressManager } from "~/models/ProgressManager";
 import { allStages } from "~/levels";
 import { splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
+import { didCommandFail } from "~/models/commandOutcome";
 
 // Types for our solution map
 type LevelSolution = {
     commands: string[];
     preActions?: (fs: FileSystem, git: GitRepository, cmd: CommandProcessor) => void;
     postPullAction?: (fs: FileSystem, git: GitRepository, cmd: CommandProcessor) => void;
+    /** Runs after the last of `commands` (e.g. resolving a conflict before commandsAfterStateCheck). */
+    postCommandAction?: (fs: FileSystem, git: GitRepository, cmd: CommandProcessor) => void;
     commandsAfterStateCheck?: string[];
     description?: string;
 };
@@ -302,15 +305,14 @@ const LEVEL_SOLUTIONS: Record<string, StageSolutions> = {
             description: "Self-review workflow with git diff before committing",
         },
         1: {
-            preActions: (fs, git, cmd) => {
-                // Modify the team file before starting
-                fs.writeFile("/team.md", "# Team\n- New member added!");
-                git.updateFileStatus("team.md", "modified");
+            commands: ["git pull origin main", "git switch -c feature/my-profile"],
+            postPullAction: (fs, git, cmd) => {
+                // Edit team.md only after pulling, as the level asks: editing first would make
+                // the pull refuse to overwrite the local change, exactly as real Git does.
+                const current = fs.getFileContents("/team.md") ?? "";
+                fs.writeFile("/team.md", current + "\n- New member added!");
             },
-            commands: [
-                "git pull origin main",
-                "git switch -c feature/my-profile",
-                // Note: The state-based check for file edit happens automatically
+            commandsAfterStateCheck: [
                 "git add team.md",
                 "git commit -m 'Add my profile'",
                 "git push origin feature/my-profile",
@@ -359,7 +361,14 @@ const LEVEL_SOLUTIONS: Record<string, StageSolutions> = {
     // ========== ADVANCED STAGE ==========
     advanced: {
         4: {
-            commands: ["git bisect start", "git bisect bad", "git bisect good", "git bisect reset"],
+            // HEAD is broken, the first commit worked; Git checks out the commit in between to test.
+            commands: [
+                "git bisect start",
+                "git bisect bad",
+                "git bisect good HEAD~3",
+                "git bisect bad",
+                "git bisect reset",
+            ],
             description: "Full bisect session: start, mark bad/good, reset",
         },
         1: {
@@ -399,11 +408,9 @@ const LEVEL_SOLUTIONS: Record<string, StageSolutions> = {
             description: "Advanced log searching",
         },
         3: {
-            preActions: (fs, git, cmd) => {
-                // Do a reset to create reflog entries
-                cmd.processCommand("git reset --hard HEAD~1");
-            },
-            commands: ["git reflog", "git reset --hard HEAD@{0}", "git branch recovery HEAD@{1}"],
+            // The level starts right after an accidental `git reset --hard HEAD~3`: the lost tip is
+            // HEAD@{1}. After recovering it, HEAD@{0} is that same commit (issue #109).
+            commands: ["git reflog", "git reset --hard HEAD@{1}", "git branch recovery HEAD@{0}"],
             description: "Reflog and recovery",
         },
     },
@@ -419,15 +426,15 @@ const LEVEL_SOLUTIONS: Record<string, StageSolutions> = {
             description: "Amend the release commit and tag it",
         },
         1: {
-            preActions: (fs, git, cmd) => {
-                // Resolve the conflict markers
+            // The octopus merge stops at the conflict between auth and payments in shared.js.
+            commands: ["git merge feature/auth feature/payments feature/ui"],
+            postCommandAction: fs => {
                 fs.writeFile(
                     "/src/utils/shared.js",
-                    "// Resolved shared utilities\nfunction formatDate(date) {\n  return date.toISOString();\n}",
+                    "// Shared utilities\nfunction formatDate(date, style = 'iso') {\n  return style === 'iso' ? date.toISOString() : date.toLocaleDateString();\n}",
                 );
-                git.updateFileStatus("src/utils/shared.js", "modified");
             },
-            commands: ["git merge feature/auth", "git add .", "git commit -m 'Merge all features'"],
+            commandsAfterStateCheck: ["git add .", "git commit -m 'Merge all features'", "git merge feature/ui"],
             description: "Multi-branch merge with conflict resolution",
         },
         2: {
@@ -449,8 +456,9 @@ const LEVEL_SOLUTIONS: Record<string, StageSolutions> = {
                 }
             },
             commands: [
-                "git switch -c emergency-fix",
-                "git cherry-pick HEAD~1",
+                // Branch off the last good commit, then take only the checkout fix.
+                "git switch -c emergency-fix HEAD~2",
+                "git cherry-pick hotfix/checkout",
                 "git tag -a v2.1.1 -m 'Emergency hotfix'",
                 "git push --tags",
             ],
@@ -486,6 +494,11 @@ function executeCommandAndCheckCompletion(
 
     // Execute the command
     const output = commandProcessor.processCommand(command);
+
+    // In the game a failed command never completes anything, so a solution must not fail.
+    if (didCommandFail(output, command)) {
+        throw new Error(`"${command}" failed:\n${output.join("\n")}`);
+    }
 
     // Parse the command to check completion
     const parts = splitCommandRespectingQuotes(command.trim());
@@ -599,13 +612,14 @@ describe("E2E Level Tests - Full User Simulation", () => {
 
                 // Execute all commands
                 const executionResults: string[] = [];
+                const failures: string[] = [];
                 for (const command of commands) {
                     try {
                         const result = executeCommandAndCheckCompletion(command, stageId, levelId, env);
                         executionResults.push(`✓ ${command} → ${result.isCompleted ? "COMPLETED" : "pending"}`);
 
                         // Check for postPullAction after git pull
-                        if (command === "git pull" && (solution as any).postPullAction) {
+                        if (command.startsWith("git pull") && (solution as any).postPullAction) {
                             (solution as any).postPullAction(env.fileSystem, env.gitRepository, env.commandProcessor);
                             // Check state-based requirements after file modification
                             env.levelManager.checkStateBasedRequirements(
@@ -619,7 +633,13 @@ describe("E2E Level Tests - Full User Simulation", () => {
                         executionResults.push(
                             `✗ ${command} → ERROR: ${error instanceof Error ? error.message : "Unknown"}`,
                         );
+                        failures.push(`${command}: ${error instanceof Error ? error.message : "Unknown"}`);
                     }
+                }
+
+                if (solution.postCommandAction) {
+                    solution.postCommandAction(env.fileSystem, env.gitRepository, env.commandProcessor);
+                    env.levelManager.checkStateBasedRequirements(stageId, levelId, env.gitRepository, env.fileSystem);
                 }
 
                 // Execute commandsAfterStateCheck if defined
@@ -657,7 +677,8 @@ describe("E2E Level Tests - Full User Simulation", () => {
                     });
                 }
 
-                // Assert completion
+                // Assert completion, with every command succeeding as it must in the game
+                expect(failures).toEqual([]);
                 expect(completedCount).toBe(totalCount);
             });
 
