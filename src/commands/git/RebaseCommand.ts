@@ -1,6 +1,7 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { hint, unknownFlagError } from "../base/GitErrors";
 import { requireRepository } from "../helpers/gitFormat";
+import { GitRepository, type StashEntry } from "~/models/GitRepository";
 
 /** Marker line the terminal turns into "open this file in the editor". */
 export const OPEN_EDITOR_MARKER = "__OPEN_EDITOR__:";
@@ -45,6 +46,8 @@ export class RebaseCommand implements Command {
             "v",
             "verbose",
             "root",
+            "reapply-cherry-picks",
+            "no-reapply-cherry-picks",
         ],
         value: ["onto", "s", "strategy", "X", "strategy-option", "exec", "x"],
     };
@@ -60,10 +63,15 @@ export class RebaseCommand implements Command {
         const flags = args.flags;
         const state = repo.getRebaseState();
 
-        if (flags.abort !== undefined || flags.quit !== undefined) {
+        if (flags.abort !== undefined) {
             if (!state) return ["fatal: No rebase in progress?"];
             repo.clearEditorRequest();
-            repo.abortRebase();
+            return repo.abortRebase();
+        }
+        if (flags.quit !== undefined) {
+            if (!state) return ["fatal: No rebase in progress?"];
+            repo.clearEditorRequest();
+            repo.quitRebase();
             return [];
         }
 
@@ -80,8 +88,7 @@ export class RebaseCommand implements Command {
                         "Or you can abort the rebase with 'git rebase --abort'.",
                     ];
                 if (repo.getRebaseState()!.todo.length === 0) {
-                    repo.abortRebase();
-                    return ["Nothing to do"];
+                    return [...repo.abortRebase(), "Nothing to do"];
                 }
             }
             return repo.continueRebase().lines;
@@ -150,7 +157,7 @@ export class RebaseCommand implements Command {
         if (upstreamArg === undefined && flags.root === undefined) {
             const branch = branchArg ?? repo.getBranchName();
             const upstream = branch ? repo.getUpstream(branch) : null;
-            if (!upstream || !repo.resolveCommit(`${upstream.remote}/${upstream.branch}`)) {
+            if (!upstream || !repo.resolveCommit(GitRepository.upstreamRefName(upstream))) {
                 return [
                     "There is no tracking information for the current branch.",
                     "Please specify which branch you want to rebase against.",
@@ -164,7 +171,7 @@ export class RebaseCommand implements Command {
                     "",
                 ];
             }
-            upstreamArg = `${upstream.remote}/${upstream.branch}`;
+            upstreamArg = GitRepository.upstreamRefName(upstream);
         }
 
         const upstreamId = upstreamArg !== undefined ? repo.resolveCommit(upstreamArg) : undefined;
@@ -174,62 +181,71 @@ export class RebaseCommand implements Command {
         const ontoId = ontoArg !== undefined ? repo.resolveCommit(ontoArg) : upstreamId;
         if (ontoArg !== undefined && !ontoId) return [`fatal: Does not point to a valid commit '${ontoArg}'`];
 
-        let stashed = false;
+        const lines: string[] = [];
+        let stashed: StashEntry | null = null;
         if (entries.length > 0 && autostash) {
-            repo.stashSave("autostash");
-            stashed = true;
+            repo.stashSave("autostash", { autostash: true });
+            stashed = repo.takeStash();
+            if (stashed) lines.push(`Created autostash: ${repo.abbrev(stashed.base)}`);
         }
 
-        const lines: string[] = [];
         if (branchArg !== undefined && branchArg !== repo.getBranchName()) {
             const id = repo.getBranchTip(branchArg) ?? repo.resolveCommit(branchArg)!;
             const moved = repo.getBranches().includes(branchArg)
                 ? repo.moveHead({ branch: branchArg })
                 : repo.moveHead({ detach: id });
-            if (!moved.ok) return moved.error;
+            if (!moved.ok) return [...moved.error, ...(stashed ? repo.applyAutostash(stashed) : [])];
         }
 
         const headId = repo.getHeadCommitId();
         if (!headId) return ["fatal: no commits yet to rebase"];
 
-        const commits = repo.rebaseCommits(upstreamId ?? "", headId).filter(Boolean);
-        const allCommits =
-            flags.root !== undefined
-                ? repo
-                      .revList([headId])
-                      .filter(id => repo.getCommit(id)!.parents.length <= 1)
-                      .reverse()
-                : commits;
-        const onto = ontoId!;
+        const root = flags.root !== undefined;
+        let allCommits = root
+            ? repo
+                  .revList([headId])
+                  .filter(id => repo.getCommit(id)!.parents.length <= 1)
+                  .reverse()
+            : repo.rebaseCommits(upstreamId ?? "", headId).filter(Boolean);
+        // Without --onto, `--root` replays everything onto nothing: the root commit stays as it is.
+        const onto = ontoId ?? allCommits[0] ?? headId;
+
+        // Commits whose change upstream already has are left out, like Git does by default.
+        if (!root && upstreamId && flags["reapply-cherry-picks"] === undefined) {
+            const skipped = repo.alreadyUpstream(allCommits, upstreamId, headId);
+            if (skipped.size > 0) {
+                allCommits = allCommits.filter(id => !skipped.has(id));
+                lines.push(
+                    ...[...skipped].map(id => `warning: skipped previously applied commit ${repo.abbrev(id)}`),
+                    hint("use --reapply-cherry-picks to include skipped commits"),
+                    hint('Disable this message with "git config advice.skippedCherryPicks false"'),
+                );
+            }
+        }
         const branchName = repo.getBranchName();
 
         // Nothing to do: the branch already sits directly on top of onto.
         const forced = flags["force-rebase"] !== undefined || flags.f !== undefined;
         const alreadyOnTop = allCommits.length === 0 || repo.getCommit(allCommits[0]!)!.parents[0] === onto;
-        if (!interactive && !forced && repo.isAncestor(onto, headId) && alreadyOnTop) {
-            if (stashed && repo.applyStash(0).ok) repo.dropStash(0);
-            return [`Current branch ${branchName ?? "HEAD"} is up to date.`];
+        if (!interactive && !forced && !root && repo.isAncestor(onto, headId) && alreadyOnTop) {
+            return [
+                ...lines,
+                `Current branch ${branchName ?? "HEAD"} is up to date.`,
+                ...(stashed ? repo.applyAutostash(stashed) : []),
+            ];
         }
 
-        repo.startRebase({ onto, ontoLabel: ontoArg ?? upstreamArg ?? onto, commits: allCommits, interactive });
+        repo.startRebase({
+            onto,
+            ontoLabel: ontoArg ?? upstreamArg ?? onto,
+            commits: allCommits,
+            interactive,
+            autostash: stashed ?? undefined,
+        });
 
         if (interactive) return [...lines, ...this.openTodoEditor(context)];
 
-        const result = repo.runRebase();
-        lines.push(...result.lines);
-        if (stashed && result.status === "done") {
-            const applied = repo.applyStash(0);
-            if (applied.ok && applied.conflicts.length === 0) {
-                repo.dropStash(0);
-                lines.push("Applied autostash.");
-            } else {
-                lines.push(
-                    "Applying autostash resulted in conflicts.",
-                    "Your changes are safe in the stash.",
-                    'You can run "git stash pop" or "git stash drop" at any time.',
-                );
-            }
-        }
+        lines.push(...repo.runRebase().lines);
         return lines;
     }
 

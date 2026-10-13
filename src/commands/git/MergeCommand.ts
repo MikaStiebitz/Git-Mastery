@@ -1,5 +1,5 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
-import type { GitRepository, MergeOutcome } from "~/models/GitRepository";
+import { GitRepository, type MergeOutcome } from "~/models/GitRepository";
 import { hint, refSuggestionHints, unknownFlagError } from "../base/GitErrors";
 import { commitSummary, diffStatLines, modeLines, requireRepository } from "../helpers/gitFormat";
 
@@ -102,7 +102,7 @@ export class MergeCommand implements Command {
             const branch = repo.getBranchName();
             const upstream = branch ? repo.getUpstream(branch) : null;
             if (!upstream) return ["fatal: No remote for the current branch."];
-            targets = [`${upstream.remote}/${upstream.branch}`];
+            targets = [GitRepository.upstreamRefName(upstream)];
         }
 
         if (targets.length > 1) {
@@ -171,8 +171,7 @@ export class MergeCommand implements Command {
             case "error":
                 return outcome.lines;
             case "merged": {
-                const lines = outcome.tried.map(label => `Trying simple merge with ${label}`);
-                outcome.autoMerged.forEach(p => lines.push(`Auto-merging ${p}`));
+                const lines = [...outcome.progress];
                 if (outcome.commitId === null) {
                     lines.push("Automatic merge went well; stopped before committing as requested");
                     return lines;
@@ -184,18 +183,8 @@ export class MergeCommand implements Command {
                 );
                 return lines;
             }
-            case "conflict": {
-                const lines = outcome.tried.map(label => `Trying simple merge with ${label}`);
-                lines.push("Simple merge did not work, trying automatic merge.");
-                for (const conflict of outcome.conflicts) {
-                    lines.push(`Auto-merging ${conflict.path}`, `ERROR: content conflict in ${conflict.path}`);
-                }
-                lines.push(
-                    "fatal: merge program failed",
-                    "Automatic merge failed; fix conflicts and then commit the result.",
-                );
-                return lines;
-            }
+            case "conflict":
+                return [...outcome.progress, "Automatic merge failed; fix conflicts and then commit the result."];
         }
     }
 
@@ -236,19 +225,7 @@ export class MergeCommand implements Command {
                 return lines;
             }
             case "conflict": {
-                const lines: string[] = [];
-                const conflicted = new Set(outcome.conflicts.map(c => c.path));
-                for (const path of outcome.autoMerged) {
-                    if (!conflicted.has(path)) lines.push(`Auto-merging ${path}`);
-                }
-                for (const conflict of outcome.conflicts) {
-                    if (conflict.type !== "modify/delete") lines.push(`Auto-merging ${conflict.path}`);
-                    lines.push(
-                        ...repo
-                            .conflictLines(conflict)
-                            .filter(l => !(conflict.type === "add/add" && l.startsWith("Auto-merging"))),
-                    );
-                }
+                const lines = repo.mergeReport(outcome.autoMerged, outcome.conflicts);
                 lines.push("Automatic merge failed; fix conflicts and then commit the result.");
                 return lines;
             }

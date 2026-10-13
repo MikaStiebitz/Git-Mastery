@@ -241,11 +241,26 @@ const stashLevel3 = createLevel({
                     files: ["/README.md", "/src/code.js"],
                 },
             ],
-            fileChanges: [
+            // Work put aside earlier: `git stash list` shows both, `git stash pop` brings back the newest.
+            stashes: [
                 {
-                    path: "/src/code.js",
-                    status: "modified",
-                    content: "// Code file\nfunction code() {\n  // Modified\n  return 'changed';\n}",
+                    message: "README notes",
+                    changes: [
+                        {
+                            path: "/README.md",
+                            status: "modified",
+                            content: "# Stash Management\n\nLearning stash commands.\n\nTODO: document stash pop",
+                        },
+                    ],
+                },
+                {
+                    changes: [
+                        {
+                            path: "/src/code.js",
+                            status: "modified",
+                            content: "// Code file\nfunction code() {\n  // Modified\n  return 'changed';\n}",
+                        },
+                    ],
                 },
             ],
         }),

@@ -1,6 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { unknownFlagError } from "../base/GitErrors";
-import { requireRepository, toRepoPath } from "../helpers/gitFormat";
+import { displayPath, requireRepository, toRepoPath } from "../helpers/gitFormat";
 
 export class MvCommand implements Command {
     name = "git mv";
@@ -39,46 +39,58 @@ export class MvCommand implements Command {
 
         const index = repo.getIndex();
         const work = repo.readWorkingTree();
+        // What exists is decided by the file system, as Git's lstat() does: an empty directory counts.
         const isDir = (path: string) =>
-            path === "" ||
-            Object.keys(work).some(p => p.startsWith(path + "/")) ||
-            Object.keys(index).some(p => p.startsWith(path + "/"));
-        const destIsDir = isDir(dest) || destArg.endsWith("/");
+            path === "" || context.fileSystem.getDirectoryContents(repo.toFsPath(path)) !== null;
+        const exists = (path: string) => path in work || isDir(path);
+        const destIsDir = isDir(dest);
         if (sources.length > 1 && !destIsDir) return [`fatal: destination '${destArg}' is not a directory`];
 
         const moves: [string, string][] = [];
+        const targets = new Set<string>();
         for (const srcArg of sources) {
             const src = toRepoPath(context, srcArg);
-            const fail = (reason: string) => `fatal: ${reason}, source=${srcArg}, destination=${destArg}`;
-            if (src === null || (!(src in work) && !(src in index) && !isDir(src))) {
-                if (skipErrors) continue;
-                return [fail("bad source")];
-            }
-            const name = src.split("/").pop()!;
+            const name = (src ?? srcArg).split("/").pop()!;
             const target = destIsDir ? (dest === "" ? name : `${dest}/${name}`) : dest;
+            const shownDest = !destIsDir && destArg.endsWith("/") ? destArg : displayPath(context, target);
+            const fail = (reason: string) => [
+                `fatal: ${reason}, source=${src === null ? srcArg : displayPath(context, src)}, destination=${shownDest}`,
+            ];
+            const skip = (reason: string) => (skipErrors ? null : fail(reason));
 
-            if (isDir(src)) {
-                const tracked = Object.keys(index).filter(p => p.startsWith(src + "/"));
-                if (tracked.length === 0) {
-                    if (skipErrors) continue;
-                    return [fail("source directory is empty")];
+            let problem: string[] | null = null;
+            if (src === null || !exists(src)) {
+                problem = skip("bad source");
+            } else if (target === src || target.startsWith(src + "/")) {
+                problem = skip("can not move directory into itself");
+            } else if (isDir(src)) {
+                if (exists(target)) {
+                    problem = skip("destination already exists");
+                } else {
+                    const tracked = Object.keys(index).filter(p => p.startsWith(src + "/"));
+                    if (tracked.length === 0) problem = skip("source directory is empty");
+                    else for (const p of tracked) moves.push([p, target + p.substring(src.length)]);
                 }
-                if (isDir(target) && !force) return [fail("destination already exists")];
-                for (const p of tracked) moves.push([p, target + p.substring(src.length)]);
+                if (problem) return problem;
+                continue;
+            } else if (!(src in index)) {
+                problem = skip("not under version control");
+            } else if (repo.getUnmergedEntry(src)) {
+                problem = fail("conflicted");
+            } else if (exists(target) && !force) {
+                problem = skip("destination exists");
+            } else if (targets.has(target)) {
+                problem = skip("multiple sources for the same target");
+            } else if (!destIsDir && destArg.endsWith("/")) {
+                problem = skip("destination directory does not exist");
+            } else if (!isDir(target.includes("/") ? target.substring(0, target.lastIndexOf("/")) : "")) {
+                problem = skipErrors ? null : [`fatal: renaming '${srcArg}' failed: No such file or directory`];
+            } else {
+                targets.add(target);
+                moves.push([src, target]);
                 continue;
             }
-
-            if (!(src in index)) {
-                if (skipErrors) continue;
-                return [fail("not under version control")];
-            }
-            if (repo.getUnmergedEntry(src)) return [fail("conflicted")];
-            if (target in work && !force) {
-                if (skipErrors) continue;
-                return [fail("destination exists")];
-            }
-            if (target === src) return [fail("can not move directory into itself")];
-            moves.push([src, target]);
+            if (problem) return problem;
         }
 
         const output: string[] = [];

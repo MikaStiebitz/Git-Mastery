@@ -1,6 +1,16 @@
 import type { GitRepository, Tree } from "~/models/GitRepository";
-import { fileDiff } from "~/models/git/diff";
-import { decorations, diffStatLines, formatGitDate, indentMessage, isoDate, relativeDate } from "./gitFormat";
+import {
+    collapseRenames,
+    decorations,
+    diffStatLines,
+    formatGitDate,
+    indentMessage,
+    isoDate,
+    nameOnlyLines,
+    nameStatusLines,
+    relativeDate,
+    treePatch,
+} from "./gitFormat";
 
 /**
  * How `git log` and `git show` print a commit: the pretty formats, dates, decorations, and the
@@ -52,7 +62,7 @@ export function commitPatch(repo: GitRepository, id: string, paths?: string[]): 
     const changed = [...new Set([...Object.keys(before), ...Object.keys(after)])]
         .filter(p => before[p] !== after[p] && inPaths(p, paths))
         .sort();
-    return changed.flatMap(p => fileDiff(p, before[p], after[p]));
+    return treePatch(before, after, changed);
 }
 
 function changeLines(repo: GitRepository, id: string, options: LogFormatOptions): string[] {
@@ -64,9 +74,16 @@ function changeLines(repo: GitRepository, id: string, options: LogFormatOptions)
     stat.files = stat.files.filter(f => inPaths(f.path, options.paths));
 
     const lines: string[] = [];
-    if (options.nameOnly) lines.push(...stat.files.map(f => f.path));
-    if (options.nameStatus) lines.push(...stat.files.map(f => `${f.status}\t${f.path}`));
-    if (options.stat) lines.push(...diffStatLines(stat));
+    if (options.nameOnly)
+        lines.push(
+            ...nameOnlyLines(
+                stat.files.map(f => f.path),
+                before,
+                after,
+            ),
+        );
+    if (options.nameStatus) lines.push(...nameStatusLines(stat, before, after));
+    if (options.stat) lines.push(...diffStatLines(collapseRenames(stat, before, after).stat));
     if (options.patch && commit.parents.length <= 1) {
         if (options.stat) lines.push("");
         lines.push(...commitPatch(repo, id, options.paths));
@@ -131,7 +148,8 @@ export function formatCommit(repo: GitRepository, id: string, options: LogFormat
     if (pretty.startsWith("format:") || pretty.startsWith("tformat:") || pretty.includes("%")) {
         const format = pretty.replace(/^t?format:/, "");
         const text = expandFormat(repo, id, format, options).split("\n");
-        return changes.length > 0 ? [...text, ...changes] : text;
+        // A custom format is separated from the stat or patch by a blank line (unlike --oneline).
+        return changes.length > 0 ? [...text, "", ...changes] : text;
     }
 
     if (pretty === "oneline") {

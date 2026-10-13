@@ -145,7 +145,7 @@ export class BranchCommand implements Command {
 
         const filterCommit = (option: string | boolean | undefined): string | undefined | null => {
             if (option === undefined) return undefined;
-            const spec = typeof option === "string" ? option : "HEAD";
+            const spec = typeof option === "string" && option !== "" ? option : "HEAD";
             return repo.resolveCommit(spec) ?? null;
         };
         const merged = filterCommit(flags.merged);
@@ -189,7 +189,7 @@ export class BranchCommand implements Command {
                     ? `(no branch, rebasing ${repo.getRebaseState()!.branch ?? "detached HEAD"})`
                     : repo.getBisectState()
                       ? `(no branch, bisect started on ${repo.getBisectState()!.startBranch ?? "HEAD"})`
-                      : `(HEAD detached at ${repo.abbrev(headId)})`;
+                      : `(HEAD detached ${repo.detachedLabel()?.at === false ? "from" : "at"} ${repo.detachedLabel()?.name ?? repo.abbrev(headId)})`;
                 if (keep(headId, label)) rows.push({ marker: "*", name: label, tip: headId });
             }
             for (const [name, tip] of Object.entries(repo.getBranchHeads()).sort(([a], [b]) => (a < b ? -1 : 1))) {
@@ -199,7 +199,7 @@ export class BranchCommand implements Command {
                     marker: name === current ? "*" : " ",
                     name,
                     tip,
-                    upstream: upstream ? `${upstream.remote}/${upstream.branch}` : undefined,
+                    upstream: upstream ? GitRepository.upstreamRefName(upstream) : undefined,
                 });
             }
         }
@@ -301,9 +301,7 @@ export class BranchCommand implements Command {
         if (!isForce) {
             // -d only deletes work that is safe elsewhere: merged into its upstream, or into HEAD.
             const upstream = repo.getUpstream(branchName);
-            const upstreamTip = upstream
-                ? repo.getRemoteTrackingRefs()[`${upstream.remote}/${upstream.branch}`]
-                : undefined;
+            const upstreamTip = upstream ? repo.resolveCommit(GitRepository.upstreamRefName(upstream)) : undefined;
             const base = upstreamTip ?? repo.getHeadCommitId();
             if (!base || !repo.isAncestor(tip, base)) {
                 return [
@@ -349,10 +347,16 @@ export class BranchCommand implements Command {
         if (allBranches.includes(target) && !force && target !== source) {
             return [`fatal: a branch named '${target}' already exists`];
         }
+        // -M/-C may overwrite a branch, but never the one checked out.
+        if (allBranches.includes(target) && target === current && target !== source) {
+            return [
+                `fatal: cannot force update the branch '${target}' used by worktree at '${repo.getRepositoryRoot() ?? "/"}'`,
+            ];
+        }
 
         if (mode === "rename") {
-            if (target === source) return [];
-            if (!repo.renameBranch(source, target, force)) return [`fatal: branch rename failed`];
+            // Renaming a branch to its own name still rewrites it (and logs it), like Git.
+            if (!repo.renameBranch(source, target, force || target === source)) return [`fatal: branch rename failed`];
             return [];
         }
 
@@ -371,7 +375,7 @@ export class BranchCommand implements Command {
         if (!(target in refs)) {
             if (repo.getBornBranches().includes(target)) {
                 repo.setUpstream(branch, ".", target);
-                return [`branch '${branch}' set up to track local branch '${target}'.`];
+                return [`branch '${branch}' set up to track '${target}'.`];
             }
             return [
                 `fatal: the requested upstream branch '${target}' does not exist`,

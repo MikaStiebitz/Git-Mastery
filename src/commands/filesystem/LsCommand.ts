@@ -49,7 +49,9 @@ export class LsCommand implements Command {
 
         const contents = fileSystem.getDirectoryContents(targetPath);
         if (!contents) {
-            return [`Cannot access '${targetPath}': No such file or directory`];
+            const name = args.positionalArgs[0] ?? targetPath;
+            if (fileSystem.getFileContents(targetPath) !== null) return [name];
+            return [`ls: cannot access '${name}': No such file or directory`];
         }
 
         // Filter files based on options

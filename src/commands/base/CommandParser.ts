@@ -36,32 +36,30 @@ export function parseCommand(
 export function splitChainedCommands(input: string): string[] {
     const parts: string[] = [];
     let current = "";
-    let inQuotes = false;
-    let quoteChar = "";
+    let quote: '"' | "'" | null = null;
 
     for (let i = 0; i < input.length; i++) {
-        const char = input[i];
-        if (char === undefined) continue;
+        const char = input[i]!;
 
-        if ((char === '"' || char === "'") && input[i - 1] !== "\\") {
-            if (!inQuotes) {
-                inQuotes = true;
-                quoteChar = char;
-            } else if (char === quoteChar) {
-                inQuotes = false;
-                quoteChar = "";
-            }
+        // A backslash (outside single quotes) keeps the next character from meaning anything.
+        if (char === "\\" && quote !== "'" && i + 1 < input.length) {
+            current += char + input[++i];
+            continue;
+        }
+        if (char === '"' || char === "'") {
+            if (quote === null) quote = char;
+            else if (quote === char) quote = null;
             current += char;
             continue;
         }
 
-        if (!inQuotes && char === ";") {
+        if (quote === null && char === ";") {
             parts.push(current);
             current = "";
             continue;
         }
 
-        if (!inQuotes && char === "&" && input[i + 1] === "&") {
+        if (quote === null && char === "&" && input[i + 1] === "&") {
             parts.push(current);
             current = "";
             i++; // Skip the second '&'
@@ -75,50 +73,58 @@ export function splitChainedCommands(input: string): string[] {
     return parts.map(part => part.trim()).filter(part => part.length > 0);
 }
 
+/**
+ * Split a command line into words the way a POSIX shell does: whitespace separates words, quotes
+ * group them ("" and '' still make an — empty — word), a backslash outside quotes takes the next
+ * character literally, and inside double quotes it escapes only " \ $ and `.
+ */
 export function splitCommandRespectingQuotes(commandStr: string): string[] {
     const result: string[] = [];
     let current = "";
-    let inQuotes = false;
-    let quoteChar = "";
+    let inWord = false;
+    let quote: '"' | "'" | null = null;
 
     for (let i = 0; i < commandStr.length; i++) {
-        const char = commandStr[i];
+        const char = commandStr[i]!;
 
-        // Handle quotes (both double and single)
-        if ((char === '"' || char === "'") && (i === 0 || commandStr[i - 1] !== "\\")) {
-            if (!inQuotes) {
-                // Starting a quoted section
-                inQuotes = true;
-                quoteChar = char;
-            } else if (char === quoteChar) {
-                // Ending a quoted section if the quote matches the opening quote
-                inQuotes = false;
-                quoteChar = "";
+        if (quote === "'") {
+            if (char === "'") quote = null;
+            else current += char;
+            continue;
+        }
+
+        if (quote === '"') {
+            if (char === '"') {
+                quote = null;
+            } else if (char === "\\" && i + 1 < commandStr.length && '"\\$`'.includes(commandStr[i + 1]!)) {
+                current += commandStr[++i];
             } else {
-                // This is a different quote character inside quotes, treat as regular character
                 current += char;
             }
             continue;
         }
 
-        // Handle spaces - they split arguments when not in quotes
-        if (char === " " && !inQuotes) {
-            if (current) {
-                result.push(current);
-                current = "";
-            }
+        if (char === '"' || char === "'") {
+            quote = char;
+            inWord = true;
             continue;
         }
-
-        // Regular character
+        if (char === "\\" && i + 1 < commandStr.length) {
+            current += commandStr[++i];
+            inWord = true;
+            continue;
+        }
+        if (char === " " || char === "\t") {
+            if (inWord) result.push(current);
+            current = "";
+            inWord = false;
+            continue;
+        }
         current += char;
+        inWord = true;
     }
 
-    // Add the last part if there is one
-    if (current) {
-        result.push(current);
-    }
-
+    if (inWord) result.push(current);
     return result;
 }
 
@@ -147,6 +153,7 @@ const FALLBACK_SPEC: Required<FlagSpec> = {
         "graph",
     ],
     value: ["m", "message", "author", "date", "format", "C", "D", "F", "p"],
+    optional: [],
 };
 
 /**
@@ -175,6 +182,7 @@ export function parseArgs(args: string[], spec?: FlagSpec): CommandArgs {
     const isStrict = spec !== undefined;
     const booleanFlags = new Set(spec?.boolean ?? FALLBACK_SPEC.boolean);
     const valueFlags = new Set(spec?.value ?? FALLBACK_SPEC.value);
+    const optionalFlags = new Set(spec?.optional ?? []);
 
     let flagsEnded = false;
 
@@ -201,20 +209,21 @@ export function parseArgs(args: string[], spec?: FlagSpec): CommandArgs {
             if (eq !== -1) {
                 const name = body.substring(0, eq);
                 result.flags[name] = body.substring(eq + 1);
-                if (isStrict && !booleanFlags.has(name) && !valueFlags.has(name)) {
+                if (isStrict && !booleanFlags.has(name) && !valueFlags.has(name) && !optionalFlags.has(name)) {
                     result.unknownFlags!.push(`--${name}`);
                 }
                 continue;
             }
 
-            if (booleanFlags.has(body)) {
+            if (booleanFlags.has(body) || optionalFlags.has(body)) {
                 result.flags[body] = true;
                 continue;
             }
 
             if (valueFlags.has(body)) {
-                result.flags[body] = takeValue(args, i);
-                if (consumesNextToken(args, i)) i++;
+                const takesAny = isStrict && !OPTIONAL_VALUE.has(body);
+                result.flags[body] = takeValue(args, i, takesAny);
+                if (consumesNextToken(args, i, takesAny)) i++;
                 continue;
             }
 
@@ -243,13 +252,19 @@ export function parseArgs(args: string[], spec?: FlagSpec): CommandArgs {
                     continue;
                 }
 
+                if (optionalFlags.has(char)) {
+                    const attached = chars.substring(j + 1);
+                    result.flags[char] = attached.length > 0 ? attached : true;
+                    break;
+                }
+
                 if (valueFlags.has(char)) {
                     const attached = chars.substring(j + 1);
                     if (attached.length > 0) {
                         result.flags[char] = attached;
                     } else {
-                        result.flags[char] = takeValue(args, i);
-                        if (consumesNextToken(args, i)) i++;
+                        result.flags[char] = takeValue(args, i, isStrict);
+                        if (consumesNextToken(args, i, isStrict)) i++;
                     }
                     break; // The rest of the cluster was this flag's value.
                 }
@@ -278,15 +293,26 @@ export function parseArgs(args: string[], spec?: FlagSpec): CommandArgs {
     return result;
 }
 
-/** True when the token after `index` can serve as a flag value (exists and is not itself a flag). */
-function consumesNextToken(args: string[], index: number): boolean {
+/**
+ * Long options whose value is optional (`git branch --merged [<commit>]`): they only take the next
+ * token when it is not itself an option.
+ */
+const OPTIONAL_VALUE = new Set(["merged", "no-merged", "contains", "no-contains", "points-at"]);
+
+/**
+ * True when the token after `index` serves as the flag's value. A required value takes the next
+ * token whatever it looks like (`git commit -m -x` commits the message "-x", as getopt does);
+ * otherwise only a token that is not itself a flag.
+ */
+function consumesNextToken(args: string[], index: number, takesAny = false): boolean {
     const next = args[index + 1];
-    return next !== undefined && (next === "-" || !next.startsWith("-"));
+    if (next === undefined) return false;
+    return takesAny || next === "-" || !next.startsWith("-");
 }
 
 /** The next token as a flag value, or "" to signal "the flag needs a value but got none". */
-function takeValue(args: string[], index: number): string {
-    return consumesNextToken(args, index) ? args[index + 1]! : "";
+function takeValue(args: string[], index: number, takesAny = false): string {
+    return consumesNextToken(args, index, takesAny) ? args[index + 1]! : "";
 }
 
 /** Like takeValue, but yields boolean true when no value follows. */

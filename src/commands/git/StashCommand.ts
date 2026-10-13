@@ -2,7 +2,7 @@ import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Com
 import { fileDiff } from "~/models/git/diff";
 import { GitRepository } from "~/models/GitRepository";
 import { unknownFlagError } from "../base/GitErrors";
-import { diffStatLines, matchPathspec, requireRepository } from "../helpers/gitFormat";
+import { diffStatLines, matchPathspec, requireRepository, toRepoPath } from "../helpers/gitFormat";
 import { longStatus } from "../helpers/statusFormat";
 
 export class StashCommand implements Command {
@@ -132,13 +132,20 @@ export class StashCommand implements Command {
 
         let paths: string[] | undefined;
         if (pathspecs.length > 0) {
-            const candidates = new Set([...Object.keys(repo.readWorkingTree()), ...Object.keys(repo.getIndex())]);
+            const candidates = new Set([
+                ...Object.keys(repo.getIndex()),
+                ...Object.keys(repo.getHeadTree()),
+                ...(includeUntracked ? Object.keys(repo.readWorkingTree()) : []),
+            ]);
+            // Git shows the pathspec in its internal form, with the length of the cwd prefix.
+            const cwd = toRepoPath(context, ".") ?? "";
+            const prefix = cwd ? cwd.length + 1 : 0;
             paths = [];
             for (const spec of pathspecs) {
                 const matched = matchPathspec(context, spec, candidates);
                 if (matched.length === 0) {
                     return [
-                        `error: pathspec '${spec}' did not match any file(s) known to git`,
+                        `error: pathspec ':(,prefix:${prefix})${spec}' did not match any file(s) known to git`,
                         "Did you forget to 'git add'?",
                     ];
                 }
@@ -189,12 +196,11 @@ export class StashCommand implements Command {
         if (!result.ok) return result.error;
 
         const lines: string[] = [];
-        if (result.conflicts.length > 0) {
-            for (const conflict of result.conflicts) {
-                lines.push(`Auto-merging ${conflict.path}`, ...repo.conflictLines(conflict));
-            }
+        if (result.upToDate) lines.push("Already up to date.");
+        lines.push(...repo.mergeReport(result.autoMerged, result.conflicts), ...result.untrackedErrors);
+        if (result.conflicts.length > 0 || result.untrackedErrors.length > 0) {
             lines.push(...longStatus(context));
-            lines.push("The stash entry is kept in case you need it again.");
+            if (mode === "pop") lines.push("The stash entry is kept in case you need it again.");
             return lines;
         }
 

@@ -1,6 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { unknownFlagError } from "../base/GitErrors";
-import { displayPath, headIsNowAt, matchPathspec, requireRepository, revisionError } from "../helpers/gitFormat";
+import { headIsNowAt, matchPathspec, requireRepository, revisionError, toRepoPath } from "../helpers/gitFormat";
 import { ambiguousArgument } from "~/models/git/revision";
 
 export class ResetCommand implements Command {
@@ -62,8 +62,9 @@ export class ResetCommand implements Command {
                 revision = first;
                 paths = positional.slice(1);
             } else {
-                const tracked = new Set([...Object.keys(repo.getIndex()), ...Object.keys(repo.getHeadTree())]);
-                const allPaths = positional.every(p => matchPathspec(context, p, tracked).length > 0);
+                // Like Git: without "--", an argument that is no revision is only a path if it exists
+                // in the working tree (or is a wildcard pattern).
+                const allPaths = positional.every(p => /[*?[]/.test(p) || this.existsOnDisk(context, p));
                 if (!allPaths) {
                     // Not a commit and not a file: this is where `HEAD@{1}` used to fail (issue #109).
                     const resolution = repo.resolveRevision(first);
@@ -106,7 +107,7 @@ export class ResetCommand implements Command {
     private resetPaths(context: CommandContext, spec: string, pathspecs: string[], quiet: boolean): string[] {
         const repo = context.gitRepository;
         const id = repo.getHeadCommitId() === null && spec === "HEAD" ? null : repo.resolveCommit(spec);
-        if (id === undefined) return revisionError(repo, spec, "reset");
+        if (id === undefined) return [`fatal: Failed to resolve '${spec}' as a valid tree.`];
 
         const source = id ? repo.treeOf(id) : {};
         const candidates = new Set([
@@ -118,6 +119,8 @@ export class ResetCommand implements Command {
         for (const pathspec of pathspecs) {
             const matched = matchPathspec(context, pathspec, candidates);
             if (matched.length === 0) {
+                // A path that exists but is not tracked is simply left alone.
+                if (this.existsOnDisk(context, pathspec)) continue;
                 return [`error: pathspec '${pathspec}' did not match any file(s) known to git`];
             }
             matched.forEach(p => paths.add(p));
@@ -126,11 +129,22 @@ export class ResetCommand implements Command {
         return quiet ? [] : this.unstagedAfterReset(context);
     }
 
+    private existsOnDisk(context: CommandContext, pathspec: string): boolean {
+        const path = toRepoPath(context, pathspec);
+        if (path === null) return false;
+        const fsPath = context.gitRepository.toFsPath(path);
+        return (
+            context.fileSystem.getFileContents(fsPath) !== null ||
+            context.fileSystem.getDirectoryContents(fsPath) !== null
+        );
+    }
+
     private unstagedAfterReset(context: CommandContext): string[] {
         const changed = context.gitRepository
             .statusEntries()
             .filter(e => e.worktree === "M" || e.worktree === "D")
-            .map(e => `${e.worktree}\t${displayPath(context, e.path)}`);
+            // Git lists these from the top of the repository, wherever the command runs.
+            .map(e => `${e.worktree}\t${e.path}`);
         return changed.length > 0 ? ["Unstaged changes after reset:", ...changed] : [];
     }
 }

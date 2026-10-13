@@ -83,6 +83,8 @@ export function blockedByConflicts(repo: GitRepository): string[] | null {
 export function switchToBranch(context: CommandContext, branch: string, options: { force?: boolean } = {}): string[] {
     const repo = context.gitRepository;
     if (repo.getBranchName() === branch) {
+        repo.noteCheckoutOfCurrentBranch();
+        repo.endOperationsOnSwitch();
         return [`Already on '${branch}'`, ...trackingSummary(repo, branch)];
     }
     const blocked = !options.force ? blockedByConflicts(repo) : null;
@@ -91,6 +93,7 @@ export function switchToBranch(context: CommandContext, branch: string, options:
     const before = leavingDetached(repo, repo.getBranchTip(branch));
     const result = repo.moveHead({ branch }, { force: options.force });
     if (!result.ok) return result.error;
+    repo.endOperationsOnSwitch();
 
     return [...before, ...carriedChanges(repo), `Switched to branch '${branch}'`, ...trackingSummary(repo, branch)];
 }
@@ -134,6 +137,7 @@ export function createAndSwitch(
         if (!result.ok) return result.error;
     }
 
+    repo.endOperationsOnSwitch();
     const lines = [...before];
     if (options.trackFrom) {
         const [remote, ...rest] = options.trackFrom.split("/");
@@ -163,6 +167,7 @@ export function detachAt(
     const before = leavingDetached(repo, id);
     const result = repo.moveHead({ detach: id }, { force: options.force, reflogTo: spec });
     if (!result.ok) return result.error;
+    repo.endOperationsOnSwitch();
 
     const lines = [...before];
     if (options.advice !== false && !wasDetached) {

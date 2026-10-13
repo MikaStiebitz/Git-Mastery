@@ -1,7 +1,7 @@
 import type { FileStatus, GitStatus } from "../types";
 import { type FileSystem } from "~/models/FileSystem";
 import { sha1 } from "./git/sha1";
-import { diffStat, mergeFile } from "./git/diff";
+import { diffLines, diffStat, mergeFile, toLines } from "./git/diff";
 import { resolveRevision, type ReflogEntry, type RevisionContext, type RevisionResult } from "./git/revision";
 
 /**
@@ -73,7 +73,12 @@ export type MergeOutcome =
     | { kind: "conflict"; conflicts: ConflictReport[]; autoMerged: string[] }
     | { kind: "error"; lines: string[] };
 
-export type ConflictReport = { path: string; type: "content" | "add/add" | "modify/delete"; deletedIn?: string };
+export type ConflictReport = {
+    path: string;
+    type: "content" | "add/add" | "modify/delete";
+    deletedIn?: string;
+    modifiedIn?: string;
+};
 
 export type TreeStat = { files: { path: string; insertions: number; deletions: number; status: "A" | "M" | "D" }[] };
 
@@ -90,7 +95,13 @@ type MergeState = {
 export type SequencerState = {
     kind: "cherry-pick" | "revert";
     current: string;
+    /** The current pick was concluded by hand (`git commit`); --continue goes on with the rest. */
+    concluded?: boolean;
     remaining: string[];
+    /** HEAD before the whole run, where --abort returns to. */
+    start: string | null;
+    /** A run of several commits: Git keeps a sequencer directory, and refuses to start another run. */
+    multi?: boolean;
     message: string;
     author: { name: string; email: string; date: Date };
 };
@@ -111,6 +122,8 @@ export type RebaseState = {
     awaitingTodo: boolean;
     /** Message accumulated by a run of squash/fixup lines. */
     pendingSquashMessage: string | null;
+    /** Local changes put aside by --autostash, re-applied when the rebase ends. */
+    autostash?: StashEntry;
 };
 
 export type BisectState = {
@@ -125,6 +138,14 @@ export type BisectState = {
 type RemoteServer = { branches: Record<string, string>; tags: Record<string, string> };
 
 const ZERO_ID = "0000000000000000000000000000000000000000";
+
+/** The subject Git gives a revert: reverting a revert reapplies the original (Git 2.43+). */
+function revertSubject(subject: string): string {
+    if (subject.startsWith('Revert "') && !subject.startsWith('Revert "Revert "') && subject.endsWith('"')) {
+        return `Reapply "${subject.substring('Revert "'.length)}`;
+    }
+    return `Revert "${subject}"`;
+}
 const DEFAULT_BRANCH = "main";
 const DEFAULT_REMOTE_URL = "https://github.com/user/repo.git";
 
@@ -548,7 +569,8 @@ export class GitRepository {
         const oldId = this.getHeadCommitId();
         if (this.head.kind === "branch") {
             this.branches[this.head.name] = newId;
-            this.logRef(`refs/heads/${this.head.name}`, oldId, newId, message);
+            // A branch that does not move gets no entry; HEAD's reflog records every update.
+            if (oldId !== newId) this.logRef(`refs/heads/${this.head.name}`, oldId, newId, message);
         } else {
             this.head = { kind: "detached", id: newId };
         }
@@ -578,16 +600,18 @@ export class GitRepository {
 
     /** Legacy reflog view: HEAD's reflog with Git's action split out, index 0 = newest. */
     public getReflog(): Array<{ commitHash: string; action: string; message: string; timestamp: Date; index: number }> {
-        return this.getRefLog("HEAD").map((entry, index) => {
-            const colon = entry.message.indexOf(": ");
-            return {
-                commitHash: entry.newId,
-                action: colon === -1 ? entry.message : entry.message.substring(0, colon),
-                message: colon === -1 ? "" : entry.message.substring(colon + 2),
-                timestamp: entry.timestamp,
-                index,
-            };
-        });
+        return this.getRefLog("HEAD")
+            .map((entry, index) => {
+                const colon = entry.message.indexOf(": ");
+                return {
+                    commitHash: entry.newId,
+                    action: colon === -1 ? entry.message : entry.message.substring(0, colon),
+                    message: colon === -1 ? "" : entry.message.substring(colon + 2),
+                    timestamp: entry.timestamp,
+                    index,
+                };
+            })
+            .filter(entry => entry.commitHash !== ZERO_ID);
     }
 
     /** Legacy: append a HEAD reflog entry. */
@@ -600,6 +624,24 @@ export class GitRepository {
     }
 
     // ---------------------------------------------------------------------------------------- revisions
+
+    /**
+     * How Git names a detached HEAD ("HEAD detached at/from …"), from the last checkout in the
+     * reflog: the ref that was checked out if it still points there (refs/heads/ kept, refs/tags/ and
+     * refs/remotes/ shortened), otherwise the abbreviated commit.
+     */
+    public detachedLabel(): { at: boolean; name: string } | null {
+        const id = this.getHeadCommitId();
+        if (this.head.kind !== "detached" || !id) return null;
+        const entry = this.getRefLog("HEAD").find(e => e.message.startsWith("checkout: moving from "));
+        if (!entry) return { at: true, name: this.abbrev(id) };
+        const to = entry.message.substring(entry.message.lastIndexOf(" to ") + 4);
+        const full = to === "HEAD" ? null : this.fullRefName(to);
+        const resolved = full ? this.resolveRefName(full.replace(/^refs\/(heads|tags|remotes)\//, "")) : null;
+        const name =
+            full && resolved === entry.newId ? full.replace(/^refs\/(tags|remotes)\//, "") : this.abbrev(entry.newId);
+        return { at: entry.newId === id, name };
+    }
 
     public fullRefName(name: string): string | null {
         if (name === "HEAD") return "HEAD";
@@ -622,7 +664,7 @@ export class GitRepository {
             previousCheckout: n => this.previousCheckout(n),
             upstreamOf: branch => {
                 const upstream = this.upstreams[branch];
-                return upstream ? `${upstream.remote}/${upstream.branch}` : null;
+                return upstream ? GitRepository.upstreamRefName(upstream) : null;
             },
             commitIdsWithPrefix: prefix => Object.keys(this.objects).filter(id => id.startsWith(prefix)),
             parentsOf: id => this.objects[id]?.parents ?? null,
@@ -843,6 +885,8 @@ export class GitRepository {
 
     /** Stage a path: copy its working-tree content into the index, or record its deletion. */
     public stagePath(path: string): void {
+        // Nothing inside .git is ever part of the repository's content ("invalid path" in Git).
+        if (path === ".git" || path.startsWith(".git/")) return;
         const content = this.readWorkingFile(path);
         if (content === undefined) {
             delete this.index[path];
@@ -881,8 +925,19 @@ export class GitRepository {
         delete this.index[source];
         if (content !== undefined) {
             this.writeWorkingFile(destination, content);
-            this.deleteWorkingFile(source);
+            // A rename leaves the source directory behind, even when it is now empty.
+            this.fileSystem.delete(this.toFsPath(source));
         }
+    }
+
+    /** A copy of the index (and its unmerged entries), to put back if an operation is abandoned. */
+    public snapshotIndex(): { index: Tree; unmerged: Record<string, UnmergedEntry> } {
+        return { index: { ...this.index }, unmerged: { ...this.unmerged } };
+    }
+
+    public restoreIndex(snapshot: { index: Tree; unmerged: Record<string, UnmergedEntry> }): void {
+        this.index = { ...snapshot.index };
+        this.unmerged = { ...snapshot.unmerged };
     }
 
     /** Legacy: stage one file. */
@@ -980,7 +1035,7 @@ export class GitRepository {
         const author = params.author ?? this.nextAuthor();
         const date = params.date ?? new Date();
         const parentTree = params.parents[0] ? this.objects[params.parents[0]]!.tree : {};
-        const treeHash = sha1(JSON.stringify(Object.entries(params.tree).sort()));
+        const treeHash = GitRepository.treeId(params.tree);
         const id = sha1(
             `tree ${treeHash}\n${params.parents.map(p => `parent ${p}\n`).join("")}` +
                 `author ${author.name} <${author.email}> ${date.getTime()}\n\n${params.message}\n#${this.seq}`,
@@ -1042,6 +1097,7 @@ export class GitRepository {
             delete this.specialRefs.CHERRY_PICK_HEAD;
             delete this.specialRefs.REVERT_HEAD;
             if (this.sequencer.remaining.length === 0) this.sequencer = null;
+            else this.sequencer.concluded = true;
             this.syncGitDirectory();
         }
         return id;
@@ -1064,6 +1120,14 @@ export class GitRepository {
             date: old.timestamp,
         });
         this.updateHead(id, `commit (amend): ${message.split("\n")[0] ?? ""}`);
+        // Committing concludes a cherry-pick or revert, amend or not.
+        if (this.sequencer) {
+            delete this.specialRefs.CHERRY_PICK_HEAD;
+            delete this.specialRefs.REVERT_HEAD;
+            if (this.sequencer.remaining.length === 0) this.sequencer = null;
+            else this.sequencer.concluded = true;
+            this.syncGitDirectory();
+        }
         return id;
     }
 
@@ -1155,7 +1219,15 @@ export class GitRepository {
             this.upstreams[newName] = upstream;
             delete this.upstreams[oldName];
         }
-        if (isCurrent) this.head = { kind: "branch", name: newName };
+        if (isCurrent) {
+            this.head = { kind: "branch", name: newName };
+            // Git renames by deleting and re-creating the ref; HEAD's reflog sees both halves.
+            if (tip) {
+                const message = `Branch: renamed refs/heads/${oldName} to refs/heads/${newName}`;
+                this.logRef("HEAD", tip, ZERO_ID, message);
+                this.logRef("HEAD", ZERO_ID, tip, message);
+            }
+        }
         this.syncGitDirectory();
         return true;
     }
@@ -1188,6 +1260,15 @@ export class GitRepository {
         );
     }
 
+    /** `git switch <current branch>` changes nothing, but Git still records it in HEAD's reflog. */
+    public noteCheckoutOfCurrentBranch(): void {
+        const branch = this.getBranchName();
+        const id = this.getHeadCommitId();
+        if (!branch || !id) return;
+        this.logRef("HEAD", id, id, `checkout: moving from ${branch} to ${branch}`);
+        this.syncGitDirectory();
+    }
+
     /**
      * Move HEAD to another commit, carrying local changes along when they do not collide — the
      * two-tree merge Git performs for `git checkout`/`git switch`.
@@ -1210,6 +1291,8 @@ export class GitRepository {
             for (const path of paths) {
                 if (fromTree[path] === toTree[path]) continue;
                 if (local.has(path)) {
+                    // A file deleted by hand loses nothing when it is rewritten (Git's verify_uptodate).
+                    if (!(path in work) && this.index[path] === fromTree[path]) continue;
                     // A local change that already equals the target is no conflict.
                     if (this.index[path] === toTree[path] && work[path] === toTree[path]) continue;
                     overwritten.push(path);
@@ -1323,13 +1406,60 @@ export class GitRepository {
         targetId: string,
         mode: "soft" | "mixed" | "hard" | "keep" | "merge",
         reflogTarget: string,
+        options: { keepSequencer?: boolean } = {},
     ): { ok: true } | { ok: false; error: string[] } {
         const target = this.objects[targetId];
         if (!target) return { ok: false, error: [`fatal: Could not parse object '${reflogTarget}'.`] };
         const oldId = this.getHeadCommitId();
         const oldTree = this.getHeadTree();
 
+        if (mode === "soft" && (this.isMerging() || this.hasMergeConflicts())) {
+            return { ok: false, error: ["fatal: Cannot do a soft reset in the middle of a merge."] };
+        }
+
+        if (mode === "merge") {
+            // Reset the index; rewrite only files the reset changes and that hold no unstaged edits.
+            const work = this.readWorkingTree();
+            const paths = new Set([
+                ...Object.keys(this.index),
+                ...Object.keys(target.tree),
+                ...Object.keys(this.unmerged),
+            ]);
+            const blocked = [...paths].filter(
+                p =>
+                    !(p in this.unmerged) && target.tree[p] !== this.index[p] && p in work && work[p] !== this.index[p],
+            );
+            if (blocked.length > 0) {
+                return {
+                    ok: false,
+                    error: [
+                        `error: Entry '${blocked.sort()[0]}' not uptodate. Cannot merge.`,
+                        `fatal: Could not reset index file to revision '${reflogTarget}'.`,
+                    ],
+                };
+            }
+            for (const path of paths) {
+                if (!(path in this.unmerged) && target.tree[path] === this.index[path]) continue;
+                if (path in target.tree) this.writeWorkingFile(path, target.tree[path]!);
+                else if (path in work) this.deleteWorkingFile(path);
+            }
+            this.index = { ...target.tree };
+        }
+
         if (mode === "keep") {
+            const work = this.readWorkingTree();
+            const untracked = Object.keys(target.tree).filter(
+                p => !(p in oldTree) && !(p in this.index) && p in work && work[p] !== target.tree[p],
+            );
+            if (untracked.length > 0) {
+                return {
+                    ok: false,
+                    error: [
+                        `error: Untracked working tree file '${untracked.sort()[0]}' would be overwritten by merge.`,
+                        `fatal: Could not reset index file to revision '${reflogTarget}'.`,
+                    ],
+                };
+            }
             const local = this.locallyChangedPaths();
             const blocked = [...local].filter(p => oldTree[p] !== target.tree[p]);
             if (blocked.length > 0) {
@@ -1343,9 +1473,13 @@ export class GitRepository {
             }
         }
 
-        if (mode === "hard" || mode === "merge") {
+        if (mode === "hard") {
             const work = this.readWorkingTree();
-            const tracked = new Set([...Object.keys(this.index), ...Object.keys(oldTree)]);
+            const tracked = new Set([
+                ...Object.keys(this.index),
+                ...Object.keys(oldTree),
+                ...Object.keys(this.unmerged),
+            ]);
             for (const path of tracked) {
                 if (!(path in target.tree) && path in work) this.deleteWorkingFile(path);
             }
@@ -1356,23 +1490,18 @@ export class GitRepository {
         } else if (mode === "mixed") {
             this.index = { ...target.tree };
         } else if (mode === "keep") {
+            // The index is reset like --mixed; only files that differ between HEAD and the target
+            // are rewritten (local changes to those were refused above).
             for (const path of new Set([...Object.keys(oldTree), ...Object.keys(target.tree)])) {
                 if (oldTree[path] === target.tree[path]) continue;
-                if (path in target.tree) {
-                    this.index[path] = target.tree[path]!;
-                    this.writeWorkingFile(path, target.tree[path]!);
-                } else {
-                    delete this.index[path];
-                    this.deleteWorkingFile(path);
-                }
+                if (path in target.tree) this.writeWorkingFile(path, target.tree[path]!);
+                else this.deleteWorkingFile(path);
             }
+            this.index = { ...target.tree };
         }
 
-        if (mode !== "soft") {
-            this.unmerged = {};
-            if (this.mergeState) this.finishMergeState();
-            if (this.sequencer) this.clearSequencer();
-        }
+        if (mode !== "soft") this.unmerged = {};
+        if (!options.keepSequencer) this.removeBranchState();
 
         if (oldId) this.specialRefs.ORIG_HEAD = oldId;
         this.updateHead(targetId, `reset: moving to ${reflogTarget}`);
@@ -1441,7 +1570,12 @@ export class GitRepository {
             // Deleted on one side, modified on the other.
             conflicts.push({
                 path,
-                report: { path, type: "modify/delete", deletedIn: o === undefined ? labels.ours : labels.theirs },
+                report: {
+                    path,
+                    type: "modify/delete",
+                    deletedIn: o === undefined ? labels.ours : labels.theirs,
+                    modifiedIn: o === undefined ? labels.theirs : labels.ours,
+                },
                 entry: { base: b, ours: o, theirs: t },
                 worktree: o ?? t,
             });
@@ -1450,12 +1584,31 @@ export class GitRepository {
         return { tree, conflicts, autoMerged };
     }
 
+    /**
+     * The tree an operation will leave in the working tree, for the "would be overwritten" checks:
+     * a conflicting path gets markers written into it, so it counts as rewritten whatever it held.
+     */
+    private resultWithConflicts(result: ReturnType<GitRepository["mergeTrees"]>): Tree {
+        return {
+            ...result.tree,
+            ...Object.fromEntries(result.conflicts.map(c => [c.path, `\0conflict\0${c.worktree ?? ""}`])),
+        };
+    }
+
     /** Paths an operation is about to rewrite that have uncommitted changes — Git refuses those. */
     private dirtyPathsBlocking(fromTree: Tree, toTree: Tree): string[] {
         const local = this.locallyChangedPaths();
+        const work = this.readWorkingTree();
         const blocked: string[] = [];
         for (const path of local) {
-            if (fromTree[path] !== toTree[path]) blocked.push(path);
+            if (fromTree[path] === toTree[path]) continue;
+            // A file deleted by hand loses nothing when it is rewritten (Git's verify_uptodate).
+            if (!(path in work) && this.index[path] === fromTree[path]) continue;
+            // A local change that already is the result (e.g. a file deleted by hand that the
+            // operation deletes too) is not overwritten, so Git lets it through.
+            const index = this.index[path];
+            if (work[path] === toTree[path] && (index === fromTree[path] || index === toTree[path])) continue;
+            blocked.push(path);
         }
         return blocked.sort();
     }
@@ -1592,12 +1745,21 @@ export class GitRepository {
         const baseTree = baseId ? this.objects[baseId]!.tree : {};
         const result = this.mergeTrees(baseTree, oursTree, theirsTree, { ours: "HEAD", theirs: options.label });
 
-        const blocked = this.dirtyPathsBlocking(oursTree, {
-            ...result.tree,
-            ...Object.fromEntries(result.conflicts.map(c => [c.path, c.worktree ?? ""])),
-        });
+        // A real merge (not a fast-forward) starts from a clean index, like merge-ort insists.
+        const staged = this.changedPaths(oursTree, this.index);
+        if (staged.length > 0) {
+            return {
+                kind: "error",
+                lines: [
+                    "error: Your local changes to the following files would be overwritten by merge:",
+                    `  ${staged.join(" ")}`,
+                    "Merge with strategy ort failed.",
+                ],
+            };
+        }
+        const blocked = this.dirtyPathsBlocking(oursTree, this.resultWithConflicts(result));
         if (blocked.length > 0) return { kind: "error", lines: this.blockedError(blocked, "merge") };
-        const untracked = this.untrackedPathsBlocking(oursTree, result.tree);
+        const untracked = this.untrackedPathsBlocking(oursTree, this.resultWithConflicts(result));
         if (untracked.length > 0) return { kind: "error", lines: this.blockedError(untracked, "merge", true) };
 
         const message = options.message ?? this.defaultMergeMessage(options.label);
@@ -1630,17 +1792,18 @@ export class GitRepository {
     }
 
     /**
-     * `git merge a b c` — the octopus strategy: merge several heads at once into one commit with a
-     * parent per head. Like Git it is meant for clean merges; when one of them conflicts, the merge
-     * stops there with the conflict to resolve, and the final commit still records every head.
+     * `git merge a b c` — the octopus strategy (git-merge-octopus): merge the heads one after the
+     * other into one commit with a parent per head. It is meant for clean merges: a conflict is only
+     * left to resolve when it comes from the last head; anywhere earlier, the whole merge is given
+     * up ("Should not be doing an octopus.") and nothing changes. `progress` is what Git prints.
      */
     public mergeOctopus(
         heads: { id: string; label: string }[],
         options: { message?: string; noCommit?: boolean } = {},
     ):
         | { kind: "up-to-date" }
-        | { kind: "merged"; commitId: string | null; stat: TreeStat; tried: string[]; autoMerged: string[] }
-        | { kind: "conflict"; tried: string[]; conflicts: ConflictReport[]; autoMerged: string[] }
+        | { kind: "merged"; commitId: string | null; stat: TreeStat; progress: string[] }
+        | { kind: "conflict"; progress: string[]; conflicts: ConflictReport[] }
         | { kind: "error"; lines: string[] } {
         const oursId = this.getHeadCommitId();
         if (!oursId) return { kind: "error", lines: ["fatal: Can merge only exactly one commit into empty head"] };
@@ -1649,36 +1812,74 @@ export class GitRepository {
         if (pending.length === 0) return { kind: "up-to-date" };
 
         const oursTree = this.objects[oursId]!.tree;
-        let tree: Tree = { ...oursTree };
-        const tried: string[] = [];
-        const autoMerged: string[] = [];
-        let conflictResult: ReturnType<GitRepository["mergeTrees"]> | null = null;
-        const merged: string[] = [];
+        const staged = this.changedPaths(oursTree, this.index);
+        if (staged.length > 0) {
+            return {
+                kind: "error",
+                lines: [
+                    "error: Your local changes to the following files would be overwritten by merge:",
+                    `  ${staged.join(" ")}`,
+                    "Merge with strategy octopus failed.",
+                ],
+            };
+        }
 
-        for (const head of pending) {
-            tried.push(head.label);
-            const baseId = this.mergeBase(oursId, head.id);
-            const result = this.mergeTrees(
-                baseId ? this.objects[baseId]!.tree : {},
-                tree,
-                this.objects[head.id]!.tree,
-                {
-                    ours: "HEAD",
-                    theirs: head.label,
-                },
-            );
-            autoMerged.push(...result.autoMerged);
-            merged.push(head.id);
+        const progress: string[] = [];
+        let tree: Tree = { ...oursTree };
+        let ffCommit: string | null = oursId;
+        let conflictResult: ReturnType<GitRepository["mergeTrees"]> | null = null;
+
+        for (let i = 0; i < pending.length; i++) {
+            const head = pending[i]!;
+            const theirsTree = this.objects[head.id]!.tree;
+            // As long as nothing was merged for real, a head ahead of the result is a fast-forward.
+            if (ffCommit !== null && this.isAncestor(ffCommit, head.id)) {
+                progress.push(`Fast-forwarding to: ${head.label}`);
+                tree = { ...theirsTree };
+                ffCommit = head.id;
+                continue;
+            }
+            const baseId = this.mergeBase(ffCommit ?? oursId, head.id) ?? this.mergeBase(oursId, head.id);
+            ffCommit = null;
+            progress.push(`Trying simple merge with ${head.label}`);
+            const result = this.mergeTrees(baseId ? this.objects[baseId]!.tree : {}, tree, theirsTree, {
+                ours: "HEAD",
+                theirs: head.label,
+            });
+            if (result.autoMerged.length > 0 || result.conflicts.length > 0) {
+                progress.push("Simple merge did not work, trying automatic merge.");
+                const conflicted = new Set(result.conflicts.map(c => c.path));
+                for (const path of [...new Set([...result.autoMerged, ...conflicted])].sort()) {
+                    progress.push(`Auto-merging ${path}`);
+                    if (conflicted.has(path)) progress.push(`ERROR: content conflict in ${path}`);
+                }
+            }
             if (result.conflicts.length > 0) {
+                progress.push("fatal: merge program failed");
+                if (i < pending.length - 1) {
+                    return {
+                        kind: "error",
+                        lines: [
+                            ...progress,
+                            "Automated merge did not work.",
+                            "Should not be doing an octopus.",
+                            "Merge with strategy octopus failed.",
+                        ],
+                    };
+                }
                 conflictResult = result;
                 break;
             }
             tree = result.tree;
         }
 
-        const finalResult = conflictResult ?? { tree, conflicts: [], autoMerged };
-        const blocked = this.dirtyPathsBlocking(oursTree, finalResult.tree);
+        const finalResult = conflictResult ?? { tree, conflicts: [], autoMerged: [] };
+        const blocked = this.dirtyPathsBlocking(oursTree, this.resultWithConflicts(finalResult));
         if (blocked.length > 0) return { kind: "error", lines: this.blockedError(blocked, "merge") };
+        const untrackedBlocked = this.untrackedPathsBlocking(oursTree, this.resultWithConflicts(finalResult));
+        if (untrackedBlocked.length > 0) {
+            return { kind: "error", lines: this.blockedError(untrackedBlocked, "merge", true) };
+        }
 
         const message =
             options.message ??
@@ -1688,10 +1889,8 @@ export class GitRepository {
                 .join(", ")} and '${pending[pending.length - 1]!.label}'`;
         const touched = this.applyMergeResult(oursTree, finalResult);
         this.specialRefs.ORIG_HEAD = oursId;
+        const allHeads = pending.map(h => h.id);
 
-        // The merge being concluded records the heads merged so far; a conflict stops the octopus
-        // before the remaining ones, which can be merged afterwards.
-        const allHeads = merged;
         if (conflictResult || options.noCommit) {
             this.mergeState = {
                 theirs: allHeads[allHeads.length - 1]!,
@@ -1703,15 +1902,9 @@ export class GitRepository {
             this.specialRefs.MERGE_HEAD = allHeads.join(" ");
             this.syncGitDirectory();
             if (conflictResult) {
-                return { kind: "conflict", tried, conflicts: conflictResult.conflicts.map(c => c.report), autoMerged };
+                return { kind: "conflict", progress, conflicts: conflictResult.conflicts.map(c => c.report) };
             }
-            return {
-                kind: "merged",
-                commitId: null,
-                stat: this.treeStat(oursTree, finalResult.tree),
-                tried,
-                autoMerged,
-            };
+            return { kind: "merged", commitId: null, stat: this.treeStat(oursTree, finalResult.tree), progress };
         }
 
         const commitId = this.writeCommit({ tree: this.index, parents: [oursId, ...allHeads], message });
@@ -1719,7 +1912,7 @@ export class GitRepository {
             commitId,
             `merge ${pending.map(h => h.label).join(" ")}: Merge made by the 'octopus' strategy.`,
         );
-        return { kind: "merged", commitId, stat: this.treeStat(oursTree, this.index), tried, autoMerged };
+        return { kind: "merged", commitId, stat: this.treeStat(oursTree, this.index), progress };
     }
 
     private defaultMergeMessage(label: string): string {
@@ -1745,6 +1938,9 @@ export class GitRepository {
     /** `git merge --abort`: put back every path the merge touched. */
     public abortMerge(): boolean {
         if (!this.mergeState) return false;
+        // `git merge --abort` is a `git reset --merge`.
+        const head = this.getHeadCommitId();
+        if (head) this.logRef("HEAD", head, head, "reset: moving to HEAD");
         const headTree = this.getHeadTree();
         for (const path of this.mergeState.touched) {
             this.unstagePath(path);
@@ -1825,7 +2021,16 @@ export class GitRepository {
     public applyCommit(
         commitId: string,
         mode: "cherry-pick" | "revert",
-        options: { noCommit?: boolean; mainline?: number; remaining?: string[]; recordOrigin?: boolean } = {},
+        options: {
+            noCommit?: boolean;
+            mainline?: number;
+            remaining?: string[];
+            recordOrigin?: boolean;
+            /** HEAD before the whole cherry-pick/revert run (for --abort); defaults to HEAD now. */
+            start?: string | null;
+            /** Part of a run of several commits (Git keeps a sequencer directory for those). */
+            multi?: boolean;
+        } = {},
     ):
         | { kind: "committed"; id: string; stat: TreeStat; autoMerged: string[] }
         | { kind: "applied"; autoMerged: string[] }
@@ -1834,7 +2039,20 @@ export class GitRepository {
         | { kind: "error"; lines: string[] } {
         const commit = this.objects[commitId]!;
         const headId = this.getHeadCommitId();
-        const oursTree = this.getHeadTree();
+        // With --no-commit the change is merged into whatever is staged; otherwise the index must be clean.
+        const oursTree = options.noCommit ? { ...this.index } : this.getHeadTree();
+        const start = options.start === undefined ? headId : options.start;
+
+        if (!options.noCommit && this.changedPaths(oursTree, this.index).length > 0) {
+            return {
+                kind: "error",
+                lines: [
+                    `error: your local changes would be overwritten by ${mode}.`,
+                    "hint: commit your changes or stash them to proceed.",
+                    `fatal: ${mode} failed`,
+                ],
+            };
+        }
 
         if (commit.parents.length > 1 && !options.mainline) {
             return {
@@ -1852,22 +2070,27 @@ export class GitRepository {
         const theirsLabel = mode === "cherry-pick" ? `${short} (${subject})` : `parent of ${short} (${subject})`;
         const result = this.mergeTrees(base, oursTree, theirs, { ours: "HEAD", theirs: theirsLabel });
 
-        const blocked = this.dirtyPathsBlocking(oursTree, result.tree);
+        const resultTree = this.resultWithConflicts(result);
+        const work = this.readWorkingTree();
+        const blocked = this.changedPaths(oursTree, resultTree).filter(
+            p =>
+                p in work &&
+                work[p] !== this.index[p] &&
+                work[p] !== resultTree[p] &&
+                (p in this.index || p in oursTree),
+        );
         if (blocked.length > 0) {
-            return {
-                kind: "error",
-                lines: [
-                    `error: Your local changes would be overwritten by ${mode}.`,
-                    `hint: commit your changes or stash them to proceed.`,
-                    `fatal: ${mode} failed`,
-                ],
-            };
+            return { kind: "error", lines: [...this.blockedError(blocked, "merge"), `fatal: ${mode} failed`] };
+        }
+        const untracked = this.untrackedPathsBlocking(oursTree, resultTree);
+        if (untracked.length > 0) {
+            return { kind: "error", lines: [...this.blockedError(untracked, "merge", true), `fatal: ${mode} failed`] };
         }
 
         const message =
             mode === "cherry-pick"
                 ? commit.message + (options.recordOrigin ? `\n\n(cherry picked from commit ${commitId})` : "")
-                : `Revert "${subject}"\n\nThis reverts commit ${commitId}.`;
+                : `${revertSubject(subject)}\n\nThis reverts commit ${commitId}.`;
 
         this.applyMergeResult(oursTree, result);
         if (headId) this.specialRefs.ORIG_HEAD = headId;
@@ -1878,16 +2101,43 @@ export class GitRepository {
                 : { name: this.user.name, email: this.user.email, date: new Date() };
 
         if (result.conflicts.length > 0) {
-            this.sequencer = { kind: mode, current: commitId, remaining: options.remaining ?? [], message, author };
+            this.sequencer = {
+                kind: mode,
+                current: commitId,
+                remaining: options.remaining ?? [],
+                start,
+                multi: options.multi,
+                message,
+                author,
+            };
             this.specialRefs[mode === "cherry-pick" ? "CHERRY_PICK_HEAD" : "REVERT_HEAD"] = commitId;
             this.syncGitDirectory();
             return { kind: "conflict", conflicts: result.conflicts.map(c => c.report), autoMerged: result.autoMerged };
         }
 
-        if (options.noCommit) return { kind: "applied", autoMerged: result.autoMerged };
+        if (options.noCommit) {
+            // `git revert -n` leaves REVERT_HEAD behind, so the next `git commit` concludes the revert.
+            if (mode === "revert" && this.sequencer?.kind !== "cherry-pick") {
+                this.sequencer = { kind: mode, current: commitId, remaining: [], start, message, author };
+                this.specialRefs.REVERT_HEAD = commitId;
+                this.syncGitDirectory();
+            }
+            return { kind: "applied", autoMerged: result.autoMerged };
+        }
 
         if (this.changedPaths(oursTree, this.index).length === 0) {
-            this.sequencer = { kind: mode, current: commitId, remaining: options.remaining ?? [], message, author };
+            // A clean revert that comes out empty leaves no REVERT_HEAD behind (Git only writes it on
+            // a conflict); a cherry-pick keeps CHERRY_PICK_HEAD for `git commit --allow-empty`.
+            if (mode === "revert" && !options.multi) return { kind: "empty" };
+            this.sequencer = {
+                kind: mode,
+                current: commitId,
+                remaining: options.remaining ?? [],
+                start,
+                multi: options.multi,
+                message,
+                author,
+            };
             this.specialRefs[mode === "cherry-pick" ? "CHERRY_PICK_HEAD" : "REVERT_HEAD"] = commitId;
             this.syncGitDirectory();
             return { kind: "empty" };
@@ -1900,7 +2150,7 @@ export class GitRepository {
             author: { name: author.name, email: author.email },
             date: author.date,
         });
-        this.updateHead(id, `${mode}: ${mode === "revert" ? `Revert "${subject}"` : subject}`);
+        this.updateHead(id, `${mode}: ${mode === "revert" ? revertSubject(subject) : subject}`);
         return { kind: "committed", id, stat: this.treeStat(oursTree, this.index), autoMerged: result.autoMerged };
     }
 
@@ -1939,6 +2189,23 @@ export class GitRepository {
         return { ok: true, id };
     }
 
+    /**
+     * Git's remove_branch_state(), run by `git reset` and `git stash`: it ends a merge and the
+     * cherry-pick/revert in progress. A multi-commit run keeps its list, to go on with --continue.
+     */
+    private removeBranchState(): void {
+        if (this.mergeState) this.finishMergeState();
+        if (!this.sequencer) return;
+        if (this.sequencer.remaining.length === 0) {
+            this.clearSequencer();
+        } else {
+            this.sequencer.concluded = true;
+            delete this.specialRefs.CHERRY_PICK_HEAD;
+            delete this.specialRefs.REVERT_HEAD;
+            this.syncGitDirectory();
+        }
+    }
+
     public clearSequencer(): void {
         this.sequencer = null;
         delete this.specialRefs.CHERRY_PICK_HEAD;
@@ -1946,19 +2213,79 @@ export class GitRepository {
         this.syncGitDirectory();
     }
 
-    /** `--abort`: go back to where the cherry-pick/revert started. */
-    public abortSequencer(): boolean {
-        if (!this.sequencer) return false;
-        const orig = this.specialRefs.ORIG_HEAD ?? this.getHeadCommitId();
+    /** `--abort`: go back to where the cherry-pick/revert started, keeping unrelated local edits. */
+    public abortSequencer(): { ok: true } | { ok: false; error: string[] } {
+        if (!this.sequencer) return { ok: true };
+        // A run of several commits goes back to where it started; a single pick just drops its change.
+        const multi = this.sequencer.multi;
+        const target = multi ? (this.sequencer.start ?? this.getHeadCommitId()) : this.getHeadCommitId();
+        if (target) {
+            const result = this.resetTo(target, "merge", multi ? target : "HEAD");
+            if (!result.ok) return result;
+        }
         this.clearSequencer();
-        if (orig) this.resetTo(orig, "merge", orig);
-        return true;
+        return { ok: true };
+    }
+
+    /** Keep a cherry-pick/revert run that could not start, as Git keeps its sequencer directory. */
+    public holdSequencer(state: SequencerState): void {
+        this.sequencer = { ...state, remaining: [...state.remaining] };
+        this.syncGitDirectory();
+    }
+
+    /** Git's remove_branch_state() for commands that switch branches (`git checkout`). */
+    public endOperationsOnSwitch(): void {
+        this.removeBranchState();
+    }
+
+    /** `--skip`: drop the stopped pick (a `git reset --merge HEAD`), keeping the sequencer's start. */
+    public skipSequencerPick(): { ok: true } | { ok: false; error: string[] } {
+        const head = this.getHeadCommitId();
+        if (!head) return { ok: true };
+        const seq = this.sequencer;
+        const result = this.resetTo(head, "merge", "HEAD", { keepSequencer: true });
+        if (!result.ok) return result;
+        if (seq) this.sequencer = seq;
+        delete this.specialRefs.CHERRY_PICK_HEAD;
+        delete this.specialRefs.REVERT_HEAD;
+        this.syncGitDirectory();
+        return { ok: true };
     }
 
     // ---------------------------------------------------------------------------------------- rebase
 
     public getRebaseState(): RebaseState | null {
         return this.rebaseState;
+    }
+
+    /** Git's patch-id, simplified: what a commit changes, independent of where it sits. */
+    public patchId(id: string): string {
+        const commit = this.objects[id]!;
+        const parentTree = commit.parents[0] ? this.objects[commit.parents[0]]!.tree : {};
+        return this.changedPaths(parentTree, commit.tree)
+            .map(path => {
+                const before = parentTree[path];
+                const after = commit.tree[path];
+                const ops = diffLines(
+                    before === undefined ? [] : toLines(before).lines,
+                    after === undefined ? [] : toLines(after).lines,
+                );
+                const changes = ops
+                    .filter(op => op.type !== "equal")
+                    .map(op => (op.type === "insert" ? "+" : "-") + op.line);
+                return `${path}\0${before === undefined ? "new" : after === undefined ? "gone" : ""}\0${changes.join("\n")}`;
+            })
+            .join("\0\0");
+    }
+
+    /** Of `commits`, those whose change `upstream` already has (the cherry-picks rebase skips). */
+    public alreadyUpstream(commits: string[], upstreamId: string, headId: string): Set<string> {
+        const upstreamPatches = new Set(
+            this.revList([upstreamId], [headId])
+                .filter(id => this.objects[id]!.parents.length <= 1)
+                .map(id => this.patchId(id)),
+        );
+        return new Set(commits.filter(id => upstreamPatches.has(this.patchId(id))));
     }
 
     /** The commits a rebase would replay: on `branchTip`, not on `upstream`, oldest first, no merges. */
@@ -1968,7 +2295,13 @@ export class GitRepository {
             .reverse();
     }
 
-    public startRebase(params: { onto: string; ontoLabel: string; commits: string[]; interactive: boolean }): void {
+    public startRebase(params: {
+        onto: string;
+        ontoLabel: string;
+        commits: string[];
+        interactive: boolean;
+        autostash?: StashEntry;
+    }): void {
         const origHead = this.getHeadCommitId()!;
         const branch = this.getBranchName();
         this.specialRefs.ORIG_HEAD = origHead;
@@ -1983,6 +2316,7 @@ export class GitRepository {
             interactive: params.interactive,
             awaitingTodo: params.interactive,
             pendingSquashMessage: null,
+            autostash: params.autostash,
         };
         this.syncGitDirectory();
     }
@@ -2059,17 +2393,24 @@ export class GitRepository {
      * Run the rebase todo list until it finishes or stops (conflict, edit, reword).
      * Returns the lines Git prints.
      */
-    public runRebase(): { lines: string[]; status: "done" | "stopped" | "conflict" } {
+    public runRebase(): { lines: string[]; status: "done" | "stopped" | "conflict" | "error" } {
         const state = this.rebaseState;
         if (!state) return { lines: [], status: "done" };
         const lines: string[] = [];
 
         // First step: detach HEAD at onto (unless resuming).
         if (state.done.length === 0 && state.stopped === null && this.getHeadCommitId() !== state.onto) {
-            this.moveHead(
+            const moved = this.moveHead(
                 { detach: state.onto },
                 { force: false, reflogMessage: `rebase (start): checkout ${state.ontoLabel}` },
             );
+            if (!moved.ok) {
+                // Nothing has happened yet: give up the rebase and leave everything as it was.
+                this.rebaseState = null;
+                const restored = state.autostash ? this.applyAutostash(state.autostash) : [];
+                this.syncGitDirectory();
+                return { lines: [...moved.error, "error: could not detach HEAD", ...restored], status: "error" };
+            }
         }
 
         while (state.todo.length > 0) {
@@ -2084,6 +2425,13 @@ export class GitRepository {
 
             const headId = this.getHeadCommitId()!;
             const isSquash = step.action === "squash" || step.action === "fixup";
+
+            // The commit already is HEAD (the root commit of `rebase --root`): nothing to replay.
+            if (step.id === headId && !isSquash) {
+                state.done.push(step);
+                if (step.action === "edit" || step.action === "reword") return this.stopForEdit(state, step, lines);
+                continue;
+            }
 
             // Fast path: the commit already sits on top of HEAD — reuse it as is, like Git does.
             if (
@@ -2104,11 +2452,42 @@ export class GitRepository {
                 ours: "HEAD",
                 theirs: `${this.abbrev(step.id)} (${subject})`,
             });
+            const untracked = this.untrackedPathsBlocking(oursTree, this.resultWithConflicts(result));
+            if (untracked.length > 0) {
+                // Git refuses the pick and puts it back on the list for --continue.
+                state.todo.unshift(step);
+                this.syncGitDirectory();
+                return {
+                    lines: [
+                        ...lines,
+                        ...this.blockedError(untracked, "merge", true),
+                        "hint: Could not execute the todo command",
+                        "hint:",
+                        `hint:     ${step.action} ${this.abbrev(step.id)} # ${subject}`,
+                        "hint:",
+                        "hint: It has been rescheduled; To edit the command before continuing, please",
+                        "hint: edit the todo list first:",
+                        "hint:",
+                        "hint:     git rebase --edit-todo",
+                        "hint:     git rebase --continue",
+                    ],
+                    status: "conflict",
+                };
+            }
+            // A pick whose change is already there would be empty: Git drops it.
+            if (result.conflicts.length === 0 && !isSquash && this.changedPaths(oursTree, result.tree).length === 0) {
+                state.done.push(step);
+                continue;
+            }
             this.applyMergeResult(oursTree, result);
-            result.autoMerged.forEach(p => lines.push(`Auto-merging ${p}`));
+            lines.push(
+                ...this.mergeReport(
+                    result.autoMerged,
+                    result.conflicts.map(c => c.report),
+                ),
+            );
 
             if (result.conflicts.length > 0) {
-                result.conflicts.forEach(c => lines.push(...this.conflictLines(c.report)));
                 state.stopped = { todo: step, conflict: true };
                 this.specialRefs.REBASE_HEAD = step.id;
                 lines.push(
@@ -2200,7 +2579,8 @@ export class GitRepository {
         if (state.awaitingTodo) state.awaitingTodo = false;
 
         if (state.stopped) {
-            if (this.hasMergeConflicts()) {
+            const unstaged = this.statusEntries().some(e => e.worktree === "M" || e.worktree === "D");
+            if (this.hasMergeConflicts() || unstaged) {
                 return {
                     lines: [
                         ...this.getUnmergedPaths().map(p => `${p}: needs merge`),
@@ -2257,10 +2637,20 @@ export class GitRepository {
         return this.runRebase();
     }
 
-    /** `git rebase --abort`. */
-    public abortRebase(): boolean {
+    /** `git rebase --quit`: forget the rebase, leaving HEAD and the files where they are. */
+    public quitRebase(): void {
         const state = this.rebaseState;
-        if (!state) return false;
+        if (!state) return;
+        this.rebaseState = null;
+        delete this.specialRefs.REBASE_HEAD;
+        if (state.autostash) this.stash.unshift(state.autostash);
+        this.syncGitDirectory();
+    }
+
+    /** `git rebase --abort`. Returns what Git prints (only about the autostash, if any). */
+    public abortRebase(): string[] {
+        const state = this.rebaseState;
+        if (!state) return [];
         this.unmerged = {};
         const target = state.origHead;
         const work = this.readWorkingTree();
@@ -2281,13 +2671,14 @@ export class GitRepository {
         this.rebaseState = null;
         delete this.specialRefs.REBASE_HEAD;
         this.syncGitDirectory();
-        return true;
+        return state.autostash ? this.applyAutostash(state.autostash) : [];
     }
 
     private finishRebase(): string[] {
         const state = this.rebaseState!;
         const newTip = this.getHeadCommitId()!;
         this.rebaseState = null;
+        const autostash = state.autostash ? this.applyAutostash(state.autostash) : [];
         if (state.branch) {
             const oldTip = this.branches[state.branch] ?? null;
             this.branches[state.branch] = newTip;
@@ -2300,10 +2691,10 @@ export class GitRepository {
             this.head = { kind: "branch", name: state.branch };
             this.logRef("HEAD", newTip, newTip, `rebase (finish): returning to refs/heads/${state.branch}`);
             this.syncGitDirectory();
-            return [`Successfully rebased and updated refs/heads/${state.branch}.`];
+            return [...autostash, `Successfully rebased and updated refs/heads/${state.branch}.`];
         }
         this.syncGitDirectory();
-        return ["Successfully rebased and updated detached HEAD."];
+        return [...autostash, "Successfully rebased and updated detached HEAD."];
     }
 
     /** Begin a rebase that is already stopped on a conflict (level setup). */
@@ -2315,11 +2706,27 @@ export class GitRepository {
     // ---------------------------------------------------------------------------------------- conflict output
 
     /** The CONFLICT lines Git prints for one conflicting path. */
+    /** What merge-ort prints path by path: "Auto-merging x" and the CONFLICT line(s), in path order. */
+    public mergeReport(autoMerged: string[], conflicts: ConflictReport[]): string[] {
+        const lines: string[] = [];
+        const byPath = new Map(conflicts.map(c => [c.path, c]));
+        for (const path of [...new Set([...autoMerged, ...byPath.keys()])].sort()) {
+            const conflict = byPath.get(path);
+            if (conflict?.type === "add/add") {
+                lines.push(...this.conflictLines(conflict));
+                continue;
+            }
+            if (autoMerged.includes(path)) lines.push(`Auto-merging ${path}`);
+            if (conflict) lines.push(...this.conflictLines(conflict));
+        }
+        return lines;
+    }
+
     public conflictLines(report: ConflictReport): string[] {
         if (report.type === "modify/delete") {
-            const other = report.deletedIn === "HEAD" ? "the other side" : "HEAD";
+            const other = report.modifiedIn ?? (report.deletedIn === "HEAD" ? "the other side" : "HEAD");
             return [
-                `CONFLICT (modify/delete): ${report.path} deleted in ${report.deletedIn} and modified in ${other}. Version ${other} of ${report.path} left in tree.`,
+                `CONFLICT (modify/delete): ${report.path} deleted in ${report.deletedIn} and modified in ${other}.  Version ${other} of ${report.path} left in tree.`,
             ];
         }
         if (report.type === "add/add") {
@@ -2338,7 +2745,7 @@ export class GitRepository {
      */
     public stashSave(
         message?: string,
-        options: { includeUntracked?: boolean; keepIndex?: boolean; paths?: string[] } = {},
+        options: { includeUntracked?: boolean; keepIndex?: boolean; paths?: string[]; autostash?: boolean } = {},
     ): boolean {
         if (!this.initialized) return false;
         const headId = this.getHeadCommitId();
@@ -2384,19 +2791,47 @@ export class GitRepository {
             changes,
         });
 
-        // Return the stashed paths to HEAD.
+        // Untracked files go first: a path deleted in the index can be untracked and tracked in HEAD.
+        for (const p of untracked) this.deleteWorkingFile(p);
+        // Return the stashed paths to HEAD (with --keep-index: to what is staged).
         for (const entry of trackedChanges) {
             const p = entry.path;
             if (options.keepIndex) {
                 if (p in this.index) this.writeWorkingFile(p, this.index[p]!);
-                else this.restoreWorkingPath(p, headTree);
+                else if (p in work) this.deleteWorkingFile(p);
             } else {
                 this.unstagePath(p);
                 this.restoreWorkingPath(p, headTree);
             }
         }
-        for (const p of untracked) this.deleteWorkingFile(p);
+        // A full `git stash` runs `git reset --hard`: HEAD's reflog says so, and it ends a merge or
+        // cherry-pick in progress. (rebase --autostash resets internally and does neither.)
+        if (!options.paths && !options.autostash) {
+            this.logRef("HEAD", headId, headId, "reset: moving to HEAD");
+            this.removeBranchState();
+        }
         return true;
+    }
+
+    /** Take the newest stash entry out of the list (rebase --autostash keeps it to itself). */
+    public takeStash(): StashEntry | null {
+        return this.stash.shift() ?? null;
+    }
+
+    /** Re-apply an autostash: "Applied autostash." or, if it does not apply cleanly, keep it stashed. */
+    public applyAutostash(entry: StashEntry): string[] {
+        this.stash.unshift(entry);
+        const applied = this.applyStash(0);
+        if (applied.ok && applied.conflicts.length === 0 && applied.untrackedErrors.length === 0) {
+            this.stash.shift();
+            return ["Applied autostash."];
+        }
+        if (applied.ok) this.unmerged = {};
+        return [
+            "Applying autostash resulted in conflicts.",
+            "Your changes are safe in the stash.",
+            'You can run "git stash pop" or "git stash drop" at any time.',
+        ];
     }
 
     /** Stash entries, newest first (stash@{0} first). */
@@ -2425,7 +2860,17 @@ export class GitRepository {
     public applyStash(
         n = 0,
         options: { restoreIndex?: boolean } = {},
-    ): { ok: true; conflicts: ConflictReport[]; autoMerged: string[] } | { ok: false; error: string[] } {
+    ):
+        | {
+              ok: true;
+              conflicts: ConflictReport[];
+              autoMerged: string[];
+              /** The stash had no tracked changes: merge-ort says "Already up to date." */
+              upToDate: boolean;
+              /** Untracked files that could not be restored (Git restores the others and fails). */
+              untrackedErrors: string[];
+          }
+        | { ok: false; error: string[] } {
         const entry = this.stash[n];
         if (!entry)
             return {
@@ -2434,35 +2879,28 @@ export class GitRepository {
             };
 
         const baseTree = this.objects[entry.base]!.tree;
-        const oursTree = this.getHeadTree();
+        // Git merges the stash into the current index: staged changes are part of "ours".
+        const oursTree: Tree = { ...this.index };
         const work = this.readWorkingTree();
-
-        // Refuse to overwrite local changes or untracked files the stash would write.
-        const local = this.locallyChangedPaths();
-        const stashPaths = this.changedPaths(baseTree, entry.worktree);
-        const blocked = stashPaths.filter(p => local.has(p) && work[p] !== entry.worktree[p]);
-        if (blocked.length > 0) return { ok: false, error: this.blockedError(blocked, "merge") };
-        const untrackedBlocked = Object.keys(entry.untracked).filter(p => p in work);
-        if (untrackedBlocked.length > 0) {
-            return {
-                ok: false,
-                error: [
-                    ...untrackedBlocked.map(p => `${p} already exists, no checkout`),
-                    "error: could not restore untracked files from stash",
-                ],
-            };
-        }
-
         const result = this.mergeTrees(baseTree, oursTree, entry.worktree, {
             ours: "Updated upstream",
             theirs: "Stashed changes",
         });
+
+        // Refuse to overwrite unstaged changes or untracked files the stash would write.
+        const resultTree = this.resultWithConflicts(result);
+        const blocked = this.changedPaths(oursTree, resultTree).filter(
+            p => p in oursTree && p in work && work[p] !== oursTree[p] && work[p] !== resultTree[p],
+        );
+        if (blocked.length > 0) return { ok: false, error: this.blockedError(blocked, "merge") };
+        const addedPaths = this.untrackedPathsBlocking(oursTree, resultTree);
+        if (addedPaths.length > 0) return { ok: false, error: this.blockedError(addedPaths, "merge", true) };
+
         const addedInStash = Object.keys(entry.index).filter(p => !(p in baseTree));
 
         for (const path of this.changedPaths(oursTree, result.tree)) {
             if (path in result.tree) this.writeWorkingFile(path, result.tree[path]!);
             else if (path in work) this.deleteWorkingFile(path);
-            if (!(path in result.tree)) delete this.index[path];
         }
         for (const conflict of result.conflicts) {
             this.unmerged[conflict.path] = conflict.entry;
@@ -2480,9 +2918,22 @@ export class GitRepository {
                 if (path in result.tree && !(path in this.unmerged)) this.index[path] = result.tree[path]!;
             }
         }
-        for (const [path, content] of Object.entries(entry.untracked)) this.writeWorkingFile(path, content);
+        // Untracked files come back last; one that exists again is left alone and makes the apply fail.
+        const untrackedErrors: string[] = [];
+        const workNow = this.readWorkingTree();
+        for (const [path, content] of Object.entries(entry.untracked)) {
+            if (path in workNow) untrackedErrors.push(`${path} already exists, no checkout`);
+            else this.writeWorkingFile(path, content);
+        }
+        if (untrackedErrors.length > 0) untrackedErrors.push("error: could not restore untracked files from stash");
 
-        return { ok: true, conflicts: result.conflicts.map(c => c.report), autoMerged: result.autoMerged };
+        return {
+            ok: true,
+            conflicts: result.conflicts.map(c => c.report),
+            autoMerged: result.autoMerged,
+            upToDate: this.changedPaths(baseTree, entry.worktree).length === 0,
+            untrackedErrors,
+        };
     }
 
     /** Legacy stash apply/pop of the newest entry. */
@@ -2632,11 +3083,23 @@ export class GitRepository {
     }
 
     /** Ahead/behind counts of a branch against its upstream's tracking ref. */
+    /** A stable id for a tree's content (what Git would call the tree object's id). */
+    public static treeId(tree: Tree): string {
+        return sha1(JSON.stringify(Object.entries(tree).sort()));
+    }
+
+    /** How an upstream is named in revisions and messages: "origin/main", or "main" for a local one. */
+    public static upstreamRefName(upstream: { remote: string; branch: string }): string {
+        return upstream.remote === "." ? upstream.branch : `${upstream.remote}/${upstream.branch}`;
+    }
+
     public aheadBehind(branch: string): { ahead: number; behind: number; upstream: string; gone: boolean } | null {
         const upstream = this.upstreams[branch];
         if (!upstream) return null;
-        const name = `${upstream.remote}/${upstream.branch}`;
-        const tracking = this.trackingRefs[name];
+        // remote "." means a local branch is the upstream (`git branch -u main feature`).
+        const isLocal = upstream.remote === ".";
+        const name = isLocal ? upstream.branch : `${upstream.remote}/${upstream.branch}`;
+        const tracking = isLocal ? this.branches[upstream.branch] : this.trackingRefs[name];
         const local = this.branches[branch];
         if (!tracking || !local) return { ahead: 0, behind: 0, upstream: name, gone: !tracking };
         return {

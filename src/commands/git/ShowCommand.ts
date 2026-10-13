@@ -1,6 +1,13 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { unknownFlagError } from "../base/GitErrors";
-import { formatGitDate, requireRepository, revisionError, toRepoPath } from "../helpers/gitFormat";
+import {
+    formatGitDate,
+    matchPathspec,
+    requireRepository,
+    revisionError,
+    splitRevisionsAndPaths,
+    toRepoPath,
+} from "../helpers/gitFormat";
 import { defaultLogOptions, formatCommit, type DateMode } from "../helpers/logFormat";
 
 export class ShowCommand implements Command {
@@ -45,7 +52,16 @@ export class ShowCommand implements Command {
         const unknownFlag = args.unknownFlags?.[0];
         if (unknownFlag !== undefined) return unknownFlagError(unknownFlag, this.usage);
 
-        const objects = args.positionalArgs.length > 0 ? args.positionalArgs : ["HEAD"];
+        const split = splitRevisionsAndPaths(context, args, "show", { allowObjectPaths: true });
+        if (!split.ok) return split.error;
+        const objects = split.revs.length > 0 ? split.revs : ["HEAD"];
+        const allPaths = new Set([...Object.keys(repo.readWorkingTree()), ...Object.keys(repo.getIndex())]);
+        for (const commit of Object.values(repo.getAllCommits()))
+            Object.keys(commit.tree).forEach(p => allPaths.add(p));
+        const pathFilter = split.paths.flatMap(p => {
+            const matched = matchPathspec(context, p, allPaths);
+            return matched.length > 0 ? matched : [toRepoPath(context, p) ?? p];
+        });
         const output: string[] = [];
 
         const options = defaultLogOptions();
@@ -140,7 +156,7 @@ export class ShowCommand implements Command {
                 }
                 return revisionError(repo, spec, "show");
             }
-            output.push(...formatCommit(repo, id, options));
+            output.push(...formatCommit(repo, id, pathFilter.length > 0 ? { ...options, paths: pathFilter } : options));
         }
 
         return output;

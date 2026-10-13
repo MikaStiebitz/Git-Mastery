@@ -76,7 +76,6 @@ export class RestoreCommand implements Command {
         const index = repo.getIndex();
         const unmergedPaths = repo.getUnmergedPaths();
         const candidates = new Set([...Object.keys(source), ...Object.keys(index), ...unmergedPaths]);
-        if (worktree) Object.keys(repo.readWorkingTree()).forEach(p => candidates.add(p));
 
         const paths = new Set<string>();
         for (const spec of args.positionalArgs) {

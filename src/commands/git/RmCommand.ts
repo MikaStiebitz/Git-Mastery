@@ -24,7 +24,7 @@ export class RmCommand implements Command {
         const unknownFlag = args.unknownFlags?.[0];
         if (unknownFlag !== undefined) return unknownFlagError(unknownFlag, this.usage);
 
-        if (args.positionalArgs.length === 0) return ["usage: " + this.usage];
+        if (args.positionalArgs.length === 0) return ["fatal: No pathspec was given. Which files should I remove?"];
 
         const flags = args.flags;
         const cached = flags.cached !== undefined;
@@ -54,8 +54,8 @@ export class RmCommand implements Command {
                 return lines;
             }
             const repoPath = toRepoPath(context, spec);
-            const isDirectory =
-                matched.length > 1 || (matched.length === 1 && matched[0] !== repoPath && !/[*?[]/.test(spec));
+            // A wildcard matches files wherever they are; only a directory name needs -r.
+            const isDirectory = !/[*?[]/.test(spec) && (matched.length > 1 || matched[0] !== repoPath);
             if (isDirectory && !recursive) return [`fatal: not removing '${spec}' recursively without -r`];
             matched.forEach(p => paths.add(p));
         }
@@ -67,6 +67,8 @@ export class RmCommand implements Command {
             const stagedOnly: string[] = [];
             for (const path of paths) {
                 if (repo.getUnmergedEntry(path)) continue;
+                // A file that is already gone from the working tree has nothing left to lose.
+                if (!(path in work)) continue;
                 const inHead = headTree[path];
                 const inIndex = index[path];
                 const inWork = work[path];
@@ -81,27 +83,31 @@ export class RmCommand implements Command {
                 ...list.map(p => `    ${displayPath(context, p)}`),
                 advice,
             ];
-            if (stagedAndModified.length > 0) {
-                return refuse(
-                    "staged content different from both the\nfile and the HEAD",
-                    stagedAndModified,
-                    "(use -f to force removal)",
-                );
-            }
-            if (stagedOnly.length > 0) {
-                return refuse(
-                    "changes staged in the index",
-                    stagedOnly,
-                    "(use --cached to keep the file, or -f to force removal)",
-                );
-            }
-            if (localMods.length > 0) {
-                return refuse(
-                    "local modifications",
-                    localMods,
-                    "(use --cached to keep the file, or -f to force removal)",
-                );
-            }
+            // Git reports every kind of problem at once, then gives up.
+            const errors = [
+                ...(stagedAndModified.length > 0
+                    ? refuse(
+                          "staged content different from both the\nfile and the HEAD",
+                          stagedAndModified,
+                          "(use -f to force removal)",
+                      )
+                    : []),
+                ...(stagedOnly.length > 0
+                    ? refuse(
+                          "changes staged in the index",
+                          stagedOnly,
+                          "(use --cached to keep the file, or -f to force removal)",
+                      )
+                    : []),
+                ...(localMods.length > 0
+                    ? refuse(
+                          "local modifications",
+                          localMods,
+                          "(use --cached to keep the file, or -f to force removal)",
+                      )
+                    : []),
+            ];
+            if (errors.length > 0) return errors;
         }
 
         const output: string[] = [];

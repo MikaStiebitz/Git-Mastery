@@ -220,6 +220,8 @@ const mergeLevel4 = createLevel({
         }),
         createRequirement({
             command: "git commit",
+            // Concluding the merge with `git merge --continue` commits it just the same.
+            alternativeCommands: ["git merge --continue"],
             requiresArgs: ["-m"],
             description: "merge.level4.requirement3.description",
             successMessage: "merge.level4.requirement3.success",

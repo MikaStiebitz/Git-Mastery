@@ -173,12 +173,7 @@ export class PullCommand implements Command {
                 else lines.push("Automatic merge went well; stopped before committing as requested");
                 break;
             case "conflict": {
-                const conflicted = new Set(outcome.conflicts.map(c => c.path));
-                outcome.autoMerged.filter(p => !conflicted.has(p)).forEach(p => lines.push(`Auto-merging ${p}`));
-                for (const conflict of outcome.conflicts) {
-                    if (conflict.type !== "modify/delete") lines.push(`Auto-merging ${conflict.path}`);
-                    lines.push(...repo.conflictLines(conflict).filter(l => !l.startsWith("Auto-merging")));
-                }
+                lines.push(...repo.mergeReport(outcome.autoMerged, outcome.conflicts));
                 lines.push("Automatic merge failed; fix conflicts and then commit the result.");
                 break;
             }

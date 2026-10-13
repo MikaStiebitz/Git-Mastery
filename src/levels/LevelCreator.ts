@@ -151,6 +151,8 @@ export function createGitState(params: {
     inProgress?: "merge" | "rebase";
     /** Discard the last N commits with `git reset --hard HEAD~N` after setup (reflog keeps them). */
     lostCommits?: number;
+    /** Stash entries to start with, oldest first (see GitState.stashes). */
+    stashes?: GitState["stashes"];
 }): GitState {
     return {
         initialized: params.initialized,
@@ -163,6 +165,7 @@ export function createGitState(params: {
         remotes: params.remotes,
         inProgress: params.inProgress,
         lostCommits: params.lostCommits,
+        stashes: params.stashes,
     };
 }
 

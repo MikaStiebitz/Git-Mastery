@@ -172,8 +172,15 @@ export class BisectCommand implements Command {
                 best = id;
             }
         }
-        const left = Math.floor((total - 1) / 2);
-        const steps = Math.ceil(Math.log2(left + 1));
+        // Git's arithmetic (bisect.c): what is left once this one is tested, and estimate_bisect_steps().
+        const reaches = candidates.filter(c => repo.isAncestor(c, best)).length;
+        const left = total - reaches - 1;
+        const steps = (() => {
+            if (total < 3) return 0;
+            const n = Math.floor(Math.log2(total));
+            const e = 2 ** n;
+            return e < 3 * (total - e) ? n : n - 1;
+        })();
         const moved = repo.moveHead({ detach: best }, { reflogTo: best });
         if (!moved.ok) return moved.error;
         return [

@@ -2,6 +2,7 @@ import type { CommandContext } from "../base/Command";
 import type { GitRepository, Tree, TreeStat } from "~/models/GitRepository";
 import { resolvePath } from "~/lib/utils";
 import { ambiguousArgument } from "~/models/git/revision";
+import { fileDiff } from "~/models/git/diff";
 import { notARepository } from "../base/GitErrors";
 
 /**
@@ -44,12 +45,18 @@ export function matchPathspec(context: CommandContext, spec: string, candidates:
     const hasGlob = /[*?[]/.test(spec);
 
     if (hasGlob) {
-        const base = context.gitRepository.toRepoPath(context.currentDirectory) ?? "";
+        // Resolve "." and ".." against the current directory first ("../*.txt" from src/).
+        const segments = (context.gitRepository.toRepoPath(context.currentDirectory) ?? "").split("/").filter(Boolean);
+        const rest = spec.split("/");
+        while (rest.length > 1 && (rest[0] === "." || rest[0] === "..")) {
+            if (rest.shift() === "..") segments.pop();
+        }
+        const base = segments.join("/");
         const pattern = new RegExp(
             "^" +
                 (base ? base.replace(/[.+^${}()|[\]\\]/g, "\\$&") + "/" : "") +
-                spec
-                    .replace(/^\.\//, "")
+                rest
+                    .join("/")
                     .replace(/[.+^${}()|\\]/g, "\\$&")
                     .replace(/\*\*/g, "\u0000")
                     .replace(/\*/g, ".*")
@@ -64,6 +71,67 @@ export function matchPathspec(context: CommandContext, spec: string, candidates:
     if (target === null) return [];
     if (target === "") return all;
     return all.filter(path => path === target || path.startsWith(target + "/"));
+}
+
+/** Does this argument read as a revision (or a range of them) — Git's first guess for a bare word? */
+export function looksLikeRevision(repo: GitRepository, arg: string, allowObjectPaths = false): boolean {
+    const spec = arg.startsWith("^") ? arg.substring(1) : arg;
+    const range = /^(.*?)(\.\.\.?)(.*)$/.exec(spec);
+    if (range) {
+        const side = (s: string) => s === "" || repo.resolveCommit(s) !== undefined;
+        return side(range[1]!) && side(range[3]!) && (range[1] !== "" || range[3] !== "");
+    }
+    if (allowObjectPaths && spec.includes(":")) return true;
+    return repo.resolveCommit(spec) !== undefined || repo.getTagObject(spec) !== undefined;
+}
+
+/**
+ * Split a command's positional arguments into revisions and paths the way Git does: everything
+ * before "--" is a revision and everything after it a path; without "--", leading words that
+ * resolve as revisions are revisions, and the rest must name files that exist in the working tree
+ * (or be wildcard patterns). Anything else is the "ambiguous argument" error.
+ */
+export function splitRevisionsAndPaths(
+    context: CommandContext,
+    args: { args: string[]; positionalArgs: string[] },
+    command: string,
+    options: { allowObjectPaths?: boolean } = {},
+): { ok: true; revs: string[]; paths: string[]; dashDash: boolean } | { ok: false; error: string[] } {
+    const repo = context.gitRepository;
+    const positional = args.positionalArgs;
+    const dashDash = args.args.indexOf("--");
+    if (dashDash !== -1) {
+        const afterCount = args.args.length - dashDash - 1;
+        return {
+            ok: true,
+            revs: positional.slice(0, positional.length - afterCount),
+            paths: positional.slice(positional.length - afterCount),
+            dashDash: true,
+        };
+    }
+    const revs: string[] = [];
+    const paths: string[] = [];
+    for (const arg of positional) {
+        if (paths.length === 0 && looksLikeRevision(repo, arg, options.allowObjectPaths)) {
+            revs.push(arg);
+            continue;
+        }
+        const repoPath = toRepoPath(context, arg);
+        const onDisk =
+            repoPath !== null &&
+            (context.fileSystem.getFileContents(resolvePath(arg, context.currentDirectory)) !== null ||
+                context.fileSystem.getDirectoryContents(resolvePath(arg, context.currentDirectory)) !== null);
+        if (onDisk || /[*?[]/.test(arg)) {
+            paths.push(arg);
+            continue;
+        }
+        if (paths.length > 0 && looksLikeRevision(repo, arg))
+            return { ok: false, error: ambiguousArgument(arg, command) };
+        const resolution = repo.resolveRevision(arg);
+        if (!resolution.ok && resolution.message) return { ok: false, error: resolution.message };
+        return { ok: false, error: ambiguousArgument(arg, command) };
+    }
+    return { ok: true, revs, paths, dashDash: false };
 }
 
 /** Error lines for a revision that did not resolve, in the wording the given command uses. */
@@ -133,39 +201,107 @@ export function shortStat(stat: TreeStat): string {
 }
 
 /** Git's compact rename notation: "src/{a.js => b.js}". */
-function renameLabel(from: string, to: string): string {
-    const a = from.split("/");
-    const b = to.split("/");
-    let common = 0;
-    while (common < a.length - 1 && common < b.length - 1 && a[common] === b[common]) common++;
-    if (common === 0) return `${from} => ${to}`;
-    return `${a.slice(0, common).join("/")}/{${a.slice(common).join("/")} => ${b.slice(common).join("/")}}`;
+/** Git's pprint_rename(): "src/{old.txt => new.txt}", "{a => b}/file.txt" or "old => new". */
+export function renameLabel(from: string, to: string): string {
+    // Common prefix, up to and including the last shared "/".
+    let pfx = 0;
+    for (let i = 0; i < from.length && i < to.length && from[i] === to[i]; i++) if (from[i] === "/") pfx = i + 1;
+    // Common suffix, from a shared "/" on (it may reuse the prefix's slash).
+    let sfx = 0;
+    const adjust = pfx ? 1 : 0;
+    let a = from.length;
+    let b = to.length;
+    while (pfx - adjust <= a && pfx - adjust <= b && from[a] === to[b]) {
+        if (from[a] === "/") sfx = from.length - a;
+        a--;
+        b--;
+    }
+    const aMid = Math.max(0, from.length - pfx - sfx);
+    const bMid = Math.max(0, to.length - pfx - sfx);
+    const middle = `${from.substring(pfx, pfx + aMid)} => ${to.substring(pfx, pfx + bMid)}`;
+    if (pfx + sfx === 0) return middle;
+    return `${from.substring(0, pfx)}{${middle}}${from.substring(from.length - sfx)}`;
+}
+
+/** Exact renames among changed paths: deleted and added files with identical content (new → old). */
+export function exactRenames(before: Tree, after: Tree, paths: string[]): Map<string, string> {
+    const renames = new Map<string, string>();
+    const used = new Set<string>();
+    const deleted = paths.filter(p => p in before && !(p in after)).sort();
+    for (const added of paths.filter(p => !(p in before) && p in after).sort()) {
+        const source = deleted.find(d => !used.has(d) && before[d] === after[added]);
+        if (source) {
+            used.add(source);
+            renames.set(added, source);
+        }
+    }
+    return renames;
+}
+
+/** The patch between two trees for the given changed paths, with exact renames shown as renames. */
+export function treePatch(before: Tree, after: Tree, paths: string[]): string[] {
+    const renames = exactRenames(before, after, paths);
+    const sources = new Set(renames.values());
+    const lines: string[] = [];
+    for (const path of [...paths].sort()) {
+        if (sources.has(path)) continue;
+        const from = renames.get(path);
+        if (from) {
+            lines.push(
+                `diff --git a/${from} b/${path}`,
+                "similarity index 100%",
+                `rename from ${from}`,
+                `rename to ${path}`,
+            );
+        } else {
+            lines.push(...fileDiff(path, before[path], after[path]));
+        }
+    }
+    return lines;
+}
+
+/** `--name-status` lines with renames as "R100". */
+export function nameStatusLines(stat: TreeStat, before: Tree, after: Tree): string[] {
+    const renames = exactRenames(
+        before,
+        after,
+        stat.files.map(f => f.path),
+    );
+    const sources = new Set(renames.values());
+    return stat.files
+        .filter(f => !sources.has(f.path))
+        .map(f => (renames.has(f.path) ? `R100\t${renames.get(f.path)}\t${f.path}` : `${f.status}\t${f.path}`));
+}
+
+/** `--name-only` paths with a rename listed under its new name only. */
+export function nameOnlyLines(paths: string[], before: Tree, after: Tree): string[] {
+    const sources = new Set(exactRenames(before, after, paths).values());
+    return paths.filter(p => !sources.has(p));
 }
 
 /**
  * Pair deleted and added files with identical content into renames, as Git's rename detection does.
- * The returned stat counts each rename as one changed file with no line changes.
+ * The returned stat counts each rename as one changed file with no line changes, listed where the
+ * new path sorts.
  */
 export function collapseRenames(
     stat: TreeStat,
     before: Tree,
     after: Tree,
 ): { stat: TreeStat; renames: [string, string][] } {
-    const renames: [string, string][] = [];
-    const used = new Set<string>();
-    for (const added of stat.files.filter(f => f.status === "A")) {
-        const deleted = stat.files.find(
-            f => f.status === "D" && !used.has(f.path) && before[f.path] === after[added.path],
-        );
-        if (deleted) {
-            used.add(deleted.path).add(added.path);
-            renames.push([deleted.path, added.path]);
-        }
-    }
-    const files = stat.files.filter(f => !used.has(f.path));
-    for (const [from, to] of renames)
-        files.push({ path: renameLabel(from, to), insertions: 0, deletions: 0, status: "M" });
-    return { stat: { files }, renames };
+    const map = exactRenames(
+        before,
+        after,
+        stat.files.map(f => f.path),
+    );
+    const sources = new Set(map.values());
+    const files = stat.files
+        .filter(f => !sources.has(f.path))
+        .map(f => {
+            const from = map.get(f.path);
+            return from ? { path: renameLabel(from, f.path), insertions: 0, deletions: 0, status: "M" as const } : f;
+        });
+    return { stat: { files }, renames: [...map.entries()].map(([to, from]) => [from, to] as [string, string]) };
 }
 
 /** The create/delete/rename mode lines `git commit` and `git merge` print under the summary. */
@@ -198,14 +334,20 @@ export function diffStatLines(stat: TreeStat, width = 60): string[] {
 }
 
 /** The two lines `git commit` prints: "[main abc1234] Message" and the stat. */
-export function commitSummary(repo: GitRepository, commitId: string, extra: { amend?: boolean } = {}): string[] {
+export function commitSummary(
+    repo: GitRepository,
+    commitId: string,
+    extra: { amend?: boolean; showDate?: boolean } = {},
+): string[] {
     const commit = repo.getCommit(commitId)!;
     const branch = repo.getBranchName() ?? "detached HEAD";
-    const root = commit.parents.length === 0 ? " (root-commit)" : "";
+    // Git says "root-commit" when HEAD was unborn, so not for an amended root commit.
+    const root = commit.parents.length === 0 && !extra.amend ? " (root-commit)" : "";
     const parentTree: Tree = commit.parents[0] ? repo.treeOf(commit.parents[0]) : {};
     const { stat, renames } = collapseRenames(repo.treeStat(parentTree, commit.tree), parentTree, commit.tree);
     const lines = [`[${branch}${root} ${repo.abbrev(commitId)}] ${commit.message.split("\n")[0]}`];
-    if (extra.amend) lines.push(` Date: ${formatGitDate(commit.timestamp)}`);
+    // Commits that keep an older author date (amend, cherry-pick) show it.
+    if (extra.amend || extra.showDate) lines.push(` Date: ${formatGitDate(commit.timestamp)}`);
     if (stat.files.length > 0) lines.push(shortStat(stat), ...modeLines(stat, renames));
     return lines;
 }
@@ -219,30 +361,27 @@ export function headIsNowAt(repo: GitRepository): string {
 
 /** Ref decorations for a commit, as `git log` shows them: "(HEAD -> main, origin/main, tag: v1)". */
 export function decorations(repo: GitRepository, id: string): string {
-    const parts: string[] = [];
     const branchName = repo.getBranchName();
     const headId = repo.getHeadCommitId();
-    const branches = Object.entries(repo.getBranchHeads())
-        .filter(([, tip]) => tip === id)
-        .map(([name]) => name)
-        .sort();
-
-    if (headId === id) {
-        if (branchName && branches.includes(branchName)) {
-            parts.push(`HEAD -> ${branchName}`);
-        } else {
-            parts.push("HEAD");
-        }
+    // Git lists HEAD first, then the other refs in reverse order of their full names: tags, then
+    // remote-tracking branches, then local branches, each group from Z to A.
+    const refs: { full: string; label: string }[] = [];
+    for (const [name, tip] of Object.entries(repo.getBranchHeads())) {
+        if (tip !== id || (name === branchName && headId === id)) continue;
+        refs.push({ full: `refs/heads/${name}`, label: name });
     }
-    for (const name of branches) {
-        if (name !== branchName || headId !== id) parts.push(name);
-    }
-    for (const [name, tip] of Object.entries(repo.getRemoteTrackingRefs()).sort()) {
-        if (tip === id) parts.push(name);
+    for (const [name, tip] of Object.entries(repo.getRemoteTrackingRefs())) {
+        if (tip === id) refs.push({ full: `refs/remotes/${name}`, label: name });
     }
     for (const [tag, tip] of repo.getTags()) {
-        if (tip === id) parts.push(`tag: ${tag}`);
+        if (tip === id) refs.push({ full: `refs/tags/${tag}`, label: `tag: ${tag}` });
     }
+    refs.sort((a, b) => (a.full < b.full ? 1 : a.full > b.full ? -1 : 0));
+
+    const parts: string[] = [];
+    if (headId === id)
+        parts.push(branchName && repo.getBranchTip(branchName) === id ? `HEAD -> ${branchName}` : "HEAD");
+    parts.push(...refs.map(r => r.label));
     return parts.length > 0 ? ` (${parts.join(", ")})` : "";
 }
 

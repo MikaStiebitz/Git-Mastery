@@ -72,6 +72,13 @@ export class CommitCommand implements Command {
         if (unknownFlag !== undefined)
             return unknownFlagError(unknownFlag, "git commit [<options>] [--] <pathspec>...");
 
+        // `-m` as the very last word has no message to take.
+        const last = args.args[args.args.length - 1];
+        if (last !== undefined && /^-[a-zA-Z]*m$/.test(last) && !last.startsWith("--")) {
+            return ["error: switch `m' requires a value"];
+        }
+        if (last === "--message") return ["error: option `message' requires a value"];
+
         // -m may be given several times; each becomes its own paragraph. The parser keeps the last
         // value only, so collect them from the raw arguments.
         const messages = this.collectMessages(args);
@@ -125,6 +132,24 @@ export class CommitCommand implements Command {
             ];
         }
 
+        // `git commit -a` and `git commit <paths>` stage into a temporary index: if no commit comes of
+        // it, the real index is left exactly as it was.
+        const indexBefore = repo.snapshotIndex();
+        const abandon = (lines: string[]) => {
+            repo.restoreIndex(indexBefore);
+            return lines;
+        };
+
+        let onlyPaths: string[] | null = null;
+        // After a commit of only some paths, the real index gets just those paths updated.
+        const keepOnly = (lines: string[]) => {
+            if (onlyPaths) {
+                repo.restoreIndex(indexBefore);
+                onlyPaths.forEach(p => repo.stagePath(p));
+            }
+            return lines;
+        };
+
         // `git commit "my message"` — the single most common beginner mistake. Git reads a bare
         // argument as a path to commit, not as the message.
         if (args.positionalArgs.length > 0) {
@@ -144,9 +169,18 @@ export class CommitCommand implements Command {
                 }
                 matched.forEach(p => paths.add(p));
             }
-            if (repo.isMerging()) return ["fatal: cannot do a partial commit during a merge."];
-            // `git commit <paths>` commits exactly those files as they are in the working tree.
-            if (args.flags["dry-run"] === undefined) paths.forEach(p => repo.stagePath(p));
+            const include = args.flags.i !== undefined || args.flags.include !== undefined;
+            if (repo.isMerging() && !include) return ["fatal: cannot do a partial commit during a merge."];
+            if (include) {
+                // --include: stage those files on top of what is staged already.
+                paths.forEach(p => repo.stagePath(p));
+            } else {
+                // `git commit <paths>` (--only) commits exactly those files as they are in the working
+                // tree on top of HEAD; whatever else is staged stays staged for a later commit.
+                onlyPaths = [...paths];
+                repo.restoreIndex({ index: repo.getHeadTree(), unmerged: {} });
+                onlyPaths.forEach(p => repo.stagePath(p));
+            }
         }
 
         // -a/--all stages every already-tracked file that changed, then commits. It deliberately does
@@ -158,7 +192,7 @@ export class CommitCommand implements Command {
         }
 
         if (args.flags["dry-run"] !== undefined) {
-            return longStatus(context);
+            return abandon(longStatus(context));
         }
 
         if (signoff && message) {
@@ -166,28 +200,39 @@ export class CommitCommand implements Command {
         }
 
         if (isAmend) {
-            return this.handleAmend(context, message, noEdit || !messageFlagProvided, author, quiet);
+            const headBefore = repo.getHeadCommitId();
+            const amended = this.handleAmend(
+                context,
+                message,
+                noEdit || !messageFlagProvided,
+                author,
+                quiet,
+                allowEmpty,
+            );
+            return repo.getHeadCommitId() === headBefore ? abandon(amended) : keepOnly(amended);
         }
 
         // Nothing staged: Git shows the status instead of committing.
         if (!allowEmpty && !repo.isMerging() && repo.indexMatchesHead()) {
-            return this.nothingToCommit(context);
+            return abandon(this.nothingToCommit(context));
         }
 
         // A -m/--message flag with an empty or whitespace-only value must not create a commit
         if (messageFlagProvided && !message && !allowEmptyMessage) {
-            return ["Aborting commit due to empty commit message."];
+            return abandon(["Aborting commit due to empty commit message."]);
         }
 
         if (!message && !messageFlagProvided && fileFlag === undefined && reuse === undefined) {
-            // No message given: the UI opens the commit-message editor, as real Git opens $EDITOR.
+            // No message given: the UI opens the commit-message editor, as real Git opens $EDITOR, and
+            // commits the index afterwards — so the named paths have to be in the real index.
+            keepOnly([]);
             return [];
         }
 
         const commitId = repo.commit(message, true, { author: author ?? undefined });
-        if (!commitId) return this.nothingToCommit(context);
+        if (!commitId) return abandon(this.nothingToCommit(context));
 
-        return quiet ? [] : commitSummary(repo, commitId);
+        return keepOnly(quiet ? [] : commitSummary(repo, commitId));
     }
 
     /** Every -m/--message value in order (Git joins them as paragraphs). */
@@ -243,7 +288,8 @@ export class CommitCommand implements Command {
      * it, since the wording alone assumes you already know that staging exists.
      */
     private nothingToCommit(context: CommandContext): string[] {
-        const lines = longStatus(context);
+        // The commit template says "Initial commit" where `git status` says "No commits yet".
+        const lines = longStatus(context).map(line => (line === "No commits yet" ? "Initial commit" : line));
         const hasChanges = context.gitRepository.statusEntries().length > 0;
         if (hasChanges) {
             lines.push(hint("A commit records the staging area, not your folder."));
@@ -259,11 +305,33 @@ export class CommitCommand implements Command {
         keepMessage: boolean,
         author: { name: string; email: string } | null,
         quiet: boolean,
+        allowEmpty: boolean,
     ): string[] {
         const repo = context.gitRepository;
         const last = repo.getLastCommit();
         if (!last) return ["fatal: You have nothing to amend."];
         if (repo.isMerging()) return ["fatal: You are in the middle of a merge -- cannot amend."];
+
+        // Amending a commit into one that changes nothing needs --allow-empty, as in Git.
+        const sameTree = (a: Record<string, string>, b: Record<string, string>) =>
+            JSON.stringify(Object.entries(a).sort()) === JSON.stringify(Object.entries(b).sort());
+        const parentTree = last.parents[0] ? repo.treeOf(last.parents[0]) : {};
+        if (!allowEmpty && last.parents.length < 2 && sameTree(repo.getIndex(), parentTree)) {
+            // Git's status for an amend: "No changes" takes the place of the summary line.
+            const status = longStatus(context);
+            if (/^(nothing to commit|nothing added to commit|no changes added to commit)/.test(status.at(-1) ?? "")) {
+                status.pop();
+            }
+            if (status.at(-1) !== "") status.push("");
+            if (!last.parents[0]) status.splice(1, 0, "", "Initial commit");
+            return [
+                ...status,
+                "No changes",
+                "You asked to amend the most recent commit, but doing so would make",
+                "it empty. You can repeat your command with --allow-empty, or you can",
+                'remove the commit entirely with "git reset HEAD^".',
+            ];
+        }
 
         const id = repo.amendLastCommit(keepMessage && !message ? undefined : message, { author: author ?? undefined });
         if (!id) return revisionError(repo, "HEAD", "commit");

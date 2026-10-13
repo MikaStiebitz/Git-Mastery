@@ -136,6 +136,8 @@ function resolveBase(base: string, ctx: RevisionContext): RevisionResult {
             if (log.length === 0) return { ok: false, reason: "unknown" };
             if (n === 0) return { ok: true, id: log[0]!.newId };
             const entry = log[n];
+            // An entry that records the ref going away (a rename) leaves the value as it was.
+            if (entry && /^0+$/.test(entry.newId)) return { ok: true, id: log[n - 1]?.newId ?? entry.oldId };
             if (entry) return { ok: true, id: entry.newId };
             // The oldest entry's "before" value is reachable as the entry just past the end.
             if (n === log.length && /^0+$/.test(log[n - 1]!.oldId) === false) {

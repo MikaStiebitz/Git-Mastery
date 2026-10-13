@@ -59,6 +59,10 @@ export class SwitchCommand implements Command {
         const quiet = flags.q !== undefined || flags.quiet !== undefined;
         const output = (lines: string[]) => (quiet ? lines.filter(l => /^(error|fatal|hint)/.test(l)) : lines);
 
+        // Unlike checkout, switch refuses to leave an operation half done.
+        const busy = this.operationInProgress(context);
+        if (busy) return busy;
+
         // -c/-C <new-branch> [<start-point>]
         const createFlag = (["c", "create", "C", "force-create"] as const).find(f => flags[f] !== undefined);
         if (createFlag) {
@@ -119,7 +123,7 @@ export class SwitchCommand implements Command {
             return output(detachAt(context, id, target, { force, advice: false }));
         }
 
-        if (repo.getBranches().includes(target)) {
+        if (repo.getBornBranches().includes(target)) {
             return output(switchToBranch(context, target, { force }));
         }
 
@@ -140,5 +144,20 @@ export class SwitchCommand implements Command {
         }
 
         return [`fatal: invalid reference: ${target}`, ...unknownBranchHints(repo, target, "-c")];
+    }
+
+    /** Git's die_if_some_operation_in_progress(): the lines to refuse with, or null. */
+    private operationInProgress(context: CommandContext): string[] | null {
+        const repo = context.gitRepository;
+        const refuse = (what: string, command: string) => [
+            `fatal: cannot switch branch while ${what}`,
+            `Consider "git ${command} --quit" or "git worktree add".`,
+        ];
+        if (repo.isMerging()) return refuse("merging", "merge");
+        if (repo.getRebaseState()) return refuse("rebasing", "rebase");
+        const sequencer = repo.getSequencer();
+        if (sequencer?.kind === "cherry-pick") return refuse("cherry-picking", "cherry-pick");
+        if (sequencer?.kind === "revert") return refuse("reverting", "revert");
+        return null;
     }
 }

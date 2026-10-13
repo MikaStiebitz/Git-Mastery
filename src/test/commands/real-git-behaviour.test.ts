@@ -108,6 +108,8 @@ describe("real Git behaviour", () => {
                 "Untracked files:",
                 '  (use "git add <file>..." to include in what will be committed)',
                 "\tsrc/",
+                // With something staged there is no summary line; Git ends on the block's blank line.
+                "",
             ]);
             expect(run("git status -s")).toEqual([" M README.md", "A  new.txt", "?? src/"]);
         });
@@ -206,7 +208,11 @@ describe("real Git behaviour", () => {
 
         it("restores a file from another commit with checkout", () => {
             write("/a.txt", "oops");
-            expect(run("git checkout -- a.txt")).toEqual(["Updated 1 path from the index"]);
+            // With "--" Git restores silently; without it, it reports the count.
+            expect(run("git checkout -- a.txt")).toEqual([]);
+            expect(fs.getFileContents("/a.txt")).toBe("a");
+            write("/a.txt", "oops");
+            expect(run("git checkout a.txt")).toEqual(["Updated 1 path from the index"]);
             expect(fs.getFileContents("/a.txt")).toBe("a");
         });
     });

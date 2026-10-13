@@ -1,6 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import type { GitRepository, Tree } from "~/models/GitRepository";
-import { fileDiff } from "~/models/git/diff";
+import { combinedDiff, fileDiff } from "~/models/git/diff";
 import { hint, unknownFlagError } from "../base/GitErrors";
 import {
     diffStatLines,
@@ -9,6 +9,12 @@ import {
     requireRepository,
     revisionError,
     shortStat,
+    splitRevisionsAndPaths,
+    collapseRenames,
+    exactRenames,
+    nameOnlyLines,
+    nameStatusLines,
+    treePatch,
 } from "../helpers/gitFormat";
 
 export class DiffCommand implements Command {
@@ -65,23 +71,10 @@ export class DiffCommand implements Command {
         const staged = args.flags.staged !== undefined || args.flags.cached !== undefined;
 
         // Revisions first, then paths (Git's own disambiguation).
-        const dashDash = args.args.indexOf("--");
-        const positional = args.positionalArgs;
-        let revArgs: string[] = [];
-        let pathArgs: string[] = [];
-        if (dashDash !== -1) {
-            const afterCount = args.args.length - dashDash - 1;
-            pathArgs = positional.slice(positional.length - afterCount);
-            revArgs = positional.slice(0, positional.length - afterCount);
-        } else {
-            for (const arg of positional) {
-                if (pathArgs.length === 0 && (arg.includes("..") || repo.resolveCommit(arg))) {
-                    revArgs.push(arg);
-                } else {
-                    pathArgs.push(arg);
-                }
-            }
-        }
+        const split = splitRevisionsAndPaths(context, args, "diff");
+        if (!split.ok) return split.error;
+        const revArgs = split.revs;
+        const pathArgs = split.paths;
 
         // Expand A..B and A...B
         const revs: string[] = [];
@@ -158,20 +151,20 @@ export class DiffCommand implements Command {
             const known = new Set([...Object.keys(oldTree), ...Object.keys(newTree), ...Object.keys(work)]);
             const selected = new Set<string>();
             for (const spec of pathArgs) {
-                const matched = matchPathspec(context, spec, known);
-                if (matched.length === 0 && dashDash === -1) {
-                    return [
-                        `fatal: ambiguous argument '${spec}': unknown revision or path not in the working tree.`,
-                        "Use '--' to separate paths from revisions, like this:",
-                        "'git <command> [<revision>...] -- [<file>...]'",
-                    ];
-                }
-                matched.forEach(p => selected.add(p));
+                matchPathspec(context, spec, known).forEach(p => selected.add(p));
             }
             paths = paths.filter(p => selected.has(p));
         }
 
-        const unmerged = worktreeSide && !staged && revs.length === 0 ? repo.getUnmergedPaths() : [];
+        // Paths with a conflict get their own entries (working tree and index diffs only).
+        const conflicted = new Set(
+            revs.length === 0
+                ? pathArgs.length === 0
+                    ? repo.getUnmergedPaths()
+                    : pathArgs.flatMap(spec => matchPathspec(context, spec, repo.getUnmergedPaths()))
+                : [],
+        );
+        const allPaths = [...new Set([...paths, ...conflicted])].sort();
         const quiet =
             args.flags.s !== undefined || args.flags.quiet !== undefined || args.flags["no-patch"] !== undefined;
 
@@ -180,25 +173,47 @@ export class DiffCommand implements Command {
 
         const output: string[] = [];
         if (args.flags["name-only"] !== undefined) {
-            output.push(...paths.map(p => displayPath(context, p)));
+            // Paths from the top of the repository, as Git prints them without --relative. A conflicted
+            // path is listed for the conflict and again if it also differs from our side.
+            const listed = nameOnlyLines(paths, oldTree, newTree);
+            for (const path of allPaths) {
+                if (conflicted.has(path)) output.push(path);
+                if (listed.includes(path)) output.push(path);
+            }
         } else if (args.flags["name-status"] !== undefined) {
-            output.push(...stat.files.map(f => `${f.status}\t${displayPath(context, f.path)}`));
+            const statusLines = nameStatusLines(stat, oldTree, newTree);
+            for (const path of allPaths) {
+                if (conflicted.has(path)) output.push(`U\t${path}`);
+                output.push(...statusLines.filter(l => l.split("\t").pop() === path));
+            }
         } else if (args.flags.numstat !== undefined) {
             output.push(...stat.files.map(f => `${f.insertions}\t${f.deletions}\t${f.path}`));
         } else if (args.flags.shortstat !== undefined) {
             if (stat.files.length > 0) output.push(shortStat(stat));
         } else if (args.flags.stat !== undefined) {
-            output.push(...diffStatLines(stat));
+            output.push(...diffStatLines(collapseRenames(stat, oldTree, newTree).stat));
         } else if (!quiet) {
-            for (const path of unmerged) {
+            // An unmerged path shows as a combined diff against both sides — or, when a side or the
+            // file itself is missing (or for --staged), just as "* Unmerged path".
+            const patch = treePatch(
+                oldTree,
+                newTree,
+                paths.filter(p => !conflicted.has(p)),
+            );
+            const renamedAway = new Set(exactRenames(oldTree, newTree, paths).values());
+            for (const path of allPaths) {
+                if (!conflicted.has(path)) {
+                    if (renamedAway.has(path)) continue;
+                    // The lines of this path's own section of the patch.
+                    output.push(...sectionOf(patch, path));
+                    continue;
+                }
                 const entry = repo.getUnmergedEntry(path);
-                output.push(`diff --cc ${path}`);
-                const current = work[path];
-                output.push(...fileDiff(path, entry?.ours, current).slice(1));
-            }
-            for (const path of paths) {
-                if (unmerged.includes(path)) continue;
-                output.push(...fileDiff(path, oldTree[path], newTree[path]));
+                if (staged || !entry || entry.ours === undefined || entry.theirs === undefined || !(path in work)) {
+                    output.push(`* Unmerged path ${path}`);
+                } else {
+                    output.push(...combinedDiff(path, [entry.ours, entry.theirs], work[path]!));
+                }
             }
         }
 
@@ -242,4 +257,13 @@ export class DiffCommand implements Command {
 
         return [hint("No changes. Your files match the last commit.")];
     }
+}
+
+/** The part of a multi-file patch that belongs to one (destination) path. */
+function sectionOf(patch: string[], path: string): string[] {
+    const start = patch.findIndex(l => l.startsWith("diff --git ") && l.endsWith(` b/${path}`));
+    if (start === -1) return [];
+    let end = start + 1;
+    while (end < patch.length && !patch[end]!.startsWith("diff --git ")) end++;
+    return patch.slice(start, end);
 }

@@ -74,6 +74,11 @@ export type GitState = {
         }[];
     }[];
     fileChanges?: FileChange[];
+    /**
+     * Stash entries the level starts with, oldest first: each one's changes are made and then put
+     * away with `git stash push [-m <message>]`, so `git stash list` has something to show.
+     */
+    stashes?: { message?: string; changes: FileChange[] }[];
     mergeConflicts?: MergeConflict[];
     /**
      * Which operation the conflicts above leave unfinished. "merge" (the default) stops in a

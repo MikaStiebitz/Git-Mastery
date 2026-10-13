@@ -28,12 +28,12 @@ export function FileEditor({ isOpen, onClose, fileName, initialContent = "" }: F
     }, [initialContent, fileName]);
 
     // Memoize handlers for better performance
+    // Saving always counts, even unchanged: closing a file Git opened (the `git rebase -i` todo
+    // list) is what lets Git carry on.
     const handleSave = useCallback(() => {
-        if (isDirty) {
-            handleFileEdit(fileName, content);
-        }
+        handleFileEdit(fileName, content);
         onClose();
-    }, [isDirty, fileName, content, handleFileEdit, onClose]);
+    }, [fileName, content, handleFileEdit, onClose]);
 
     const handleContentChange = useCallback((next: string) => {
         setContent(next);

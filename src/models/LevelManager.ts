@@ -18,6 +18,29 @@ function clusterHasFlag(arg: string, reqArg: string): boolean {
     return /^-[A-Za-z]{2,}$/.test(arg) && arg.includes(reqArg.slice(1));
 }
 
+/** Spellings of the same Git option, so a requirement for one accepts the other. */
+const FLAG_SYNONYMS: Record<string, string[]> = {
+    "-u": ["--set-upstream"],
+    "--set-upstream": ["-u"],
+    "-i": ["--interactive"],
+    "--interactive": ["-i"],
+    "--staged": ["--cached"],
+    "--cached": ["--staged"],
+    "-m": ["--message"],
+    "--message": ["-m"],
+    "-f": ["--force"],
+    "--force": ["-f"],
+    "-d": ["--delete"],
+    "--delete": ["-d"],
+    "-v": ["--verbose"],
+    "--verbose": ["-v"],
+    "-s": ["--short"],
+    "--short": ["-s"],
+    "-p": ["--patch"],
+    "--patch": ["-p"],
+    "-q": ["--quiet"],
+    "--quiet": ["-q"],
+};
 export class LevelManager {
     private stages: Record<string, StageType>;
 
@@ -232,6 +255,12 @@ export class LevelManager {
                     gitState.mergeConflicts,
                     gitState.inProgress ?? "merge",
                 );
+            }
+
+            // Stashes saved earlier, oldest first.
+            for (const stash of gitState.stashes ?? []) {
+                this.applyFileChanges(gitRepository, fileSystem, stash.changes);
+                gitRepository.stashSave(stash.message);
             }
 
             // Apply file changes to create modified/untracked/deleted files
@@ -804,6 +833,19 @@ export class LevelManager {
                     continue;
                 }
 
+                // An alternative with its own arguments ("git merge --continue" for a requirement that
+                // asks for "git commit -m") is complete in itself: its arguments replace requiresArgs.
+                const fullAlternative = requirement.alternativeCommands?.some(altCmd => {
+                    const altParts = altCmd.split(" ");
+                    return (
+                        altParts[0] === "git" &&
+                        altParts.length > 2 &&
+                        altParts[1] === gitCommand &&
+                        // "*" stands for "with some argument" (git reset * = git reset <file>).
+                        altParts.slice(2).every(part => (part === "*" ? gitArgs.length > 0 : gitArgs.includes(part)))
+                    );
+                });
+
                 // Check if command matches (including alternative commands)
                 const commandMatches =
                     requirement.command === `git ${gitCommand}` ||
@@ -814,9 +856,10 @@ export class LevelManager {
                             // Handle different formats of alternative commands
                             const altParts = altCmd.split(" ");
 
-                            // Case 1: "git checkout" matches gitCommand "checkout"
+                            // Case 1: "git checkout" matches gitCommand "checkout" (with arguments,
+                            // only as a full alternative, see above)
                             if (altParts[0] === "git" && altParts.length >= 2) {
-                                return altParts[1] === gitCommand;
+                                return altParts[1] === gitCommand && altParts.length === 2;
                             }
 
                             // Case 2: "checkout" matches gitCommand "checkout"
@@ -828,11 +871,11 @@ export class LevelManager {
                             return altCmd === `git ${gitCommand}`;
                         }));
 
-                if (commandMatches) {
+                if (commandMatches || fullAlternative) {
                     console.log("Command matches!");
 
                     // Check arguments if required
-                    if (requirement.requiresArgs) {
+                    if (requirement.requiresArgs && !fullAlternative) {
                         const allArgsMatch = requirement.requiresArgs.every(reqArg => {
                             if (reqArg === "any") {
                                 return gitArgs.length > 0;
@@ -858,6 +901,13 @@ export class LevelManager {
                             // Check for exact match first
                             if (gitArgs.includes(reqArg)) {
                                 return true;
+                            }
+
+                            // The same option spelled the other way (-u / --set-upstream, ...).
+                            for (const synonym of FLAG_SYNONYMS[reqArg] ?? []) {
+                                if (gitArgs.some(arg => arg === synonym || arg.startsWith(synonym + "="))) return true;
+                                if (synonym.length === 2 && gitArgs.some(arg => clusterHasFlag(arg, synonym)))
+                                    return true;
                             }
 
                             // For long flags that take values (like --author="sam" or --author=sam or --grep=text)

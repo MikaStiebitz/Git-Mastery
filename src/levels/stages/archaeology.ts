@@ -427,6 +427,7 @@ const archaeologyLevel4 = createLevel({
     requirements: [
         createRequirement({
             command: "git restore",
+            alternativeCommands: ["git reset *"],
             requiresArgs: ["--staged"],
             description: "archaeology.level4.requirement1.description",
             successMessage: "archaeology.level4.requirement1.success",
@@ -434,6 +435,7 @@ const archaeologyLevel4 = createLevel({
         }),
         createRequirement({
             command: "git restore",
+            alternativeCommands: ["git checkout --"],
             requiresArgs: ["any"],
             description: "archaeology.level4.requirement2.description",
             successMessage: "archaeology.level4.requirement2.success",

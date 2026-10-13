@@ -14,7 +14,8 @@ export class StatusCommand implements Command {
     /** Flag semantics for this command (see FlagSpec). */
     flagSpec: FlagSpec = {
         boolean: ["s", "short", "b", "branch", "porcelain", "long", "v", "verbose", "ignored", "no-renames", "z"],
-        value: ["untracked-files", "u"],
+        value: [],
+        optional: ["u", "untracked-files"],
     };
 
     execute(args: CommandArgs, context: CommandContext): string[] {
@@ -28,10 +29,23 @@ export class StatusCommand implements Command {
         const porcelain = args.flags.porcelain !== undefined;
         const branch = args.flags.b !== undefined || args.flags.branch !== undefined;
 
+        // -u alone means "all"; -uno / --untracked-files=no hide them; "normal" is the default.
+        const rawUntracked = args.flags.u ?? args.flags["untracked-files"];
+        const untracked =
+            rawUntracked === undefined
+                ? "normal"
+                : rawUntracked === true || rawUntracked === "" || rawUntracked === "all"
+                  ? "all"
+                  : rawUntracked;
+        if (untracked !== "no" && untracked !== "normal" && untracked !== "all") {
+            return [`fatal: Invalid untracked files mode '${untracked}'`];
+        }
+        const options = { untracked, pathspecs: args.positionalArgs } as const;
+
         if (short || porcelain) {
-            return shortStatus(context, { branch, porcelain });
+            return shortStatus(context, { branch, porcelain, ...options });
         }
 
-        return longStatus(context);
+        return longStatus(context, options);
     }
 }

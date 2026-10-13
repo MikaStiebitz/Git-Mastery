@@ -108,7 +108,7 @@ export class CheckoutCommand implements Command {
         }
 
         if (dashDash !== -1) {
-            return this.restorePaths(context, source, pathspecs, flags);
+            return this.restorePaths(context, source, pathspecs, flags, false);
         }
 
         if (flags.ours !== undefined || flags.theirs !== undefined) {
@@ -132,7 +132,7 @@ export class CheckoutCommand implements Command {
             return this.restorePaths(context, undefined, positional, flags);
         }
 
-        if (flags.detach === undefined && repo.getBranches().includes(target)) {
+        if (flags.detach === undefined && repo.getBornBranches().includes(target)) {
             return switchToBranch(context, target, { force });
         }
 
@@ -177,6 +177,7 @@ export class CheckoutCommand implements Command {
         source: string | undefined,
         pathspecs: string[],
         flags: CommandArgs["flags"],
+        countPaths = true,
     ): string[] {
         const repo = context.gitRepository;
         if (pathspecs.length === 0) return ["fatal: you must specify path(s) to restore"];
@@ -187,7 +188,8 @@ export class CheckoutCommand implements Command {
             const id = repo.resolveCommit(source);
             if (!id) return [`fatal: invalid reference: ${source}`];
             sourceTree = repo.treeOf(id);
-            sourceLabel = repo.abbrev(id);
+            // Git names the tree it read the files from, not the commit.
+            sourceLabel = GitRepository.treeId(sourceTree).substring(0, 7);
         }
 
         const index = repo.getIndex();
@@ -200,6 +202,13 @@ export class CheckoutCommand implements Command {
         }
 
         const side = flags.ours !== undefined ? "ours" : flags.theirs !== undefined ? "theirs" : null;
+        // Git counts the files it actually rewrote.
+        let updated = 0;
+        const write = (path: string, content: string) => {
+            const fsPath = repo.toFsPath(path);
+            if (context.fileSystem.getFileContents(fsPath) !== content) updated++;
+            context.fileSystem.writeFile(fsPath, content);
+        };
         for (const path of paths) {
             const conflict = repo.getUnmergedEntry(path);
             if (conflict && !side && sourceTree === null) {
@@ -209,20 +218,21 @@ export class CheckoutCommand implements Command {
                 const content = conflict[side];
                 if (content === undefined)
                     return [`error: path '${path}' does not have ${side === "ours" ? "our" : "their"} version`];
-                context.fileSystem.writeFile(repo.toFsPath(path), content);
+                write(path, content);
                 continue;
             }
             if (sourceTree) {
                 if (path in sourceTree) {
-                    context.fileSystem.writeFile(repo.toFsPath(path), sourceTree[path]!);
+                    write(path, sourceTree[path]!);
                     repo.stagePath(path);
                 }
             } else if (path in index) {
-                context.fileSystem.writeFile(repo.toFsPath(path), index[path]!);
+                write(path, index[path]!);
             }
         }
 
-        const n = paths.size;
-        return [`Updated ${n} path${n === 1 ? "" : "s"} from ${sourceLabel}`];
+        // The count is only reported when the paths were not separated with "--".
+        if (!countPaths) return [];
+        return [`Updated ${updated} path${updated === 1 ? "" : "s"} from ${sourceLabel}`];
     }
 }

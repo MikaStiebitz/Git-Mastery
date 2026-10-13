@@ -1,9 +1,8 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { buildCommitGraph, type CommitData } from "~/lib/buildCommitGraph";
 import { unknownFlagError } from "../base/GitErrors";
-import { matchPathspec, requireRepository, revisionError } from "../helpers/gitFormat";
+import { matchPathspec, requireRepository, revisionError, splitRevisionsAndPaths } from "../helpers/gitFormat";
 import { defaultLogOptions, formatCommit, type DateMode } from "../helpers/logFormat";
-import { ambiguousArgument } from "~/models/git/revision";
 import type { GitRepository } from "~/models/GitRepository";
 
 export class LogCommand implements Command {
@@ -100,15 +99,14 @@ export class LogCommand implements Command {
         const skip = typeof flags.skip === "string" ? parseInt(flags.skip, 10) : 0;
 
         // Separate revisions from paths.
-        const dashDash = args.args.indexOf("--");
-        const positional = args.positionalArgs.filter(p => !/^-\d+$/.test(p));
-        let revArgs = positional;
-        let paths: string[] = [];
-        if (dashDash !== -1) {
-            const afterCount = args.args.length - dashDash - 1;
-            paths = positional.slice(positional.length - afterCount);
-            revArgs = positional.slice(0, positional.length - afterCount);
-        }
+        const split = splitRevisionsAndPaths(
+            context,
+            { args: args.args, positionalArgs: args.positionalArgs.filter(p => !/^-\d+$/.test(p)) },
+            "log",
+        );
+        if (!split.ok) return split.error;
+        const revArgs = split.revs;
+        const paths = split.paths;
 
         const includes: string[] = [];
         const excludes: string[] = [];
@@ -138,14 +136,8 @@ export class LogCommand implements Command {
                 excludes.push(id);
             } else {
                 const id = repo.resolveCommit(arg);
-                if (id) {
-                    if (paths.length > 0 && dashDash === -1) return ambiguousArgument(arg, "log");
-                    includes.push(id);
-                } else if (matchPathspec(context, arg, allPaths).length > 0) {
-                    paths.push(arg);
-                } else {
-                    return revisionError(repo, arg, "log");
-                }
+                if (!id) return revisionError(repo, arg, "log");
+                includes.push(id);
             }
         }
 

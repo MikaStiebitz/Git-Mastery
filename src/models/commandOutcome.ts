@@ -1,6 +1,6 @@
 import { splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 
-const COMMIT_SUMMARY_LINE = /^\[[^\]\s]+(?: \(root-commit\))? [0-9a-f]{7}\] /;
+const COMMIT_SUMMARY_LINE = /^\[(?:detached HEAD|[^\]\s]+)(?: \(root-commit\))? [0-9a-f]{7}\] /;
 
 /**
  * `[main abc1234] <message>` echoes whatever the player typed as the commit message. That is their
@@ -33,8 +33,12 @@ function typedWords(command?: string): string[] {
 function isCommitCommand(command?: string): boolean {
     if (!command) return true;
     const [cmd, sub] = splitCommandRespectingQuotes(command.trim());
-    return cmd?.toLowerCase() === "git" && sub?.toLowerCase() === "commit";
+    // cherry-pick and revert run `git commit` themselves, and fail the same way when it has nothing to do.
+    return cmd?.toLowerCase() === "git" && ["commit", "revert", "cherry-pick"].includes(sub?.toLowerCase() ?? "");
 }
+
+/** Git subcommands whose output is mostly repository content (messages, file text, diffs). */
+const CONTENT_SUBCOMMANDS = new Set(["log", "show", "diff", "blame", "grep", "cat-file", "reflog", "shortlog"]);
 
 /**
  * Did a command fail, judged from what it printed?
@@ -44,37 +48,53 @@ function isCommitCommand(command?: string): boolean {
  * lines, not codes — which means the phrases below are load-bearing: a failure mode that prints none
  * of them would let a level complete on a command that achieved nothing.
  *
+ * Only Git's (or the shell's) own lines count, and those always open the line: "error: …",
+ * "fatal: …", "cat: x: No such file or directory". Anchoring there keeps text that merely contains
+ * such words — a commit message, a file name, a line of file content — from reading as a failure.
+ *
  * Shared by the terminal and the tests so both agree on what "worked" means.
  */
 export function didCommandFail(output: string[], command?: string): boolean {
     const commitMayBeEmpty = isCommitCommand(command);
-    return gitOwnLines(output, command).some(line => {
+    const [program, subcommand] = command ? splitCommandRespectingQuotes(command.trim()) : [];
+    const isGit = !program || program.toLowerCase() === "git";
+
+    let lines = output.filter(line => !COMMIT_SUMMARY_LINE.test(line));
+    // Content-printing commands fail before they print anything; later lines are the content.
+    if (isGit && subcommand && CONTENT_SUBCOMMANDS.has(subcommand.toLowerCase())) lines = lines.slice(0, 1);
+    // A shell command reports its own errors as "<program>: …".
+    if (!isGit) return lines.some(line => line.toLowerCase().startsWith(`${program!.toLowerCase()}: `));
+
+    return lines.some(line => {
         const lowerLine = line.toLowerCase();
 
         // A merge conflict is a normal state to be in, not a failed command.
         if (lowerLine.includes("merge") && lowerLine.includes("failed")) return false;
-        if (lowerLine.includes("automatic merge failed")) return false;
         // An octopus merge reports its conflict as "ERROR: content conflict in <file>".
         if (lowerLine.startsWith("error: content conflict in ")) return false;
 
         return (
-            lowerLine.includes("error:") ||
-            lowerLine.includes("fatal:") ||
-            // "Failed to create file: x" opens the line. Matching "failed" anywhere would also catch
-            // `git status`, `git branch` or `git diff` listing a file or branch that is merely named so.
+            lowerLine.startsWith("error:") ||
+            lowerLine.startsWith("fatal:") ||
+            lowerLine.startsWith("usage: git") ||
             lowerLine.startsWith("failed to ") ||
-            lowerLine.includes("aborting commit") ||
-            lowerLine.includes("not a git repository") ||
-            lowerLine.includes("nothing specified") ||
-            lowerLine.includes("did not match any files") ||
-            (lowerLine.includes("pathspec") && lowerLine.includes("did not match")) ||
+            lowerLine.startsWith("aborting commit") ||
+            // Git exits with an error for these, though they carry no "error:" prefix.
+            lowerLine.startsWith("nothing specified, nothing added") ||
+            lowerLine.startsWith("no stash entries found") ||
+            lowerLine.startsWith("should not be doing an octopus") ||
+            lowerLine.startsWith("you asked to amend the most recent commit") ||
+            lowerLine.startsWith("you do not have the initial commit yet") ||
+            lowerLine.startsWith("the previous cherry-pick is now empty") ||
+            lowerLine.startsWith("the previous revert is now empty") ||
+            (lowerLine.startsWith("merge: ") && lowerLine.endsWith(" - not something we can merge")) ||
             // Git reports "nothing to commit" as a successful no-op, but for a level it means the
             // commit the task asked for never happened. Only `git commit` can fail that way: a
             // clean `git status` prints the same words and is exactly what a careful player runs.
             (commitMayBeEmpty &&
-                (lowerLine.includes("nothing to commit") ||
-                    lowerLine.includes("no changes added to commit") ||
-                    lowerLine.includes("nothing added to commit")))
+                (lowerLine.startsWith("nothing to commit") ||
+                    lowerLine.startsWith("no changes added to commit") ||
+                    lowerLine.startsWith("nothing added to commit")))
         );
     });
 }

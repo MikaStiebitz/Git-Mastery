@@ -27,7 +27,9 @@ export class ReflogCommand implements Command {
         if (notRepo) return notRepo;
         const repo = context.gitRepository;
 
-        const unknownFlag = args.unknownFlags?.[0];
+        // `git reflog -3` is `-n 3`.
+        const countArg = args.args.find(a => /^-\d+$/.test(a));
+        const unknownFlag = args.unknownFlags?.find(f => !/^\d+$/.test(f));
         if (unknownFlag !== undefined) return unknownFlagError(unknownFlag, this.usage);
 
         const positional = [...args.positionalArgs];
@@ -64,7 +66,12 @@ export class ReflogCommand implements Command {
         }
 
         const limitRaw = args.flags.n ?? args.flags["max-count"];
-        const limit = typeof limitRaw === "string" ? parseInt(limitRaw, 10) : Infinity;
+        const limit =
+            typeof limitRaw === "string"
+                ? parseInt(limitRaw, 10)
+                : countArg !== undefined
+                  ? parseInt(countArg.substring(1), 10)
+                  : Infinity;
         const dateMode =
             typeof args.flags.date === "string"
                 ? args.flags.date
@@ -77,7 +84,12 @@ export class ReflogCommand implements Command {
         // A reflog of a branch is addressed as <branch>@{n}; HEAD's as HEAD@{n}.
         const label = refName === "HEAD" ? "HEAD" : refName.replace(/^refs\/(heads|remotes)\//, "");
 
-        return entries.slice(0, Number.isFinite(limit) ? limit : undefined).map((entry, index) => {
+        // Entries that recorded the ref going away (a branch rename leaves one) are not shown, but
+        // still count for the @{n} numbering.
+        const shown = entries
+            .map((entry, index) => ({ entry, index }))
+            .filter(({ entry }) => !/^0+$/.test(entry.newId));
+        return shown.slice(0, Number.isFinite(limit) ? limit : undefined).map(({ entry, index }) => {
             const hash = fullHash ? entry.newId : repo.abbrev(entry.newId);
             const decoration = decorate ? decorations(repo, entry.newId) : "";
             let selector = `${label}@{${index}}`;

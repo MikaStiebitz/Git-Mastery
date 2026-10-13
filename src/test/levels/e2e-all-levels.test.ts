@@ -234,11 +234,7 @@ const LEVEL_SOLUTIONS: Record<string, StageSolutions> = {
             description: "Complex stash workflow",
         },
         3: {
-            preActions: (fs, git, cmd) => {
-                // Pre-stash some changes via command (not direct API)
-                // First ensure there are changes to stash
-                cmd.processCommand("git stash");
-            },
+            // The level starts with stash entries of its own, so the hints work as written.
             commands: ["git stash list", "git stash pop"],
             description: "List and pop stashes",
         },
@@ -426,7 +422,7 @@ const LEVEL_SOLUTIONS: Record<string, StageSolutions> = {
             description: "Amend the release commit and tag it",
         },
         1: {
-            // The octopus merge stops at the conflict between auth and payments in shared.js.
+            // The octopus merge stops at the conflict the last branch (ui) has with payments in shared.js.
             commands: ["git merge feature/auth feature/payments feature/ui"],
             postCommandAction: fs => {
                 fs.writeFile(
@@ -434,7 +430,7 @@ const LEVEL_SOLUTIONS: Record<string, StageSolutions> = {
                     "// Shared utilities\nfunction formatDate(date, style = 'iso') {\n  return style === 'iso' ? date.toISOString() : date.toLocaleDateString();\n}",
                 );
             },
-            commandsAfterStateCheck: ["git add .", "git commit -m 'Merge all features'", "git merge feature/ui"],
+            commandsAfterStateCheck: ["git add .", "git commit -m 'Merge all features'"],
             description: "Multi-branch merge with conflict resolution",
         },
         2: {
@@ -652,6 +648,7 @@ describe("E2E Level Tests - Full User Simulation", () => {
                             executionResults.push(
                                 `✗ ${command} → ERROR: ${error instanceof Error ? error.message : "Unknown"}`,
                             );
+                            failures.push(`${command}: ${error instanceof Error ? error.message : "Unknown"}`);
                         }
                     }
                 }

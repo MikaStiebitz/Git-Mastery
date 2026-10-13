@@ -73,7 +73,7 @@ export class TagCommand implements Command {
 
         const listing =
             names.length === 0 || flags.l !== undefined || flags.list !== undefined || flags.n !== undefined;
-        if (listing && (names.length === 0 || flags.l !== undefined || flags.list !== undefined)) {
+        if (listing) {
             return this.list(context, names, args);
         }
 
@@ -81,8 +81,25 @@ export class TagCommand implements Command {
         const target = names[1];
         if (names.length > 2) return ["fatal: too many arguments"];
 
+        // Every -m is its own paragraph, as with `git commit`.
+        const messages: string[] = [];
+        for (let i = 0; i < args.args.length; i++) {
+            const token = args.args[i]!;
+            if (token === "--") break;
+            if ((token === "-m" || token === "--message") && i + 1 < args.args.length) messages.push(args.args[++i]!);
+            else if (token.startsWith("--message=")) messages.push(token.substring("--message=".length));
+            else if (/^-[a-zA-Z]*m./.test(token) && !token.startsWith("--"))
+                messages.push(token.substring(token.indexOf("m") + 1));
+            else if (/^-[a-zA-Z]+m$/.test(token) && i + 1 < args.args.length) messages.push(args.args[++i]!);
+        }
         const message =
-            typeof flags.m === "string" ? flags.m : typeof flags.message === "string" ? flags.message : undefined;
+            messages.length > 0
+                ? messages.join("\n\n")
+                : typeof flags.m === "string"
+                  ? flags.m
+                  : typeof flags.message === "string"
+                    ? flags.message
+                    : undefined;
         const annotate =
             flags.a !== undefined || flags.annotate !== undefined || flags.s !== undefined || message !== undefined;
         const force = flags.f !== undefined || flags.force !== undefined;
@@ -147,11 +164,14 @@ export class TagCommand implements Command {
 
         if (annotationLines === 0) return names;
         const width = Math.max(15, ...names.map(n => n.length));
-        return names.map(name => {
-            const tag = repo.getTagObject(name)!;
-            const text = tag.annotation?.message ?? repo.getCommit(tag.target)!.message;
-            const lines = text.split("\n").slice(0, annotationLines);
-            return `${name.padEnd(width)} ${lines.join("\n" + " ".repeat(width + 1))}`;
-        });
+        return names
+            .map(name => {
+                const tag = repo.getTagObject(name)!;
+                const text = tag.annotation?.message ?? repo.getCommit(tag.target)!.message;
+                const lines = text.split("\n").slice(0, annotationLines);
+                // Further lines of the message are indented by four spaces.
+                return [`${name.padEnd(width)} ${lines[0] ?? ""}`, ...lines.slice(1).map(l => `    ${l}`)];
+            })
+            .flat();
     }
 }

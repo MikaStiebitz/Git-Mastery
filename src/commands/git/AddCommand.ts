@@ -89,6 +89,8 @@ export class AddCommand implements Command {
 
             const matched = matchPathspec(context, spec, candidates);
             if (matched.length === 0) {
+                // An existing directory with nothing to add (e.g. `git add .` in an empty folder) is fine.
+                if (context.fileSystem.getDirectoryContents(repo.toFsPath(repoPath)) !== null) continue;
                 return [
                     `fatal: pathspec '${spec}' did not match any files`,
                     ...pathSuggestionHints(spec, getAllFiles(context.fileSystem, context.currentDirectory)),
@@ -125,7 +127,8 @@ export class AddCommand implements Command {
             const changed = unmerged.has(path) || (inWork ? index[path] !== work[path] : path in index);
             if (!changed) continue;
             if (verbose)
-                output.push(inWork ? `add '${displayPath(context, path)}'` : `remove '${displayPath(context, path)}'`);
+                // Git prints these paths from the top of the repository.
+                output.push(inWork ? `add '${path}'` : `remove '${path}'`);
             if (!dryRun) repo.stagePath(path);
         }
 

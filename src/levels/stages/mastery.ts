@@ -71,15 +71,15 @@ const masteryLevel1 = createLevel({
                     message: "Initial application structure",
                     files: ["/src/app.js", "/src/utils/shared.js"],
                 },
+                // Git's octopus strategy only lets the last branch conflict, so the two branches that
+                // disagree about shared.js (payments and ui) come last.
                 {
                     message: "Add authentication middleware",
                     branch: "feature/auth",
-                    files: ["/src/auth.js", "/src/utils/shared.js"],
+                    files: ["/src/auth.js"],
                     contents: {
                         "/src/auth.js":
                             "// Authentication middleware\nmodule.exports = function auth(req, res, next) {\n  if (!req.user) return res.status(401).end();\n  next();\n};",
-                        "/src/utils/shared.js":
-                            "// Shared utilities\nfunction formatDate(date) {\n  // Auth team needs ISO format for token expiry\n  return date.toISOString();\n}",
                     },
                 },
                 // Back to main before the next team branches off.
@@ -99,10 +99,12 @@ const masteryLevel1 = createLevel({
                 {
                     message: "Add UI helpers",
                     branch: "feature/ui",
-                    files: ["/src/ui.js"],
+                    files: ["/src/ui.js", "/src/utils/shared.js"],
                     contents: {
                         "/src/ui.js":
                             "// UI utility functions\nfunction formatCurrency(amount) {\n  return '$' + amount.toFixed(2);\n}\n\nmodule.exports = { formatCurrency };",
+                        "/src/utils/shared.js":
+                            "// Shared utilities\nfunction formatDate(date) {\n  // UI team shows dates the way users read them\n  return date.toLocaleString();\n}",
                     },
                 },
             ],
@@ -200,8 +202,9 @@ exit 0`,
             branches: ["main"],
             commits: [
                 {
+                    // Hooks live inside .git, which Git never tracks: only package.json is committed.
                     message: "Set up quality automation infrastructure",
-                    files: ["/.git/hooks/pre-commit", "/package.json"],
+                    files: ["/package.json"],
                 },
             ],
         }),

@@ -1,6 +1,7 @@
 import type { CommandArgs, CommandContext } from "../base/Command";
 import { commitSummary, requireRepository, revisionError } from "./gitFormat";
-import { hint, unknownFlagError } from "../base/GitErrors";
+import { unknownFlagError } from "../base/GitErrors";
+import { longStatus } from "./statusFormat";
 
 /**
  * `git cherry-pick` and `git revert` share Git's sequencer: apply a list of commits one by one,
@@ -23,39 +24,48 @@ export function runSequencerCommand(
     const state = repo.getSequencer();
     const other = mode === "cherry-pick" ? "revert" : "cherry-pick";
 
+    // A single stopped pick (no sequencer directory) answers to either command's --continue;
+    // --abort rolls back whatever cherry-pick or revert is in progress.
+    const ours = state && (state.kind === mode || !state.multi) ? state : null;
     if (flags.abort !== undefined) {
-        if (!state || state.kind !== mode) return [`error: no ${mode} in progress`, `fatal: ${mode} failed`];
-        repo.abortSequencer();
-        return [];
+        if (!state) return [`error: no ${mode} in progress`, `fatal: ${mode} failed`];
+        const aborted = repo.abortSequencer();
+        return aborted.ok ? [] : aborted.error;
     }
     if (flags.quit !== undefined) {
-        if (!state) return [`error: no ${mode} in progress`, `fatal: ${mode} failed`];
-        repo.clearSequencer();
+        // Nothing to forget is fine too.
+        if (state) repo.clearSequencer();
         return [];
     }
     if (flags.skip !== undefined) {
         if (!state || state.kind !== mode) return [`error: no ${mode} in progress`, `fatal: ${mode} failed`];
-        const remaining = state.remaining;
-        repo.abortSequencer();
-        const head = repo.getHeadCommitId();
-        if (head) repo.resetTo(head, "hard", "HEAD");
-        return applyAll(mode, remaining, args, context);
+        const skipped = repo.skipSequencerPick();
+        if (!skipped.ok) return skipped.error;
+        repo.clearSequencer();
+        // A run that could not even start its current pick still lists it first.
+        const remaining = state.remaining[0] === state.current ? state.remaining.slice(1) : state.remaining;
+        return applyAll(mode, remaining, args, context, state.start, state.multi);
     }
     if (flags.continue !== undefined) {
-        if (!state || state.kind !== mode) return [`error: no ${mode} in progress`, `fatal: ${mode} failed`];
+        if (!ours || !state) return [`error: no ${mode} in progress`, `fatal: ${mode} failed`];
+        if (state.concluded) {
+            // The stopped pick was committed by hand; go on with the rest of the list.
+            repo.clearSequencer();
+            return applyAll(mode, state.remaining, args, context, state.start, state.multi);
+        }
         if (repo.indexMatchesHead() && !repo.hasMergeConflicts()) {
             // Resolved to nothing.
             return emptyAdvice(mode, context);
         }
         const result = repo.continueSequencer();
         if (!result.ok) return result.error;
-        const lines = commitSummary(repo, result.id);
-        const remaining = state.remaining;
+        const lines = commitSummary(repo, result.id, { showDate: state.kind === "cherry-pick" });
         repo.clearSequencer();
-        return [...lines, ...applyAll(mode, remaining, args, context)];
+        return [...lines, ...applyAll(mode, state.remaining, args, context, state.start, state.multi)];
     }
 
-    if (state) {
+    // Only a run of several commits counts as "in progress"; a single stopped pick is just a dirty index.
+    if (state && (state.multi || state.concluded)) {
         return [
             `error: ${state.kind === mode ? `${mode} is already in progress` : `${other} is already in progress`}`,
             `hint: try "git ${state.kind} (--continue | --abort | --quit)"`,
@@ -78,7 +88,9 @@ export function runSequencerCommand(
         return [`error: your local changes would be overwritten by ${mode}.`, `fatal: ${mode} failed`];
     }
 
-    // Expand ranges (A..B) into the commits they contain, oldest first.
+    // Expand ranges (A..B) into the commits they contain, oldest first. Anything but a single
+    // commit is a "multi" run: Git keeps a sequencer directory for it.
+    const multi = args.positionalArgs.length > 1 || args.positionalArgs.some(a => a.includes(".."));
     const ids: string[] = [];
     for (const arg of args.positionalArgs) {
         const range = /^(.*)\.\.(.*)$/.exec(arg);
@@ -96,11 +108,21 @@ export function runSequencerCommand(
         }
     }
     if (ids.length === 0) return ["error: empty commit set passed", `fatal: ${mode} failed`];
+    // A single stopped pick that is left behind is simply replaced by the new one.
+    const noCommit = args.flags.n !== undefined || args.flags["no-commit"] !== undefined;
+    if (state && !noCommit && repo.indexMatchesHead()) repo.clearSequencer();
 
-    return applyAll(mode, ids, args, context);
+    return applyAll(mode, ids, args, context, repo.getHeadCommitId(), multi);
 }
 
-function applyAll(mode: "cherry-pick" | "revert", ids: string[], args: CommandArgs, context: CommandContext): string[] {
+function applyAll(
+    mode: "cherry-pick" | "revert",
+    ids: string[],
+    args: CommandArgs,
+    context: CommandContext,
+    start: string | null = context.gitRepository.getHeadCommitId(),
+    multi = false,
+): string[] {
     const repo = context.gitRepository;
     const flags = args.flags;
     const noCommit = flags.n !== undefined || flags["no-commit"] !== undefined;
@@ -116,14 +138,30 @@ function applyAll(mode: "cherry-pick" | "revert", ids: string[], args: CommandAr
             mainline,
             remaining: ids.slice(i + 1),
             recordOrigin: flags.x !== undefined,
+            start,
+            multi: ids.length > 1 || multi,
         });
 
         switch (result.kind) {
-            case "error":
+            case "error": {
+                // A run of several commits keeps its list even when a pick cannot start.
+                const isMulti = ids.length > 1 || multi;
+                if (isMulti) {
+                    repo.holdSequencer({
+                        kind: mode,
+                        current: id,
+                        concluded: true,
+                        remaining: ids.slice(i),
+                        start,
+                        multi: true,
+                        message: "",
+                        author: { name: "", email: "", date: new Date() },
+                    });
+                }
                 return [...lines, ...result.lines];
+            }
             case "conflict": {
-                result.autoMerged.forEach(p => lines.push(`Auto-merging ${p}`));
-                result.conflicts.forEach(c => lines.push(...repo.conflictLines(c)));
+                lines.push(...repo.mergeReport(result.autoMerged, result.conflicts));
                 const verb = mode === "cherry-pick" ? "apply" : "revert";
                 lines.push(
                     `error: could not ${verb} ${repo.abbrev(id)}... ${subject}`,
@@ -143,25 +181,19 @@ function applyAll(mode: "cherry-pick" | "revert", ids: string[], args: CommandAr
                 break;
             case "committed":
                 result.autoMerged.forEach(p => lines.push(`Auto-merging ${p}`));
-                lines.push(...commitSummary(repo, result.id));
+                lines.push(...commitSummary(repo, result.id, { showDate: mode === "cherry-pick" }));
                 break;
         }
     }
-    if (noCommit) lines.push(hint(`The changes are staged but not committed. Commit them with 'git commit'.`));
     return lines;
 }
 
 function emptyAdvice(mode: "cherry-pick" | "revert", context: CommandContext): string[] {
-    const repo = context.gitRepository;
-    const branch = repo.getBranchName();
+    // Git runs `git commit`, which prints the long status, then explains why nothing was committed.
+    // Only a pick left in progress gets the explanation; an empty revert just ends there.
+    if (!context.gitRepository.getSequencer()) return longStatus(context);
     return [
-        branch ? `On branch ${branch}` : `HEAD detached at ${repo.abbrev(repo.getHeadCommitId()!)}`,
-        `You are currently ${mode === "cherry-pick" ? "cherry-picking" : "reverting"} commit ${repo.abbrev(repo.getSequencer()?.current ?? repo.getHeadCommitId()!)}.`,
-        `  (all conflicts fixed: run "git ${mode} --continue")`,
-        `  (use "git ${mode} --skip" to skip this patch)`,
-        `  (use "git ${mode} --abort" to cancel the ${mode} operation)`,
-        "",
-        "nothing to commit, working tree clean",
+        ...longStatus(context),
         `The previous ${mode} is now empty, possibly due to conflict resolution.`,
         "If you wish to commit it anyway, use:",
         "",

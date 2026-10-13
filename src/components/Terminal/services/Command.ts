@@ -37,12 +37,6 @@ export class CommandService {
             }
         }
 
-        if (command === "git commit") {
-            this.handleCommand(command, this.isPlaygroundMode);
-            this.openCommitDialog();
-            return;
-        }
-
         // Special case for the "next" command when level is completed
         if (command === "next" && this.isLevelCompleted) {
             this.handleCommand("next", this.isPlaygroundMode);
