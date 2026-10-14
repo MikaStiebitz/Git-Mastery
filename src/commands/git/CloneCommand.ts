@@ -1,11 +1,15 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
-import { hint } from "../base/GitErrors";
+import { hint, unknownFlagError } from "../base/GitErrors";
 
 export class CloneCommand implements Command {
     name = "git clone";
     description = "Clone a repository into a new directory";
-    usage = "git clone <repository> [directory]";
-    examples = ["git clone https://github.com/user/repo.git", "git clone https://github.com/user/repo.git my-project"];
+    usage = "git clone [<options>] [--] <repo> [<dir>]";
+    examples = [
+        "git clone https://github.com/user/repo.git",
+        "git clone https://github.com/user/repo.git my-project",
+        "git clone git@github.com:user/repo.git",
+    ];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
@@ -27,34 +31,28 @@ export class CloneCommand implements Command {
             "n",
             "shared",
             "s",
+            "l",
+            "local",
         ],
-        value: ["b", "branch", "depth", "o", "origin", "c", "config", "j", "jobs", "separate-git-dir"],
+        value: ["b", "branch", "depth", "o", "origin", "c", "config", "j", "jobs", "separate-git-dir", "filter"],
     };
+
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { fileSystem, currentDirectory } = context;
+        const { fileSystem, currentDirectory, gitRepository: repo } = context;
+
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) return unknownFlagError(unknownFlag, this.usage);
 
         if (args.positionalArgs.length === 0) {
-            return [
-                "fatal: You must specify a repository to clone.",
-                "",
-                "Usage: git clone <repository> [directory]",
-                "",
-                "Examples:",
-                "  git clone https://github.com/user/repo.git",
-                "  git clone https://github.com/user/repo.git my-project",
-            ];
+            return ["fatal: You must specify a repository to clone.", "", `usage: ${this.usage}`];
         }
+        if (args.positionalArgs.length > 2) return ["fatal: Too many arguments.", "", `usage: ${this.usage}`];
 
-        const repoUrl = args.positionalArgs[0];
+        const repoUrl = args.positionalArgs[0]!;
 
-        if (!repoUrl) {
-            return ["fatal: Invalid repository URL."];
-        }
-
-        // Reject anything that is not a repository location. The old check only caught an entirely
-        // missing argument, so `git clone <repository-url>` — the placeholder from the instructions,
-        // copied literally — "succeeded" and cloned into a directory called "repository". Real Git
-        // fails on it, and a beginner has to learn that the angle brackets are theirs to replace.
+        // Reject anything that is not a repository location. `git clone <repository-url>` — the
+        // placeholder from the instructions, copied literally — must fail as it does in real Git;
+        // a beginner has to learn that the angle brackets are theirs to replace.
         const placeholder = /[<>]/.test(repoUrl);
         const looksLikeUrl =
             /^(https?|git|ssh|file):\/\//.test(repoUrl) || // https://host/path, git://, ssh://, file://
@@ -78,48 +76,85 @@ export class CloneCommand implements Command {
             ];
         }
 
-        // Extract repository name from URL
-        const match = repoUrl.match(/\/([^/]+?)(\.git)?$/) ?? repoUrl.match(/:([^/]+?)(\.git)?$/);
+        const match = repoUrl.match(/\/([^/]+?)(\.git)?\/?$/) ?? repoUrl.match(/:([^/]+?)(\.git)?$/);
         const repoName = match?.[1] ?? "repository";
-
-        // Use custom directory name if provided
         const targetDir = args.positionalArgs[1] ?? repoName;
+        const fullPath = targetDir.startsWith("/")
+            ? targetDir
+            : currentDirectory === "/"
+              ? `/${targetDir}`
+              : `${currentDirectory}/${targetDir}`;
 
-        // Build full path
-        const fullPath = currentDirectory === "/" ? `/${targetDir}` : `${currentDirectory}/${targetDir}`;
-
-        // Check if directory already exists
         const contents = fileSystem.getDirectoryContents(fullPath);
-        if (contents !== null && Object.keys(contents).length > 0) {
+        if (fileSystem.getFileContents(fullPath) !== null || (contents !== null && Object.keys(contents).length > 0)) {
             return [`fatal: destination path '${targetDir}' already exists and is not an empty directory.`];
         }
 
-        // Create the repository directory
+        const branch =
+            typeof args.flags.b === "string"
+                ? args.flags.b
+                : typeof args.flags.branch === "string"
+                  ? args.flags.branch
+                  : "main";
+        if (branch !== "main") {
+            return [`Cloning into '${targetDir}'...`, `fatal: Remote branch ${branch} not found in upstream origin`];
+        }
+        const quiet = args.flags.q !== undefined || args.flags.quiet !== undefined;
+
+        // The project files the "remote" repository contains, committed in a short history.
+        const files: [string, string, string][] = [
+            ["README.md", `# ${repoName}\n\nCloned from ${repoUrl}\n`, "Initial commit"],
+            [
+                ".gitignore",
+                "# Dependencies\nnode_modules/\n\n# Build output\ndist/\nbuild/\n\n# Environment variables\n.env\n.env.local\n",
+                "Add .gitignore",
+            ],
+            [
+                "src/main.js",
+                `// Main application file\nconsole.log('Hello from ${repoName}!');\n`,
+                "Add main application file",
+            ],
+        ];
+
         fileSystem.mkdir(fullPath);
 
-        // Create mock repository structure
-        fileSystem.writeFile(`${fullPath}/README.md`, `# ${repoName}\n\nCloned from ${repoUrl}\n`);
-        fileSystem.mkdir(`${fullPath}/src`);
-        fileSystem.writeFile(
-            `${fullPath}/src/main.js`,
-            `// Main application file\nconsole.log('Hello from ${repoName}!');\n`,
-        );
-        fileSystem.writeFile(
-            `${fullPath}/.gitignore`,
-            `# Dependencies\nnode_modules/\n\n# Build output\ndist/\nbuild/\n\n# Environment variables\n.env\n.env.local\n`,
-        );
+        // This terminal tracks a single repository. If one exists elsewhere already, the files are
+        // still created so the next steps of a lesson work, but it is not a second repository.
+        if (repo.isInitialized()) {
+            for (const [path, content] of files) fileSystem.writeFile(`${fullPath}/${path}`, content);
+            return [
+                `Cloning into '${targetDir}'...`,
+                "done.",
+                hint(`This terminal tracks one Git repository at a time (the one in ${repo.getRepositoryRoot()}),`),
+                hint(`so '${targetDir}' got the project files but no history of its own.`),
+            ];
+        }
 
+        repo.init(fullPath);
+        repo.setSetupMode(true);
+        for (const [path, content, message] of files) {
+            fileSystem.writeFile(`${fullPath}/${path}`, content);
+            repo.addFile(path);
+            repo.commit(message);
+        }
+        repo.setSetupMode(false);
+        const remoteName =
+            typeof args.flags.o === "string"
+                ? args.flags.o
+                : typeof args.flags.origin === "string"
+                  ? args.flags.origin
+                  : "origin";
+        repo.finishClone(remoteName, repoUrl);
+
+        if (quiet) return [];
+        const objects = files.length * 3;
         return [
             `Cloning into '${targetDir}'...`,
-            `remote: Enumerating objects: 100, done.`,
-            `remote: Counting objects: 100% (100/100), done.`,
-            `remote: Compressing objects: 100% (75/75), done.`,
-            `remote: Total 100 (delta 25), reused 100 (delta 25), pack-reused 0`,
-            `Receiving objects: 100% (100/100), 45.23 KiB | 3.45 MiB/s, done.`,
-            `Resolving deltas: 100% (25/25), done.`,
-            "",
-            `Successfully cloned repository into '${targetDir}'.`,
-            `Use 'cd ${targetDir}' to navigate into the repository.`,
+            `remote: Enumerating objects: ${objects}, done.`,
+            `remote: Counting objects: 100% (${objects}/${objects}), done.`,
+            `remote: Compressing objects: 100% (${objects - 2}/${objects - 2}), done.`,
+            `remote: Total ${objects} (delta 0), reused ${objects} (delta 0), pack-reused 0`,
+            `Receiving objects: 100% (${objects}/${objects}), done.`,
         ];
     }
 }

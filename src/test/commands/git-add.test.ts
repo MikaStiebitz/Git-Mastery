@@ -37,10 +37,11 @@ describe("git add", () => {
         const status = gitRepository.getStatus();
         expect(status["file1.txt"]).toBe("staged");
         expect(status["file2.txt"]).toBe("committed"); // file2 should not be staged since it's not modified
-        expect(result.join(" ")).toContain("Added 1 files to staging area");
+        // Like real Git, a successful add prints nothing.
+        expect(result).toEqual([]);
     });
 
-    it("should show 'No changes to add' when no files are modified", () => {
+    it("prints nothing and stages nothing when no files are modified", () => {
         // Create and commit files
         fileSystem.writeFile("/file1.txt", "content1");
         commandProcessor.processCommand("git add .");
@@ -49,7 +50,8 @@ describe("git add", () => {
         // Try to stage when nothing is modified
         const result = commandProcessor.processCommand("git add .");
 
-        expect(result.join(" ")).toContain("No changes to add");
+        expect(result).toEqual([]);
+        expect(gitRepository.statusEntries()).toEqual([]);
     });
 
     it("should stage untracked files with 'git add .'", () => {
@@ -63,7 +65,7 @@ describe("git add", () => {
         // Should stage the untracked file
         const status = gitRepository.getStatus();
         expect(status["newfile.txt"]).toBe("staged");
-        expect(result.join(" ")).toContain("Added 1 files to staging area");
+        expect(result).toEqual([]);
     });
 
     it("should preserve modified files when creating a new branch with 'git switch -c'", () => {
@@ -94,7 +96,7 @@ describe("git add", () => {
 
         // Should be able to stage the modified file
         const addResult = commandProcessor.processCommand("git add .");
-        expect(addResult.join(" ")).toContain("Added 1 files to staging area");
+        expect(addResult).toEqual([]);
 
         // Verify file is now staged
         status = gitRepository.getStatus();

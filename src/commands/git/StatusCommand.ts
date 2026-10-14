@@ -1,109 +1,51 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
-import { getAllFiles } from "~/lib/utils";
-import { notARepository } from "../base/GitErrors";
+import { unknownFlagError } from "../base/GitErrors";
+import { requireRepository } from "../helpers/gitFormat";
+import { longStatus, shortStatus } from "../helpers/statusFormat";
 
 export class StatusCommand implements Command {
     name = "git status";
     description = "Show the working tree status";
-    usage = "git status";
-    examples = ["git status"];
+    usage = "git status [<options>] [--] [<pathspec>...]";
+    examples = ["git status", "git status -s", "git status -sb"];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
     /** Flag semantics for this command (see FlagSpec). */
     flagSpec: FlagSpec = {
-        boolean: ["s", "short", "b", "branch", "porcelain", "long", "v", "verbose", "ignored", "no-renames"],
-        value: ["untracked-files", "u"],
+        boolean: ["s", "short", "b", "branch", "porcelain", "long", "v", "verbose", "ignored", "no-renames", "z"],
+        value: [],
+        optional: ["u", "untracked-files"],
     };
+
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository, fileSystem, currentDirectory } = context;
+        const notRepo = requireRepository(context);
+        if (notRepo) return notRepo;
 
-        if (!gitRepository.isInitialized()) {
-            return notARepository();
+        const unknownFlag = args.unknownFlags?.[0];
+        if (unknownFlag !== undefined) return unknownFlagError(unknownFlag, this.usage);
+
+        const short = args.flags.s !== undefined || args.flags.short !== undefined;
+        const porcelain = args.flags.porcelain !== undefined;
+        const branch = args.flags.b !== undefined || args.flags.branch !== undefined;
+
+        // -u alone means "all"; -uno / --untracked-files=no hide them; "normal" is the default.
+        const rawUntracked = args.flags.u ?? args.flags["untracked-files"];
+        const untracked =
+            rawUntracked === undefined
+                ? "normal"
+                : rawUntracked === true || rawUntracked === "" || rawUntracked === "all"
+                  ? "all"
+                  : rawUntracked;
+        if (untracked !== "no" && untracked !== "normal" && untracked !== "all") {
+            return [`fatal: Invalid untracked files mode '${untracked}'`];
+        }
+        const options = { untracked, pathspecs: args.positionalArgs } as const;
+
+        if (short || porcelain) {
+            return shortStatus(context, { branch, porcelain, ...options });
         }
 
-        // Check if current directory is within the repository
-        if (!gitRepository.isInRepository(currentDirectory)) {
-            return ["fatal: not a git repository (or any of the parent directories): .git"];
-        }
-
-        // First, ensure the status is up to date by checking for untracked files
-        const currentFiles = getAllFiles(fileSystem, context.currentDirectory);
-        const status = gitRepository.getStatus();
-
-        // Find files that exist in the filesystem but aren't in the git status
-        // Filter out .git directory and its contents
-        const nonGitFiles = currentFiles.filter(file => !file.startsWith("/.git") && !file.includes("/.git/"));
-
-        nonGitFiles.forEach(file => {
-            if (!Object.prototype.hasOwnProperty.call(status, file)) {
-                gitRepository.updateFileStatus(file, "untracked");
-            }
-        });
-
-        // Now get the updated status
-        const updatedStatus = gitRepository.getStatus();
-        const output = [`On branch ${gitRepository.getCurrentBranch()}`];
-
-        const staged: string[] = [];
-        const modified: string[] = [];
-        const untracked: string[] = [];
-
-        const processedFiles = new Set<string>();
-
-        // Filter out .git directory entries
-        Object.entries(updatedStatus).forEach(([file, fileStatus]) => {
-            // Normalize path consistently - remove leading slash
-            const normalizedFile = file.startsWith("/") ? file.substring(1) : file;
-
-            if (!normalizedFile.startsWith(".git") && !normalizedFile.includes("/.git/")) {
-                // Avoid adding the same file to multiple sections
-                // If a file is both staged and modified, it should only appear in the appropriate section
-                switch (fileStatus) {
-                    case "staged":
-                        if (!processedFiles.has(normalizedFile)) {
-                            staged.push(normalizedFile);
-                            processedFiles.add(normalizedFile);
-                        }
-                        break;
-                    case "modified":
-                        if (!processedFiles.has(normalizedFile)) {
-                            modified.push(normalizedFile);
-                            processedFiles.add(normalizedFile);
-                        }
-                        break;
-                    case "untracked":
-                        if (!processedFiles.has(normalizedFile)) {
-                            untracked.push(normalizedFile);
-                            processedFiles.add(normalizedFile);
-                        }
-                        break;
-                }
-            }
-        });
-
-        if (staged.length === 0 && modified.length === 0 && untracked.length === 0) {
-            output.push("Nothing to commit, working tree clean");
-        } else {
-            if (staged.length > 0) {
-                output.push("Changes to be committed:");
-                staged.forEach(file => output.push(`  new file: ${file}`));
-                output.push("");
-            }
-
-            if (modified.length > 0) {
-                output.push("Changes not staged for commit:");
-                modified.forEach(file => output.push(`  modified: ${file}`));
-                output.push("");
-            }
-
-            if (untracked.length > 0) {
-                output.push("Untracked files:");
-                untracked.forEach(file => output.push(`  ${file}`));
-                output.push("");
-            }
-        }
-
-        return output;
+        return longStatus(context, options);
     }
 }

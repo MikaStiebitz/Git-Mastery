@@ -1532,21 +1532,21 @@ Ready to prove your mastery? The clock is ticking...`,
     "archaeology.level3.description": "Use Git reflog to recover lost commits and understand repository state changes",
     "archaeology.level3.objective1": "Use git reflog to see every HEAD movement, including 'lost' commits",
     "archaeology.level3.objective2":
-        "Use git reset --hard with a reflog reference (e.g. HEAD@{0}) to restore the lost work",
+        "Use git reset --hard with a reflog reference (e.g. HEAD@{1}) to restore the lost work",
     "archaeology.level3.objective3": "Create a branch pointing at a reflog entry to save the recovered commits",
     "archaeology.level3.hint1": "`git reflog` lists every commit HEAD has pointed to, even ones that look 'deleted'",
     "archaeology.level3.hint2":
-        "Each reflog entry has a reference like `HEAD@{0}`, `HEAD@{1}` - the most recent action is `HEAD@{0}`",
+        "Each reflog entry has a reference like `HEAD@{0}`, `HEAD@{1}` - `HEAD@{0}` is where HEAD is now, `HEAD@{1}` is where it was one move earlier (before the accidental reset)",
     "archaeology.level3.hint3": "Use `git reset --hard <reflog-reference>` to move the branch back to that commit",
     "archaeology.level3.hint4":
-        "You can also point a new branch at a reflog entry: `git branch <name> <reflog-reference>`",
+        "You can also point a new branch at a reflog entry: `git branch <name> <reflog-reference>`. After the reset, `HEAD@{0}` is the recovered commit",
     "archaeology.level3.requirement1.description": "Run git reflog to see recent HEAD movements",
     "archaeology.level3.requirement1.success": "Reflog history examined!",
     "archaeology.level3.requirement2.description":
-        "Restore the lost commit with git reset --hard and a reflog reference, e.g. git reset --hard HEAD@{0}",
+        "Restore the lost commit with git reset --hard and a reflog reference, e.g. git reset --hard HEAD@{1}",
     "archaeology.level3.requirement2.success": "Repository state restored!",
     "archaeology.level3.requirement3.description":
-        "Create a recovery branch pointing at a reflog entry, e.g. git branch recovery HEAD@{1}",
+        "Create a recovery branch pointing at a reflog entry, e.g. git branch recovery HEAD@{0}",
     "archaeology.level3.requirement3.success": "Recovery branch created!",
     "archaeology.level3.story.title": "The Great Git Disaster Recovery",
     "archaeology.level3.story.narrative":
@@ -1800,7 +1800,7 @@ Ready to prove your mastery? The clock is ticking...`,
     "advanced.level4.objective3": "End the bisect session",
     "advanced.level4.hint1": "`git bisect start` begins the binary search through your history",
     "advanced.level4.hint2":
-        "Mark the current broken state with `git bisect bad`, then a known working commit with `git bisect good`",
+        "Mark the current broken state with `git bisect bad`, then a known working commit with `git bisect good <commit>` (e.g. `git bisect good HEAD~3`)",
     "advanced.level4.hint3": "When you're done, `git bisect reset` returns you to where you started",
     "advanced.level4.requirement1.description": "Start bisecting",
     "advanced.level4.requirement1.success": "Bisect session started — Git is ready to narrow down the culprit.",

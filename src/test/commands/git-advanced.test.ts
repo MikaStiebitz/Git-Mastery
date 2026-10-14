@@ -175,7 +175,7 @@ describe("Git Advanced Commands", () => {
             const restoreCmd = new RestoreCommand();
             const output = restoreCmd.execute({ args: [], flags: {}, positionalArgs: [] }, context);
 
-            expect(output[0]).toContain("nothing specified, nothing restored");
+            expect(output[0]).toContain("fatal: you must specify path(s) to restore");
         });
     });
 
@@ -296,7 +296,7 @@ describe("Git Advanced Commands", () => {
 
             const output = bisectCmd.execute({ args: ["bad"], flags: {}, positionalArgs: ["bad"] }, context);
 
-            expect(output[0]).toContain("Marked current commit as BAD");
+            expect(output[0]).toBe("status: waiting for good commit(s), bad commit known");
         });
 
         it("should mark commit as good", () => {
@@ -311,8 +311,7 @@ describe("Git Advanced Commands", () => {
                 context,
             );
 
-            expect(output[0]).toContain("Marked commit");
-            expect(output[0]).toContain("as GOOD");
+            expect(output[0]).toBe("status: waiting for bad commit, 1 good commit known");
         });
 
         it("should reset bisect", () => {
@@ -321,7 +320,9 @@ describe("Git Advanced Commands", () => {
 
             const output = bisectCmd.execute({ args: ["reset"], flags: {}, positionalArgs: ["reset"] }, context);
 
-            expect(output[0]).toContain("Bisect session ended");
+            // Nothing had been checked out yet, so going back is silent; the session is over.
+            expect(output).toEqual([]);
+            expect(context.gitRepository.getBisectState()).toBeNull();
         });
 
         it("should require bisect to be started", () => {

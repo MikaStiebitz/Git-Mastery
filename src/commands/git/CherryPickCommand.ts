@@ -1,11 +1,18 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
-import { notARepository } from "../base/GitErrors";
+import { runSequencerCommand } from "../helpers/sequencer";
 
 export class CherryPickCommand implements Command {
     name = "git cherry-pick";
     description = "Apply the changes introduced by some existing commits";
-    usage = "git cherry-pick <commit>...";
-    examples = ["git cherry-pick a1b2c3d", "git cherry-pick --abort"];
+    usage = "git cherry-pick [--edit] [-n] [-m <parent-number>] [-x] <commit>...";
+    examples = [
+        "git cherry-pick a1b2c3d",
+        "git cherry-pick feature~2",
+        "git cherry-pick main..feature",
+        "git cherry-pick -n a1b2c3d",
+        "git cherry-pick --continue",
+        "git cherry-pick --abort",
+    ];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
@@ -25,35 +32,13 @@ export class CherryPickCommand implements Command {
             "ff",
             "s",
             "signoff",
+            "allow-empty",
+            "keep-redundant-commits",
         ],
-        value: ["m", "mainline", "s", "strategy"],
+        value: ["m", "mainline", "strategy", "X", "strategy-option"],
     };
+
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository } = context;
-
-        if (!gitRepository.isInitialized()) {
-            return notARepository();
-        }
-
-        // Check for --abort flag
-        if (args.flags.abort !== undefined) {
-            return ["Cherry-pick aborted."];
-        }
-
-        if (args.positionalArgs.length === 0) {
-            return ["error: you must specify at least one commit"];
-        }
-
-        const commitId = args.positionalArgs[0];
-
-        // We don't actually perform cherry-pick, just give appropriate message
-        if (commitId?.match(/^[0-9a-f]{7,40}$/)) {
-            return [
-                `[${gitRepository.getCurrentBranch()} XXXXXXX] Cherry-picked commit`,
-                "1 file changed, 1 insertion(+)",
-            ];
-        } else {
-            return [`error: invalid commit name: ${commitId}`];
-        }
+        return runSequencerCommand("cherry-pick", args, context, this.usage);
     }
 }

@@ -7,6 +7,141 @@ import {
     createGitState,
 } from "../LevelCreator";
 
+/** validator.js as each archaeology level 1 commit left it (V4 is the current version). */
+const VALIDATOR_V1 = `// Input validation utilities
+// Created by: Original Team (2022)
+
+function validateEmail(email) {
+    // Basic email validation - Original Team, 2022
+    return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+}
+
+module.exports = { validateEmail };`;
+
+const VALIDATOR_V2 = `// Input validation utilities
+// Created by: Original Team (2022)
+// Modified by: Sarah Chen (phone validation - March 2023)
+
+function validatePhoneNumber(phone) {
+    // US phone number validation - Sarah Chen, March 2023
+    const usPattern = /^\\+?1?[2-9]\\d{2}[2-9]\\d{2}\\d{4}$/;
+
+    return usPattern.test(phone);
+}
+
+function validateEmail(email) {
+    // Basic email validation - Original Team, 2022
+    return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+}
+
+module.exports = { validatePhoneNumber, validateEmail };`;
+
+const VALIDATOR_V3 = `// Input validation utilities
+// Created by: Original Team (2022)
+// Modified by: Sarah Chen (phone validation - March 2023)
+// Modified by: Alex Rodriguez (international support - June 2023)
+
+function validatePhoneNumber(phone) {
+    // US phone number validation - Sarah Chen, March 2023
+    const usPattern = /^\\+?1?[2-9]\\d{2}[2-9]\\d{2}\\d{4}$/;
+
+    // European phone number validation - Alex Rodriguez, June 2023
+    // BUG: Missing country code handling for some EU countries
+    const euPattern = /^\\+?[1-9]\\d{1,14}$/;
+
+    return usPattern.test(phone) || euPattern.test(phone);
+}
+
+function validateEmail(email) {
+    // Basic email validation - Original Team, 2022
+    return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+}
+
+module.exports = { validatePhoneNumber, validateEmail };`;
+
+const VALIDATOR_V4 = `// Input validation utilities
+// Created by: Original Team (2022)
+// Modified by: Sarah Chen (phone validation - March 2023)
+// Modified by: Alex Rodriguez (international support - June 2023)
+// Modified by: Jordan Kim (bug fixes - September 2023)
+
+function validatePhoneNumber(phone) {
+    // US phone number validation - Sarah Chen, March 2023
+    const usPattern = /^\\+?1?[2-9]\\d{2}[2-9]\\d{2}\\d{4}$/;
+
+    // European phone number validation - Alex Rodriguez, June 2023
+    // BUG: Missing country code handling for some EU countries
+    const euPattern = /^\\+?[1-9]\\d{1,14}$/;
+
+    // Bug fix attempt - Jordan Kim, September 2023
+    // TODO: This doesn't handle all edge cases
+    if (phone.startsWith('+')) {
+        return euPattern.test(phone);
+    }
+
+    return usPattern.test(phone);
+}
+
+function validateEmail(email) {
+    // Basic email validation - Original Team, 2022
+    return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+}
+
+module.exports = { validatePhoneNumber, validateEmail };`;
+
+/** security.js as each archaeology level 2 commit left it (V3 is the current version). */
+const SECURITY_V1 = `// Security utilities
+// SECURITY: Encryption and hashing functions
+
+const crypto = require('crypto');
+
+function hashPassword(password, salt) {
+    // Added password hashing - Sarah Chen, Jan 2023
+    return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512');
+}
+
+module.exports = { hashPassword };`;
+
+const SECURITY_V2 = `// Security utilities
+// SECURITY: Encryption and hashing functions
+
+const crypto = require('crypto');
+
+function hashPassword(password, salt) {
+    // Added password hashing - Sarah Chen, Jan 2023
+    return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512');
+}
+
+function generateSalt() {
+    // Security improvement - Marcus Johnson, Feb 2023
+    return crypto.randomBytes(32);
+}
+
+module.exports = { hashPassword, generateSalt };`;
+
+const SECURITY_V3 = `// Security utilities
+// SECURITY: Encryption and hashing functions
+
+const crypto = require('crypto');
+
+function hashPassword(password, salt) {
+    // Added password hashing - Sarah Chen, Jan 2023
+    return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512');
+}
+
+function generateSalt() {
+    // Security improvement - Marcus Johnson, Feb 2023
+    return crypto.randomBytes(32);
+}
+
+function verifyPassword(password, hash, salt) {
+    // Password verification - Sarah Chen, Jan 2023
+    const newHash = hashPassword(password, salt);
+    return crypto.timingSafeEqual(hash, newHash);
+}
+
+module.exports = { hashPassword, generateSalt, verifyPassword };`;
+
 const archaeologyLevel1 = createLevel({
     id: 1,
     name: "archaeology.level1.name",
@@ -50,38 +185,7 @@ const archaeologyLevel1 = createLevel({
     }),
     initialState: createInitialState({
         files: [
-            createFileStructure(
-                "/src/utils/validator.js",
-                `// Input validation utilities
-// Created by: Original Team (2022)
-// Modified by: Sarah Chen (phone validation - March 2023)
-// Modified by: Alex Rodriguez (international support - June 2023)
-// Modified by: Jordan Kim (bug fixes - September 2023)
-
-function validatePhoneNumber(phone) {
-    // US phone number validation - Sarah Chen, March 2023
-    const usPattern = /^\\+?1?[2-9]\\d{2}[2-9]\\d{2}\\d{4}$/;
-
-    // European phone number validation - Alex Rodriguez, June 2023
-    // BUG: Missing country code handling for some EU countries
-    const euPattern = /^\\+?[1-9]\\d{1,14}$/;
-
-    // Bug fix attempt - Jordan Kim, September 2023
-    // TODO: This doesn't handle all edge cases
-    if (phone.startsWith('+')) {
-        return euPattern.test(phone);
-    }
-
-    return usPattern.test(phone);
-}
-
-function validateEmail(email) {
-    // Basic email validation - Original Team, 2022
-    return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
-}
-
-module.exports = { validatePhoneNumber, validateEmail };`,
-            ),
+            createFileStructure("/src/utils/validator.js", VALIDATOR_V4),
             createFileStructure(
                 "/tests/validator.test.js",
                 "// Validator tests\ntest('validates US phone numbers', () => {\n  expect(validatePhoneNumber('555-123-4567')).toBe(true);\n});",
@@ -95,25 +199,36 @@ module.exports = { validatePhoneNumber, validateEmail };`,
             initialized: true,
             currentBranch: "main",
             branches: ["main"],
+            // validator.js grows commit by commit, by the people its comments name, so `git blame`
+            // shows who wrote each line and `git show` shows what each change really did.
             commits: [
                 {
                     message: "Initial validation system",
+                    author: "Original Team <team@techstart.dev>",
                     files: ["/src/utils/validator.js", "/tests/validator.test.js"],
+                    contents: { "/src/utils/validator.js": VALIDATOR_V1 },
                 },
                 {
                     message: "Add phone number validation for US users",
+                    author: "Sarah Chen <sarah.chen@techstart.dev>",
                     files: ["/src/utils/validator.js"],
+                    contents: { "/src/utils/validator.js": VALIDATOR_V2 },
                 },
                 {
                     message: "Add international phone support for EU expansion",
+                    author: "Alex Rodriguez <alex.rodriguez@techstart.dev>",
                     files: ["/src/utils/validator.js"],
+                    contents: { "/src/utils/validator.js": VALIDATOR_V3 },
                 },
                 {
                     message: "Attempt to fix phone validation edge cases",
+                    author: "Jordan Kim <jordan.kim@techstart.dev>",
                     files: ["/src/utils/validator.js"],
+                    contents: { "/src/utils/validator.js": VALIDATOR_V4 },
                 },
                 {
                     message: "Add bug report for investigation",
+                    author: "Jordan Kim <jordan.kim@techstart.dev>",
                     files: ["/bug-reports/issue-247.md"],
                 },
             ],
@@ -164,31 +279,7 @@ const archaeologyLevel2 = createLevel({
     }),
     initialState: createInitialState({
         files: [
-            createFileStructure(
-                "/src/auth/security.js",
-                `// Security utilities
-// SECURITY: Encryption and hashing functions
-
-const crypto = require('crypto');
-
-function hashPassword(password, salt) {
-    // Added password hashing - Sarah Chen, Jan 2023
-    return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512');
-}
-
-function generateSalt() {
-    // Security improvement - Marcus Johnson, Feb 2023
-    return crypto.randomBytes(32);
-}
-
-function verifyPassword(password, hash, salt) {
-    // Password verification - Sarah Chen, Jan 2023
-    const newHash = hashPassword(password, salt);
-    return crypto.timingSafeEqual(hash, newHash);
-}
-
-module.exports = { hashPassword, generateSalt, verifyPassword };`,
-            ),
+            createFileStructure("/src/auth/security.js", SECURITY_V3),
             createFileStructure(
                 "/src/auth/session.js",
                 "// Session management\nfunction createSession(userId) {\n  // Session handling logic\n  return jwt.sign({ userId }, secretKey);\n}",
@@ -202,29 +293,44 @@ module.exports = { hashPassword, generateSalt, verifyPassword };`,
             initialized: true,
             currentBranch: "main",
             branches: ["main"],
+            // security.js grows one function per commit, by the people its comments name, so
+            // -S password, --grep and --author each find a different, meaningful set of commits.
             commits: [
                 {
                     message: "Initial authentication system",
+                    author: "Marcus Johnson <marcus.johnson@techstart.dev>",
                     files: ["/src/auth/session.js"],
                 },
                 {
                     message: "Add password hashing for security",
+                    author: "Sarah Chen <sarah.chen@techstart.dev>",
                     files: ["/src/auth/security.js"],
+                    contents: { "/src/auth/security.js": SECURITY_V1 },
                 },
                 {
                     message: "Security: Improve salt generation",
+                    author: "Marcus Johnson <marcus.johnson@techstart.dev>",
                     files: ["/src/auth/security.js"],
+                    contents: { "/src/auth/security.js": SECURITY_V2 },
                 },
                 {
                     message: "Update user interface components",
+                    author: "Priya Patel <priya.patel@techstart.dev>",
                     files: ["/src/components/UserForm.js"],
+                    contents: {
+                        "/src/components/UserForm.js":
+                            "// User form component\nexport function UserForm() {\n  return <form>...</form>;\n}",
+                    },
                 },
                 {
                     message: "Security audit: Add password verification",
+                    author: "Sarah Chen <sarah.chen@techstart.dev>",
                     files: ["/src/auth/security.js"],
+                    contents: { "/src/auth/security.js": SECURITY_V3 },
                 },
                 {
                     message: "Add security documentation",
+                    author: "Marcus Johnson <marcus.johnson@techstart.dev>",
                     files: ["/SECURITY.md"],
                 },
             ],
@@ -254,6 +360,8 @@ const archaeologyLevel3 = createLevel({
         createRequirement({
             command: "git reset",
             requiresArgs: ["--hard"],
+            // The reset has to bring the lost work back, not just run.
+            checkCommitMessageContains: "Complete test suite",
             description: "archaeology.level3.requirement2.description",
             successMessage: "archaeology.level3.requirement2.success",
             id: "git-reset",
@@ -302,6 +410,9 @@ const archaeologyLevel3 = createLevel({
                     files: ["/tests/auth.test.js", "/tests/ui.test.js"],
                 },
             ],
+            // Jake's accident: `git reset --hard HEAD~3` threw the last three commits away.
+            // They are no longer on main, only in the reflog (HEAD@{1}).
+            lostCommits: 3,
         }),
     }),
 });
@@ -316,6 +427,7 @@ const archaeologyLevel4 = createLevel({
     requirements: [
         createRequirement({
             command: "git restore",
+            alternativeCommands: ["git reset *"],
             requiresArgs: ["--staged"],
             description: "archaeology.level4.requirement1.description",
             successMessage: "archaeology.level4.requirement1.success",
@@ -323,6 +435,7 @@ const archaeologyLevel4 = createLevel({
         }),
         createRequirement({
             command: "git restore",
+            alternativeCommands: ["git checkout --"],
             requiresArgs: ["any"],
             description: "archaeology.level4.requirement2.description",
             successMessage: "archaeology.level4.requirement2.success",

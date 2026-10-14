@@ -127,7 +127,7 @@ describe("Git Basic Commands", () => {
             const output = addCmd.execute({ args: ["test.txt"], flags: {}, positionalArgs: ["test.txt"] }, context);
 
             expect(context.gitRepository.getStatus()["test.txt"]).toBe("staged");
-            expect(output.length).toBeGreaterThan(0);
+            expect(output).toEqual([]);
         });
 
         it("should stage all files with .", () => {

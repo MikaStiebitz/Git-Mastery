@@ -1,13 +1,13 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
 import type { FileSystem } from "~/models/FileSystem";
-import type { GitRepository } from "~/models/GitRepository";
+import { missingOperand, pathKind } from "./shell";
 
 export class RmCommand implements Command {
     name = "rm";
     description = "Remove files or directories";
-    usage = "rm [-r] <file_or_directory>";
-    examples = ["rm file.txt", "rm -r directory"];
+    usage = "rm [-r] [-f] <file_or_directory>...";
+    examples = ["rm file.txt", "rm -r directory", "rm a.txt b.txt"];
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
@@ -17,85 +17,60 @@ export class RmCommand implements Command {
         value: [],
     };
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { fileSystem, gitRepository } = context;
+        const { fileSystem } = context;
+        const flags = args.flags;
+        const recursive = flags.r !== undefined || flags.R !== undefined || flags.recursive !== undefined;
+        const force = flags.f !== undefined || flags.force !== undefined;
+        const emptyDirs = flags.d !== undefined || flags.dir !== undefined;
+        const verbose = flags.v !== undefined || flags.verbose !== undefined;
 
-        if (args.positionalArgs.length === 0) {
-            return ["Please specify a file or directory to remove."];
+        if (args.positionalArgs.length === 0) return force ? [] : missingOperand("rm");
+
+        const lines: string[] = [];
+        for (const name of args.positionalArgs) {
+            const base = name.replace(/\/+$/, "").split("/").pop();
+            if (base === "." || base === "..") {
+                lines.push(`rm: refusing to remove '.' or '..' directory: skipping '${name}'`);
+                continue;
+            }
+            const path = resolvePath(name, context.currentDirectory);
+            if (path === "/") {
+                lines.push(
+                    "rm: it is dangerous to operate recursively on '/'",
+                    "rm: use --no-preserve-root to override this failsafe",
+                );
+                continue;
+            }
+            const kind = pathKind(fileSystem, path);
+            if (kind === null) {
+                if (!force) lines.push(`rm: cannot remove '${name}': No such file or directory`);
+                continue;
+            }
+            if (kind === "directory" && !recursive) {
+                const empty = Object.keys(fileSystem.getDirectoryContents(path) ?? {}).length === 0;
+                if (!emptyDirs) {
+                    lines.push(`rm: cannot remove '${name}': Is a directory`);
+                    continue;
+                }
+                if (!empty) {
+                    lines.push(`rm: cannot remove '${name}': Directory not empty`);
+                    continue;
+                }
+            }
+            // Git notices the deletion itself: a tracked file that is gone shows as "deleted".
+            this.removeTree(path, fileSystem);
+            if (verbose) lines.push(kind === "directory" ? `removed directory '${name}'` : `removed '${name}'`);
         }
-
-        // Check for recursive flag
-        const isRecursive = args.flags.r !== undefined || args.flags.recursive !== undefined;
-
-        const file = args.positionalArgs[0] ?? "";
-        const filePath = resolvePath(file, context.currentDirectory);
-
-        // Check if path is a directory
-        const isDirectory = fileSystem.getDirectoryContents(filePath) !== null;
-
-        if (isDirectory && !isRecursive) {
-            return [`Cannot remove '${file}': Is a directory. Use 'rm -r' for directories.`];
-        }
-
-        // If it's a file or we're using -r flag
-        const success = this.recursiveDelete(filePath, fileSystem, gitRepository, isRecursive);
-
-        return success ? [`Removed '${file}'.`] : [`Failed to remove '${file}'.`];
+        return lines;
     }
 
-    // New method to handle recursive deletion
-    private recursiveDelete(
-        path: string,
-        fileSystem: FileSystem,
-        gitRepository: GitRepository,
-        isRecursive: boolean,
-    ): boolean {
-        // If it's a file, simply delete it
-        if (fileSystem.getFileContents(path) !== null) {
-            const success = fileSystem.delete(path);
-
-            // Update Git status if file was tracked
-            if (success && gitRepository.isInitialized()) {
-                // Normalize path for Git
-                const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
-                const status = gitRepository.getStatus();
-                if (normalizedPath in status) {
-                    delete status[normalizedPath];
-                }
+    private removeTree(path: string, fileSystem: FileSystem): void {
+        const contents = fileSystem.getDirectoryContents(path);
+        if (contents) {
+            for (const name of Object.keys(contents)) {
+                this.removeTree(path === "/" ? `/${name}` : `${path}/${name}`, fileSystem);
             }
-
-            return success;
         }
-
-        // If it's a directory and recursive is enabled
-        if (isRecursive) {
-            const contents = fileSystem.getDirectoryContents(path);
-            if (!contents) return false;
-
-            // Delete all contents first
-            for (const [name, item] of Object.entries(contents)) {
-                const subPath = path === "/" ? `/${name}` : `${path}/${name}`;
-
-                if (item.type === "file") {
-                    // Delete file and update Git status
-                    const success = fileSystem.delete(subPath);
-                    if (success && gitRepository.isInitialized()) {
-                        // Normalize path for Git
-                        const normalizedPath = subPath.startsWith("/") ? subPath.substring(1) : subPath;
-                        const status = gitRepository.getStatus();
-                        if (normalizedPath in status) {
-                            delete status[normalizedPath];
-                        }
-                    }
-                } else if (item.type === "directory") {
-                    // Recursively delete subdirectory
-                    this.recursiveDelete(subPath, fileSystem, gitRepository, true);
-                }
-            }
-
-            // Finally delete the directory itself
-            return fileSystem.delete(path);
-        }
-
-        return false;
+        fileSystem.delete(path);
     }
 }

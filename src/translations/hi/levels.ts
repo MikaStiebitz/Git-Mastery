@@ -1545,7 +1545,7 @@ Git इतिहास बरकरार रखते हुए फ़ाइल
     "archaeology.level3.objective1":
         "HEAD की हर हलचल, यहां तक कि 'खोए हुए' कमिट भी, देखने के लिए git reflog का उपयोग करें",
     "archaeology.level3.objective2":
-        "खोया हुआ काम वापस पाने के लिए reflog संदर्भ (जैसे HEAD@{0}) के साथ git reset --hard का उपयोग करें",
+        "खोया हुआ काम वापस पाने के लिए reflog संदर्भ (जैसे HEAD@{1}) के साथ git reset --hard का उपयोग करें",
     "archaeology.level3.objective3": "रिकवर किए गए कमिट सहेजने के लिए किसी reflog एंट्री पर एक ब्रांच बनाएं",
     "archaeology.level3.hint1":
         "`git reflog` वे सभी कमिट लिस्ट करता है जिन पर कभी HEAD था, यहां तक कि वे भी जो 'डिलीट' दिखते हैं",
@@ -1558,10 +1558,10 @@ Git इतिहास बरकरार रखते हुए फ़ाइल
     "archaeology.level3.requirement1.description": "हाल की HEAD हलचलें देखने के लिए git reflog चलाएं",
     "archaeology.level3.requirement1.success": "Reflog इतिहास जांचा गया!",
     "archaeology.level3.requirement2.description":
-        "git reset --hard और एक reflog संदर्भ, जैसे git reset --hard HEAD@{0}, से खोया हुआ कमिट वापस पाएं",
+        "git reset --hard और एक reflog संदर्भ, जैसे git reset --hard HEAD@{1}, से खोया हुआ कमिट वापस पाएं",
     "archaeology.level3.requirement2.success": "रिपॉजिटरी की स्थिति बहाल हुई!",
     "archaeology.level3.requirement3.description":
-        "किसी reflog एंट्री पर एक रिकवरी ब्रांच बनाएं, जैसे git branch recovery HEAD@{1}",
+        "किसी reflog एंट्री पर एक रिकवरी ब्रांच बनाएं, जैसे git branch recovery HEAD@{0}",
     "archaeology.level3.requirement3.success": "रिकवरी ब्रांच बन गई!",
     "archaeology.level3.story.title": "बड़ा Git डिज़ास्टर रिकवरी",
     "archaeology.level3.story.narrative":
@@ -1817,7 +1817,7 @@ Git इतिहास बरकरार रखते हुए फ़ाइल
     "advanced.level4.objective3": "Bisect session समाप्त करें",
     "advanced.level4.hint1": "`git bisect start` इतिहास में binary search शुरू करता है",
     "advanced.level4.hint2":
-        "मौजूदा टूटी स्थिति को `git bisect bad` से और एक चालू commit को `git bisect good` से चिह्नित करें",
+        "मौजूदा टूटी स्थिति को `git bisect bad` से और एक चालू commit को `git bisect good <commit>` (जैसे `git bisect good HEAD~3`) से चिह्नित करें",
     "advanced.level4.hint3": "पूरा होने पर `git bisect reset` आपको शुरुआती जगह वापस ले आता है",
     "advanced.level4.requirement1.description": "Bisect शुरू करें",
     "advanced.level4.requirement1.success": "Bisect session शुरू — Git दोषी को घेरने के लिए तैयार है।",

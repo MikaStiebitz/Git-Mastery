@@ -28,6 +28,11 @@ export interface FlagSpec {
     boolean?: readonly string[];
     /** Flags that take a value, either attached (-mfix, --author=x) or as the next token. */
     value?: readonly string[];
+    /**
+     * Flags whose value is optional and can only be attached (`-uno`, `--untracked-files=all`);
+     * given alone (`-u`) they are true and never take the next token.
+     */
+    optional?: readonly string[];
 }
 
 export interface CommandContext {

@@ -1,7 +1,8 @@
-import type { GitRepository } from "~/models/GitRepository";
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
-import type { FileSystem } from "~/models/FileSystem";
-import { notARepository, unknownFlagError } from "../base/GitErrors";
+import { GitRepository, type Tree } from "~/models/GitRepository";
+import { hint, unknownFlagError } from "../base/GitErrors";
+import { matchPathspec, requireRepository } from "../helpers/gitFormat";
+import { createAndSwitch, detachAt, guessRemoteBranch, switchToBranch, unknownBranchHints } from "../helpers/switching";
 
 export class CheckoutCommand implements Command {
     name = "git checkout";
@@ -9,16 +10,20 @@ export class CheckoutCommand implements Command {
     usage = "git checkout [<options>] <branch>";
     examples = [
         "git checkout main",
+        "git checkout -",
         "git checkout -b feature",
         "git checkout -b feature main",
+        "git checkout abc1234",
         "git checkout -- file.txt",
         "git checkout HEAD~1 -- file.txt",
+        "git checkout --theirs conflicted.txt",
     ];
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
     /** Flag semantics for this command (see FlagSpec). */
     flagSpec: FlagSpec = {
+        // -b/-B take the new branch name; declared boolean so the name stays positional.
         boolean: [
             "b",
             "B",
@@ -27,6 +32,7 @@ export class CheckoutCommand implements Command {
             "t",
             "p",
             "track",
+            "no-track",
             "detach",
             "force",
             "quiet",
@@ -34,221 +40,199 @@ export class CheckoutCommand implements Command {
             "ours",
             "theirs",
             "merge",
+            "m",
+            "guess",
+            "no-guess",
         ],
         value: ["orphan"],
     };
+
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository, fileSystem, currentDirectory } = context;
+        const notRepo = requireRepository(context);
+        if (notRepo) return notRepo;
+        const repo = context.gitRepository;
 
-        if (!gitRepository.isInitialized()) {
-            return notARepository();
-        }
-        if (!gitRepository.isInRepository(currentDirectory)) {
-            return notARepository();
-        }
-
-        // A mistyped flag is an error, not something to ignore.
         const unknownFlag = args.unknownFlags?.[0];
-        if (unknownFlag !== undefined) {
-            return unknownFlagError(unknownFlag, this.usage);
+        if (unknownFlag !== undefined) return unknownFlagError(unknownFlag, this.usage);
+
+        const flags = args.flags;
+        const force = flags.f !== undefined || flags.force !== undefined;
+
+        // Everything after "--" is a path; the token before it (if any) is the source commit.
+        const dashDash = args.args.indexOf("--");
+        const positional = [...args.positionalArgs];
+        let pathspecs: string[] = [];
+        let source: string | undefined;
+        if (dashDash !== -1) {
+            pathspecs = args.args.slice(dashDash + 1);
+            const before = positional.slice(0, positional.length - pathspecs.length);
+            source = before[0];
+            if (before.length > 1) return [`fatal: only one reference expected, ${before.length} given.`];
         }
 
-        const parseResult = this.parseCheckoutArgs(args, context);
-
-        if (parseResult.error) {
-            return [parseResult.error];
-        }
-
-        const { isCreateBranch, isForceCreateBranch, isRestoreFiles, branchName, startPoint, filePaths } = parseResult;
-
-        // Handle file restoration (git checkout -- file.txt)
-        if (isRestoreFiles) {
-            return this.handleFileRestore(filePaths, fileSystem, gitRepository);
-        }
-
-        // Handle branch operations
-        if (!branchName) {
-            return ["fatal: You must specify a branch name."];
-        }
-
-        const currentBranch = gitRepository.getCurrentBranch();
-        const branches = gitRepository.getBranches();
-
-        // Handle branch creation
-        if (isCreateBranch || isForceCreateBranch) {
-            // Check if branch already exists (unless force create)
-            if (branches.includes(branchName) && !isForceCreateBranch) {
-                return [`fatal: A branch named '${branchName}' already exists.`];
-            }
-
-            // Validate start point if provided
-            if (startPoint && !branches.includes(startPoint)) {
+        // -b/-B <new-branch> [<start-point>]
+        const createFlag = (["b", "B"] as const).find(f => flags[f] !== undefined);
+        if (createFlag) {
+            const value = flags[createFlag];
+            const name = typeof value === "string" && value !== "" ? value : positional.shift();
+            if (!name) return [`error: switch \`${createFlag}' requires a value`];
+            const problem = GitRepository.branchNameProblem(name);
+            if (problem) return [`fatal: '${name}' is not a valid branch name`, hint(problem)];
+            if (repo.getBornBranches().includes(name) && createFlag === "b") {
                 return [
-                    `fatal: '${startPoint}' is not a commit and a branch '${branchName}' cannot be created from it`,
+                    `fatal: a branch named '${name}' already exists`,
+                    hint(`To move onto it, use: git checkout ${name}`),
                 ];
             }
-
-            // Create branch
-            const createSuccess = gitRepository.createBranch(branchName);
-            if (!createSuccess && !isForceCreateBranch) {
-                return [`fatal: A branch named '${branchName}' already exists.`];
+            const startSpec = positional[0];
+            let startId: string | null = null;
+            if (startSpec !== undefined) {
+                const id = repo.resolveCommit(startSpec);
+                if (!id)
+                    return [`fatal: '${startSpec}' is not a commit and a branch '${name}' cannot be created from it`];
+                startId = id;
             }
-
-            // Switch to the new branch with createNew flag = true (allows uncommitted changes)
-            const checkoutResult = gitRepository.checkout(branchName, true);
-            if (!checkoutResult.success) {
-                if (checkoutResult.warnings) {
-                    return checkoutResult.warnings;
-                }
-                return [`fatal: could not create and switch to branch '${branchName}'`];
-            }
-
-            const result = [`Switched to a new branch '${branchName}'`];
-            if (checkoutResult.warnings) {
-                result.unshift(...checkoutResult.warnings);
-            }
-            return result;
+            const trackFrom =
+                startSpec && startSpec in repo.getRemoteTrackingRefs() && flags["no-track"] === undefined
+                    ? startSpec
+                    : undefined;
+            return createAndSwitch(context, name, startId, { reset: createFlag === "B", trackFrom, force });
         }
 
-        // Handle branch switching
-        if (!branches.includes(branchName)) {
-            // More helpful error message with case-sensitive suggestions
-            const similarBranches = branches.filter(b => b.includes(branchName) || branchName.includes(b));
-
-            let errorMsg = `error: pathspec '${branchName}' did not match any file(s) known to git`;
-
-            if (similarBranches.length > 0) {
-                errorMsg += `\nDid you mean one of these?\n${similarBranches.map(b => `\t${b}`).join("\n")}`;
-            } else {
-                errorMsg += `\nDid you mean to create a new branch? Use: git checkout -b ${branchName}`;
-            }
-
-            return [errorMsg];
+        if (typeof flags.orphan === "string") {
+            const name = flags.orphan;
+            if (repo.getBornBranches().includes(name)) return [`fatal: a branch named '${name}' already exists`];
+            // Unlike `switch --orphan`, checkout keeps the files staged in the new, empty branch.
+            repo.setUnbornBranch(name);
+            return [`Switched to a new branch '${name}'`];
         }
 
-        // Switch to existing branch
-        const checkoutResult = gitRepository.checkout(branchName);
-
-        if (checkoutResult.success) {
-            if (branchName === currentBranch) {
-                return [`Already on '${branchName}'`];
-            }
-
-            const result = [`Switched to branch '${branchName}'`];
-            if (checkoutResult.warnings) {
-                result.unshift(...checkoutResult.warnings);
-            }
-            return result;
-        } else {
-            // Handle failure due to uncommitted changes
-            if (checkoutResult.warnings) {
-                return checkoutResult.warnings;
-            }
-            return [`error: could not switch to branch '${branchName}'`];
+        if (dashDash !== -1) {
+            return this.restorePaths(context, source, pathspecs, flags, false);
         }
+
+        if (flags.ours !== undefined || flags.theirs !== undefined) {
+            return this.restorePaths(context, undefined, positional, flags);
+        }
+
+        let target = positional[0];
+        if (target === undefined) {
+            if (flags.detach !== undefined) target = "HEAD";
+            else return [];
+        }
+        if (target === "-") {
+            const previous = repo.previousCheckout(1);
+            if (!previous) return ["error: pathspec '-' did not match any file(s) known to git"];
+            target = previous;
+        }
+
+        // `git checkout <commit> <path>...` without "--"
+        if (positional.length > 1) {
+            if (repo.resolveCommit(target)) return this.restorePaths(context, target, positional.slice(1), flags);
+            return this.restorePaths(context, undefined, positional, flags);
+        }
+
+        if (flags.detach === undefined && repo.getBornBranches().includes(target)) {
+            return switchToBranch(context, target, { force });
+        }
+
+        const commitId = repo.resolveCommit(target);
+        if (commitId && flags.detach === undefined && flags["no-guess"] === undefined) {
+            // A name that is only a remote branch creates a local tracking branch (DWIM).
+            const guessed = !(target in repo.getRemoteTrackingRefs()) ? guessRemoteBranch(repo, target) : null;
+            if (guessed)
+                return createAndSwitch(context, target, repo.getRemoteTrackingRefs()[guessed]!, {
+                    trackFrom: guessed,
+                    force,
+                });
+        }
+        if (commitId) {
+            return detachAt(context, commitId, target, { force });
+        }
+
+        const guessed = flags["no-guess"] === undefined ? guessRemoteBranch(repo, target) : null;
+        if (guessed) {
+            return createAndSwitch(context, target, repo.getRemoteTrackingRefs()[guessed]!, {
+                trackFrom: guessed,
+                force,
+            });
+        }
+
+        // Not a branch or commit: Git tries it as a path.
+        const asPath = matchPathspec(context, target, Object.keys(repo.getIndex()));
+        if (asPath.length > 0) return this.restorePaths(context, undefined, [target], flags);
+
+        return [
+            `error: pathspec '${target}' did not match any file(s) known to git`,
+            ...unknownBranchHints(repo, target, "-b"),
+        ];
     }
 
-    private parseCheckoutArgs(
-        args: CommandArgs,
-        _context: CommandContext,
-    ): {
-        isCreateBranch: boolean;
-        isForceCreateBranch: boolean;
-        isRestoreFiles: boolean;
-        branchName?: string;
-        startPoint?: string;
-        filePaths: string[];
-        error?: string;
-    } {
-        const isCreateBranch = args.flags.b !== undefined;
-        const isForceCreateBranch = args.flags.B !== undefined;
+    /**
+     * `git checkout [<commit>] -- <paths>`: overwrite files from the index (or from a commit, which
+     * also updates the index). `--ours`/`--theirs` pick one side of a conflict.
+     */
+    private restorePaths(
+        context: CommandContext,
+        source: string | undefined,
+        pathspecs: string[],
+        flags: CommandArgs["flags"],
+        countPaths = true,
+    ): string[] {
+        const repo = context.gitRepository;
+        if (pathspecs.length === 0) return ["fatal: you must specify path(s) to restore"];
 
-        // Check for file restoration pattern (-- files)
-        const dashDashIndex = args.args.indexOf("--");
-        const isRestoreFiles = dashDashIndex !== -1;
-
-        if (isRestoreFiles) {
-            const filePaths = args.args.slice(dashDashIndex + 1);
-            return {
-                isCreateBranch: false,
-                isForceCreateBranch: false,
-                isRestoreFiles: true,
-                filePaths,
-            };
+        let sourceTree: Tree | null = null;
+        let sourceLabel = "the index";
+        if (source !== undefined) {
+            const id = repo.resolveCommit(source);
+            if (!id) return [`fatal: invalid reference: ${source}`];
+            sourceTree = repo.treeOf(id);
+            // Git names the tree it read the files from, not the commit.
+            sourceLabel = GitRepository.treeId(sourceTree).substring(0, 7);
         }
 
-        // Handle branch operations - the key fix is here
-        let positionalArgs = args.positionalArgs;
-
-        // If we have -b flag but no positional args, check if the branch name
-        // was captured as a flag value
-        if ((isCreateBranch || isForceCreateBranch) && positionalArgs.length === 0) {
-            // Check if -b has a value (like -b branchname)
-            if (typeof args.flags.b === "string") {
-                positionalArgs = [args.flags.b];
-            } else if (typeof args.flags.B === "string") {
-                positionalArgs = [args.flags.B];
-            } else {
-                return {
-                    isCreateBranch,
-                    isForceCreateBranch,
-                    isRestoreFiles: false,
-                    filePaths: [],
-                    error: "fatal: switch `b' requires a value",
-                };
-            }
+        const index = repo.getIndex();
+        const candidates = new Set([...Object.keys(sourceTree ?? index), ...repo.getUnmergedPaths()]);
+        const paths = new Set<string>();
+        for (const spec of pathspecs) {
+            const matched = matchPathspec(context, spec, candidates);
+            if (matched.length === 0) return [`error: pathspec '${spec}' did not match any file(s) known to git`];
+            matched.forEach(p => paths.add(p));
         }
 
-        // Additional check: if we still have no args after the above check
-        if ((isCreateBranch || isForceCreateBranch) && positionalArgs.length === 0) {
-            return {
-                isCreateBranch,
-                isForceCreateBranch,
-                isRestoreFiles: false,
-                filePaths: [],
-                error: "fatal: switch `b' requires a value",
-            };
-        }
-
-        if (positionalArgs.length === 0 && !isCreateBranch && !isForceCreateBranch) {
-            return {
-                isCreateBranch,
-                isForceCreateBranch,
-                isRestoreFiles: false,
-                filePaths: [],
-                error: "fatal: You must specify a branch name.",
-            };
-        }
-
-        return {
-            isCreateBranch,
-            isForceCreateBranch,
-            isRestoreFiles: false,
-            branchName: positionalArgs[0],
-            startPoint: positionalArgs[1], // for -b <branch> <start-point>
-            filePaths: [],
+        const side = flags.ours !== undefined ? "ours" : flags.theirs !== undefined ? "theirs" : null;
+        // Git counts the files it actually rewrote.
+        let updated = 0;
+        const write = (path: string, content: string) => {
+            const fsPath = repo.toFsPath(path);
+            if (context.fileSystem.getFileContents(fsPath) !== content) updated++;
+            context.fileSystem.writeFile(fsPath, content);
         };
-    }
-
-    private handleFileRestore(filePaths: string[], fileSystem: FileSystem, gitRepository: GitRepository): string[] {
-        if (filePaths.length === 0) {
-            return ["fatal: You must specify file paths to restore."];
-        }
-
-        const results: string[] = [];
-
-        for (const filePath of filePaths) {
-            // Check if file exists
-            if (fileSystem.getFileContents(filePath) === null) {
-                results.push(`error: pathspec '${filePath}' did not match any file(s) known to git`);
+        for (const path of paths) {
+            const conflict = repo.getUnmergedEntry(path);
+            if (conflict && !side && sourceTree === null) {
+                return [`error: path '${path}' is unmerged`];
+            }
+            if (conflict && side) {
+                const content = conflict[side];
+                if (content === undefined)
+                    return [`error: path '${path}' does not have ${side === "ours" ? "our" : "their"} version`];
+                write(path, content);
                 continue;
             }
-
-            // Restore file (simplified - just mark as clean)
-            gitRepository.updateFileStatus(filePath, "committed");
-            results.push(`Updated 1 path from the index.`);
+            if (sourceTree) {
+                if (path in sourceTree) {
+                    write(path, sourceTree[path]!);
+                    repo.stagePath(path);
+                }
+            } else if (path in index) {
+                write(path, index[path]!);
+            }
         }
 
-        return results.length > 0 ? results : ["Updated paths from the index."];
+        // The count is only reported when the paths were not separated with "--".
+        if (!countPaths) return [];
+        return [`Updated ${updated} path${updated === 1 ? "" : "s"} from ${sourceLabel}`];
     }
 }

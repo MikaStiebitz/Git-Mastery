@@ -1,12 +1,13 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
-import { getAllFiles, resolvePath } from "~/lib/utils";
-import { hint, notARepository, pathSuggestionHints, unknownFlagError } from "../base/GitErrors";
+import { getAllFiles } from "~/lib/utils";
+import { hint, pathSuggestionHints, unknownFlagError } from "../base/GitErrors";
+import { displayPath, matchPathspec, requireRepository, toRepoPath } from "../helpers/gitFormat";
 
 export class AddCommand implements Command {
     name = "git add";
     description = "Add file contents to the index";
-    usage = "git add <file>... or git add .";
-    examples = ["git add file.txt", "git add .", "git add src/"];
+    usage = "git add [<options>] [--] <pathspec>...";
+    examples = ["git add file.txt", "git add .", "git add src/", "git add -A", "git add -u", "git add '*.js'"];
     includeInTabCompletion = true;
     supportsFileCompletion = true;
 
@@ -16,6 +17,7 @@ export class AddCommand implements Command {
             "A",
             "all",
             "no-all",
+            "ignore-removal",
             "p",
             "patch",
             "u",
@@ -34,112 +36,103 @@ export class AddCommand implements Command {
         ],
         value: [],
     };
+
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository, fileSystem } = context;
+        const notRepo = requireRepository(context);
+        if (notRepo) return notRepo;
+        const repo = context.gitRepository;
 
-        if (!gitRepository.isInitialized()) {
-            return notARepository();
-        }
-        if (!gitRepository.isInRepository(context.currentDirectory)) {
-            return notARepository();
-        }
-
-        // A mistyped flag is an error, not something to ignore.
         const unknownFlag = args.unknownFlags?.[0];
-        if (unknownFlag !== undefined) {
-            return unknownFlagError(unknownFlag, this.usage);
+        if (unknownFlag !== undefined) return unknownFlagError(unknownFlag, this.usage);
+
+        const all = args.flags.A !== undefined || args.flags.all !== undefined;
+        const update = args.flags.u !== undefined || args.flags.update !== undefined;
+        const force = args.flags.f !== undefined || args.flags.force !== undefined;
+        const dryRun = args.flags.n !== undefined || args.flags["dry-run"] !== undefined;
+        const verbose = args.flags.v !== undefined || args.flags.verbose !== undefined || dryRun;
+        const ignoreRemoval = args.flags["ignore-removal"] !== undefined || args.flags["no-all"] !== undefined;
+
+        if (
+            args.flags.p !== undefined ||
+            args.flags.patch !== undefined ||
+            args.flags.i !== undefined ||
+            args.flags.interactive !== undefined
+        ) {
+            return [
+                "error: interactive staging needs a real terminal and is not available here.",
+                hint("Stage whole files instead: git add <file>"),
+            ];
         }
 
-        if (args.positionalArgs.length === 0) {
-            // Real Git prints exactly this pair, hint included.
-            return ["Nothing specified, nothing added.", hint("Maybe you wanted to say 'git add .'?")];
+        let specs = args.positionalArgs;
+        if (specs.length === 0) {
+            if (!all && !update) {
+                return ["Nothing specified, nothing added.", hint("Maybe you wanted to say 'git add .'?")];
+            }
+            // -A and -u without a pathspec work on the whole tree, not just the current directory.
+            specs = [context.gitRepository.toFsPath("")];
         }
 
-        // Handle 'git add .'
-        if (args.positionalArgs[0] === ".") {
-            // Get all files in the current directory recursively
-            const allFiles = getAllFiles(fileSystem, context.currentDirectory);
-            const stagedFiles = [];
-            const gitStatus = gitRepository.getStatus();
+        const work = repo.readWorkingTree();
+        const index = repo.getIndex();
+        const unmerged = new Set(repo.getUnmergedPaths());
+        const candidates = new Set([...Object.keys(work), ...Object.keys(index), ...unmerged]);
 
-            // Mark appropriate files as staged
-            for (const file of allFiles) {
-                // Skip .git directory
-                if (file.startsWith("/.git") || file.includes("/.git/") || file.startsWith(".git")) {
-                    continue;
-                }
+        const toStage = new Set<string>();
+        const ignoredExplicit: string[] = [];
 
-                // Normalize path consistently - remove leading slash
-                const normalizedPath = file.startsWith("/") ? file.substring(1) : file;
-
-                // Get file status - files without status are treated as untracked
-                const fileStatus = gitStatus[normalizedPath];
-
-                // Skip files that are already staged or committed (clean)
-                if (fileStatus === "staged" || fileStatus === "committed") {
-                    continue;
-                }
-
-                // Stage files that have changes or are new (untracked/no status)
-                // modified, untracked, deleted, or undefined (new file not yet tracked)
-                gitRepository.addFile(normalizedPath);
-                stagedFiles.push(normalizedPath);
+        for (const spec of specs) {
+            const repoPath = toRepoPath(context, spec);
+            if (repoPath === null) {
+                return [`fatal: ${spec}: '${spec}' is outside repository at '${repo.getRepositoryRoot()}'`];
             }
 
-            if (stagedFiles.length === 0) {
-                return ["No changes to add."];
+            const matched = matchPathspec(context, spec, candidates);
+            if (matched.length === 0) {
+                // An existing directory with nothing to add (e.g. `git add .` in an empty folder) is fine.
+                if (context.fileSystem.getDirectoryContents(repo.toFsPath(repoPath)) !== null) continue;
+                return [
+                    `fatal: pathspec '${spec}' did not match any files`,
+                    ...pathSuggestionHints(spec, getAllFiles(context.fileSystem, context.currentDirectory)),
+                ];
             }
 
-            return [`Added ${stagedFiles.length} files to staging area.`];
-        } else {
-            // Handle specific files - use consistent path normalization.
-            //
-            // Real Git refuses the whole command when any pathspec is wrong and stages nothing, so
-            // resolve every path first and only then stage. Staging the paths that happened to be
-            // spelled correctly would leave the repository in a state the user did not ask for.
-            const resolved: { argPath: string; normalizedPath: string }[] = [];
-
-            for (const argPath of args.positionalArgs) {
-                // Use resolvePath for consistent path resolution
-                const filePath = resolvePath(argPath, context.currentDirectory);
-                const isDirectory = fileSystem.getDirectoryContents(filePath) !== null;
-
-                if (fileSystem.getFileContents(filePath) === null && !isDirectory) {
-                    return [
-                        `fatal: pathspec '${argPath}' did not match any files`,
-                        ...pathSuggestionHints(argPath, getAllFiles(fileSystem, context.currentDirectory)),
-                    ];
-                }
-
-                if (isDirectory) {
-                    // A directory stages everything inside it, the way `git add src` does.
-                    // getAllFiles returns paths relative to the directory it is given, so pass that
-                    // directory as the prefix to get paths relative to the repository root instead.
-                    const dirPrefix = filePath.replace(/^\//, "");
-                    for (const file of getAllFiles(fileSystem, filePath, dirPrefix)) {
-                        resolved.push({ argPath, normalizedPath: file });
+            const isExactFile = matched.length === 1 && matched[0] === repoPath;
+            for (const path of matched) {
+                const tracked = path in index || unmerged.has(path);
+                if (!tracked) {
+                    if (update) continue;
+                    if (repo.isIgnored(path) && !force) {
+                        if (isExactFile) ignoredExplicit.push(path);
+                        continue;
                     }
-                    continue;
                 }
-
-                // Normalize path consistently - same as git add .
-                resolved.push({
-                    argPath,
-                    normalizedPath: filePath.startsWith("/") ? filePath.substring(1) : filePath,
-                });
+                if (!(path in work) && ignoreRemoval) continue;
+                toStage.add(path);
             }
-
-            const staged = new Set<string>();
-            for (const { normalizedPath } of resolved) {
-                gitRepository.addFile(normalizedPath);
-                staged.add(normalizedPath);
-            }
-
-            if (staged.size === 0) {
-                return ["No changes to add."];
-            }
-
-            return args.positionalArgs.map(argPath => `Added ${argPath} to staging area.`);
         }
+
+        if (ignoredExplicit.length > 0) {
+            return [
+                "The following paths are ignored by one of your .gitignore files:",
+                ...ignoredExplicit.map(p => displayPath(context, p)),
+                hint("Use -f if you really want to add them."),
+                hint('Disable this message with "git config set advice.addIgnoredFile false"'),
+            ];
+        }
+
+        const output: string[] = [];
+        for (const path of [...toStage].sort()) {
+            const inWork = path in work;
+            const changed = unmerged.has(path) || (inWork ? index[path] !== work[path] : path in index);
+            if (!changed) continue;
+            if (verbose)
+                // Git prints these paths from the top of the repository.
+                output.push(inWork ? `add '${path}'` : `remove '${path}'`);
+            if (!dryRun) repo.stagePath(path);
+        }
+
+        // Like real Git, a successful `git add` prints nothing (unless -v or -n).
+        return output;
     }
 }

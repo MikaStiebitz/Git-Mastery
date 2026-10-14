@@ -55,7 +55,7 @@ describe("Git Stash", () => {
         // Verify status is clean
         const statusAfter = context.gitRepository.getStatus();
         console.log("Status after stash:", statusAfter);
-        expect(statusAfter["file1.txt"]).toBeUndefined();
+        expect(statusAfter["file1.txt"]).toBe("committed");
     });
 
     it("should pop stashed changes and restore files", () => {
@@ -130,8 +130,17 @@ describe("Git Stash", () => {
         expect(context.fileSystem.getFileContents("/file2.txt")).toBe("modified 2");
     });
 
+    it("refuses to stash before the first commit", () => {
+        const result = stashCommand.execute({ args: [], flags: {}, positionalArgs: [] }, context);
+
+        expect(result[0]).toBe("You do not have the initial commit yet");
+    });
+
     it("should return error when no changes to stash", () => {
-        // Initialize repo but don't make any changes
+        context.fileSystem.writeFile("/file1.txt", "content");
+        addCmd.execute({ args: ["file1.txt"], flags: {}, positionalArgs: ["file1.txt"] }, context);
+        commitCmd.execute({ args: ["-m", "Initial"], flags: { m: "Initial" }, positionalArgs: [] }, context);
+
         const result = stashCommand.execute({ args: [], flags: {}, positionalArgs: [] }, context);
 
         expect(result[0]).toBe("No local changes to save");

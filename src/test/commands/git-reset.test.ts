@@ -241,9 +241,10 @@ describe("Git Reset Commands", () => {
             const commitsAfter = context.gitRepository.getCommitHistory();
             expect(commitsAfter.length).toBe(1);
 
-            // Verify: file2.txt should be modified (unstaged)
+            // Verify: file2.txt is kept but no longer tracked — it did not exist in HEAD~1
             const status = context.gitRepository.getStatus();
-            expect(status["file2.txt"]).toBe("modified");
+            expect(status["file2.txt"]).toBe("untracked");
+            expect(context.fileSystem.getFileContents("/file2.txt")).toBe("content2");
         });
     });
 

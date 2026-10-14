@@ -22,6 +22,9 @@ describe("tab completion", () => {
         fileSystem.mkdir("/src");
         fileSystem.writeFile("/src/index.js", "index");
         gitRepository.init();
+        // Branches point at commits, so there has to be one before any branch can exist.
+        gitRepository.addFile("README.md");
+        gitRepository.commit("Initial commit");
 
         service = new AutocompleteService(processor, fileSystem, gitRepository);
     });

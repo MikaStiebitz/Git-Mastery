@@ -25,7 +25,7 @@ describe("RebaseCommand - upstream resolution (issue #69)", () => {
     });
 
     const run = (input: string): string[] => {
-        const { args } = parseCommand(input);
+        const { args } = parseCommand(input, command.flagSpec);
         return command.execute(args, context);
     };
 
@@ -34,8 +34,10 @@ describe("RebaseCommand - upstream resolution (issue #69)", () => {
         const target = history[0]!;
         const output = run(`git rebase -i ${target}`);
 
-        expect(output[0]).toContain("interactive rebase");
-        expect(output[0]).not.toContain("fatal");
+        // -i opens the todo list in the editor, as real Git does.
+        expect(output[0]).toContain("Waiting for your editor");
+        expect(output.join("\n")).not.toContain("fatal");
+        expect(context.gitRepository.getRebaseState()?.awaitingTodo).toBe(true);
     });
 
     it("should accept a short commit hash as shown by git log --oneline", () => {
@@ -43,15 +45,19 @@ describe("RebaseCommand - upstream resolution (issue #69)", () => {
         const shortHash = history[0]!.substring(0, 7);
         const output = run(`git rebase -i ${shortHash}`);
 
-        expect(output[0]).toContain("interactive rebase");
-        expect(output[0]).not.toContain("fatal");
+        // -i opens the todo list in the editor, as real Git does.
+        expect(output[0]).toContain("Waiting for your editor");
+        expect(output.join("\n")).not.toContain("fatal");
+        expect(context.gitRepository.getRebaseState()?.awaitingTodo).toBe(true);
     });
 
     it("should accept HEAD~n as upstream", () => {
         const output = run("git rebase -i HEAD~2");
 
-        expect(output[0]).toContain("interactive rebase");
-        expect(output[0]).not.toContain("fatal");
+        // -i opens the todo list in the editor, as real Git does.
+        expect(output[0]).toContain("Waiting for your editor");
+        expect(output.join("\n")).not.toContain("fatal");
+        expect(context.gitRepository.getRebaseState()?.awaitingTodo).toBe(true);
     });
 
     it("should still accept a branch name as upstream", () => {
@@ -59,7 +65,8 @@ describe("RebaseCommand - upstream resolution (issue #69)", () => {
         context.gitRepository.checkout("feature");
         const output = run("git rebase main");
 
-        expect(output.join("\n")).toContain("Successfully rebased");
+        // feature already sits on main, so there is nothing to replay.
+        expect(output).toEqual(["Current branch feature is up to date."]);
     });
 
     it("should reject an unknown hash", () => {
@@ -74,9 +81,9 @@ describe("RebaseCommand - upstream resolution (issue #69)", () => {
         expect(output[0]).toBe("fatal: invalid upstream 'HEAD~99'");
     });
 
-    it("should still reject rebasing a branch onto itself", () => {
+    it("reports a branch rebased onto itself as up to date, like real Git", () => {
         const output = run("git rebase main");
 
-        expect(output[0]).toContain("onto itself");
+        expect(output).toEqual(["Current branch main is up to date."]);
     });
 });

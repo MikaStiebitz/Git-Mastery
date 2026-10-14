@@ -345,8 +345,8 @@ const workflowLevel4 = createLevel({
         {
             id: "push-amended-commit",
             objectiveId: 3,
+            // A bare `git push` works too: main tracks origin/main.
             command: "git push",
-            requiresArgs: ["origin"],
             description: "workflow.level4.requirement3.description",
             successMessage: "workflow.level4.requirement3.success",
         },

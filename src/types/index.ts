@@ -74,7 +74,23 @@ export type GitState = {
         }[];
     }[];
     fileChanges?: FileChange[];
+    /**
+     * Stash entries the level starts with, oldest first: each one's changes are made and then put
+     * away with `git stash push [-m <message>]`, so `git stash list` has something to show.
+     */
+    stashes?: { message?: string; changes: FileChange[] }[];
     mergeConflicts?: MergeConflict[];
+    /**
+     * Which operation the conflicts above leave unfinished. "merge" (the default) stops in a
+     * conflicted `git merge` of branch2 into branch1; "rebase" stops in a conflicted `git rebase` of
+     * branch2 onto branch1.
+     */
+    inProgress?: "merge" | "rebase";
+    /**
+     * Throw the last N commits away with `git reset --hard HEAD~N` after setting up history, so they
+     * survive only in the reflog — the starting point of a recovery level.
+     */
+    lostCommits?: number;
     /**
      * Remotes this level starts with, as name -> URL.
      *
@@ -214,6 +230,9 @@ export type GitCommit = {
     message: string;
     files: string[];
     branch?: string; // Optional branch to switch to before committing
+    author?: string; // Optional author, "Name" or "Name <email>"; defaults to a rotating team
+    /** Content of (some of) the files as of this commit; others keep their current content. */
+    contents?: Record<string, string>;
 };
 
 // Consolidated types for GameContext

@@ -10,6 +10,7 @@ import { GitRepository } from "~/models/GitRepository";
 import { parseCommand, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import { resolvePath } from "~/lib/utils";
 import { didCommandFail, isMistake } from "~/models/commandOutcome";
+import { OPEN_EDITOR_MARKER } from "~/commands/git/RebaseCommand";
 import { cueMascot } from "~/components/GitMascot";
 import type { GameContextProps, DifficultyLevel } from "~/types";
 import { useLanguage } from "~/contexts/LanguageContext";
@@ -165,8 +166,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Handle commit message from dialog
     const handleCommit = (message: string) => {
         // Create a properly formatted commit command
-        // Escape quotes in the message to avoid syntax errors
-        const escapedMessage = message.replace(/"/g, '\\"');
+        // Quote the message for the shell-style parser: inside double quotes, \ " $ and ` are escaped.
+        const escapedMessage = message.replace(/[\\"$`]/g, char => `\\${char}`);
 
         // Execute the commit command
         const output = commandProcessor.processCommand(`git commit -m "${escapedMessage}"`);
@@ -325,8 +326,17 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Process the command and get output
-        const output = commandProcessor.processCommand(command);
+        const headBefore = gitRepository.getHeadCommitId();
+        const rawOutput = commandProcessor.processCommand(command);
+
+        // A command that needs the editor (git rebase -i) asks for it with a marker line, the way
+        // real Git launches $EDITOR. The marker is not shown; the file opens instead.
+        const editorRequest = rawOutput.find(line => line.startsWith(OPEN_EDITOR_MARKER));
+        const output = rawOutput.filter(line => !line.startsWith(OPEN_EDITOR_MARKER));
         setTerminalOutput(prev => [...prev, ...output]);
+        if (editorRequest) {
+            openFileEditor(editorRequest.substring(OPEN_EDITOR_MARKER.length), isPlaygroundMode);
+        }
 
         // `git commit` with no message opens the message editor, the way real Git opens $EDITOR.
         //
@@ -335,7 +345,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // the typed string means every spelling routes correctly — `git commit`, `git commit -a`,
         // `git commit --amend` — and an error or a status report never opens an editor, because those
         // return lines. Level completion is checked in handleCommit() once the message exists.
-        if (parseCommand(command).command === "git commit" && output.length === 0) {
+        // (A quiet commit that worked prints nothing too, but it moved HEAD.)
+        if (
+            parseCommand(command).command === "git commit" &&
+            output.length === 0 &&
+            gitRepository.getHeadCommitId() === headBefore
+        ) {
             openCommitDialog();
             return;
         }
@@ -371,17 +386,15 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Check if the command completes the level
         const [cmd, ...args] = splitCommandRespectingQuotes(command.trim());
 
-        // Handle special case for git commands
-        if (cmd === "git") {
-            // Check Git command with the LevelManager
-            if (levelManager.checkLevelCompletion(currentStage, currentLevel, cmd, args, gitRepository)) {
-                markLevelAsCompleted();
-            }
-        } else {
-            // For non-Git commands - direct check
-            if (levelManager.checkLevelCompletion(currentStage, currentLevel, cmd ?? "", args, gitRepository)) {
-                markLevelAsCompleted();
-            }
+        if (levelManager.checkLevelCompletion(currentStage, currentLevel, cmd ?? "", args, gitRepository)) {
+            markLevelAsCompleted();
+            return;
+        }
+
+        // Requirements about the repository's state (a file edited, a conflict resolved) can be met
+        // by any command — `git checkout --theirs`, `cp`, a pull — not only by saving in the editor.
+        if (levelManager.checkStateBasedRequirements(currentStage, currentLevel, gitRepository, fileSystem)) {
+            markLevelAsCompleted();
         }
     };
 
@@ -505,17 +518,21 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const currentDir = commandProcessor.getCurrentDirectory();
         const fullPath = resolvePath(path, currentDir);
 
-        // Write the file
+        // Write the file. Git notices the change itself: status is derived from file contents.
         fileSystem.writeFile(fullPath, content);
-
-        // Update Git status - use path without leading slash
-        const gitPath = fullPath.startsWith("/") ? fullPath.substring(1) : fullPath;
-
-        // If the file is staged, it should be shown as both staged and modified
-        gitRepository.updateFileStatus(gitPath, "modified");
 
         // Only add one message to terminal output
         setTerminalOutput(prev => [...prev, t("terminal.fileSaved").replace("{path}", path)]);
+
+        // Saving a file Git opened in the editor (the `git rebase -i` todo list) hands control back
+        // to Git, which carries on exactly as it does when the real editor closes.
+        const followUp = gitRepository.takeEditorFollowUp(fullPath);
+        if (followUp) {
+            const followUpOutput = commandProcessor
+                .processCommand(followUp)
+                .filter(line => !line.startsWith(OPEN_EDITOR_MARKER));
+            setTerminalOutput(prev => [...prev, ...followUpOutput]);
+        }
 
         // Check state-based requirements (like file modified checks)
         if (levelManager.checkStateBasedRequirements(currentStage, currentLevel, gitRepository, fileSystem)) {

@@ -1,5 +1,6 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
 import { resolvePath } from "~/lib/utils";
+import { pathKind } from "./shell";
 
 export class CdCommand implements Command {
     name = "cd";
@@ -16,20 +17,18 @@ export class CdCommand implements Command {
     };
     execute(args: CommandArgs, context: CommandContext): string[] {
         const { fileSystem, currentDirectory, setCurrentDirectory } = context;
+        if (args.positionalArgs.length > 1) return ["cd: too many arguments"];
 
-        if (args.positionalArgs.length === 0) {
-            return [`Current directory: ${currentDirectory}`];
-        }
+        // Without an argument the shell goes home; the top of this little file system is home.
+        const dir = args.positionalArgs[0] ?? "~";
+        const target = dir === "~" || dir.startsWith("~/") ? "/" + dir.substring(2) : dir;
+        const newPath = resolvePath(target, currentDirectory);
+        const kind = pathKind(fileSystem, newPath);
 
-        const dir = args.positionalArgs[0] ?? "";
-        const newPath = resolvePath(dir, currentDirectory);
-        const contents = fileSystem.getDirectoryContents(newPath);
-
-        if (contents) {
+        if (kind === "directory") {
             setCurrentDirectory(newPath);
-            return [`Changed to directory: ${newPath}`];
-        } else {
-            return [`Cannot change to directory: ${dir}`];
+            return [];
         }
+        return [`cd: ${dir}: ${kind === "file" ? "Not a directory" : "No such file or directory"}`];
     }
 }

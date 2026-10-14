@@ -190,6 +190,25 @@ The initial state controls how the environment is set up when the level starts:
     });
     ```
 
+    The repository is a real Git object model, so the state has to be one real Git could be in:
+
+    - **Branches point at commits.** A branch listed in `branches` is created when the first commit
+      that names it runs (forking from wherever HEAD is at that moment); the others are created at the
+      end, at the tip of `currentBranch`. Use an entry with an empty `message` and a `branch` to switch
+      back (e.g. to `main`) before the next team branches off.
+    - **Commits are snapshots.** Each commit records the files' content at that moment. Give a commit
+      `contents: { "/path": "..." }` to set what a file looked like in it — that is what makes
+      `git blame`, `git log -p`, `git show`, cherry-picks and merges show real changes. Give it an
+      `author` (`"Name <email>"`) when the level is about who changed what (`git log --author`).
+    - **Conflicts are real.** `mergeConflicts` with `branch1`/`branch2` writes each side's version into
+      that branch's commits and leaves the level in a stopped `git merge` of branch2 into branch1
+      (or, with `inProgress: "rebase"`, a stopped `git rebase` of branch2 onto branch1).
+    - **Lost work lives in the reflog.** `lostCommits: 3` runs `git reset --hard HEAD~3` after setup,
+      so the commits are only reachable as `HEAD@{1}` — the starting point of a recovery level.
+
+    The end-to-end level test (`src/test/levels/e2e-all-levels.test.ts`) plays every level's solution
+    and fails if any command in it fails the way the in-game terminal judges failure.
+
 ## Level Translations
 
 All user-facing strings should use translation keys rather than hardcoded strings. Add the corresponding translations to:

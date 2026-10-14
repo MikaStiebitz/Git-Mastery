@@ -66,7 +66,10 @@ describe("git merge", () => {
 
         // Should create merge commit since branches diverged
         expect(result.join(" ")).toContain("Merge made by the 'ort' strategy");
-        expect(result.join(" ")).toContain("Merge branch 'feature' into main");
+        // The merge commit gets Git's default message and two parents.
+        const merge = gitRepository.getLastCommit()!;
+        expect(merge.message).toBe("Merge branch 'feature'");
+        expect(merge.parents).toHaveLength(2);
 
         // Both files should exist
         expect(fileSystem.getFileContents("/file2.txt")).toBe("feature content");

@@ -62,7 +62,23 @@ describe("CommandParser - Quote Handling", () => {
         const parts = splitCommandRespectingQuotes('git log --grep="fix \\\"critical\\\" bug"');
         const result = parseCommand('git log --grep="fix \\\"critical\\\" bug"');
 
-        expect(parts).toEqual(["git", "log", '--grep=fix \\\"critical\\\" bug']);
-        expect(result.args.flags.grep).toBe('fix \\\"critical\\\" bug');
+        // As in a shell: the backslash escapes the quote and disappears.
+        expect(parts).toEqual(["git", "log", '--grep=fix "critical" bug']);
+        expect(result.args.flags.grep).toBe('fix "critical" bug');
+    });
+
+    it("keeps empty quoted words and follows shell escaping rules", () => {
+        expect(splitCommandRespectingQuotes('git commit -m "" -a')).toEqual(["git", "commit", "-m", "", "-a"]);
+        expect(splitCommandRespectingQuotes("echo it\\'s 'a \\b' \"c\\d\"")).toEqual(["echo", "it's", "a \\b", "c\\d"]);
+        expect(splitCommandRespectingQuotes("git add my\\ file.txt")).toEqual(["git", "add", "my file.txt"]);
+    });
+
+    it("gives a required flag value the next word even when it starts with a dash", () => {
+        const result = parseCommand('git commit -m "-x"', { boolean: ["a"], value: ["m"] });
+        expect(result.args.flags.m).toBe("-x");
+        expect(parseCommand('git commit -m "" -a', { boolean: ["a"], value: ["m"] }).args.flags).toEqual({
+            m: "",
+            a: true,
+        });
     });
 });

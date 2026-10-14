@@ -1,197 +1,163 @@
 import type { Command, CommandArgs, CommandContext, FlagSpec } from "../base/Command";
-import { notARepository, unknownFlagError } from "../base/GitErrors";
+import { GitRepository } from "~/models/GitRepository";
+import { hint, unknownFlagError } from "../base/GitErrors";
+import { requireRepository } from "../helpers/gitFormat";
+import { createAndSwitch, detachAt, guessRemoteBranch, switchToBranch, unknownBranchHints } from "../helpers/switching";
 
 export class SwitchCommand implements Command {
     name = "git switch";
-    description = "Switch to a specified branch";
-    usage = "git switch [<options>] <branch>";
-    examples = ["git switch main", "git switch -c feature", "git switch -C force-create"];
+    description = "Switch branches";
+    usage = "git switch [<options>] [<branch>]";
+    examples = [
+        "git switch main",
+        "git switch -",
+        "git switch -c feature",
+        "git switch -c feature origin/feature",
+        "git switch --detach HEAD~2",
+        "git switch -C force-create",
+    ];
     includeInTabCompletion = true;
     supportsFileCompletion = false;
 
     /** Flag semantics for this command (see FlagSpec). */
     flagSpec: FlagSpec = {
         boolean: [
-            "c",
-            "C",
             "d",
             "f",
             "m",
             "q",
             "t",
-            "create",
-            "force-create",
             "detach",
             "force",
             "discard-changes",
             "merge",
             "quiet",
             "track",
+            "no-track",
             "guess",
             "no-guess",
+            // -c/-C take the new branch name; declared boolean so the name stays positional and
+            // `git switch -c name start-point` reads naturally.
+            "c",
+            "C",
+            "create",
+            "force-create",
         ],
         value: ["orphan"],
     };
+
     execute(args: CommandArgs, context: CommandContext): string[] {
-        const { gitRepository } = context;
+        const notRepo = requireRepository(context);
+        if (notRepo) return notRepo;
+        const repo = context.gitRepository;
 
-        if (!gitRepository.isInitialized()) {
-            return notARepository();
-        }
-
-        // A mistyped flag is an error, not something to ignore.
         const unknownFlag = args.unknownFlags?.[0];
-        if (unknownFlag !== undefined) {
-            return unknownFlagError(unknownFlag, this.usage);
-        }
+        if (unknownFlag !== undefined) return unknownFlagError(unknownFlag, this.usage);
 
-        const parseResult = this.parseSwitchArgs(args);
+        const flags = args.flags;
+        const force = flags.f !== undefined || flags.force !== undefined || flags["discard-changes"] !== undefined;
+        const quiet = flags.q !== undefined || flags.quiet !== undefined;
+        const output = (lines: string[]) => (quiet ? lines.filter(l => /^(error|fatal|hint)/.test(l)) : lines);
 
-        if (parseResult.error) {
-            return [parseResult.error];
-        }
+        // Unlike checkout, switch refuses to leave an operation half done.
+        const busy = this.operationInProgress(context);
+        if (busy) return busy;
 
-        const { isCreateBranch, isForceCreateBranch, branchName, startPoint } = parseResult;
-
-        if (!branchName) {
-            return ["fatal: You must specify a branch name."];
-        }
-
-        const currentBranch = gitRepository.getCurrentBranch();
-        const branches = gitRepository.getBranches();
-
-        // Handle branch creation
-        if (isCreateBranch || isForceCreateBranch) {
-            // Check if branch already exists (unless force create)
-            if (branches.includes(branchName) && !isForceCreateBranch) {
-                return [`fatal: A branch named '${branchName}' already exists.`];
-            }
-
-            // Validate start point if provided
-            if (startPoint && !branches.includes(startPoint)) {
+        // -c/-C <new-branch> [<start-point>]
+        const createFlag = (["c", "create", "C", "force-create"] as const).find(f => flags[f] !== undefined);
+        if (createFlag) {
+            const value = flags[createFlag];
+            // Normally the parser hands over the name as the flag's value; a caller that built the
+            // arguments itself may pass it positionally instead.
+            const positional = [...args.positionalArgs];
+            const name = typeof value === "string" && value !== "" ? value : positional.shift();
+            if (!name) return [`error: switch \`${createFlag}' requires a value`];
+            const problem = GitRepository.branchNameProblem(name);
+            if (problem) return [`fatal: '${name}' is not a valid branch name`, hint(problem)];
+            const reset = createFlag === "C" || createFlag === "force-create";
+            if (repo.getBornBranches().includes(name) && !reset) {
                 return [
-                    `fatal: '${startPoint}' is not a commit and a branch '${branchName}' cannot be created from it`,
+                    `fatal: a branch named '${name}' already exists`,
+                    hint(`To move onto it, use: git switch ${name}`),
                 ];
             }
-
-            // Create branch
-            const createSuccess = gitRepository.createBranch(branchName);
-            if (!createSuccess && !isForceCreateBranch) {
-                return [`fatal: A branch named '${branchName}' already exists.`];
+            const startSpec = positional[0];
+            let startId: string | null = null;
+            if (startSpec !== undefined) {
+                const id = repo.resolveCommit(startSpec);
+                if (!id) return [`fatal: invalid reference: ${startSpec}`];
+                startId = id;
             }
-
-            // Switch to the new branch with createNew flag = true (allows uncommitted changes)
-            const checkoutResult = gitRepository.checkout(branchName, true);
-            if (!checkoutResult.success) {
-                return [`fatal: could not create and switch to branch '${branchName}'`];
-            }
-
-            const result = [`Switched to a new branch '${branchName}'`];
-            if (checkoutResult.warnings) {
-                result.unshift(...checkoutResult.warnings);
-            }
-            return result;
+            const trackFrom =
+                startSpec && startSpec in repo.getRemoteTrackingRefs() && flags["no-track"] === undefined
+                    ? startSpec
+                    : undefined;
+            return output(createAndSwitch(context, name, startId, { reset, trackFrom, force }));
         }
 
-        // Handle branch switching
-        if (!branches.includes(branchName)) {
-            // More helpful error message
-            const similarBranches = branches.filter(
-                b =>
-                    b.toLowerCase().includes(branchName.toLowerCase()) ||
-                    branchName.toLowerCase().includes(b.toLowerCase()),
+        // --orphan <new-branch>: a branch with no history and an empty tree.
+        if (typeof flags.orphan === "string") {
+            const name = flags.orphan;
+            if (repo.getBornBranches().includes(name)) return [`fatal: a branch named '${name}' already exists`];
+            for (const path of Object.keys(repo.getIndex())) repo.removePath(path, false);
+            repo.setUnbornBranch(name);
+            return output([`Switched to a new branch '${name}'`]);
+        }
+
+        let target = args.positionalArgs[0];
+        if (target === undefined) {
+            if (flags.detach !== undefined || flags.d !== undefined) target = "HEAD";
+            else return ["fatal: missing branch or commit argument", `usage: ${this.usage}`];
+        }
+
+        // "-" is the previous branch, like `cd -`.
+        if (target === "-") {
+            const previous = repo.previousCheckout(1);
+            if (!previous) return ["fatal: invalid reference: @{-1}"];
+            target = previous;
+        }
+
+        if (flags.detach !== undefined || flags.d !== undefined) {
+            const id = repo.resolveCommit(target);
+            if (!id) return [`fatal: invalid reference: ${target}`];
+            return output(detachAt(context, id, target, { force, advice: false }));
+        }
+
+        if (repo.getBornBranches().includes(target)) {
+            return output(switchToBranch(context, target, { force }));
+        }
+
+        // Not a local branch: maybe a remote one to start tracking (git switch feature → origin/feature).
+        const guessed = flags["no-guess"] === undefined ? guessRemoteBranch(repo, target) : null;
+        if (guessed) {
+            return output(
+                createAndSwitch(context, target, repo.getRemoteTrackingRefs()[guessed]!, { trackFrom: guessed, force }),
             );
-
-            let errorMsg = `fatal: invalid reference: ${branchName}`;
-
-            if (similarBranches.length > 0) {
-                errorMsg += `\nDid you mean one of these?\n${similarBranches.map(b => `\t${b}`).join("\n")}`;
-            } else {
-                errorMsg += `\nDid you mean to create a new branch? Use: git switch -c ${branchName}`;
-            }
-
-            return [errorMsg];
         }
 
-        // Switch to existing branch
-        const checkoutResult = gitRepository.checkout(branchName);
-
-        if (checkoutResult.success) {
-            if (branchName === currentBranch) {
-                return [`Already on '${branchName}'`];
-            }
-
-            const result = [`Switched to branch '${branchName}'`];
-            if (checkoutResult.warnings) {
-                result.unshift(...checkoutResult.warnings);
-            }
-            return result;
-        } else {
-            return [`fatal: could not switch to branch '${branchName}'`];
+        // A commit, not a branch: switch insists on --detach.
+        if (repo.resolveCommit(target)) {
+            return [
+                `fatal: a branch is expected, got ${target in repo.getRemoteTrackingRefs() ? "remote branch" : repo.getTagsList().includes(target) ? "tag" : "commit"} '${target}'`,
+                "hint: If you want to detach HEAD at the commit, try again with the --detach option.",
+            ];
         }
+
+        return [`fatal: invalid reference: ${target}`, ...unknownBranchHints(repo, target, "-c")];
     }
 
-    private parseSwitchArgs(args: CommandArgs): {
-        isCreateBranch: boolean;
-        isForceCreateBranch: boolean;
-        branchName?: string;
-        startPoint?: string;
-        error?: string;
-    } {
-        const isCreateBranch = args.flags.c !== undefined || args.flags.create !== undefined;
-        const isForceCreateBranch = args.flags.C !== undefined || args.flags["force-create"] !== undefined;
-
-        // Handle branch operations - fix for argument parsing
-        let positionalArgs = args.positionalArgs;
-
-        // If we have -c flag but no positional args, check if the branch name
-        // was captured as a flag value
-        if ((isCreateBranch || isForceCreateBranch) && positionalArgs.length === 0) {
-            // Check if -c has a value (like -c branchname)
-            const cFlagValue = args.flags.c;
-            const CFlagValue = args.flags.C;
-            const createFlagValue = args.flags.create;
-            const forceCreateFlagValue = args.flags["force-create"];
-
-            if (typeof cFlagValue === "string") {
-                positionalArgs = [cFlagValue];
-            } else if (typeof CFlagValue === "string") {
-                positionalArgs = [CFlagValue];
-            } else if (typeof createFlagValue === "string") {
-                positionalArgs = [createFlagValue];
-            } else if (typeof forceCreateFlagValue === "string") {
-                positionalArgs = [forceCreateFlagValue];
-            } else {
-                return {
-                    isCreateBranch,
-                    isForceCreateBranch,
-                    error: "fatal: switch `c' requires a value",
-                };
-            }
-        }
-
-        // Additional check: if we still have no args after the above check
-        if ((isCreateBranch || isForceCreateBranch) && positionalArgs.length === 0) {
-            return {
-                isCreateBranch,
-                isForceCreateBranch,
-                error: "fatal: switch `c' requires a value",
-            };
-        }
-
-        if (positionalArgs.length === 0 && !isCreateBranch && !isForceCreateBranch) {
-            return {
-                isCreateBranch,
-                isForceCreateBranch,
-                error: "fatal: You must specify a branch name.",
-            };
-        }
-
-        return {
-            isCreateBranch,
-            isForceCreateBranch,
-            branchName: positionalArgs[0] ?? undefined,
-            startPoint: positionalArgs[1] ?? undefined, // for -c <branch> <start-point>
-        };
+    /** Git's die_if_some_operation_in_progress(): the lines to refuse with, or null. */
+    private operationInProgress(context: CommandContext): string[] | null {
+        const repo = context.gitRepository;
+        const refuse = (what: string, command: string) => [
+            `fatal: cannot switch branch while ${what}`,
+            `Consider "git ${command} --quit" or "git worktree add".`,
+        ];
+        if (repo.isMerging()) return refuse("merging", "merge");
+        if (repo.getRebaseState()) return refuse("rebasing", "rebase");
+        const sequencer = repo.getSequencer();
+        if (sequencer?.kind === "cherry-pick") return refuse("cherry-picking", "cherry-pick");
+        if (sequencer?.kind === "revert") return refuse("reverting", "revert");
+        return null;
     }
 }

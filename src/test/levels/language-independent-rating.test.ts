@@ -136,7 +136,14 @@ describe("successful commands are never a mistake because of the words in them",
         }
     });
 
-    it("`Failed to ...` command errors still count", () => {
-        expect(isMistake(["Failed to create file: a.txt"], "touch a.txt")).toBe(true);
+    it("shell errors still count", () => {
+        expect(isMistake(["touch: cannot touch 'x/a.txt': No such file or directory"], "touch x/a.txt")).toBe(true);
+        expect(isMistake(["cat: failed.txt: No such file or directory"], "cat failed.txt")).toBe(true);
+    });
+
+    it("file content and commit messages never read as Git failures", () => {
+        expect(isMistake(["error: this line is just text in the file"], "cat notes.txt")).toBe(false);
+        expect(isMistake(["abc1234 fatal: fix crash"], "git log --oneline")).toBe(false);
+        expect(isMistake(["[detached HEAD abc1234] error: handling"], 'git commit -m "error: handling"')).toBe(false);
     });
 });

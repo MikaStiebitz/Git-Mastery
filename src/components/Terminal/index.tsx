@@ -322,16 +322,16 @@ export function Terminal({
     const gitStatus = useMemo(() => {
         const currentDir = commandProcessor.getCurrentDirectory();
         const isInRepository = gitRepository.isInitialized() && gitRepository.isInRepository(currentDir);
-        const status = isInRepository ? gitRepository.getStatus() : {};
-        const values = Object.values(status);
+        // A file can be staged and modified at once ("MM"); it counts in both.
+        const entries = isInRepository ? gitRepository.statusEntries() : [];
 
         return {
             path: currentDir === "/" ? "~/" : `~${currentDir}`,
             isGitInitialized: isInRepository,
             branch: isInRepository ? gitRepository.getCurrentBranch() : "",
-            stagedCount: values.filter(s => s === "staged").length,
-            modifiedCount: values.filter(s => s === "modified").length,
-            untrackedCount: values.filter(s => s === "untracked").length,
+            stagedCount: entries.filter(e => e.index !== " " && e.index !== "U").length,
+            modifiedCount: entries.filter(e => e.worktree === "M" || e.worktree === "D" || e.index === "U").length,
+            untrackedCount: entries.filter(e => e.worktree === "?").length,
             unpushedCommitsCount: isInRepository ? gitRepository.getUnpushedCommitCount() : 0,
             unpulledCommitsCount: isInRepository ? gitRepository.getUnpulledCommitCount() : 0,
         };

@@ -1,6 +1,7 @@
 import type { Command, CommandContext } from "./Command";
 import { parseCommand } from "./CommandParser";
 import { unknownGitSubcommand, unknownShellCommand } from "./GitErrors";
+import { GIT_OVERVIEW } from "../git/HelpCommand";
 
 export class CommandRegistry {
     private commands: Map<string, Command> = new Map<string, Command>();
@@ -26,6 +27,10 @@ export class CommandRegistry {
         // command's own flag spec, because flag meanings are per-command (see FlagSpec).
         const { command } = parseCommand(commandStr);
 
+        // `git`, `git --version` and `git --help` are handled by git itself, not a subcommand.
+        if (command === "git" || command === "git --help" || command === "git -h") return GIT_OVERVIEW;
+        if (command === "git --version" || command === "git -v") return ["git version 2.47.0"];
+
         const cmd = this.resolve(command);
 
         if (!cmd) {
@@ -33,6 +38,15 @@ export class CommandRegistry {
         }
 
         const { args } = parseCommand(commandStr, cmd.flagSpec);
+
+        // `git <command> -h` prints the usage line, as every Git command does.
+        if (
+            command.startsWith("git ") &&
+            args.args.length === 1 &&
+            (args.args[0] === "-h" || args.args[0] === "--help")
+        ) {
+            return [`usage: ${cmd.usage}`];
+        }
 
         // Validiere den Befehl, falls vorhanden
         if (cmd.validate) {
@@ -44,6 +58,11 @@ export class CommandRegistry {
 
         // Führe den Befehl aus
         return cmd.execute(args, context);
+    }
+
+    /** A registered command by its full name ("git status"), if any. */
+    get(name: string): Command | undefined {
+        return this.resolve(name);
     }
 
     /** Look a command up by name, falling back to its aliases. */

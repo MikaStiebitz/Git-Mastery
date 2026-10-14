@@ -95,7 +95,7 @@ describe("beginner mistakes", () => {
 
             const output = run("git branch Feature -D");
 
-            expect(output).toContain("error: branch 'Feature' not found.");
+            expect(output).toContain("error: branch 'Feature' not found");
             expect(output).toContain("case-sensitive");
             expect(output).toContain("'feature'");
             // The lowercase branch must survive.
@@ -113,13 +113,13 @@ describe("beginner mistakes", () => {
     });
 
     describe("git branch -c is a copy, not a create-and-switch", () => {
-        it("copies the current branch and says so", () => {
+        it("copies the current branch silently, like real Git", () => {
             const output = run("git branch -c backup");
 
             expect(context.gitRepository.getBranches()).toContain("backup");
             // A copy does not move you onto the new branch.
             expect(context.gitRepository.getCurrentBranch()).toBe("main");
-            expect(output).toContain("git switch -c backup");
+            expect(output).toBe("");
         });
 
         it("no longer silently lists branches", () => {
@@ -136,7 +136,7 @@ describe("beginner mistakes", () => {
 
             const output = run('git commit "my first commit"');
 
-            expect(output).toContain("fatal: pathspec 'my first commit' did not match any files");
+            expect(output).toContain("error: pathspec 'my first commit' did not match any file(s) known to git");
             expect(output).toContain('git commit -m "my first commit"');
         });
 
@@ -191,7 +191,7 @@ describe("beginner mistakes", () => {
 
             run("git add real.txt nope.txt");
 
-            expect(context.gitRepository.getStatus()["real.txt"]).toBeUndefined();
+            expect(context.gitRepository.getStatus()["real.txt"]).toBe("untracked");
         });
 
         it("suggests 'git add .' when given no path", () => {

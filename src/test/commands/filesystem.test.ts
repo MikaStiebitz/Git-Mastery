@@ -62,7 +62,7 @@ describe("Filesystem Commands", () => {
                 context,
             );
 
-            expect(output[0]).toContain("Cannot change to directory");
+            expect(output).toEqual(["cd: /nonexistent: No such file or directory"]);
         });
 
         it("should handle multiple .. segments", () => {
@@ -149,7 +149,7 @@ describe("Filesystem Commands", () => {
             const mkdirCmd = new MkdirCommand();
             const output = mkdirCmd.execute({ args: ["newdir"], flags: {}, positionalArgs: ["newdir"] }, context);
 
-            expect(output[0]).toContain("Created directory");
+            expect(output).toEqual([]);
             expect(context.fileSystem.getDirectoryContents("/newdir")).not.toBeNull();
         });
 
@@ -174,7 +174,7 @@ describe("Filesystem Commands", () => {
             const mkdirCmd = new MkdirCommand();
             const output = mkdirCmd.execute({ args: [], flags: {}, positionalArgs: [] }, context);
 
-            expect(output[0]).toContain("Please specify");
+            expect(output[0]).toBe("mkdir: missing operand");
         });
     });
 
@@ -186,7 +186,7 @@ describe("Filesystem Commands", () => {
                 context,
             );
 
-            expect(output[0]).toContain("Created file");
+            expect(output).toEqual([]);
             expect(context.fileSystem.getFileContents("/newfile.txt")).toBe("");
         });
 
@@ -213,7 +213,7 @@ describe("Filesystem Commands", () => {
             const touchCmd = new TouchCommand();
             const output = touchCmd.execute({ args: [], flags: {}, positionalArgs: [] }, context);
 
-            expect(output[0]).toContain("Please specify");
+            expect(output[0]).toBe("touch: missing file operand");
         });
     });
 
@@ -235,15 +235,14 @@ describe("Filesystem Commands", () => {
                 context,
             );
 
-            expect(output[0]).toContain("File not found");
+            expect(output).toEqual(["cat: nonexistent.txt: No such file or directory"]);
         });
 
         it("should fail on directory", () => {
             const catCmd = new CatCommand();
             const output = catCmd.execute({ args: ["/home"], flags: {}, positionalArgs: ["/home"] }, context);
 
-            // Our cat shows "File not found" for directories too (acceptable)
-            expect(output[0]).toContain("File not found");
+            expect(output).toEqual(["cat: /home: Is a directory"]);
         });
 
         it("should handle relative paths", () => {
@@ -264,7 +263,7 @@ describe("Filesystem Commands", () => {
                 context,
             );
 
-            expect(output[0]).toContain("Removed");
+            expect(output).toEqual([]);
             expect(context.fileSystem.getFileContents("/home/user/file.txt")).toBeNull();
         });
 
@@ -275,7 +274,7 @@ describe("Filesystem Commands", () => {
                 context,
             );
 
-            expect(output[0]).toContain("Removed");
+            expect(output).toEqual([]);
             expect(context.fileSystem.getDirectoryContents("/home/user")).toBeNull();
         });
 
@@ -293,14 +292,80 @@ describe("Filesystem Commands", () => {
                 context,
             );
 
-            expect(output[0]).toContain("Failed to remove");
+            expect(output).toEqual(["rm: cannot remove 'nonexistent.txt': No such file or directory"]);
         });
 
         it("should require file name", () => {
             const rmCmd = new RmCommand();
             const output = rmCmd.execute({ args: [], flags: {}, positionalArgs: [] }, context);
 
-            expect(output[0]).toContain("Please specify");
+            expect(output[0]).toBe("rm: missing operand");
+        });
+    });
+
+    describe("shell behaviour", () => {
+        const run = (command: { execute: CdCommand["execute"] }, ...positionalArgs: string[]) =>
+            command.execute({ args: positionalArgs, flags: {}, positionalArgs }, context);
+
+        it("handles several operands at once, like coreutils", () => {
+            expect(run(new TouchCommand(), "a.txt", "b.txt")).toEqual([]);
+            expect(context.fileSystem.getFileContents("/a.txt")).toBe("");
+            expect(context.fileSystem.getFileContents("/b.txt")).toBe("");
+            expect(run(new RmCommand(), "a.txt", "missing", "b.txt")).toEqual([
+                "rm: cannot remove 'missing': No such file or directory",
+            ]);
+            expect(context.fileSystem.getFileContents("/a.txt")).toBeNull();
+            expect(context.fileSystem.getFileContents("/b.txt")).toBeNull();
+        });
+
+        it("does not invent file extensions", () => {
+            run(new TouchCommand(), "Makefile2");
+            expect(context.fileSystem.getFileContents("/Makefile2")).toBe("");
+        });
+
+        it("refuses to touch or mkdir inside a missing directory", () => {
+            expect(run(new TouchCommand(), "nope/a.txt")).toEqual([
+                "touch: cannot touch 'nope/a.txt': No such file or directory",
+            ]);
+            expect(run(new MkdirCommand(), "nope/sub")).toEqual([
+                "mkdir: cannot create directory 'nope/sub': No such file or directory",
+            ]);
+            expect(run(new MkdirCommand(), "home")).toEqual(["mkdir: cannot create directory 'home': File exists"]);
+        });
+
+        it("cat joins files, drops the final newline and reports each failure", () => {
+            context.fileSystem.writeFile("/x.txt", "one\ntwo\n");
+            expect(run(new CatCommand(), "x.txt", "nope", "/home/user/file.txt")).toEqual([
+                "one",
+                "two",
+                "cat: nope: No such file or directory",
+                "Hello World",
+            ]);
+        });
+
+        it("cd into a file and cd without arguments behave like bash", () => {
+            expect(run(new CdCommand(), "/home/user/file.txt")).toEqual(["cd: /home/user/file.txt: Not a directory"]);
+            context.setCurrentDirectory("/home/user");
+            expect(run(new CdCommand())).toEqual([]);
+            expect(context.currentDirectory).toBe("/");
+        });
+
+        it("rm -R and rm -d work like coreutils", () => {
+            context.fileSystem.mkdir("/empty");
+            expect(
+                new RmCommand().execute(
+                    { args: ["-d", "empty"], flags: { d: true }, positionalArgs: ["empty"] },
+                    context,
+                ),
+            ).toEqual([]);
+            expect(context.fileSystem.getDirectoryContents("/empty")).toBeNull();
+            expect(
+                new RmCommand().execute(
+                    { args: ["-R", "home"], flags: { R: true }, positionalArgs: ["home"] },
+                    context,
+                ),
+            ).toEqual([]);
+            expect(context.fileSystem.getDirectoryContents("/home")).toBeNull();
         });
     });
 });

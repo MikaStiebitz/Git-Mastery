@@ -1550,7 +1550,7 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     "archaeology.level3.objective1":
         "'Kaybolan' commit'ler dahil HEAD'in tüm hareketlerini görmek için git reflog kullan",
     "archaeology.level3.objective2":
-        "Kaybolan çalışmayı geri getirmek için bir reflog referansıyla (örn. HEAD@{0}) git reset --hard kullan",
+        "Kaybolan çalışmayı geri getirmek için bir reflog referansıyla (örn. HEAD@{1}) git reset --hard kullan",
     "archaeology.level3.objective3":
         "Kurtarılan commit'leri saklamak için bir reflog kaydına işaret eden bir branch oluştur",
     "archaeology.level3.hint1":
@@ -1563,10 +1563,10 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     "archaeology.level3.requirement1.description": "Son HEAD hareketlerini görmek için git reflog çalıştır",
     "archaeology.level3.requirement1.success": "Reflog geçmişi incelendi!",
     "archaeology.level3.requirement2.description":
-        "Kaybolan commit'i git reset --hard ve bir reflog referansıyla geri getir, örn. git reset --hard HEAD@{0}",
+        "Kaybolan commit'i git reset --hard ve bir reflog referansıyla geri getir, örn. git reset --hard HEAD@{1}",
     "archaeology.level3.requirement2.success": "Repository durumu geri getirildi!",
     "archaeology.level3.requirement3.description":
-        "Bir reflog kaydına işaret eden bir kurtarma branch'i oluştur, örn. git branch recovery HEAD@{1}",
+        "Bir reflog kaydına işaret eden bir kurtarma branch'i oluştur, örn. git branch recovery HEAD@{0}",
     "archaeology.level3.requirement3.success": "Kurtarma branch'i oluşturuldu!",
     "archaeology.level3.story.title": "Büyük Git Felaket Kurtarma Operasyonu",
     "archaeology.level3.story.narrative":
@@ -1827,7 +1827,7 @@ Ustalığını kanıtlamaya hazır mısın? Saat işliyor...`,
     "advanced.level4.objective3": "Bisect oturumunu sonlandır",
     "advanced.level4.hint1": "`git bisect start`, geçmişinde ikili aramayı başlatır",
     "advanced.level4.hint2":
-        "Mevcut bozuk durumu `git bisect bad` ile, çalıştığını bildiğin bir commit'i de `git bisect good` ile işaretle",
+        "Mevcut bozuk durumu `git bisect bad` ile, çalıştığını bildiğin bir commit'i de `git bisect good <commit>` (örn. `git bisect good HEAD~3`) ile işaretle",
     "advanced.level4.hint3": "İşin bitince `git bisect reset` seni başladığın yere geri döndürür",
     "advanced.level4.requirement1.description": "Bisect'i başlat",
     "advanced.level4.requirement1.success": "Bisect oturumu başladı — Git suçluyu daraltmaya hazır.",

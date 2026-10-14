@@ -186,7 +186,7 @@ const mergeLevel3 = createLevel({
                 {
                     file: "/src/config.js",
                     content: createMergeConflictContent(
-                        '// Configuration file\nconst config = {\n  port: 3000,\n  host: "localhost",\n  debug: true\n};\n\nmodule.exports = config;',
+                        '// Configuration file\nconst config = {\n  port: 3000,\n  host: "localhost",\n  debug: true,\n  logLevel: "verbose"\n};\n\nmodule.exports = config;',
                         '// Configuration file\nconst config = {\n  port: 8080,\n  host: "example.com",\n  debug: false\n};\n\nmodule.exports = config;',
                     ),
                     branch1: "main",
@@ -220,6 +220,8 @@ const mergeLevel4 = createLevel({
         }),
         createRequirement({
             command: "git commit",
+            // Concluding the merge with `git merge --continue` commits it just the same.
+            alternativeCommands: ["git merge --continue"],
             requiresArgs: ["-m"],
             description: "merge.level4.requirement3.description",
             successMessage: "merge.level4.requirement3.success",

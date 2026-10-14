@@ -30,7 +30,8 @@ describe("Git Branch Commands", () => {
             const output = branchCmd.execute({ args: ["feature"], flags: {}, positionalArgs: ["feature"] }, context);
 
             expect(context.gitRepository.getBranches()).toContain("feature");
-            expect(output[0]).toContain("Created branch");
+            // Like real Git, creating a branch prints nothing.
+            expect(output).toEqual([]);
         });
 
         it("should not create duplicate branches", () => {
@@ -171,8 +172,7 @@ describe("Git Branch Commands", () => {
             const switchCmd = new SwitchCommand();
             const output = switchCmd.execute({ args: ["feat"], flags: {}, positionalArgs: ["feat"] }, context);
 
-            expect(output.join("\n")).toContain("Did you mean one of these?");
-            expect(output.join("\n")).toContain("feature-auth");
+            expect(output.join("\n")).toContain("hint: Did you mean 'feature-auth'?");
         });
 
         it("should force create branch with -C flag", () => {
@@ -184,7 +184,7 @@ describe("Git Branch Commands", () => {
                 context,
             );
 
-            expect(output[0]).toContain("Switched to a new branch 'feature'");
+            expect(output[0]).toContain("Switched to and reset branch 'feature'");
         });
     });
 
@@ -209,7 +209,7 @@ describe("Git Branch Commands", () => {
                 context,
             );
 
-            expect(output[0]).toContain("does not point to a commit");
+            expect(output[0]).toBe("merge: nonexistent - not something we can merge");
         });
 
         it("should handle merge conflicts", () => {
@@ -238,7 +238,8 @@ describe("Git Branch Commands", () => {
             const mergeCmd = new MergeCommand();
             const output = mergeCmd.execute({ args: ["main"], flags: {}, positionalArgs: ["main"] }, context);
 
-            expect(output[0]).toContain("Cannot merge");
+            // Merging a branch into itself is a no-op in Git.
+            expect(output).toEqual(["Already up to date."]);
         });
 
         it("should require git initialization", () => {

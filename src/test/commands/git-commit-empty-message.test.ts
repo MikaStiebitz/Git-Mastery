@@ -27,10 +27,17 @@ describe("CommitCommand - empty message handling (issue #73)", () => {
     });
 
     it("should reject -m without a message", () => {
+        // Like Git's option parser: -m needs a value.
         const { args } = parseCommand("git commit -m");
         const output = command.execute(args, context);
 
-        expect(output).toEqual(["Aborting commit due to empty commit message."]);
+        expect(output).toEqual(["error: switch `m' requires a value"]);
+        expect(context.gitRepository.getLastCommit()?.message).toBe("Initial commit");
+    });
+
+    it("should reject an empty quoted message", () => {
+        const { args } = parseCommand('git commit -m ""');
+        expect(command.execute(args, context)).toEqual(["Aborting commit due to empty commit message."]);
     });
 
     it("should commit normally with a real message", () => {
