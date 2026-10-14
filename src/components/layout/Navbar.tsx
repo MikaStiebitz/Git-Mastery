@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useGameContext } from "~/contexts/GameContext";
 import { useLanguage } from "~/contexts/LanguageContext";
+import { LANGUAGES, type Language } from "~/lib/languages";
 import { ClientOnly } from "~/components/ClientOnly";
 import { BadgeDisplay } from "~/components/BadgeDisplay";
 import { DebugModal } from "~/components/DebugModal";
@@ -75,17 +76,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
     const isArcadePage = normalizedPathname === "/arcade";
     const isLeaderboardPage = normalizedPathname === "/leaderboard";
 
-    // Language options
-    const languages = [
-        { code: "en", name: "English", nativeName: "English" },
-        { code: "de", name: "German", nativeName: "Deutsch" },
-        { code: "es", name: "Spanish", nativeName: "Español" },
-        { code: "fa", name: "Persian", nativeName: "فارسی" },
-        { code: "hi", name: "Hindi", nativeName: "हिन्दी" },
-        { code: "tr", name: "Turkish", nativeName: "Türkçe" },
-    ];
-
-    const handleLanguageSelect = (langCode: "en" | "de" | "es" | "fa" | "hi" | "tr") => {
+    const handleLanguageSelect = (langCode: Language) => {
         setLanguage(langCode);
         setLanguageDialogOpen(false);
     };
@@ -445,6 +436,17 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
 
                     {accountButton()}
 
+                    {/* Phones: keep the language switch in the header, not only inside the menu */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="inline-flex lg:hidden"
+                        onClick={() => setLanguageDialogOpen(true)}
+                        title={t("nav.language")}
+                        aria-label={t("nav.language")}>
+                        <Languages className="text-gm-cyan h-4 w-4" aria-hidden="true" />
+                    </Button>
+
                     <Button
                         variant="ghost"
                         size="icon"
@@ -499,7 +501,7 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                             }}>
                             <Languages className="text-gm-cyan h-4 w-4" aria-hidden="true" />
                             {t("nav.language")}:{" "}
-                            {languages.find(l => l.code === language)?.nativeName ?? language.toUpperCase()}
+                            {LANGUAGES.find(l => l.code === language)?.nativeName ?? language.toUpperCase()}
                         </Button>
 
                         {navLinks.map(({ href, label, icon: Icon, current: isCurrent }) => (
@@ -612,15 +614,13 @@ export function Navbar({ showLevelInfo = false }: NavbarProps) {
                         <DialogDescription>{t("nav.selectLanguage")}</DialogDescription>
                     </DialogHeader>
                     <div className="mt-5 flex flex-col gap-2">
-                        {languages.map(lang => {
+                        {LANGUAGES.map(lang => {
                             const isActive = language === lang.code;
                             return (
                                 <Button
                                     key={lang.code}
                                     variant={isActive ? "default" : "outline"}
-                                    onClick={() =>
-                                        handleLanguageSelect(lang.code as "en" | "de" | "es" | "fa" | "hi" | "tr")
-                                    }
+                                    onClick={() => handleLanguageSelect(lang.code)}
                                     aria-current={isActive}
                                     className="h-auto w-full justify-between py-3">
                                     <span className="flex flex-col items-start gap-0.5">

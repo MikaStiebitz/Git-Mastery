@@ -2,8 +2,9 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { translations } from "~/translations";
+import { DEFAULT_LANGUAGE, detectLanguage, isLanguage, type Language } from "~/lib/languages";
 
-type Language = "de" | "en" | "es" | "fa" | "hi" | "tr";
+export type { Language };
 
 export type LanguageContextType = {
     language: Language;
@@ -13,96 +14,57 @@ export type LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+// Only languages the visitor picked themselves are stored. Auto-detected ones
+// are recomputed on every visit so a wrong guess never sticks.
+const STORAGE_KEY = "gitgud-language";
+const EXPLICIT_KEY = "gitgud-language-explicit";
+
+// Before the explicit marker existed, the auto-detected language was stored too.
+// Hindi was often guessed from an Indian timezone, so drop that legacy value.
+const LEGACY_GUESSED_LANGUAGES: Language[] = ["hi"];
+
+const readStoredLanguage = (): Language | null => {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!isLanguage(saved)) return null;
+        const explicit = localStorage.getItem(EXPLICIT_KEY) === "1";
+        if (!explicit && LEGACY_GUESSED_LANGUAGES.includes(saved)) return null;
+        return saved;
+    } catch {
+        return null;
+    }
+};
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // Default to English with auto-detection on first load
-    const [language, setLanguageState] = useState<Language>("en");
+    // Start in English; the effect below switches to the saved or detected language
+    const [language, setLanguageState] = useState<Language>(DEFAULT_LANGUAGE);
 
-    // Auto-detect language from browser and geolocation on initial load
     useEffect(() => {
-        const savedLanguage = localStorage.getItem("gitgud-language");
-
-        if (
-            savedLanguage === "en" ||
-            savedLanguage === "de" ||
-            savedLanguage === "es" ||
-            savedLanguage === "fa" ||
-            savedLanguage === "hi" ||
-            savedLanguage === "tr"
-        ) {
-            // Use saved language preference
-            setLanguageState(savedLanguage as Language);
-        } else {
-            // Auto-detect from browser locale and geolocation
-            const browserLanguage = navigator.language || navigator.languages?.[0] || "en";
-            const detectedLanguage = browserLanguage.toLowerCase();
-
-            // Try to detect language from browser locale first
-            let detectedLang: Language = "en"; // Default to English
-
-            if (detectedLanguage.startsWith("de")) {
-                detectedLang = "de";
-            } else if (detectedLanguage.startsWith("es")) {
-                detectedLang = "es";
-            } else if (detectedLanguage.startsWith("fa") || detectedLanguage.startsWith("per")) {
-                detectedLang = "fa";
-            } else if (detectedLanguage.startsWith("hi")) {
-                detectedLang = "hi";
-            } else if (detectedLanguage.startsWith("tr")) {
-                detectedLang = "tr";
-            } else {
-                // Try geolocation-based detection using timezone
-                try {
-                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-                    // Map timezones to countries and then to languages
-                    // Iran, Afghanistan, Tajikistan -> Persian
-                    if (timezone.includes("Tehran") || timezone.includes("Kabul") || timezone.includes("Dushanbe")) {
-                        detectedLang = "fa";
-                    }
-                    // India -> Hindi
-                    else if (
-                        timezone.includes("Kolkata") ||
-                        timezone.includes("Mumbai") ||
-                        timezone.includes("Delhi") ||
-                        timezone.includes("Asia/Kolkata") ||
-                        timezone.includes("Asia/Calcutta")
-                    ) {
-                        detectedLang = "hi";
-                    }
-                    // Turkey -> Turkish
-                    else if (timezone.includes("Istanbul")) {
-                        detectedLang = "tr";
-                    }
-                    // Germany, Austria, Switzerland -> German
-                    else if (
-                        timezone.includes("Berlin") ||
-                        timezone.includes("Vienna") ||
-                        timezone.includes("Zurich")
-                    ) {
-                        detectedLang = "de";
-                    }
-                    // Spain and Latin America -> Spanish
-                    else if (
-                        timezone.includes("Madrid") ||
-                        timezone.includes("Mexico_City") ||
-                        timezone.includes("Buenos_Aires")
-                    ) {
-                        detectedLang = "es";
-                    }
-                } catch (e) {
-                    // If geolocation fails, fall back to browser language detection
-                }
-            }
-
-            setLanguageState(detectedLang);
-            localStorage.setItem("gitgud-language", detectedLang);
+        const saved = readStoredLanguage();
+        if (saved) {
+            setLanguageState(saved);
+            return;
         }
+
+        let timeZone: string | undefined;
+        try {
+            timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        } catch {
+            // Without a timezone we rely on the browser language alone
+        }
+        const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
+        setLanguageState(detectLanguage(browserLanguages.filter(Boolean), timeZone));
     }, []);
 
-    // Save language to localStorage when it changes
+    // Remember the language only when the visitor chooses it
     const setLanguage = (lang: Language) => {
         setLanguageState(lang);
-        localStorage.setItem("gitgud-language", lang);
+        try {
+            localStorage.setItem(STORAGE_KEY, lang);
+            localStorage.setItem(EXPLICIT_KEY, "1");
+        } catch {
+            // Storage unavailable (private mode); the choice lasts for this session
+        }
     };
 
     // Translation function
