@@ -1,4 +1,4 @@
-import { splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
+import { normalizeCommandLine, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import type { LevelRequirement, LevelType } from "~/types";
 
 /**
@@ -297,7 +297,7 @@ export function buildCommand(card: GitCard, values: string[]): string {
  * template with holes filled in, otherwise null.
  */
 export function matchCommandToCard(card: GitCard, command: string): string[] | null {
-    const words = splitCommandRespectingQuotes(command.trim());
+    const words = splitCommandRespectingQuotes(normalizeCommandLine(command.trim()));
     if (words.length !== card.tokens.length) return null;
 
     const values: string[] = [];

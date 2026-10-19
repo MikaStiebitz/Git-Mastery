@@ -41,11 +41,11 @@ export class AutocompleteService {
 
         // Extract command and arguments
         const parts = normalizedInput.split(" ");
-        let commandName = parts[0] ?? "";
+        let commandName = (parts[0] ?? "").toLowerCase();
 
         // Special handling for Git commands (two-word commands)
         if (commandName === "git" && parts.length > 1) {
-            commandName = `git ${parts[1]}`;
+            commandName = `git ${parts[1]!.toLowerCase()}`;
         }
 
         // Nothing is offered until the command name is actually finished. `git checkout` with the
@@ -275,8 +275,8 @@ export class AutocompleteService {
         // Split current input into command and arguments
         const parts = input.trim().split(/\s+/);
 
-        if (parts[0] === "git" && parts.length > 1) {
-            const gitSubcommand = parts[1];
+        if (parts[0]?.toLowerCase() === "git" && parts.length > 1) {
+            const gitSubcommand = parts[1]?.toLowerCase();
 
             // For git commands with branch/file completion
             if (

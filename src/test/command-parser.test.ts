@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseCommand, splitCommandRespectingQuotes } from "../commands/base/CommandParser";
+import { normalizeCommandLine, parseCommand, splitCommandRespectingQuotes } from "../commands/base/CommandParser";
 
 describe("CommandParser - Flag Parsing", () => {
     it("should parse --set-upstream as boolean flag", () => {
@@ -80,5 +80,22 @@ describe("CommandParser - Quote Handling", () => {
             m: "",
             a: true,
         });
+    });
+});
+
+describe("normalizeCommandLine", () => {
+    it("lower-cases the program and the git subcommand, and nothing else", () => {
+        expect(normalizeCommandLine("Git Status")).toBe("git status");
+        expect(normalizeCommandLine('GIT Commit -m "Fix The Bug"')).toBe('git commit -m "Fix The Bug"');
+        expect(normalizeCommandLine("Git checkout Feature-X")).toBe("git checkout Feature-X");
+        expect(normalizeCommandLine("Clear")).toBe("clear");
+        expect(normalizeCommandLine("Nano README.md")).toBe("nano README.md");
+        expect(normalizeCommandLine("Touch File.TXT")).toBe("touch File.TXT");
+    });
+
+    it("leaves already-normal and empty lines alone", () => {
+        expect(normalizeCommandLine("git add .")).toBe("git add .");
+        expect(normalizeCommandLine("")).toBe("");
+        expect(normalizeCommandLine("  Next ")).toBe("  next ");
     });
 });

@@ -1,5 +1,5 @@
 import commandRegistry from "../../../commands";
-import { splitChainedCommands } from "../../../commands/base/CommandParser";
+import { normalizeCommandLine, splitChainedCommands } from "../../../commands/base/CommandParser";
 
 export class CommandService {
     constructor(
@@ -23,14 +23,16 @@ export class CommandService {
         }
     }
 
-    private processSingleCommand(command: string): void {
+    private processSingleCommand(typedCommand: string): void {
+        const command = normalizeCommandLine(typedCommand);
+
         // Special case handling for nano command
         if (command.startsWith("nano ")) {
             const args = command.split(/\s+/);
             if (args.length > 1) {
                 const fileName = args[1] ?? "";
                 // Call handleCommand first to let it handle creating the file if needed
-                this.handleCommand(command, this.isPlaygroundMode);
+                this.handleCommand(typedCommand, this.isPlaygroundMode);
                 // Then open the file editor
                 this.openFileEditor(fileName, this.isPlaygroundMode);
                 return;
@@ -44,7 +46,7 @@ export class CommandService {
         }
 
         // Normal command processing
-        this.handleCommand(command, this.isPlaygroundMode);
+        this.handleCommand(typedCommand, this.isPlaygroundMode);
     }
 
     getTabCompletionCommands(): string[] {

@@ -31,6 +31,22 @@ export function parseCommand(
     };
 }
 
+/**
+ * Lower-case the command name of a typed line — the program, and for `git` its subcommand — and leave
+ * everything else exactly as typed.
+ *
+ * Phones capitalise the first letter of a line ("Git status", "Clear"), and the registry has always
+ * accepted that. Every other place that compares a command by its text (level requirements, `clear`,
+ * `next`, `nano`, the mascot, the visual cards) goes through this first, so a capitalised command is
+ * treated the same everywhere instead of working in the terminal and being ignored by the game.
+ */
+export function normalizeCommandLine(commandStr: string): string {
+    return commandStr.replace(/^(\s*)(\S+)(\s+\S+)?/, (_match, lead: string, program: string, sub?: string) => {
+        const lowered = program.toLowerCase();
+        return lead + lowered + (lowered === "git" && sub ? sub.toLowerCase() : (sub ?? ""));
+    });
+}
+
 // Split a raw input line into chained commands at unquoted ';' and '&&' separators.
 // Quotes are preserved so each part can be parsed normally afterwards.
 export function splitChainedCommands(input: string): string[] {
