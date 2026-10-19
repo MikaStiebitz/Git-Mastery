@@ -42,6 +42,7 @@ import { CommitDialog } from "~/components/CommitDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
 import { RotateCcw } from "lucide-react";
 import { getDifficultyConfigForStage } from "~/config/difficulties";
+import { getDifficultyForStage, getDifficultyScore } from "~/lib/courseProgress";
 
 // Dynamically import Terminal component with SSR disabled
 const Terminal = dynamic(() => import("~/components/Terminal").then(mod => ({ default: mod.Terminal })), {
@@ -332,6 +333,10 @@ function LevelPageContent() {
 
     // Max points for the difficulty the current stage belongs to
     const currentDifficultyMaxPoints = getDifficultyConfigForStage(currentStage)?.maxPoints ?? 150;
+    const currentDifficultyId = getDifficultyForStage(currentStage);
+    const currentDifficultyScore = currentDifficultyId
+        ? getDifficultyScore(currentDifficultyId, progress.completedLevels)
+        : progress.score;
 
     // Get double XP info
     const isDoubleXpActive = progressManager.isDoubleXpActive();
@@ -629,7 +634,7 @@ function LevelPageContent() {
                     </header>
                 </ClientOnly>
                 <ProgressBar
-                    score={progress.score}
+                    score={currentDifficultyScore}
                     coins={progress.coins}
                     maxScore={currentDifficultyMaxPoints}
                     isDoubleXpActive={isDoubleXpActive}

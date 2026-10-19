@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { getStageLevelIds, getStageProgress, getDifficultyProgress, getDifficultyForStage } from "~/lib/courseProgress";
+import {
+    getStageLevelIds,
+    getStageProgress,
+    getDifficultyProgress,
+    getDifficultyForStage,
+    getDifficultyScore,
+} from "~/lib/courseProgress";
 import { allStages } from "~/levels";
 import { difficulties } from "~/config/difficulties";
 
@@ -134,5 +140,16 @@ describe("course progress", () => {
             expect(new Set(assigned).size).toBe(assigned.length);
             expect(new Set(assigned)).toEqual(new Set(Object.keys(allStages)));
         });
+    });
+});
+
+describe("difficulty score", () => {
+    it("only counts levels of the given difficulty, so finishing one course does not fill the others", () => {
+        const beginner = difficulties.find(d => d.id === "beginner")!;
+        const completed = Object.fromEntries(beginner.stages.map(stage => [stage, getStageLevelIds(stage)]));
+
+        expect(getDifficultyScore("beginner", completed)).toBe(beginner.maxPoints);
+        expect(getDifficultyScore("advanced", completed)).toBe(0);
+        expect(getDifficultyScore("pro", completed)).toBe(0);
     });
 });

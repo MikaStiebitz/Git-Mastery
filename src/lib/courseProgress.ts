@@ -1,5 +1,5 @@
 import { allStages } from "~/levels";
-import { difficulties, getDifficultyConfigForStage } from "~/config/difficulties";
+import { POINTS_PER_LEVEL, difficulties, getDifficultyConfigForStage } from "~/config/difficulties";
 import type { DifficultyLevel } from "~/types";
 
 /**
@@ -104,6 +104,16 @@ export function getDifficultyProgress(
         stagesTotal: stages.length,
         stagePosition: index === -1 ? null : index + 1,
     };
+}
+
+/**
+ * Points earned within a single difficulty, on the same scale as its `maxPoints`.
+ *
+ * The lifetime score spans every difficulty (and Double XP inflates it), so it must not be compared to
+ * one difficulty's maximum — that made the progress bar read 100% in every course after the first.
+ */
+export function getDifficultyScore(difficultyId: DifficultyLevel, completedLevels: Record<string, number[]>): number {
+    return getDifficultyProgress(difficultyId, completedLevels).levelsDone * POINTS_PER_LEVEL;
 }
 
 /**
