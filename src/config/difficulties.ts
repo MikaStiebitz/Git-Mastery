@@ -2,7 +2,7 @@ import type { DifficultyConfig } from "~/types";
 import { allStages } from "~/levels";
 
 // Each completed level awards this many points (see ProgressManager.completeLevel)
-const POINTS_PER_LEVEL = 10;
+export const POINTS_PER_LEVEL = 10;
 
 const maxPointsForStages = (stages: string[]): number =>
     stages.reduce(
