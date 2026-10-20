@@ -7,7 +7,7 @@ import { FileSystem } from "~/models/FileSystem";
 import { LevelManager } from "~/models/LevelManager";
 import { ProgressManager } from "~/models/ProgressManager";
 import { GitRepository } from "~/models/GitRepository";
-import { parseCommand, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
+import { normalizeCommandLine, parseCommand, splitCommandRespectingQuotes } from "~/commands/base/CommandParser";
 import { resolvePath } from "~/lib/utils";
 import { didCommandFail, isMistake } from "~/models/commandOutcome";
 import { OPEN_EDITOR_MARKER } from "~/commands/git/RebaseCommand";
@@ -277,9 +277,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [progressManager]);
 
     // Process a command and update the state
-    const handleCommand = (command: string, isPlaygroundMode = false) => {
+    const handleCommand = (typedCommand: string, isPlaygroundMode = false) => {
         // Check if the command is empty
-        if (!command.trim()) return;
+        if (!typedCommand.trim()) return;
+
+        // "Git status" and "Clear" mean what "git status" and "clear" mean. Normalise once here, so
+        // clear/next/nano, the level checks and the mascot all see the same command; the terminal
+        // still echoes what the player typed.
+        const command = normalizeCommandLine(typedCommand);
 
         // Special case for clearing the terminal
         if (command.trim() === "clear") {
@@ -288,7 +293,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Add the command to the terminal output
-        setTerminalOutput(prev => [...prev, `$ ${command}`]);
+        setTerminalOutput(prev => [...prev, `$ ${typedCommand}`]);
 
         // Special case for "next" command
         if (command.trim() === "next") {

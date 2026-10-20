@@ -110,7 +110,7 @@ export class OutputFormatterService {
             const cmd = line.substring(1).trim();
             const parts = cmd.split(" ");
 
-            if (parts[0] === "git") {
+            if (parts[0]?.toLowerCase() === "git") {
                 return (
                     <div>
                         <span className="text-[var(--term-prompt)] select-none">$</span>{" "}
