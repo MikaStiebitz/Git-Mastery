@@ -44,4 +44,4 @@ Emotional goals: relief ("Git is not scary here"), curiosity ("what happens if I
 - WCAG 2.2 AA: text contrast ≥ 4.5:1 (large ≥ 3:1), visible focus, full keyboard operation of every control including the level grid.
 - `prefers-reduced-motion`: no autoplaying background video (poster frame instead), no scroll-scrubbed or parallax effects; crossfades only.
 - Color is never the only signal for completed / locked / current state (icons + text accompany it).
-- UI is translated into multiple languages (en, de, es, fa [RTL], hi, tr…); layouts must tolerate longer strings and RTL.
+- UI is translated into multiple languages (en, de, es, fa [RTL], hi, pt-BR, tr…); layouts must tolerate longer strings and RTL.

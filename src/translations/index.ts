@@ -46,6 +46,14 @@ import playgroundEs from "./es/playground";
 import installationEs from "./es/installation";
 import faqEs from "./es/faq";
 
+import commonPtBR from "./pt-BR/common";
+import levelsPtBR from "./pt-BR/levels";
+import terminalPtBR from "./pt-BR/terminal";
+import homePtBR from "./pt-BR/home";
+import playgroundPtBR from "./pt-BR/playground";
+import installationPtBR from "./pt-BR/installation";
+import faqPtBR from "./pt-BR/faq";
+
 export const translations = {
     en: {
         ...commonEn,
@@ -100,5 +108,14 @@ export const translations = {
         ...playgroundEs,
         ...installationEs,
         ...faqEs,
+    },
+    "pt-BR": {
+        ...commonPtBR,
+        ...levelsPtBR,
+        ...terminalPtBR,
+        ...homePtBR,
+        ...playgroundPtBR,
+        ...installationPtBR,
+        ...faqPtBR,
     },
 };

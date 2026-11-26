@@ -13,6 +13,15 @@ describe("detectLanguage", () => {
         expect(detectLanguage(["en-US"], "Europe/Istanbul")).toBe("en");
     });
 
+    it("detects Brazilian Portuguese from the browser or the timezone", () => {
+        expect(detectLanguage(["pt-BR"])).toBe("pt-BR");
+        expect(detectLanguage(["fr-FR"], "America/Sao_Paulo")).toBe("pt-BR");
+    });
+
+    it("does not serve the Brazilian translation to European Portuguese browsers", () => {
+        expect(detectLanguage(["pt-PT"], "Europe/Lisbon")).toBe("en");
+    });
+
     it("never picks Hindi automatically, not from the timezone", () => {
         expect(detectLanguage(["en-IN"], "Asia/Kolkata")).toBe("en");
         expect(detectLanguage(["ta-IN"], "Asia/Calcutta")).toBe("en");
