@@ -79,7 +79,7 @@ and it goes on the list.
 | 📈 **Progress tracking** | Points, completed levels and your current stage, saved locally             |
 | ⭐ **Stars and ranks**   | Up to three stars per level for clean solves, and a rank that follows XP   |
 | 🏅 **Achievements**      | Sixteen milestones with progress bars, shown on a leaderboard for accounts |
-| 🌍 **Six languages**     | English, German, Spanish, Persian, Hindi and Turkish                       |
+| 🌍 **Seven languages**   | English, German, Spanish, Persian, Hindi, Turkish and Portuguese (Brazil)  |
 
 ### Play for it
 
@@ -143,7 +143,7 @@ Pull requests are welcome — new levels and translations especially.
 4. Commit and push, then open a pull request
 
 CI has to stay green: build, typecheck and the full test suite run on every pull request. The
-translation parity test will fail if a language is missing a key, so add new strings to all six.
+translation parity test will fail if a language is missing a key, so add new strings to all seven.
 
 <a id="support-this-project"></a>
 

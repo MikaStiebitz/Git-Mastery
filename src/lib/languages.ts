@@ -1,4 +1,4 @@
-export type Language = "de" | "en" | "es" | "fa" | "hi" | "tr";
+export type Language = "de" | "en" | "es" | "fa" | "hi" | "pt-BR" | "tr";
 
 /**
  * How aggressively we pick a language for first-time visitors.
@@ -62,6 +62,16 @@ export const LANGUAGES: LanguageConfig[] = [
         autoDetect: "full",
         browserPrefixes: ["tr"],
         timezones: ["Istanbul"],
+    },
+    {
+        code: "pt-BR",
+        name: "Portuguese (Brazil)",
+        nativeName: "Português (Brasil)",
+        autoDetect: "full",
+        // Brazil is overwhelmingly Portuguese-speaking, so the timezone is a
+        // useful fallback when the browser language is not one we support.
+        browserPrefixes: ["pt-br"],
+        timezones: ["Sao_Paulo", "Bahia", "Fortaleza", "Recife", "Manaus"],
     },
 ];
 

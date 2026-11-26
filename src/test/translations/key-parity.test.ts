@@ -40,6 +40,14 @@ import playgroundHi from "~/translations/hi/playground";
 import installationHi from "~/translations/hi/installation";
 import faqHi from "~/translations/hi/faq";
 
+import commonPtBR from "~/translations/pt-BR/common";
+import levelsPtBR from "~/translations/pt-BR/levels";
+import terminalPtBR from "~/translations/pt-BR/terminal";
+import homePtBR from "~/translations/pt-BR/home";
+import playgroundPtBR from "~/translations/pt-BR/playground";
+import installationPtBR from "~/translations/pt-BR/installation";
+import faqPtBR from "~/translations/pt-BR/faq";
+
 import commonTr from "~/translations/tr/common";
 import levelsTr from "~/translations/tr/levels";
 import terminalTr from "~/translations/tr/terminal";
@@ -51,16 +59,41 @@ import faqTr from "~/translations/tr/faq";
 type TranslationMap = Record<string, string>;
 
 const files: Record<string, Record<string, TranslationMap>> = {
-    common: { en: commonEn, de: commonDe, es: commonEs, fa: commonFa, hi: commonHi, tr: commonTr },
-    levels: { en: levelsEn, de: levelsDe, es: levelsEs, fa: levelsFa, hi: levelsHi, tr: levelsTr },
-    terminal: { en: terminalEn, de: terminalDe, es: terminalEs, fa: terminalFa, hi: terminalHi, tr: terminalTr },
-    home: { en: homeEn, de: homeDe, es: homeEs, fa: homeFa, hi: homeHi, tr: homeTr },
+    common: {
+        en: commonEn,
+        de: commonDe,
+        es: commonEs,
+        fa: commonFa,
+        hi: commonHi,
+        "pt-BR": commonPtBR,
+        tr: commonTr,
+    },
+    levels: {
+        en: levelsEn,
+        de: levelsDe,
+        es: levelsEs,
+        fa: levelsFa,
+        hi: levelsHi,
+        "pt-BR": levelsPtBR,
+        tr: levelsTr,
+    },
+    terminal: {
+        en: terminalEn,
+        de: terminalDe,
+        es: terminalEs,
+        fa: terminalFa,
+        hi: terminalHi,
+        "pt-BR": terminalPtBR,
+        tr: terminalTr,
+    },
+    home: { en: homeEn, de: homeDe, es: homeEs, fa: homeFa, hi: homeHi, "pt-BR": homePtBR, tr: homeTr },
     playground: {
         en: playgroundEn,
         de: playgroundDe,
         es: playgroundEs,
         fa: playgroundFa,
         hi: playgroundHi,
+        "pt-BR": playgroundPtBR,
         tr: playgroundTr,
     },
     installation: {
@@ -69,9 +102,10 @@ const files: Record<string, Record<string, TranslationMap>> = {
         es: installationEs,
         fa: installationFa,
         hi: installationHi,
+        "pt-BR": installationPtBR,
         tr: installationTr,
     },
-    faq: { en: faqEn, de: faqDe, es: faqEs, fa: faqFa, hi: faqHi, tr: faqTr },
+    faq: { en: faqEn, de: faqDe, es: faqEs, fa: faqFa, hi: faqHi, "pt-BR": faqPtBR, tr: faqTr },
 };
 
 // Long strings (multi-sentence prose, story narratives, FAQ answers) that are still byte-identical
@@ -86,6 +120,14 @@ const UNTRANSLATABLE_KEYS = new Set([
     "installation.linux.enhanced.sourceSteps",
     "installation.mac.enhanced.homebrewSteps",
 ]);
+
+// Placeholder names are interpolated by callers with plain replace(), so they
+// must survive translation unchanged. Order does not matter for the check.
+const placeholderSignature = (value: string) =>
+    [...value.matchAll(/\{[a-zA-Z]+\}/g)]
+        .map(match => match[0])
+        .sort()
+        .join("|");
 
 describe("translation completeness", () => {
     for (const [fileName, langs] of Object.entries(files)) {
@@ -113,6 +155,19 @@ describe("translation completeness", () => {
                     );
                 });
                 expect(stillEnglish).toEqual([]);
+            });
+
+            it(`${lang}/${fileName}.ts preserves every placeholder`, () => {
+                const mismatched = enKeys.filter(key => {
+                    const enValue = langs.en![key];
+                    const value = obj[key];
+                    return (
+                        typeof enValue === "string" &&
+                        typeof value === "string" &&
+                        placeholderSignature(enValue) !== placeholderSignature(value)
+                    );
+                });
+                expect(mismatched).toEqual([]);
             });
         }
     }
